@@ -1,0 +1,109 @@
+[[cls-2]]
+== Introduction & Use Cases
+
+[[cls-2.1]]
+=== New capabilities in AP242 edition 2
+
+With the second edition of STEP AP242 it's capabilities are extended for the
+representation of electrical wire harness as it is used in aircrafts, vehicles,
+electronic devices such as computers, machines. In addition the overall connectivity
+in these vehicles can be represented with all the connected devices. Because of this
+AP242 ed2 is also suitable for the representation of electrical installation in
+buildings. Compared to the first edition, the second edition of STEP AP242 has new or
+extended capabilities for:
+
+* a generic model for shape feature templates and patterns, how they are decomposed,
+and how a pair of these shape features fit together. This representation is
+independent of a particular product. With this capability it is possible to represent
+the typical shape of connectors and contacts and how a pair of them fit together.
+Note that in STEP a shape and it's aspects can be identified without having a
+corresponding geometric model in 2D or 3D at hand;
+* a generic model for physical connectivity, consisting of contact features and
+terminals, transport features, assembly joints and constraints and overall
+connectivity definitions of parts. This model supports the basic Kirchhoff's laws,
+but also supports a nested hierarchy of assemblies with subassemblies. The model is
+not only suitable for electrical connectivity but is also suitable for thermal,
+optical, matter (water, air, ...) and other domains;
+* representation of electrical devices with all their external contacts. An
+electrical device can be represented as either a specific part that has a part number
+and where details of the design are known, or alternatively as a particular
+configuration of a product class as it can be found in catalogues or standards and
+for which many different parts from different vendors exist.
+* representation of extruded flexible raw products of arbitrary length with a
+constant cross-section that might be decomposed in a hierarchical way of different
+materials. This model is suitable to describe wires, cables, fibres, pipes etc. The
+identification of conductors and shields and various kind of isolators, coatings,
+coverings etc. is possible. The raw product can be cut into identified pieces of a
+particular length, called occurrences, and then be used in an assembly like
+occurrences of other piece parts.
+* representation of the topological structure of an electrical wire harness
+consisting of harness nodes and harness segments. While the harness segments have a
+dedicated length, but are typically flexible, on the harness nodes rigid materials
+such as connectors or mounts can be associated. A harness node can be associated to a
+particular position and orientation in 2D or 3D geometric space, while a harness
+segment can be associated to a geometric curve. Different 2D and 3D geometric models
+can be associated to a harness to represent the shape on a foam board, or how the
+harness is delivered and how it is installed;
+* breakdown of a harness into sub-harnesses that can be manufactured independently
+from each other and that are only assembled into a single harness during the
+installation process;
+* logical splitting of a complete harness into partial harness views for different
+design teams that are responsible for different regions of the harness.
+
+[[cls-2.2]]
+=== Use cases
+
+The wiring harness extension of STEP AP242 edition 2 supports among many others the
+following use cases:
+
+* exchange of part libraries of wires, cables, connectors, contact and devices;
+* exchange of "wire list" of a wiring harness that identifies each wire and to which
+connector contacts it is joined;
+* exchange of "component-list" of a wiring harness assembly, containing all the
+connectors with associated materials, terminal lugs and blocks, electrical shields
+and tape marking;
+* exchange of the topology of the harness, including the harness segments and how the
+harness is protected and prepared for installation with grommet, retention clamps,
+sleeving, overall shielding and others. This can be associated with 2D and 3D
+geometry for stickline and formboard representation, and final geometry when installed;
+* integration of all the aspects of a wiring harness coming from different systems in
+a database system.
+* usage of an electrical wire harness as an occurrence in a higher level assembly
+such as aircraft or vehicle
+
+[[cls-2.3]]
+=== XML File Format, XML Schema
+
+Every AP242 XML file has to call out the XML-Schema of AP242. For the amendment of
+the 2nd edition of AP242 this is defined as "AP Domain XML schema definition" in the
+3rd edition of part ISO/TS 10303-4442:2020.
+
+The "Unit of serialization" (Uos) element is the top most element that encloses all
+needed schema definitions
+
+All the application objects (AO, entities) not being declared as contained in any
+other AO are defined as a subtype of cmn:BaseRootObject and show up within the
+cmn:DataContainer
+
+[example]
+====
+[%unnumbered]
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<n0:Uos
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:cmn="http://standards.iso.org/iso/ts/10303/-3000/-ed-1/tech/xml-schema/common"
+  xmlns:n0="http://standards.iso.org/iso/ts/10303/-4442/-ed-1/tech/xml-schema/
+domain_model"
+  xsi:schemaLocation="http://standards.iso.org/iso/ts/10303/-4442/-ed-1/tech/xmlschema/
+domain_model DomainModel.xsd">
+<Header/>
+  <DataContainer xsi:type="n0:AP242DataContainer">
+
+  <!--application data-->
+
+  </DataContainer>
+</n0:Uos>
+----
+====

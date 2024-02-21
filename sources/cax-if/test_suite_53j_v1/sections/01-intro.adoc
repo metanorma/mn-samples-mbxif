@@ -1,0 +1,137 @@
+== Introduction
+
+The CAx Interoperability Forum (CAx-IF) is part of the Model-Based Interoperability
+Forum (MBx-IF), which is a joint effort between AFNeT, PDES, Inc. and prostep ivip.
+An interoperability forum is a logical collection of a user group and an implementer
+group, focused on specific capabilities of a named standard, in this case ISO 10303
+STEP.
+
+* The *User Group* is comprised of industry representatives, all members of at least
+one of the Interoperability Forum hosting organizations. The group will define and
+prioritize use cases, derive requirements and related validation properties as well
+as document user best practices.
+* The *Implementor Group* is a group of software vendors, 3rd party integrators, and
+independent implementors, all members of at least one of the Interoperability Forum
+hosting organizations, that define recommended practices based on the prioritized use
+cases provided by the user group and validate them in test rounds.
+
+The objectives of the CAx-IF concentrate primarily on testing the interoperability
+and compliance of STEP processors based on all Editions of AP242, and include
+documenting and prioritizing use cases, requirements and best practices to ensure
+completeness and consistency of the STEP standard and it implementations,
+implementing new functionalities based on users' requirements while ensuring these do
+not adversely affect existing implementations, avoiding roadblocks by establishing
+agreed-upon approaches, and increasing user confidence in STEP by providing
+interoperable commercial software products.
+
+The CAx-IF's Implementor Group performs two test rounds per year for each domain and
+presents summary results to the user community. Furthermore, Recommended Practices
+are developed, and issues are reported to the standards development community.
+
+The test rounds in general combine testing of synthetic and production models.
+Production models will in most cases be provided by the user companies of the
+organizations AFNeT, PDES, Inc., and prostep ivip Association. When production models
+are not available from the user companies, "production-like" models will be solicited
+from the various CAx-IF participants.
+
+This test suite includes synthetic models for testing the following capabilities:
+Product Manufacturing Information (PMI), both as Graphic Presentation and as Semantic
+Representation, 3D Tessellated Geometry, Kinematics, Composite Materials, Assembly
+Structure with External References as well as Kinematic Mechanism definitions in
+AP242 Domain Model XML format, and Persistent Entity IDs.
+
+=== Functionality tested in this Test Round
+
+Functionality tested in this round relates to:
+
+* *Product Manufacturing Information (PMI)* describes the capability to embed
+information about dimensions, tolerances and other parameters which are necessary
+input for the manufacturing and measuring of the part from the 3D model. In this
+round, the focus will be on the two approaches for the transfer of PMI in the 3D model:
+
+** "Tessellated Presentation" refers to breaking down each annotation into
+tessellated elements as supported by AP242 and exchanging them as geometry. This
+preserves the exact shape of the annotation but is human readable only.
+** "Semantic Representation" refers to the intelligent transfer of PMI data in an
+associative and reusable way. This scenario aims towards driving downstream usage and
+later modifications of the model. The data is machine-readable, but not necessarily
+visible in the 3D model. The test also includes additional presentation data, which
+can be linked to the corresponding PMI representation.
+** "Assembly-level PMI" applies the concept above to assemblies, where PMI elements
+are defined between different parts, or part instances. Concepts such as Saved Views
+and Cross-Highlighting shall work in the same way.
+
+* *AP242 Domain Model XML* is an implementation format introduced with AP242, and the
+designated process format for many applications in the aerospace and automotive
+industries. It will be used in combination with geometry formats matching the
+respective requirement. In the CAx-IF, the geometry files will be in STEP Part 21
+format. The XML files contain the assembly structure and part master information. The
+tests, which are conducted jointly with the PDM-IF, primarily aim at improving
+CAx-PDM interoperability by ensuring that the different types of systems correctly
+cope with the different levels of information.
+
+* *Composite Materials* are made by layering various plies of material on top of each
+other. They can be defined in an implicit-precise way, by giving the laminate tables,
+ply boundaries, orientation, materials, and laminated cores; or in an
+explicit-tessellated way by calculating the resulting 3D Tessellated Solid. Both
+representations can be linked to each other.
+
+* *Kinematics* is a capability in AP242 that allows describing the motion of parts over
+time and in relation to each other. This includes the definition of mechanisms with
+joints and constraints, defining the kinematic relationships between the parts, as
+well as motions, which are defined by capturing the positions of the moving parts at
+discrete points in time. To cover Aerospace as well as Automotive use cases, and to
+increase the range of participating systems, this capability is being tested jointly
+with the JT-IF.
+
+* *Persistent Entity IDs* enable the ability to track a product's model information,
+specifically topological elements, during design iteration. This will allow consuming
+applications to update their designs based on the original model when changes are
+submitted.
+
+* *User Defined Parameters* at the part level as well as at the geometry level are used
+to convey data that drives certain aspects of a model, e.g., geometric features, or
+engineering notes and requirements that manufacturing must comply with. This may also
+include custom-defined properties. A target application shall be able to pick up on
+these and make appropriate decisions for downstream processes.
+
+=== General testing instructions for this round
+
+The general procedures for communication of models and statistics are outlined in a
+separate document, entitled 'General Testing Instructions'. The document can be
+retrieved from the CAx Interoperability Forum web sites. The latest version is v2.0,
+dated 23 June 2023.
+
+=== Testing Schedule
+
+The following schedule has been agreed upon for Round 53J:
+
+[[fig1]]
+.CAx-IF Round 53J Schedule
+image::img01.png[]
+
+=== Copyrights on Test Cases
+
+==== CAx-IF
+
+None of the production test cases which were provided by the AFNeT, PDES, Inc. and
+prostep ivip member companies may be publicly released for any purpose. The test
+cases can be freely distributed among the CAx-IF members and can be used for any
+purposes that are related to CAx-IF testing (i.e., testing, documentation of testing
+efforts, etc.), if a reference to the originating company is made.
+
+The test cases must not be used for any purposes other than CAx-IF testing or outside
+of AFNeT, PDES, Inc. and prostep ivip. Test cases provided by the LOTAR project for
+testing of specific capabilities are applicable to the same restrictions and may not
+be used outside LOTAR or the CAx-IF.
+
+==== NIST
+
+The test cases developed at the National Institute of Standards and Technology (NIST)
+are not subject to copyright protection and are in the public domain. NIST assumes no
+responsibility for the components of the test system for use by other parties and
+makes no guarantees, expressed or implied, about their quality, reliability, or any
+other characteristic. The use of the CAD systems to create the Test Models does not
+imply a recommendation or endorsement by NIST.
+
+For more details, read the disclaimer at https://go.usa.gov/xuh9n

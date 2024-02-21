@@ -1,0 +1,17 @@
+== Introduction
+
+This document is a second volume of the AP209 ed2 Linear Static Structural FEA
+Handbook documenting the finite element load cases and boundary conditions used as
+source data for the LOTAR International Engineering Analysis and Simulation (EAS)
+pilot study number two (pilot#2). This study focused on extending implementations of
+the International Standards Organization (ISO) 10303-209 ed2 (AP209 ed2) Standard,
+one Part of the 10303 family of Standards commonly known as STEP (Standard for The
+Exchange of Product data). The document requires at least a cursory understanding of
+the Finite Element Method, finite element models and analysis (FEM & FEA) and the
+information technologies involved in applying the AP209 ed2 application protocol.
+This document can also help the reader focus on those parts of STEP needed to encode
+FEA information and the documentation resources available to producers, consumers
+and implementers of this information. Familiarity with the details of Volume 1 of
+this handbook, covering model definition, is highly recommended; Volume 1 is
+publicly available at https://www.cax-if.org/documents_cae/HandbookVolume1_V2.2_CAE-IF.pdf. A condensed
+version of the introductory sections is repeated here with minor changes from Volume 1.

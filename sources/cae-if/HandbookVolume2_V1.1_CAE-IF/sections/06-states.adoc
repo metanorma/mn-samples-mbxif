@@ -1,0 +1,848 @@
+[[cls-6]]
+== Pilot Model States
+
+The concept of steps and states was introduced in Section 5. This section greatly
+expands on these concepts and give examples taken from the pilot study models.
+
+The *control_linear_static_load_increment_process* and the single *state* entity that
+it refers to (*final_input_state*) collects all the information specified for
+boundary conditions and applied loads. The use of *state* entities,
+**state_definition**(s) and **state_relationship**(s) provides the flexibility
+needed to represent the boundary conditions, applied loads and combinations that are
+specified in the pilot study models. Using tree structures also enables reuse of
+lower level entities that are used in more than one load step. Even though the pilot
+study models are simplistic, the subcase, loads and boundary conditions
+specifications use typical constructs that can be found in a majority of linear
+static analysis models. Boundary conditions are discussed first followed by applied
+loads.
+
+[[cls-6.1]]
+=== Specified States Related to Boundary Conditions
+
+The ATS model boundary conditions are specified as fixed displacements at a node or
+nodes. These constrain the rigid body motion of the model that would normally result
+from application of external forces and moments if the model were in a free state.
+The specification of displacements is restated as specifying values for degrees of
+freedom (DOF) in the solution.
+
+A full discussion of matrix algebra and partitioning as related to the Finite
+Element Method is beyond the scope of this handbook but a brief discussion of the
+foundation is presented to provide context to the discussion of displacement
+boundary conditions and constrained degrees of freedom. In the matrix form of the
+familiar Hook's Law equation {F} = -[K] * {X}, the X vector represents the
+displacements of the nodes of the finite element model, K represents the stiffness
+matrix, and F is the vector of applied forces. Static equilibrium is achieved when
+this equation is satisfied and all forces sum to zero at all points in all
+directions. A non-trivial unique solution requires a boundary condition that
+constrains the rigid body motion of the model. Typically, this is accomplished by
+specifying zero displacement at enough DOFs to prevent (at a minimum) the rigid body
+motion of the model and allow only elastic deformation (additional DOFs can be
+specified if desired). The resulting vector of displacements at the nodal DOFs are
+referred to as the deformed shape of the model for a particular subcase. The
+calculated forces at these constrained DOFs are referred to as reaction forces since
+they react/balance the applied loads. The number of free DOFs at each point can be
+reduced for other model types and solutions, but for the 3 dimensional models
+discussion here, assume all 6 degrees of freedom are present at each node.
+
+[[cls-6.1.1]]
+==== NASTRAN Specification of Constraints
+
+A boundary condition that enforces a value for one or more of these DOFs in NASTRAN
+is specified on the SPC, SPC1 or SPCD bulk data card entries. The base card name is
+an acronym for 'single point constraint' and the name has been retained in the AP209
+ed2 schema class that represents this concept. The alternate NASTRAN forms, SPC1 and
+SPD, enable more efficient specification of sets of constraints at multiple nodes in
+the solver. The SPC1 form is used in the ATS pilot models and is represented using
+the same AP209 ed2 constructs as a basic SPC. There are several variations of the
+SPC1 card used in the ATS pilot models and the NASTRAN card image and examples are
+shown in <<fig13>>. Refer to the NASTRAN Quick Reference Guide for further details.
+
+[[fig13]]
+.Single Point Constraint Specification in NASTRAN
+====
+[%unnumbered]
+image::img13.png[]
+
+[source%unnumbered]
+----
+{{{*_$ ATS2 - all degrees of freedom (dof=1-6) on node 1 are fixed, displacement = 0_*}}}
+SPC1     100     123456     {{{*1*}}}
+
+{{{*_$ ATS3 -- the x translation (dof=1) is fixed for nodes 1,12,34 and 45_*}}}
+SPC1     101     1          {{{*1*}}}     {{{*_12_*}}}     {{{*_34_*}}}     {{{*_45_*}}}
+
+{{{*_$ ATS3 -- the x and y rotations (dof=45) are fixed to ground for node ids in range 1 through 55_*}}}
+SPC1     110     45         {{{*1*}}}     {{{*_THRU_*}}}     {{{*_55_*}}}
+----
+====
+
+The SID field represents the set ID of the SPC1 card and is selected in the case
+control using an SPC=<set_id> entry. This set ID corresponds to the SPC Case Control
+Section record in <<table1>> (not to be confused with the SPC Bulk Data card). Many
+SPC1 bulk data cards may be specified with the same or different SIDs. The 'C' field
+represents the degrees of freedom that are being constrained. NASTRAN input for this
+field is any unique combination of integers 1 through 6 with no embedded blanks or
+spaces representing each DOF to be constrained. There are special cases where this
+value can be blank or 0 but they do not apply to nodes used to define the model
+shape. The G(i) fields are node IDs where the DOFs specified are constrained. If
+non-zero enforced displacement boundary conditions were defined, an accompanying
+SPCD would be required to define the real value to be enforced. However, for
+simplicity, all the ATS pilot models use only SPC1 cards with no accompanying SPCD.
+This implies that specified DOFs are all constrained to zero displacement for each
+ATS pilot model.
+
+Lastly, multiple sets can be added together to form a complete set of constraints
+referenced from the case control. Different subcases can reference individual SPC1
+sets or the combined set defined on the SPCADD bulk data card. This card simply
+defines an additional set ID and a list of the individual set IDs to be combined.
+
+The ATS3 pilot model, which is a shell element model, demonstrates this usage
+scenario by constraining the model on the end closest to the origin to prevent rigid
+body motion without over constraining the model. For the tension only subcase,
+Poisson's effect will cause a displacement in the Y-axis due to a force applied in
+the X-axis and therefore, the Y-axis translation should only be constrained at a
+single node at the fixed end while the displacement of the remaining nodes on the
+end are only constrained in the X-axis. The intent of how constraints are specified
+should be captured to the greatest extent possible.
+
+<<fig14>> shows the case control and combined SPC1 and SPCADD used for ATS3 subcase 1.
+
+[[fig14]]
+[source]
+.Boundary Conditions for ATS3 Subcase 1
+----
+{{{*_$ ATS3 Case control fragment for subcase 1_*}}}
+SUBCASE 1
+  SUBTITLE=subcase1
+  SPC = 11
+
+...
+
+{{{*_$ ATS3 Corresponding bulk data entries referenced by SPC=11_*}}}
+SPCADD   11   100   101   110
+
+SPC1     100  123   23
+SPC1     101  1     1     12    34    45
+SPC1     110  45    1     THRU  55
+SPC1     110  45    57    58    59    60    61    62
+         64   65    66    67    68    69    71    72
+         73   74    75    76    78    79    80    81
+         82   83    85    86    87    88    89    90
+----
+
+A brief explanation of each entry follows. The set ID 100 specifies that node 23 is
+constrained in the xyz translational directions. Set ID 101 constraints the x
+translation for nodes 1, 12, 34 and 45. All these nodes are on the fixed edge of the
+shell model nearest the origin. The set ID 110 entries constrain the x and y
+rotational degrees of freedom at all the nodes specified. Finally, SPCADD 11
+combines all of these constraints into one set that is referenced on the case
+control entry. Note that the z rotational DOF is not constrained anywhere. This was
+intentional because the NASTRAN shell element does not normally have any stiffness
+in rotational DOF about the element normal axis. These additional degrees of freedom
+are constrained by other mechanisms during the solution process and are currently
+not included in the STEP representation.
+
+The boundary conditions for the other ATS models and subcases follow similar
+concepts but are tailored to the element types and applied loads. Lastly, each
+constrained DOF in a model will have a reaction force associated with the
+constrained DOF at the end of the solution process.
+
+[[cls-6.1.2]]
+==== AP209 ed2 Specification of Constraints
+
+The STEP equivalent of the NASTRAN single point constraint is the
+*single_point_constraint_element*. This entity is a sub-class of the general
+*constrain_element* class. The *single_point_constraint_element* is defined as a
+constraint on a node, group of nodes or a geometry element. The constraint element
+definitions are taken from the AP209 ed2 Recommended Practices document shown in
+<<fig15>>. The highlighted case represents a *single_point_constraint_element*
+applied to a node as is used in the ATS pilot models.
+
+[[fig15]]
+.Constraint Definition Reference
+image::img15.png[]
+
+A common question arises concerning why the node constraints in NASTRAN are mapped
+to a *constraint_element* class subtype in STEP? The reason is that the treatment of
+constraints in STEP has been split into two separate concepts that are consistent
+with how these constraints are cast in the finite element solution. A constraint
+equation is applied to a degree of freedom and is generally expressed as A(i) x
+DOF(i) = B(i), where 'A' is a coefficient and 'DOF' is the specified degree of
+freedom at a node and 'B' is the specified value for every instance 'i'. The left
+side of this equation is captured by the *freedoms_and_values* attribute (a set of
+**freedom_and_coefficient**(s)) and a *required_node* attribute
+(node_output_reference type) for each *single_point_constraint_element* entity. The
+*single_point_constraint_element* also contains a set of *control_analysis_steps*
+references to indicate which subcases this constraint element applies to. The right
+side of the equation is captured by the *single_point_constraint_element_values*
+entity that references the *single_point_constraint_element*. This entity contains a
+*degrees_of_freedom* attribute and an attribute '*b*' which is a list of values
+corresponding to B(i). Part 104, Section 6.4.11 presents similar information.
+
+The key takeaway from this discussion is that the *single_point_constraint_element*
+is related directly to the **control_linear_static_analysis_step**(s) while the
+*single_point_constraint_element_values* are part of the final input state
+definition. This allows the same constraint element to be specified once, but have
+enforced constraint values that are different for each subcase. While this
+capability is not exercised directly in the pilot study models (all constraints are
+zero valued), this scenario is supported in many commercial FEA solvers and the
+AP209 ed2 data model supports it.
+
+The EXPRESS schema for these entities is shown in <<fig16>>.
+
+[[fig16]]
+[source]
+.EXPRESS Schema Related to Single_Point_Constraint_Element
+----
+ENTITY single_point_constraint_element;
+  ENTITY constraint_element;
+    element_id                : IDENTIFIER;
+    steps                     : SET [1:?] OF control_analysis_step;
+  ENTITY single_point_constraint_element;
+    required_node             : NODE_OUTPUT_REFERENCE;
+    coordinate_system         : fea_axis2_placement_3d;
+    freedoms_and_values       : SET [1:?] OF freedom_and_coefficient;
+    description               : TEXT;
+END_ENTITY;
+
+ENTITY freedom_and_coefficient;
+  freedom                     : DEGREE_OF_FREEDOM;
+  a                           : MEASURE_OR_UNSPECIFIED_VALUE;
+END_ENTITY;
+
+ENTITY single_point_constraint_element_values;
+  ENTITY state_definition;
+    defined_state             : state;
+  ENTITY single_point_constraint_element_values;
+    element                   : single_point_constraint_element;
+    degrees_of_freedom        : freedoms_list;
+    b                         : LIST [1:?] OF MEASURE_OR_UNSPECIFIED_VALUE;
+END_ENTITY;
+
+TYPE DEGREE_OF_FREEDOM = SELECT
+  (ENUMERATED_DEGREE_OF_FREEDOM,
+   APPLICATION_DEFINED_DEGREE_OF_FREEDOM);
+END_TYPE;
+
+TYPE MEASURE_OR_UNSPECIFIED_VALUE = SELECT
+  (CONTEXT_DEPENDENT_MEASURE,
+   UNSPECIFIED_VALUE);
+END_TYPE;
+
+TYPE NODE_OUTPUT_REFERENCE = SELECT
+  (node_representation,
+   node_group,
+   substructure_node_reference,
+   analysis_item_within_representation);
+END_TYPE;
+----
+
+[[cls-6.1.3]]
+==== AP209 ed2 Instantiation of Constraints
+
+The preceding discussion focused on the EXPRESS classes and relationships that are
+used to specify the AP209 ed2 data model for analysis controls, and for boundary
+conditions in particular. No direction is explicitly given on how to structure the
+state definitions to represent common usage patterns provided by FEA solvers such as
+NASTRAN. This section discusses one such mapping but is not necessarily the only
+possible mapping. Other solvers may require different mapping.
+
+All the boundary condition constructs specified in the ATS pilot models can be built
+using a 3 layered state definition hierarchy. <<fig17>> shows an example diagram of
+this 3 layer organization. The red text labels indicate the NASTRAN card concept
+that the *specified_state* instance on each layer represents. State relationships
+are indicated as ovals with the letter 'R'. This diagram illustrates two subcases
+(step ID 1 and 2) that reference two unique constraint set IDs (3 and 4) that have
+unique enforced values for a single constraint element, at a single node, used in
+both subcases.
+
+[[fig17]]
+.Example of 3 Layer Organization for Constraint Boundary Conditions
+image::img17.png[]
+
+Layer 1 maps to the constraint set selected in the case control. The Layer 2 maps to
+the constraint combinations specified on 2 different SPCADD cards. These specified
+states are considered to be 'aggregation' states. In cases where there are no
+multiple constraints being aggregated (as shown), the layer 2 *specified_state* is
+optional. However, even in the absence of the SPCADD card, a layer 2
+*specified_state* can be instantiated as a pass-thru entity for consistency. Lastly,
+layer 3 maps to the actual constraint set bulk data cards. These are considered to
+be 'value' states that are referenced from the
+*single_point_constraint_element_values* instances that specify the enforced value
+for this subcase and for the specified degrees of freedom. The 'value'
+*specified_state* of these **state_definition**(s) should match the constraint set
+identifier used in the bulk data.
+
+In all cases, the selected constraint set ID must match the ID of the first
+constraint *specified_state* in layer 2 or layer 3.
+
+<<fig18>> is a variation of <<fig17>> where two constraint elements at two nodes are
+related to both subcases. The case control for each subcase selects the same
+constraint set, which is an SPCADD card combining the same two constraint sets on
+layer 3. The *single_point_constraint_element_values* instances specify a value for
+each constraint equation at each node. Note that the layer 2 *specified_state*
+instances could be collapsed into a single instance and two of the relationship
+instances eliminated. While optimization and minimization of entities is a goal,
+there can be valid reasons not tied to the standard to use explicit instances where
+one would suffice. One such reason could be situations where a unique attribute
+value is set based on the usage by a higher level entity. For example, each layer 2
+*specified_state* could contain the subcase ID as a part of its description
+attribute from the referencing *analysis_step*. This can aid readability of the STEP
+file but is not to be relied on by any pre or post processor.
+
+This organization provides great flexibility but also puts more requirements on the
+recommended practices documentation to ensure interoperability of the resulting data
+models.
+
+[[fig18]]
+.Variation of 3 Layer Organization of Constraint Boundary Conditions
+image::img18.png[]
+
+A fragment of the ATS1 pilot study model input is shown in <<fig19>>. This
+corresponds to one load case with one *single_point_constraint_element* and one
+*single_point_constraint_element_values* entities. This matches a single column of the
+diagram in  <<fig16>>. Only the translational degrees of freedom are constrained at
+node 1 in this case.
+
+[[fig19]]
+[source]
+.NASTRAN ATS1 Boundary Conditions
+----
+{{{*_$ ATS1 Case control fragment for subcase 1_*}}}
+SUBCASE 1
+  SUBTITLE=subcase1
+  SPC = 100
+...
+
+{{{*_$ ATS1 Corresponding bulk data entries referenced by SPC=100_*}}}
+SPC1    100    123    1
+----
+
+<<fig20>> is the ATS1 pilot study model diagram for instantiation of these boundary
+conditions. This diagram uses the same notation as Volume 1 of this handbook. Not
+all related instances are shown.
+
+[[fig20]]
+.ATS1 Boundary Condition Instance Diagram
+image::img20.png[]
+
+The corresponding STEP file fragment for these entities is shown in <<fig21>>. The
+order of the entities follows the diagram from top to bottom and some reformatting
+has been done for readability. Note the *context_dependent_measure* values equal to
+0 and the coefficients for the DOFs equal to 1.
+
+[[fig21]]
+[source]
+.STEP Part 21 File Fragment of ATS1 Boundary Conditions
+----
+#73= FEA_MODEL_3D('Identification',(#13),#28,
+      'NASTRAN BDF Converter v0.0.0',('NASTRAN'),'AnalysisModelType');
+
+#283= CONTROL(#73,'Control.0','FemConvert','Nastran job EAS test case ATS1m5',
+      ('101','TIME 600','CEND','0','1','ENDDATA'),('NASTRAN'));
+
+#287= CONTROL_LINEAR_STATIC_ANALYSIS_STEP(#283,{{{[css background:#FFFF00]#'1'#}}},1,#286,
+      {{{[css background:#FFFF00]#'Nastran job EAS test case ATS1m5'#}}},#309);
+#286= SPECIFIED_STATE('STEP DEFAULT','default_initial_state'); #309= CONTROL_LINEAR_STATIC_LOAD_INCREMENT_PROCESS('STATIC STEP 1',{{{[css background:#FFFF00]#'subcase1'#}}},#288);
+
+#288= SPECIFIED_STATE('Step 1 Base Specified State',{{{[css background:#FFFF00]#''#}}});
+#302= STATE_RELATIONSHIP(
+      'SPCCASE_100_200_1 is related to Step 1 Base Specified State','',#288,#289);
+
+#289= SPECIFIED_STATE({{{[css background:#FFFF00]#'100'#}}},'Aggregator SPC 100 Step 1');
+#291= STATE_RELATIONSHIP(
+      'SPCVALSTATE_100_200 is related to SPCCASE_100_200_1','',#289,#290);
+
+#290= SPECIFIED_STATE({{{[css background:#FFFF00]#'100'#}}},'SPCVALSTATE_100_200');
+#292= SINGLE_POINT_CONSTRAINT_ELEMENT_VALUES(#290,#295,#293,(
+      CONTEXT_DEPENDENT_MEASURE(0.),
+      CONTEXT_DEPENDENT_MEASURE(0.),
+      CONTEXT_DEPENDENT_MEASURE(0.)));
+#293= FREEDOMS_LIST((
+      ENUMERATED_DEGREE_OF_FREEDOM(.X_TRANSLATION.),
+      ENUMERATED_DEGREE_OF_FREEDOM(.Y_TRANSLATION.),
+      ENUMERATED_DEGREE_OF_FREEDOM(.Z_TRANSLATION.)));
+
+#295= SINGLE_POINT_CONSTRAINT_ELEMENT('SPC1_100.0',(#287),#86,#13,(#297,#300,#301),'');
+#297= FREEDOM_AND_COEFFICIENT(
+      ENUMERATED_DEGREE_OF_FREEDOM(.X_TRANSLATION.),CONTEXT_DEPENDENT_MEASURE(1.));
+#300= FREEDOM_AND_COEFFICIENT(
+      ENUMERATED_DEGREE_OF_FREEDOM(.Y_TRANSLATION.),CONTEXT_DEPENDENT_MEASURE(1.));
+#301= FREEDOM_AND_COEFFICIENT(
+      ENUMERATED_DEGREE_OF_FREEDOM(.Z_TRANSLATION.),CONTEXT_DEPENDENT_MEASURE(1.));
+
+#86= NODE('1',(#84),#38,#73);
+----
+
+Similar figures can be constructed for all the ATS pilot study models. However, for
+surface and volume element models with several load cases and combinations of
+boundary conditions, these diagrams become very large and complex and are not
+included here.
+
+[[cls-6.2]]
+=== Specified States Related to Applied Loads
+
+The applied loads are treated in a similar manner to constraints with the exception
+that the associated **state_definition**(s) reference existing model entities such
+as nodes or element aspects (face, edge, corner, etc..). The tree structure of
+*states*, **state_relationship**(s) and **state_definition**(s) is defined to
+capture the specification of loads for each subcase.
+
+[[cls-6.2.1]]
+==== NASTRAN Specification of Applied Loads
+
+The loads used in the pilot study model are NASTRAN nodal forces, moments, and
+pressures. There are many other loading types in NASTRAN but the loads used in the
+pilot study are typical and demonstrate how these entities are mapped to AP209 ed2
+entities. The FORCE and PLOAD2 cards are used for application of point loads on
+nodes and pressure loads on the faces of surface elements. <<fig22>> shows the card
+format used for these two bulk data entries and several examples for the ATS pilot
+models.
+
+[[fig22]]
+.Applied Loads Specification in NASTRAN
+====
+[%unnumbered]
+image::img22a.png[]
+
+[%unnumbered]
+image::img22b.png[]
+
+[source%unnumbered]
+----
+{{{*_$ ATS1 – 1000 lb force applied to node 17 in –X direction of the basic coordinate system_*}}}
+FORCE    200   {{{*17*}}}   0    {{{*1000.*}}}   -1.    0.    0.
+
+{{{*_$ ATS3 – pressure lb/sq inch applied to the face of elements 8 and 9 normal to the element_*}}}
+PLOAD2   500   {{{*-125.0*}}}   {{{*8*}}}
+PLOAD2   500   {{{*-125.0*}}}   {{{*9*}}}
+----
+====
+
+Both inputs have a SID field that represents the applied load set ID. This set ID
+corresponds to the LOAD [css background:#FFFF00]#Case Control Section# record in <<table1>> (not
+to be confused with the LOAD Bulk Data card). Many load cards can be specified that
+share the same SID or specified with independent SID(s). The FORCE card field 'G'
+defines the node ID that the force is applied. The 'CID' is the ID of the
+coordinate system that the direction vector information ('N1', 'N2', and 'N3')
+should be interpreted in. Lastly, the field 'F' defines the magnitude of the total
+force applied at the node in the vector direction specified. The pure vector
+definition of the applied force is simply F*N1, F*N2, F*N3 in coordinate system
+'CID'. The example listed above is an applied force of 1000.0 lb in the --X
+direction of the basic coordinate system (CID=0 or blank).
+
+The PLOAD2 card defines a pressure applied normal to the plane of the element. A
+positive value of 'P' results in a net force that acts in the same direction as the
+positive normal to the element plane, in other words, the +Z axis of the local
+element coordinate system. This pressure is multiplied by the area of the element
+to compute the total load applied to the element. Multiple element ID(s) can be
+specified on each card to apply the pressure to larger regions of the model or
+multiple PLOAD2 cards with the same SID can be specified.
+
+Load specifications can be combined into a single composite set ID that is
+referenced by the case control LOAD=SID entry. This is accomplished using the LOAD
+Bulk Data card and is illustrated in <<fig23>>.
+
+[[fig23]]
+.Linear Load Combination Used in Subcase 3 of ATS3
+====
+[%unnumbered]
+image::img23.png[]
+
+[source%unnumbered]
+----
+{{{*_$ ATS3 – combination of load sets 200, 300 and 400 with unit scale factors_*}}}
+LOAD    23     1.    1.    200    1.    300    1.    400
+
+{{{*_$ ATS3 – all core load definitions for axial and lateral load combination_*}}}
+FORCE   200    62    0     125.   -1.   0.     0.
+FORCE   200    69    0     250.   -1.   0.     0.
+FORCE   200    76    0     250.   -1.   0.     0.
+FORCE   200    83    0     250.   -1.   0.     0.
+FORCE   200    90    0     125.   -1.   0.     0.
+FORCE   300    55    0     10.    0.    -1.    0.
+FORCE   300    90    0     10.    0.    -1.    0.
+FORCE   400    85    0     20.    0.    -1.    0.
+FORCE   400    86    0     20.    0.    -1.    0.
+FORCE   400    87    0     20.    0.    -1.    0.
+FORCE   400    88    0     20.    0.    -1.    0.
+FORCE   400    89    0     20.    0.    -1.    0.
+----
+====
+
+In addition to combining loads, this card provides scale factors for each
+individual load set and an overall scale factor for the linearly superimposed load
+sets. The field 'S(i)' is the individual scale factors applied to the individual
+'L(i)' sets being linearly superimposed. The field 'S' is the overall scale factor.
+Older versions of MSC/NASTRAN did not allow combined LOAD cards to reference other
+combined LOAD cards; however, this restriction was removed in later releases.
+Therefore, a LOAD card can now form a deep nested structure. The pilot study models
+do not use any deep nested load combinations; however, the 3 layer organization is
+still valid as the second layer would handle all combinations of loads.
+
+There are many other load specification cards defined for the various versions of
+NASTRAN. The loads discussed herein cover the pilot study models used for
+development of this handbook. As such, implementations should clearly state which
+cards and which options are supported.
+
+[[cls-6.2.2]]
+==== AP209 ed2 Specification of Applied Loads
+
+The AP209 ed2 standard defines specialized entities to represent the many different
+ways that loads can be applied to an FE model. The recommended practices document
+summarized these in Section 2.11.3.3.3 States and State Definitions. The figures
+from the recommended practices document are repeated here in <<fig24;and!fig27>>,
+with highlights indicating the **state_definition**(s) used in the pilot study
+models. The details of each of these specialized **state_definition**(s) can be
+investigated in the Part 104 document or by reviewing the EXPRESS schema.
+
+[[fig24]]
+.Recommended Practices Figure for State_Definitions Related to Nodes (Nodal Force)
+image::img24.png[]
+
+The *nodal_freedom_and_value_definition* shown in <<fig24>> is further specialized
+to *nodal_freedom_action_definition*. The inheritance diagram is shown in <<fig25>>
+and the flattened EXPRESS listing is shown in <<fig26>>. Following the inheritance
+is straight forward as the base class provides the link to the state entity, the
+*nodal_freedom_and_value_definition* adds the attributes for node references,
+coordinate systems, degrees of freedom and the list of values. Lastly, the
+*nodal_freedom_action_definition* adds the action attribute which is an enumerated
+list defining how to interpret these data values.
+
+[[fig25]]
+.Inheritance Diagram for Applied Loads at Nodes Mapped from NASTRAN FORCE Card
+image::img25.png[]
+
+[[fig26]]
+[source]
+.Flattened EXPRESS Schema for Nodal Loads
+----
+ENTITY nodal_freedom_action_definition;
+  ENTITY state_definition;
+    defined_state                   : state;
+  ENTITY nodal_freedom_and_value_definition;
+    node                            : NODE_OUTPUT_REFERENCE;
+    coordinate_system               : fea_axis2_placement_3d;
+    degrees_of_freedom              : freedoms_list;
+    values                          : LIST [1:?] OF MEASURE_OR_UNSPECIFIED_VALUE;
+  ENTITY nodal_freedom_action_definition;
+    action                          : ACTION_TYPE;
+END_ENTITY;
+
+TYPE ACTION_TYPE = ENUMERATION OF
+  (APPLIED_LOADS,
+  RESIDUAL_LOADS);
+END_TYPE;
+----
+
+The state definitions for an element shown in <<fig27>> should be interpreted as
+defined by the integer tags enclosed in parentheses. The highlighted state
+definition has a (1) tag on the *field_variable_element_definition* and a (2) tag
+on the *element_representation*. Using the table below the figure completes the
+proper state definition. Therefore, an element pressure load is represented as a
+*surface_3d_element_field_value_definition* and references a
+*surface_3d_element_representation*. This is consistent with the ATS3 pilot study
+model pressure loads. However, this is still not the final class instantiated.
+
+[[fig27]]
+.Recommended Practices Figure for State_Definitions Related to Elements (Face Pressure)
+image::img27.png[]
+
+The *field_variable_element_definition* shown in <<fig27>> is further specialized
+to represent a constant applied pressure on a face of a 3d element. The
+instantiated class is a
+*surface_3d_element_boundary_constant_specified_surface_variable_value*.
+
+The inheritance diagram is shown in <<fig28>>. This hierarchy diagram shows only
+the construction of the final class instantiated. The full class hierarchy below
+the *field_variable_definition* is quite large and complex as it also includes all
+the result classes. The Recommended Practices document does not provide guidance
+other than the figures already discussed. The Part 104 document should be used to
+explore what all the various classes are intended to represent. The
+*surface_3d_element_boundary_constant_specified_surface_variable_value* class is
+documented in Part 104, Section 6.7.43.
+
+[[fig28]]
+.Inheritance Diagram for Applied Loads at Elements Mapped from NASTRAN PLOAD2 Card
+image::img28.png[]
+
+The flattened EXPRESS listing is shown in <<fig29>>. This shows what each
+inheritance level adds to the final class definition. Using the flattened listing
+simplifies the presentation of a final class definition and is easier to
+understand. Determining which final class is appropriate for a NASTRAN entity is a
+difficult task when implementing a NASTRAN to AP209 ed2 converter. The LOTAR
+Engineering Analysis Work Group (EAS WG) can assist with these tasks (see
+References and Links for contact information).
+
+[[fig29]]
+[source]
+.Flattened EXPRESS Schema for Element Pressure
+----
+ENTITY surface_3d_element_boundary_constant_specified_surface_variable_value;
+  ENTITY state_definition;
+    defined_state                    : state;
+  ENTITY field_variable_definition;
+  ENTITY field_variable_element_definition;
+  ENTITY surface_3d_element_field_variable_definition;
+    element                          : SURFACE_3D_ELEMENT_OUTPUT_REFERENCE;
+  ENTITY surface_3d_element_boundary_constant_specified_surface_variable_value;
+    simple_value                     : FIELD_VALUE;
+    variable                         : BOUNDARY_VARIABLE;
+    element_face                     : SURFACE_3D_FACE;
+    coordinate_system                : OPTIONAL SURFACE_3D_ELEMENT_COORDINATE_SYSTEM;
+END_ENTITY;
+
+TYPE SURFACE_3D_ELEMENT_OUTPUT_REFERENCE = SELECT
+  (surface_3d_element_representation,
+   surface_3d_element_descriptor,
+   surface_3d_element_group,
+   surface_3d_substructure_element_reference,
+   analysis_item_within_representation);
+END_TYPE;
+
+TYPE BOUNDARY_VARIABLE = SELECT
+  (BOUNDARY_SURFACE_SCALAR_VARIABLE,
+   BOUNDARY_SURFACE_VECTOR_3D_VARIABLE,
+   APPLICATION_DEFINED_SCALAR_VARIABLE,
+   APPLICATION_DEFINED_VECTOR_3D_VARIABLE);
+END_TYPE;
+
+TYPE BOUNDARY_SURFACE_SCALAR_VARIABLE = ENUMERATION OF
+  (PRESSURE);
+END_TYPE;
+
+TYPE SURFACE_3D_FACE = INTEGER; END_TYPE;
+----
+
+The variable is selected to be a *boundary_surface_scalar_variable* which has a
+single enumeration equal to **.PRESSURE.** . In AP209 ed2, a positive pressure acts
+normal to the surface and into the volume of the element. This definition is
+consistent with NASTRAN volume elements, but differs from the NASTRAN surface
+element definition which uses the element normal to determine the positive direction
+as illustrated in <<fig30>>.
+
+[[fig30]]
+.NASTRAN Surface Element Pressure Sign Convention
+image::img30.png[]
+
+AP209 ed2 uses an *element_face* attribute for surface elements which enables the
+definition of positive pressure to be consistent for both surface and volume
+elements. It also allows a model to capture the true physics of a problem where you
+may have positive pressure on both sides of a surface element that could result in
+a net force of zero. <<fig31>> illustrates the AP209 ed2 convention.
+
+[[fig31]]
+.AP209 ed2 Convention for Positive Pressure
+image::img31.png[]
+
+[[cls-6.2.3]]
+==== AP209 ed2 Superposition of Applied Loads
+
+The next topic to be addressed is the linear superposition of the defined states
+for forces and pressure loads. The use of scale factors on individual load sets and
+the overall combination is easily mapped to AP209 ed2 constructs. The
+*linearly_superimposed_state* entity class provides this capability.
+
+A *linearly_superimposed_state* is referenced from all the individual
+**state_component**(s) that are being superimposed. The 'INVERSE' qualifier
+indicates that the value of the components attribute is determined by the set of
+**state_component**(s) that reference this state. There is no explicit component
+attribute populated with this set of **state_component**(s) in the ASCII Part 21
+file.
+
+The *state_component* provides a real value *factor* attribute for scaling the
+**state_definition**(s) that are related through *state_relationship* instances. To
+fully define the NASTRAN load combination card, two
+**linearly_superimposed_state**(s) would be required. One collecting the scaled
+individual loads and another for the overall scaled load set. <<fig32>> shows the
+flattened EXPRESS definitions.
+
+[[fig32]]
+[source]
+.Flattened EXPRESS Schema for Linearly Superimposed Load Cases with Scale Factors
+----
+ENTITY linearly_superimposed_state;
+  ENTITY state;
+    state_id                 : IDENTIFIER;
+    description              : TEXT;
+  ENTITY linearly_superimposed_state;
+    INVERSE
+      components             : SET [1:?] OF state_component FOR state;
+END_ENTITY
+
+ENTITY state_component;
+  ENTITY state;
+    state_id                 : IDENTIFIER;
+    description              : TEXT;
+  ENTITY state_component;
+    state                    : linearly_superimposed_state;
+    factor                   : CONTEXT_DEPENDENT_MEASURE;
+END_ENTITY;
+----
+
+Similar to the boundary condition discussion in <<cls-6.1.3>>, all load
+combinations modeled with superimposed state definitions and associated scaling
+factors would appear in layer 2 of the 3 layer state tree. If only unit scale
+factors are needed, then loads could be aggregated using simple
+*state_relationship* instances instead of **linearly_superimposed_state**(s).
+However, it is recommended to be explicit when combining load state definition
+entries by using the **linearly_superimposed_state**(s) and unit scale factors.
+This provides an unambiguous definition that minimizes assumptions.
+
+Several examples and diagrams are provided in the following section to illustrate
+the concept of load superposition and how it is expressed in AP209 ed2.
+
+[[cls-6.2.4]]
+==== AP209 ed2 Instantiation of Applied Loads
+
+The instantiation of applied loads in AP209 ed2 using the constructs presented in
+the prior section uses a similar presentation as for constraints. First, general
+figures are presented followed by examples from the ATS pilot models illustrating
+the concept.
+
+All the applied loads in the ATS pilot study models can be instantiated using the
+same 3 layer approach discussed for constraints. <<fig33>> is an example where a
+single load is reused for 2 subcases.
+
+[[fig33]]
+.Example of Shared Single Applied Load
+image::img33.png[]
+
+The 'base' **specified_state**(s) in layer 1 are shared with the constraint
+definitions since only one reference from the control process is allowed. It
+represents the load set selected in the case control. Since no combinations are
+used, there are no layer 2 entities. The *state_relation* directly relates the
+*state_definition* for applied forces at nodes to the 'base' *specified_state*. For
+discussion, these **state_definition**(s) refer to the 'loadcore' *specified_state*
+in layer 3.
+
+<<fig34>> illustrates a more complex example. There are three subcases, the first
+two subcases share the same *linearly_superimposed_state* which is a scaled
+combination of three 'loadcore' **state_definition**(s).
+
+[[fig34]]
+.Example of Combined Applied Loads
+image::img34.png[]
+
+Subcase 3 is a direct selection of one of the un-scaled state_components. The
+additional terminology such as 'base', 'loadcore' and the others found in these
+figures such as 'loadcomb' and 'loaditem' are simply textual aids for discussion.
+They were used in the labeling of these instances in the ASCII Part 21 files to
+help with debugging but are currently not specified in the standard or the
+recommended practices.
+
+The recommended practice defines where material, node and element IDs should be
+located in the data model; however, currently no guidance is provided for the
+boundary condition or load set IDs. To reproduce a solver input listing from the
+STEP population, a convention for load and boundary condition set IDs must be
+adopted by the implementors.
+
+A convention for subcase and constraint set identification has been described in
+<<cls-5.3;and!cls-6.1.3>>. A similar convention should be used for load set
+identifications. In the hierarchy of **specified_state**(s), the top-most
+*specified_state* related to the 'base' state should use the *state_id* that
+matches the selected load set ID for that step. Similarly, the lowest
+*specified_state* in the hierarchy (layer 3) should use the load set identification
+found on the source load definitions (FORCE or PLOAD2 entries in the NASTRAN
+source). Note that a *specified_state* can assume both roles if the selected set is
+the load definition set as illustrated in subcase 3 from <<fig34>> or subcase 4 of
+<<fig36>>.
+
+Finally, load cases for ATS3 are presented in <<fig35;and!fig36>>. These figures
+show only a relevent subset of the entities used to model the applied loads for the
+ATS3 pilot study model in AP209 ed2.
+
+The guidelines provided in this handbook present a working solution for loads and
+boundary conditions as defined for the pilot test models. Guidelines for other
+solvers and other NASTRAN case control will be addressed as additional test cases
+are introduced and the translator implementations mature.
+
+[[fig35]]
+.ATS3 Applied Loads Subcase 1 and 2
+image::img35.png[]
+
+[[fig36]]
+.ATS3 Applied Loads Subcase 3 and 4
+image::img36.png[]
+
+As model size increases, the ability to make actual instance diagrams is quickly
+exceeded. <<fig37>> demonstrates that even the simple ATS2 bar model with three
+load cases and simple boundary conditions results in a complex diagram. However, it
+does illustrate the needed concepts.
+
+[[fig37]]
+.STEP Input Control Structures for ATS2 CBAR Model
+image::img37.png[]
+
+The instance diagram for subcase 3 of the ATS3 pilot study model is presented in
+<<fig38>>. This diagram corresponds to the NASTRAN information presented in
+<<fig23>> and part of <<fig36>>.
+
+[[fig38]]
+.Instance Diagram for ATS3 Subcase 3
+image::img38.png[]
+
+Lastly, the corresponding STEP file fragment is presented in <<fig39>>. One
+complete traversal from the *fea_model_3d* down to the
+**nodal_freedom_action_definition**(s) of <<fig38>> is shown. Only the
+**nodal_freedom_action_definition**(s) from the lower left side of the figure are
+listed. The reader is referred to the <<annexB>> for the complete Part 21 listing.
+
+[[fig39]]
+[source]
+.STEP File Fragment for Applied Load Entities in for ATS3 Subcase 3
+----
+#62= FEA_MODEL_3D('Identification',(#13),#28,
+     'NASTRAN BDF Converter 0.0.0',('NASTRAN'),'AnalysisModelType');
+
+#742= CONTROL(#62,'Control.0','FemConvert','Nastran job EAS test case ATS3m5',
+      ('101','TIME 600','CEND','0','1','2','3','4','ENDDATA'),('NASTRAN'));
+#2617= CONTROL_LINEAR_STATIC_ANALYSIS_STEP(#742,'STATIC STEP 3',3,#745,'',#3090);
+#3090= CONTROL_LINEAR_STATIC_LOAD_INCREMENT_PROCESS('STATIC STEP 3','',#2618);
+
+#2618= SPECIFIED_STATE('Step 3 Base Specified State','Relating Specified State');
+#3089= STATE_RELATIONSHIP(
+       'LOADSTATECOMBINATION_23 is related to Step 3 Base Specified State','',#2618,#3077);
+
+#3077= LINEARLY_SUPERIMPOSED_STATE('{{{[css background:#FFFF00]#23#}}}','Overall Factor Combined State');
+#3078= STATE_COMPONENT('OverallComp','',#3077,1.);
+#3081= STATE_RELATIONSHIP('LOADSTATEITEM_23 is related to OverallComp','',#3078,#3080);
+
+#3080= LINEARLY_SUPERIMPOSED_STATE('LOADSTATEITEM_23','ItemComp Collector State');
+#3082= STATE_COMPONENT('ItemComp_23_200','',#3080,1.);
+#3085= STATE_COMPONENT('ItemComp_23_300','',#3080,1.);
+#3087= STATE_COMPONENT('ItemComp_23_400','',#3080,1.);
+#3084= STATE_RELATIONSHIP('LOADSTATECORE_200 is related to ItemComp_23_200','',#3082,#1223);
+#3086= STATE_RELATIONSHIP('LOADSTATECORE_300 is related to ItemComp_23_300','',#3085,#2194);
+#3088= STATE_RELATIONSHIP('LOADSTATECORE_400 is related to ItemComp_23_400','',#3087,#2202);
+
+#1223= SPECIFIED_STATE('{{{[css background:#FFFF00]#200#}}}','Core Loads Specified State');
+#1224= NODAL_FREEDOM_ACTION_DEFINITION(#1223,#320,#13,#1225,(
+CONTEXT_DEPENDENT_MEASURE(-125.),CONTEXT_DEPENDENT_MEASURE(0.),CONTEXT_DEPENDENT_MEASURE(0.)),
+.APPLIED_LOADS.);
+#1228= NODAL_FREEDOM_ACTION_DEFINITION(#1223,#344,#13,#1225,(
+CONTEXT_DEPENDENT_MEASURE(-250.),CONTEXT_DEPENDENT_MEASURE(0.),CONTEXT_DEPENDENT_MEASURE(0.)),
+.APPLIED_LOADS.);
+#1230= NODAL_FREEDOM_ACTION_DEFINITION(#1223,#368,#13,#1225,(
+CONTEXT_DEPENDENT_MEASURE(-250.),CONTEXT_DEPENDENT_MEASURE(0.),CONTEXT_DEPENDENT_MEASURE(0.)),
+.APPLIED_LOADS.);
+#1232= NODAL_FREEDOM_ACTION_DEFINITION(#1223,#392,#13,#1225,(
+CONTEXT_DEPENDENT_MEASURE(-250.),CONTEXT_DEPENDENT_MEASURE(0.),CONTEXT_DEPENDENT_MEASURE(0.)),
+.APPLIED_LOADS.);
+#1234= NODAL_FREEDOM_ACTION_DEFINITION(#1223,#416,#13,#1225,(
+CONTEXT_DEPENDENT_MEASURE(-125.),CONTEXT_DEPENDENT_MEASURE(0.),CONTEXT_DEPENDENT_MEASURE(0.)),
+.APPLIED_LOADS.);
+
+    {{{*_<...state_definitions for Core load set 300 and 400 are similar and omitted...>_*}}}
+
+#1225= FREEDOMS_LIST(
+      (ENUMERATED_DEGREE_OF_FREEDOM(.X_TRANSLATION.),
+       ENUMERATED_DEGREE_OF_FREEDOM(.Y_TRANSLATION.),
+       ENUMERATED_DEGREE_OF_FREEDOM(.Z_TRANSLATION.)));
+
+#320= NODE('62',(#318),#28,#62);
+#344= NODE('69',(#342),#28,#62);
+#368= NODE('76',(#366),#28,#62);
+#392= NODE('83',(#390),#28,#62);
+#416= NODE('90',(#414),#28,#62);
+----

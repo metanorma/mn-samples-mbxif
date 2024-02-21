@@ -1,0 +1,36 @@
+[.preface]
+== Document History
+
+[%unnumbered,options=header,cols="^,^,<"]
+|===
+| Release | Date | Change
+
+| 1.0 | 2019-09-11 | Initial Release
+| 2.0 | 2020-09-09/11 | Update & extended for 2nd test round
+| 3.0 | 2021-06-16 a| For the 3rd test round: Adding Connectivity3 and -4 test case.
+
+Connectivity1 and 2:
+
+* Adding JointType
+* adding PartTransportFeature for cable, and wire
+* WireIdentification with definition to PartTransportFeature
+* fixing CableOccurrenceTerminal replacing attribute LocationGroup by ElementOf
+
+| 4.0 | 2021-12-09 a| For the 4th test round:
+
+* updating all test cases for new XML schema from 2021-0916 new WirePartIdentification; previous WireIdentification renamed to WireOccurrenceIdentification;
+* adding new Connectivity5 test case;
+* changed test case Connectivity3 to use the new capability for complex connectors to reflect lower level terminals to a higher level
+* minor fixes in previous test case specifications
+|===
+
+[.preface]
+== Trademarks
+
+Capital(R) Harness (TM) is a trademarks of Mentor Graphics Corporation / Siemens
+
+CATIA is a trademark of DASSAULT SYSTEMES
+
+AMPHENOL is a trademark of AMPHENOL CORPORATION
+
+EPX is a trademark of Radiall SA

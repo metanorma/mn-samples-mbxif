@@ -1,0 +1,44 @@
+[[cls-13]]
+== HarnessNode and HarnessSegment
+
+A _WiringHarnessAssemblyDesign_ is an _AssemblyDefinition_ in which all the physical
+elements and the physical connectivity of an electrical harness is defined. Unless
+the harness has a very primitive structure, it refers to a
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ that defines the
+topological structure.
+
+A _HarnessSegment_ is a kind of _PartShapeElement_ for a
+_WiringHarnessAssemblyDesign_ that links an _Edge_ from the topological
+representation of the harness to a _CrossSectionalGroupShapeElement_. For
+manufacturing purpose the length of a referenced _Edge_ can be overridden by the
+ForcedLength attribute.
+
+[[fig21]]
+.WiringHarnessAssemblyDesign with HarnessSegment and -Node
+image::img21.png[]
+
+A _HarnessNode_ is another kind of _PartShapeElement_ for a
+_WiringHarnessAssemblyDesign_ that links a _Vertex_ from the topological
+representation to an _OccurrenceShapeElement_ that represents an aspect of an
+_Occurrence_. With the attribute NodeType it is possible to characterise the kind of
+node:
+
+* branch node: A node that is used by more than one Edge or HarnessSegment. The
+nodes N3 and N4 of the example are of this kind.
+* extremity node: A node that is used by a single Edge or HarnessSegment. The nodes
+N1, N2, N5 and N6 of the example are of this kind.
+* external node: A node in a partial harness design that is used by a single Edge or
+HarnessSegment and that is indicating that the harness continues beyond that node in
+another design. The node X4 in the example is of this kind for the sub-harnesses
+H1.a and H1.b.
+* intermediate node: Additional nodes defined on Edges. The nodes X1, X2, X3, X4
+(for H1), X5 and X6 of the example are of this type.
+
+The main topological structure of a wiring harness is defined by the edges and
+vertices of the EdgeBasedTopologicalRepresentationWithLengthConstraint. The
+additional HarnessSegment and Harness Node objects have to be used when there:
+
+* is a need for additional properties;
+* to link with cross-sectional structure by HarnessSegment.CrossSection;
+* to link with a feature of a connector, fastener or other rigid component by
+HarnessNode.AttachedFeature.

@@ -1,0 +1,212 @@
+[[cls-7]]
+== Classes and Properties
+
+Like many other object types, also _Parts_ and _ProductConcepts_ can be classified in
+various ways. AP242 distinguishes between two major kinds of additional information
+for parts that is category and classification - and they may partly overlap.
+
+_PartCategories_ are used to support the import of electrical wiring harness data in
+computer systems by defining major kinds of products such as cables, wires,
+contacts, connectors etc. Only with this upfront information a tool is able to
+handle electrical wiring product structures in a useful way. For this kind of
+information see <<cls-4.2>> "_Part_ and _ProductClass_ Categories specific for
+Electrical Harness and other electrical applications" for details.
+
+_Classification_ is complementary to _PartCategories_ in that it provides linking
+into dictionaries of more detailed product taxonomies and kinds of predefined
+properties for these products. In particular dictionaries that are organized
+according to the Parts Library standards (PLIB) ISO 13584-42 are supported;
+especially the IEC 61360 - Common Data Dictionary that is relevant for the purpose
+of electrical wire harness.
+
+For specific classes of products also specific properties are defined in various
+standards. See clause "6.2 Template 'PropertyAssignment'" in the "Recommended
+Practices for AP242 Business Object Model XML Assembly Structure" on how to use the
+DO PropertyValueAssignment, PropertyValue and PropertyDefinition in general.
+
+[[cls-7.1]]
+=== Classes and Properties defined in the IEC 61360 - Common Data Dictionary
+
+For the purpose of EWH we have the need to refer into predefined properties in the
+"IEC 61360 - Common Data Dictionary", see +
+https://cdd.iec.ch/cdd/iec61360/iec61360.nsf/Welcome?OpenPage
+
+In this dictionary we can e.g. find the
+
+* class "AA017 - battery" with the id "0112/2///61360_4#AAA017#001" following the
+path from "AAA001 - component" and "AAA002 - electric/ electronic component".
+
+Many attributes are defined for the battery class, e.g.
+
+* property "AAE529 open-circuit voltage" with the ID "0112/2///61360_4#AAE529#001"
+
+This has to be used as follows:
+
+. First we have to identity the IEC organization:
++
+--
+[%unnumbered]
+[source,xml]
+----
+<Organization uid="_100430">
+  <Id id="IEC"/>
+  <Name>
+    <CharacterString>International Electrotechnical Commission</CharacterString>
+  </Name>
+</Organization>
+----
+--
+
+. Next we identity the IEC 61360 dictionary as an ExternalClassSystem:
++
+--
+[%unnumbered]
+[source,xml]
+----
+<ExternalClassSystem uid="_100502">
+  <Id>
+    <Identifier uid="_100503"
+      id="IEC 61360 - Common Data Dictionary"
+      idRoleRef="_100504"
+      idContextRef="_100430" />
+  </Id>
+</ExternalClassSystem>
+----
+--
+
+. Provide a reference for the battery class within the IEC dictionary with the
+normative id "0112/2///61360_4#AAA017".
++
+--
+[%unnumbered]
+[source,xml]
+----
+<Class uid="_100501">
+  <DefinedIn uidRef="_100502"/>
+  <Description>
+    <Descriptor uid="_100507">
+      <Text>
+        <CharacterString>battery</CharacterString>
+      </Text>
+    </Descriptor>
+  </Description>
+  <Id id="0112/2///61360_4#AAA017"/>
+</Class>
+----
+--
+
+. Provide a reference for the "open-circuit voltage" property defined in the IEC
+dictionary with the normative ID "0112/2///61360_4#AAE023".
++
+--
+[%unnumbered]
+[source,xml]
+----
+<PropertyDefinition uid="_100207">
+  <DefinedIn uidRef="_100502"/>
+  <Description>
+    <Descriptor uid="_100208">
+      <Text>
+        <CharacterString>open-circuit voltage</CharacterString>
+      </Text>
+    </Descriptor>
+  </Description>
+  <Id id="0112/2///61360_4#AAE529"/>
+</PropertyDefinition>
+----
+--
+
+. Define the unit "volt" that is a unit for the quantity "voltage" as defined in IEC
+80000-6 "Quantities and units -- Part 6: Electromagnetism".
++
+--
+[%unnumbered]
+[source,xml]
+----
+<Unit uid="_100302">
+  <Name><ClassString>volt</ClassString></Name>
+  <Quantity><ClassString>voltage</ClassString></Quantity>
+</Unit>
+----
+--
+
+. The most easy way would be to define a new part for the battery and use it, e.g.
+like this:
++
+--
+[%unnumbered]
+[source,xml]
+----
+<Part uid="_124000">
+  <Id id="Battery-Std"/>
+  <Name> <CharacterString>Battery,12V,100Ah</CharacterString> </Name>
+  <PartTypes>
+    <PartCategoryEnum>discrete</PartCategoryEnum>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="_124001">
+      <Id></Id>
+      <Views>
+        <PartView uid="_124002">
+        ...
+        <InitialContext uidRef="_100102"/>
+        ...
+        <PropertyValueAssignment uid="_124002">
+          <AssignedPropertyValues>
+            <PropertyValue xsi:type="n0:NumericalValue" uid="_124012">
+              <Definition>
+                <PropertyDefinition uidRef="_100207"/>
+              </Definition>
+              <Unit uidRef="_100302"/>
+              <ValueComponent>12</ValueComponent>
+            </PropertyValue>
+          </AssignedPropertyValues>
+        </PropertyValueAssignment>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+--
+
+. ... but the above approach would not be fully correct at this battery is not fully
+specified by a real part number that one could buy or build. Instead this is only a
+vaguely characterized product for which many different parts are offered on the
+market. The correct approach is to handle this as a _ProductConcept_ subtype
+_ProductClass_ together with a _ProductConfiguration_ with the specific open-circuit
+voltage of 12 volt that is needed:
++
+--
+[%unnumbered]
+[source,xml]
+----
+<ProductConcept xsi:type="n0:ProductClass" uid="_124000">
+  <ClassifiedAs>
+    <Classification uidRef="_100505"/>
+  </ClassifiedAs>
+  <Id id="Battery-Std"/>
+  <Name>
+    <CharacterString>Standard Battery</CharacterString>
+  </Name>
+  <ProductConfiguration uid="_124001">
+    <Id id="Battery-Std"/>
+    <Name>
+      <CharacterString>Battery,12V,100Ah</CharacterString>
+    </Name>
+    ...
+    <PropertyValueAssignment uid="_124002">
+      <AssignedPropertyValues>
+        <PropertyValue xsi:type="n0:NumericalValue" uid="_124012">
+          <Definition>
+            <PropertyDefinition uidRef="_100207"/>
+          </Definition>
+          <Unit uidRef="_100302"/>
+          <ValueComponent>12</ValueComponent>
+        </PropertyValue>
+      </AssignedPropertyValues>
+    </PropertyValueAssignment>
+  </ProductConfiguration>
+</ProductConcept>
+----
+--

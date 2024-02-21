@@ -1,0 +1,140 @@
+[[sec-4]]
+== MBx-IF Infrastructure
+
+In addition to the public web pages (see <<sec-3.1>>), the MBx-IF provides additional
+infrastructure for internal communication, tracking, and testing. Each of these tools
+requires a personal login.
+
+[[sec-4.1]]
+=== CAESAR
+
+CAESAR is the central information hub for all Implementor Groups within the MBx-IF.
+It servers two main purposes:
+
+* *Test Evaluation* -- by capturing statistics for each test case, calculating the
+corresponding results, and supporting resolution of issues
+* *Issue Tracking* -- for documenting and following up on technical issues.
+
+CAESAR can be accessed at the following location:
+
+https://www.mbx-if.de/caesar/
+
+[[sec-4.1.1]]
+==== Registration
+
+CAESAR requires an individual login for each user. To get a login, please get in
+touch with the CAxIF facilitators:
+
+* Jochen Boy (jochen.bpy@prostep.com)
+* Phil Rosché (phil.rosche@accr-llc.com)
+
+Once your account has been created, you can use the "Reset Password" link on the
+login page to set up your credentials and activate your account.
+
+[[sec-4.1.2]]
+==== Using CAESAR
+
+Once you're logged in to CAESAR, there is a comprehensive User Guide as well as a
+Frequently Asked Questions section available in the "Documentation" section of the
+Main Menu:
+
+[[fig4]]
+.CAESAR Documentation
+image::img04.png[]
+
+[[sec-4.2]]
+=== Nextcloud
+
+Nextcloud is the file sharing platform shared by all teams under the MBx-IF umbrella.
+It can be found at the following location:
+
+https://nextcloud.boost-lab.net/nextcloud/
+
+[[sec-4.2.1]]
+==== Registration
+
+Nextcloud requires an individual login for each user. To get a login, please get in
+touch with any of the MBx-IF facilitators:
+
+*CAx-IF IG*:
+
+* Jochen Boy (jochen.bpy@prostep.com)
+* Phil Rosché (phil.rosche@accr-llc.com)
+
+*CAx-IF UG*:
+
+* Pierre Duchier (pierre.p.duchier@airbus.com)
+
+*EWIS-IF IG & UG*:
+
+* Lothar Klein (lothar.klein@lksoft.com)
+* Dan Ganser (dan.ganser@gulfstream.com)
+
+*PDM-IF IG & UG*:
+
+* Guillaume Hirel (guillaume.hirel@t-systems.com)
+* Kevin Le Tutour (kevin.letutour@afnet-services.fr)
+
+They will create an account for you if needed. You will the receive an email with a
+link to set your initial password, thus activating your account.
+
+The facilitators will also assign you to the correct user groups within Nextcloud,
+which will enable you to access that group's folders.
+
+[[sec-4.2.2]]
+==== Using Nextcloud
+
+Though Nextcloud does support direct integration and synchronization with Windows
+Explorer via WebDAV, it is recommended to use the browser interface to avoid
+interference with other installations.
+
+Comprehensive documentation on how to use Nextcloud is available from the "Help"
+section in the personal menu, which you open by clicking on your avatar in the top
+right-hand corner of the Nextcloud web interface.
+
+It is possible to link your Nextcloud account with your CAESAR account. Follow the
+instructions given on the "App Integration" tab of your CAESAR user profile to do so.
+This will enable you to browse and download content on Nextcloud from directly within
+CAESAR without having to switch between applications.
+
+[[sec-4.3]]
+=== Redmine
+
+Redmine is used by the User Groups within the MBx-IF to track their requirements
+following the SAFe (Scaled Agile Framework) methodology. The tool can be found at the following URL:
+
+https://rd.pdes-ch.org/
+
+Implementors can join on Redmine as well. They will be granted a read-only access, so
+that they can follow along with current discussions.
+
+[[sec-4.3.1]]
+==== Registration
+
+If you do not have a Redmine account yet, you can create one yourself by clicking on
+the "Register" link in the top right-hand corner of the Redmine homepage. Afterwards,
+please get in touch with the respective facilitators for the User Group of your
+domain to be added to that group:
+
+*CAx-IF UG*:
+
+* Pierre Duchier (pierre.p.duchier@airbus.com)
+* Ian Parent (ian.parent@pwc.ca)
+
+*PDM-IF UG*:
+
+* Frédéric Darré (frederic.f.darre@airbus.com)
+* Guillaume Hirel (guillaume.hirel@t-systems.com)
+* Kevin Le Tutour (kevin.letutour@afnet-services.fr)
+
+[[sec-4.3.2]]
+==== Using Redmine
+
+A user Guide is available by clicking on "Help" on the left side at the very top of
+the Redmine web interface.
+
+It is possible to link your Redmine account with your CAESAR account. Follow the
+instructions given on the "App Integration" tab of your CAESAR user profile to do so.
+This will allow you to see information about user stories linked to test cases or
+technical issues directly within CAESAR without the need to switch between
+applications.

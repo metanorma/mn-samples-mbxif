@@ -1,0 +1,40 @@
+[[cls-3]]
+== AP209 Overview
+
+This section introduces several of the information technologies used in working with
+the STEP standard, and in particular those standards used via AP209 ed2. The reader
+can use this introduction to locate and explore in detail the topics highlighted
+herein. This information is a distillation of material found in similar sections of
+Volume 1 of this handbook. It is repeated here to ensure these topics are well
+understood.
+
+AP209, formally known as ISO-10303-209 ed2, Application Protocol: Multidisciplinary
+Analysis and Design, provides the data structures for the exchange of part and
+configuration identification with configuration control data, with or without
+associated 3D part model information. AP209 was developed under the auspices of the
+International Organization for Standardization (ISO), Technical Committee 184,
+Sub-Committee 4, and is one of a series of parts comprising the full STandard for
+the Exchange of Product model data (STEP) standard known as ISO 10303.
+
+[[cls-3.1]]
+=== STEP Module and Resource Library
+
+Application Protocols such as AP209 ed2 are published in HTML format. All STEP
+Application Protocols are built from common modules in the SMRL (STEP Module and
+Resource Library) thus assuring integration and interoperability. The HTML format
+provides a convenient web browser format to locate definitions for all the entities,
+types and rules needed for these pilot studies, along with the associated EXPRESS
+schemas. These documents are copyrighted and published by ISO, so therefore the
+reader is referred to the ISO web site for access information.
+
+The SMRL contains all the 10303 STEP standards other than the Application Protocols
+themselves, and consists of the following 10303 Parts:
+
+* Integrated resources series of parts: ISO 10303 Parts 41 to 112;
+* Application modules series of parts: ISO 10303 Parts 401 to 499 and 1001 to 1999;
+* Application interpreted constructs series of parts: ISO 10303 Parts 501 to 599;
+* Logical model of expressions: ISO 13584 Part 20;
+* Business object models series of parts: ISO 10303 Parts 3001 to 3099.
+
+Volume 1 of this handbook provides a more complete introduction to the SMRL and is
+not repeated here.

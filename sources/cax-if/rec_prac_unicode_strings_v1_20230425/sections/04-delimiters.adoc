@@ -1,0 +1,142 @@
+[[sec-4]]
+== Delimiters / Operator Definitions
+
+The following sections will discuss the use of the compartments, groupings, new
+lines, stacked text, concatenation, and fractions.
+
+[[sec-4.1]]
+=== Compartment (Symbol: \w)
+
+This delimiter represents a compartment. Unicode text strings are structured in
+several fields that are separated by \w character set. For annotation entities
+with compartmentalized data, the fields are mapped to correspond to the
+appropriate compartment in the annotation entity.
+
+This delimiter is not required at the end of the Unicode string to represent the
+closing of the compartment, nor is it required to identify additional compartments
+that do not contain information.
+
+The is always a compartment delimiter after a keyword.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img11.png[]
+a| DIM[css color:red]##\w##&#xD8;1.000 &#xB1;.005
+
+a| [%unnumbered,height=40px]
+image::img12.png[]
+a| FCF[css color:red]##\w##&#x2316;[css color:red]##\w## 2.75[css color:red]##\w##A
+
+\w represents each frame in the feature control frame
+
+a| [%unnumbered,height=100px]
+image::img13.png[]
+a| FCF[css color:red]##\w##&#x2313;[css color:red]##\w##4.5[css color:red]##\w##A[css color:red]##\w##B[css color:red]##\w##C\n2.2[css color:red]##\w##A[css color:red]##\w##B
+
+a| [%unnumbered,height=150px]
+image::img15.png[]
+a| DIM[css color:red]##\w##&#xD8;79.4&#xB1;0.1\nFCF[css color:red]##\w##&#x2316;[css color:red]##\w##&#xD8;1.4&#x24C2;
+[css color:red]##\w##A[css color:red]##\w##B[css color:red]##\w##C\nDTM[css color:red]##\w##D[css color:red]##\w##TXT6X INDIVIDUALLY
+
+a| [%unnumbered,height=100px]
+image::img17.png[]
+a| DIM[css color:red]##\w##30 f7(\u29,980\n29,595\u)
+|===
+
+[[sec-4.2]]
+=== Grouping (Symbol: \u)
+
+Groups elements together to identify them as one entity, such as stacked
+dimensions or information within a weld or surface finish zone. Typically used in
+conjunction with \n. Each group must contain 2 \u delimiters. Groups can be nested.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=100px]
+image::img18.png[]
+| DIM\w&#xD8;1.000[css color:red]##\u##+.005\n-.002[css color:red]##\u##
+
+a| [%unnumbered,height=130px]
+image::img19.png[]
+| WLD\w\w[css color:red]##\u##G\n&#x2322;&#x2322;\n10°\n5\/[css color:red]##\u##\w[css color:red]##\u##\|/--[css color:red]##\u##
+
+a| [%unnumbered,height=70px]
+image::img20.png[]
+| SRFMRRN\w\w\wTURN\w[css color:red]##\u##0.8/Ra0.4[css color:red]##\u##\n[css color:red]##X\u##2.5/Rt 0.8[css color:red]##\u##
+|===
+
+[[sec-4.3]]
+=== New Line / Stacked Text (Symbol: \n)
+
+Use a hard carriage return to denote the following text occurs on a separate line.
+This is a literal carriage return because a new line of characters begins below
+the previous line, within the same string.
+
+Use a soft return prior to text to denote a semantic separation. This would
+include texts and symbols that belong to a single string of text, and are on the
+same line, but are symbolically distinct. For example, the datum identifiers in a
+feature control frame. This supports the top down left right rule that we have
+designated for this specification.
+
+NOTE: \n can also be used as a separator between strings in a concatenated
+superstring.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img21.png[]
+| DIM\w&#xD8;1.000\u+.005[css color:red]##\n##-.002
+
+a| [%unnumbered,height=70px]
+image::img22.png[]
+| FCF\w&#x2313;\w4.5\wA\wB\wC[css color:red]##\n##2.2\wA\wB
+
+a| [%unnumbered,height=100px]
+image::img23.png[]
+| DIM\w&#xD8;10.5&#xB1;0.3[css color:red]##\n##FCF\w&#x23CA;\w&#xF8;0&#x24C1;\wA[css color:red]##\n##DTM\wB
+|===
+
+[[sec-4.4]]
+=== Concatenated Representation (Symbol: \x)
+
+Joining of strings into a larger superstring. In the example, each separate line
+is mapped as a distinct Unicode String, and each of these strings is concatenated
+into a larger Unicode String. Without \x, four Unicode strings would be treated as
+individual strings.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=200px]
+image::img24.png[]
+a| DIM\w10X&#xD8;.281\u+.006\n-.001\u[css color:red]##\x##\n
+
+DIM\w&#x21A7;2.25&#xB1;.03[css color:red]##\x##\n
+
+FCF\w&#x2316;\w&#xD8;.025&#x24C2;\wA\wB\w\C[css color:red]##\x##\n
+
+TXT\wSIM REQT 1
+|===
+
+[[sec-4.5]]
+=== Fraction (Symbol: \v)
+
+This delimiter adds a horizontal line between information on the upper and lower
+lines. Similar to \u, \v must be added at the beginning and ending of the
+fraction. \n between the two values defines which information is above and below
+the horizontal line.
+
+NOTE: Dimensions do not have to be represented using the fraction format as shown
+in the second example. The numerator and denominator can be separated using a / as
+shown in the second example.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img25.png[]
+| DIM\w11X [css color:red]##\v##360\n11[css color:red]##\v##
+
+a| [%unnumbered,height=50px]
+image::img26.png[]
+| DIM\w3X 1/4-20 UNC-2B
+|===

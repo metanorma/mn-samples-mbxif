@@ -1,0 +1,545 @@
+[[cls-10]]
+== Electrical Connectivity & AssemblyShapeJoint
+
+The electrical connectivity in AP242 follows the so called "CFI five-box model of
+electrical connectivity", defined originally by the CAD Framework Initiative (CFI),
+see +
+http://www10.edacafe.com/book/ASIC/CH09/CH09.5.php
+
+The CFI model is used in AP242 for both, functional and physical connectivity. As
+this tutorial focuses on the physical design aspects of an electrical harness, only
+the physical connectivity aspects are presented here.
+
+All terminal, connectivity and many other geometrically related aspects in AP242 are
+realised by specializations of the generic ShapeElement and ShapeFeatureDefinition
+objects.
+
+[[cls-10.1]]
+=== Adopted CFI Five-Box Model for Electrical Connectivity
+
+Adopting the CFI five-box model to the modelling style and terminology used in
+AP242-XML and applying several simplifications the model would looks like this:
+
+[[fig10]]
+.Simplified adopted CFI five-box model for physical connectivity
+image::img10.png[]
+
+* A _PartView_ represents any kind of a physical design and all the underlying parts
+it is made of. So the design of an electrical harness is a part and also all the
+connectors, cables and other things it is made of are represented as _PartViews_.
+* A _PartTerminal_ represents some area of a PartView where it can be electrical or
+optical connected; e.g. one of the inside or outside terminals of a connector. +
+A _PartTerminal_ belongs to exactly one _PartView_. +
+A _PartView_ may have zero, one or many _PartTerminals_
+* An _Occurrence_ is a particular usage of a _PartView_ and is therefore defined by
+one _PartView_. +
+A _PartView_ may serve as the definition for many _Occurrences_. +
+A higher level _PartView_ may "contain" _Occurrences_ of lower level _PartViews_ In
+STEP the subtype AssemblyView is to be used in this case. The structure is recursive
+and so also occurrences of higher level PartView can be constructed that may be
+contained in an even higher level PartView and so on. PartViews and Occurrences form
+a Direct Acyclic Graph, so a PartView can not contain Occurrences of itself.
++
+--
+[example]
+An electrical harness PartView that contains two Occurrences of a connector.
+
+NOTE: This simplified model assumes that an Occurrence is ues in exactly one
+Part/AssemblyView.
+
+In STEP an Occurrence can be used in zero, one or many Part/AssemblyViews.
+--
+* An OccurrenceTerminal represents some area of an Occurrence where it can be
+connected. +
+An OccurrenceTerminal belongs to exactly one Occurrence. +
+An Occurrence can have zero, one or many OccurrenceTerminals +
+An OccurrenceTerminal is defined by one PartTerminal from which it inherits all
+characteristics. +
+A PartTerminal may serve as the definition for many OccurrenceTerminals.
+* A PartConnectivityDefinition represents a node of one or several electrical
+connected elements. It is equivalent to the concept of a Kirchhoff node. +
+A PartConnectivityDefinition belongs to one PartView. +
+A PartView may have zero, one or many PartConnectivityDefinitions, +
+A PartConnectivityDefinition connects two or more PartTerminals or
+OccurrenceTerminals. In the case of PartTerminals they must be elements of the same
+PartView. On the case of OccurrenceTerminals they must be elements of Occurrences
+that are assembly components of the PartView. Consequently the subtype AssemblyView
+is to be used. So in both cases the connected terminals are in the direct scope of
+the Part or AssemblyView. +
+An OccurrenceTerminal can be used by at most one PhysicalNode for the same PartView.
+
+The following clauses explain in detail how the simplified CFI model is realised in
+AP242.
+
+[[cls-10.2]]
+=== Adopted CFI Five-Box Model for any Joints in an Assembly
+
+AP242 also contains a variation of the CFI five-box model to represent any kind of
+mechanical connectivity in an assembly (<<fig11>>). This is based on the entities
+_PartShapeElement_ and _OccurrenceShapeElement_ that are supertypes of
+_PartTerminal_ respectively _OccurrenceTerminal_. An _AssemblyShapeJoint_ is itself
+a _PartShapeElement_ and this belongs to a _PartView_ that is an assembly. An
+_AssemblyShapeJoint_ connects typically two or more _OccurrenceShapeElements_
+through _AssemblyShapeJointItemRelationships_. So an _AssemblyShapeJoint_ plays a
+similar role as a _PartConnectivityDefinition_ but is not restricted to
+ShapeElements that are terminals.
+
+[[fig11]]
+.AssemblyShapeJoint, on Occurrence/Part Contact Features
+image::img11.png[]
+
+<<fig12>> shows an example of the CFI 5 box model for an assembly of two occurrences
+of a part with 2 terminals.
+
+* top: PartView A with two PartTerminals A1 and A2
+* middle: Aa and Ab of PartView A. Each has two OccurrenceTerminals that are defined
+by the PartTerminals of PartView A. +
+Occurrence Aa has the OccurrenceTerminals Aa1 and Aa2. +
+Occurrence Ab has the OccurrenceTerminals Ab1 and Ab2.
+* bottom: AssemblyView B with two AssemblyShapeJoints. +
+AssemblyShapeJoint Bx joints the OccurrenceTerminals Ab1 with Aa2. +
+AssemblyShapeJoint By joints the OccurrenceTerminals Ab2 with Aa1.
+
+OccurrenceTerminals are essential to exactly specific which terminals are connected
+or joined together. The same is true for the more generic supertype
+OccurrenceShapeElement.
+
+[[fig12]]
+.Example of adopted CFI 5 box pattern for AssemblyShapeJoint of terminals
+image::img12.png[]
+
+[[cls-10.3]]
+=== Detailed ShapeElement and AssemblyShapeJoint Model
+
+This clause explains in detail how two _OccurrenceTerminals_ within an assembly are
+joined together, e.g. an end of a wire with an "internal" terminal of a connector,
+or two "external" terminals of two connectors.
+
+While in the previous clauses we showed pieces of the AP242 connectivity model in a
+rather simplified way to highlight the principles, we will now look to it in more
+detail.
+
+As stated earlier _OccurrenceShapeElement_ and _PartShapeElement_ are both subtypes
+of _ShapeElement_. A _PartShapeElement_ represents an element of the shape of a
+_PartView_, while an _OccurrenceShapeElement_ represents an element of the shape of
+an _Occurrence_. To enforce this the _ElementOf_ attribute of a _PartShapeElement_
+must call out a _PartView_, while the _ElementOf_ attribute of an
+_OccurrenceShapeElement_ must call out an _Occurrence_.
+
+NOTE: ElementOf of a ShapeElement might also refer to an AssemblyViewRelationship,
+BreakdownElementView or IndividualPartView, but these cases are not addressed in
+this tutorial.
+
+An _OccurrenceShapeElement_ calls out as its _Definition_ a
+_PartOrOccurrenceShapeElementSelect_ that is either a _PartShapeElement_ or an
+_OccurrenceShapeElement_. There is a constraint on the combination of the values for
+_ElementOf_ and _Definition_. If and only if _ElementOf_ has a value of type
+_SpecifiedOccurrence_ the _Definition_ attribute must have a value of type
+_OccurrenceShapeElement_.
+
+An _AssemblyShapeJoint_ is a _PartShapeElement_ that belongs to an
+_AssemblyDefinition_. An _AssemblyShapeJoint_ connects typically two or more
+_OccurrenceShapeElements_. In most cases the _OccurrenceShapeElements_ belong to
+different _Occurrences_ but there are special cases where some of them may be from
+the same _Occurrence_. These _Occurrences_ must be related into the same
+_AssemblyDefinition_ as the one the _AssemblyShapeJoint_ belongs to.
+
+[[fig13]]
+.Detailed AssemblyShapeJoint model
+image::img13.png[]
+
+For each _AssemblyShapeJoint_ the kind of joint can be specified. The following
+_JointTypes_ are pre-defined:
+
+* *welded connection* [IEV ref 581-23-06]: connection made by welding
+* *soldered connection* [IEV ref 581-23-04]: connection made by soldering
+* *glued connection*: connection made by glueing
+* *snap connection*: connection made by snapping
+* *push connection*: connection made by pushing
+* *screwed connection*: connection made by screwing
+* *bolted connection* [IEV ref 461-19-05]: connection in which the pressure to the
+conductor is applied by bolting
+* *wrapped connection* [IEV ref 581-23-07]: solderless connection achieved by
+wrapping a solid conductor around a wrap post
+* *insulation displacement connection* [IEV ref 581-23-35]: solderless connection
+made by inserting a single wire into a slot in an insulation displacement termination
+* *insulation piercing connection* [IEV ref 461-19-06]: connection made by metallic
+protrusions which pierce the insulation of the cable core
+* *crimped connection* [IEV ref 461-19-01] permanent connection made by the
+application of pressure inducing the deformation or reshaping of the barrel around
+the conductor of a cable
++
+--
+NOTE: In some cases, the deformation or reshaping of the barrel may affect the form
+of the conductor.
+--
+* *circular compressed crimped connection* [IEV ref 461-19-02]: crimp connection in
+which the barrel is compressed maintaining essentially its circular form
+* *hexagonal compressed crimped connection* [IEV ref 461-19-03]: crimp connection in
+which the barrel is compressed and reshaped essentially to a hexagonal form
+* *deep indented crimped connection* [IEV ref 461-19-04]: crimp connection in which
+the barrel and the cable conductor are deformed by deep indentations
+* *promissory connection*: connection that is promised or expected to be established
+in some way, but that is by purpose not realised for this PartView
+* *promissory connection for higher assembly*: promissory connection that will be
+realised in a higher assembly in which this assembly is an Occurrence
+* *promissory connection for installation constraints*: the connection can not be
+realised on this assembly level because of installation constraints and this must be
+realised in a higher assembly
+* *promissory connection for missing contributors*: the connection can not be
+realised on this assembly level because one or more needed OccurrenceShapeElements
+are not part of this assembly. So the final AssemblyShapeJoint can only be realised
+in a higher assembly where the other OccurrenceShapeElements become accessible.
+
+The attribute _JointType_ is optional; it should only be provided if available in
+the sending system. Also _JointType_ does not need to be specified if one of the
+underlying _JointTypes_ of the affected _PartTerminals_ that are called out as
+_Definition_ of the _OccurrenceTerminal_ are already specific enough.
+
+However if both, the _JointType_ of the _AssemblyShapeJoint_ and the JointType of
+one or more _PartTerminals_ are provided, then the _JointTypes_ of the
+_AssemblyShapeJoint_ overrides the _JointTypes_ of the _PartTerminal(s)_. E.g. if
+the JointType of the PartTerminal type is a _crimp terminal_, and it used by an
+_AssemblyShapeJoint_ with type _solder_, then this means the joint is realised by
+soldering, not by crimping.
+
+TODO: add example code
+
+AssemblyShapeJoint provides the capability to directly connect two or more
+terminals. However in some special cases it might be needed to provide a
+hierarchical structure of how the joints are realized. Example of such a situation
+with two _AssemblyShapeJoints_ for joining three _OccurrenceTerminals_ (<<fig14>>).
+First the ends of two wires (wire1 and wire2) are twisted together with a lower
+level _AssemblyShapeJoint_, and then a higher level _AssemblyShapeJoint_ is taking
+the twisted pair and connects it with an _OccurrenceTerminal_ from a splice1 by
+crimping.
+
+[TODO]
+====
+[[fig14]]
+.Tree of AssemblyShapeJoints
+image::img14.png[]
+====
+
+[[cls-10.3.1]]
+==== Example for mechanical AssemblyShapeJoint
+
+TODO: xxx Contact in Cavity or Insert in Slot
+
+[[cls-10.4]]
+=== Detailed PartTerminal Model
+
+This clause explains in detail the concept of _PartTerminal_ that identifies a
+feature of a part that can be connected with others either electrical or optical.
+
+[[fig15]]
+.Detailed PartTerminal model
+image::img15.png[]
+
+A PartTerminal carries three additional attributes in addition to those it inherits
+from PartShapeElement:
+
+JointType characterises the intended way on how to contact the PartTerminal. Most of
+the allowed values listed below are taken from IEC definitions. To achieve a
+systematic naming convention the word "contact" has been replaced by the word
+"terminal" or the word "terminal" has been added at the end. The terms written in
+bold characters shall be used. Alternative IEC terms are separated by comma.
+
+* *socket terminal*, socket contact, female contact [IEV ref 151-12-17]: contact
+member intended to make electric engagement on its inner surface for mating with the
+outer surface of another contact member
++
+--
+NOTE: In English, the term "socket contact" does not imply that socket contacts are
+always mounted in a socket nor that sockets have only socket contacts.
+--
+* *pin terminal*, pin contact, male contact [IEV ref 151-12-18]: contact member
+intended to make electric engagement on its outer surface for mating with the inner
+surface of another contact member
+* *crimp terminal*, crimp contact [IEV ref 581-22-05]: contact having a conductor
+barrel designed to be crimped
+* *solder terminal* [IEV ref 442-06-20]: a conductive part of a connecting device
+provided to enable a termination to be made by means of solder
+* *lug terminal* [IEV ref 442-06-16]: a screw-type terminal designed for clamping a
+cable lug or bar directly or indirectly by means of a screw or nut
+* *screw terminal* [IEV ref 442-06-08]: a terminal, in which the conductor is
+clamped under the head of one or more screws, and where the clamping pressure can be
+applied directly by the head of the screw or through an intermediate part, such as a
+washer, clamping plate or an anti-spread device
+* *mantle terminal* [IEV ref 442-06-14]: a terminal, in which the conductor is
+clamped against the base of a slot in a threaded stud by means of a nut, by a
+suitably shaped washer under the nut, by a central peg if the nut is a cap nut, or
+by an equally effective means for transmitting the pressure from the nut to the
+conductor within the slot
+* *saddle terminal* [IEV ref 442-06-09]: a terminal, in which the conductor is
+clamped against the base of a slot in a threaded stud by means of a nut, by a
+suitably shaped washer under the nut, by a central peg if the nut is a cap nut, or
+by an equally effective means for transmitting the pressure from the nut to the
+conductor within the slot
+* *pillar terminal* [IEV ref 442-06-22]: a screw type terminal, in which the
+conductor(s) is (are) inserted into a hole or cavity, where it is clamped under the
+shank of the screw
++
+--
+NOTE: The clamping pressure can be applied directly by the shank of the screw or
+through an intermediate part, to which pressure is applied by the shank of the screw.
+--
+* *stud terminal* [IEV ref 442-06-23]: a screw-type terminal in which the conductor
+is clamped under a nut
++
+--
+NOTE: The clamping pressure can be applied directly by a suitably shaped nut or
+through an intermediate part, such as a washer, a clamping plate or an anti-spread
+device.
+--
+* *resilient contact terminal* [IEV ref 581-22-09]: contact having elastic
+properties to provide a force to its mating part
+* *snap on contact terminal* [IEV ref 581-22-10]: push-on contact in which retention
+is achieved by means of a deformation of the contact area which provides positive
+axial location
+* *tuning fork contact terminal* [IEV ref 581-22-12]: resilient contact having a
+shape similar to that of a tuning fork, the two arms of which apply contact force in
+opposite directions
+* *push on contact terminal* [IEV ref 581-27-04]: contact with which a connection is
+achieved by axial force, separation being restricted by friction
+* *insulation displacement terminal*, insulation displacement termination [IEV ref
+581-23-39]: termination having slots with precisely controlled sides, which are
+intended to accept a wire and to displace its insulation, deform its conductor and
+to produce a gas-tight solderless connection
+* *non reusable insulation displacement termination* [IEV ref 581-23-41]: insulation
+displacement termination that can be terminated only once
+* *fusion fibre splice*, fusion splice [IEV ref 731-05-06]: a splice accomplished by
+the application of localised heat sufficient to fuse or melt the ends of two lengths
+of optical fibre, to produce a continuous single optical fibre
+* *mechanical fibre splice*, mechanical splice [IEV ref 731-05-07]: a fibre splice
+accomplished by fixtures or materials, rather than by thermal fusion
+* *optical fibre splice* [IEV ref 731-05-05]: a permanent joint whose purpose is to
+couple optical power between two optical fibres
++
+--
+NOTE: Associated terms : to splice, splicing.
+--
+
+DomainType: Either electrical or optical. In principle also the domain types thermal
+or magnetic are available, but these are not used in practise so far.
+
+InterfaceOrJoinTerminal: This indicates on whether a PartTerminal is intended to be
+connected on the next higher assembly level (e.g. the internal terminals of a
+connector) or whether the PartTerminals are intended to be used to "interface" on an
+even higher assembly level (e.g. the external terminals of a connector)
+
+[[cls-10.4.1]]
+==== Example: Electrical Part with Terminals
+
+TODO: xxx TransportFeature with join and interface terminals, e.g. a single contact
+
+[[cls-10.5]]
+=== Detailed OccurrenceTerminal and PhysicalNode Model
+
+This clause explains in detail how "components" of an electrical assembly are
+connected with each other, either by AssemblyShapeJoints or by
+_PartConnectivityDefinition_ that represents nodes in the sense of the Kirchhoff's
+laws on electrical circuits.
+
+For the exchange of electrical or optical connectivity information, _PartTerminal_,
+subtype of _PartShapeElement_, and _OccurrenceTerminal_, subtype of
+_OccurrenceShapeElement_, are to be used. The _Definition_ attribute of
+_OccurrenceTerminal_ is of type _PartOrOccurrenceTerminalSelect_ which is either a
+_PartTerminal_ or another _OccurrenceTerminal_. Similar to _OccurrenceShapeElement_,
+the _Definition_ of _OccurrenceTerminal_ shall only, and only if, be of type
+_OccurrenceTerminal_ when _ElementOf_ has a value of type _SpecifiedOccurrence_.
+
+[[fig16]]
+.PhysicalNode & OccurrenceTerminal
+image::img16.png[]
+
+Like _AssemblyShapeJoint_, _PartConnectivityDefinition_, is also a subtype of
+_PartShapeElement_. It defines in a more generic way either electrical or optical
+connection between several terminals without providing all the details. This is done
+through the attribute _ConnectedTerminals_ that is of type
+_PartOrOccurrenceShapeElement_. The following constraints apply:
+
+* If a member of the _ConnectedTerminals_ is of type _PartTerminal_, then this
+_PartTerminal_ shall belong to the same _PartView_ to which also
+_PartConnectivityDefinition_ belongs to
+* If a member of the _ConnectedTerminals_ is of type _OccurrenceTerminal_, then the
+_Occurrence_ this _OccurrenceTerminal_ belongs to shall be related into an
+_AssemblyDefinition_ via a _AssemblyOccurrenceRelationship_ that is also the same
+_AssemblyDefinition_ the _PhysicalNode_ belongs to.
+
+[[cls-10.5.1]]
+==== Example: Phone jack occurrence
+
+[TODO]
+====
+[%unnumbered]
+[example]
+Pick example with 2 join/interface terminals (e.g. phone jack)
+====
+A _PartView_ contains two PartTerminals whose internal connection is stated by a
+_PartConnectivityDefinition_.
+
+[%unnumbered]
+[source,xml]
+----
+<PartView uid="_103002">
+  <DefiningGeometry uidRef="_103090"/>
+  <InitialContext uidRef="_100102"/>
+  ...
+  <ShapeElement xsi:type="n0:PartTerminal" uid="_103003">
+    <Id id="External"/>
+    <RepresentedGeometry uidRef="_103092"/>
+    <IntendedJointType>
+      <TerminalJointTypeEnum>screw_terminal</TerminalJointTypeEnum>
+    </IntendedJointType>
+      <InterfaceOrJoinTerminal>interface_terminal</InterfaceOrJoinTerminal>
+  </ShapeElement>
+  <ShapeElement xsi:type="n0:PartTerminal" uid="_103004">
+    <Id id="Internal"/>
+    <RepresentedGeometry uidRef="_103094"/>
+    <IntendedJointType>
+      <TerminalJointTypeEnum>crimp_terminal</TerminalJointTypeEnum>
+    </IntendedJointType>
+    <InterfaceOrJoinTerminal>join_terminal</InterfaceOrJoinTerminal>
+  </ShapeElement>
+  <ShapeElement xsi:type="n0:PartConnectivityDefinition" uid="_103007">
+    <ConnectedTerminals>
+      <PartTerminal uidRef="_103003"/>
+      <PartTerminal uidRef="_103004"/>
+    </ConnectedTerminals>
+  </ShapeElement>
+</PartView>
+----
+
+[[cls-10.6]]
+=== Referencing Terminals in Hierarchical Assembly Structures
+
+So far we explained only on how to use _AssemblyShapeJoints_ and
+_PartConnectivityDefinitions_ within a single assembly level as these concepts can
+refer only to _OccurrenceShapeElements_ respectively _OccurrenceTerminals_ within
+the same assembly level. But what to do when the _AssemblyShapeJoints_ and
+_PartConnectivityDefinitions_ need to span over a multi level assembly structure?
+
+The answer is to use _SpecifiedOccurrence_ to make
+_OccurrenceShapeElements/OccurrenceTerminals_ from a lower assembly level visible on
+a higher assembly level.
+
+A _SpecifiedOccurrence_ has as its _Definition_ another _Occurrence_ (or subtype
+_SpecifiedOccurrence_) and calls out with its attribute _UpperUsage_ a higher level
+_Occurrence_, and thus making the lower level _Occurrence_ visible in the higher
+level _Occurrence_. In a similar way the _OccurrenceShapeElements_ and
+_OccurrenceTerminals_ from the lower level _Occurrence_ can be reflected for the
+higher level _Occurrence_ by creating copies of _OccurrenceShapeElements_ and
+_OccurrenceTerminals_ that refer with their _Definition_ attributes to the lower
+level _OccurrenceShapeElements_ and _OccurrenceTerminals_.
+
+Here an example on how this mechanism works through an assembly hierarchy with four
+levels:
+
+* The top assembly "Aircraft99x" contains an occurrence "h1.1" that is a "Part_H1"
+* The assembly "Part_H1" contains an occurrence "arinc1" that is a "ARINC 600 set"
+* The assembly "ARINC 600 set" contains an occurrence "C-Assy" for the insert at
+position C that is a "5W2 assy"
+* The assembly "5W2 assy" contains an occurrence "power3" that is a "#16 Rack plug
+power contact"
+
+A series of SpecifiedOccurrences flatten this hierarchical assembly structure:
+
+* "h1.1/arinc1" represents the "arinc1" occurrence for the higher occurrence "h1.1"
+* "arinc1/C-Assy" represents the "A-Assy" occurrence for the higher occurrence
+"arinc1"
+* "h1.1/arinc1/C-Assy" represents the "arinc1/A-Assy" occurrence for the higher
+occurrence "arinc1/C-Assy"
+* "C-Assy/power3" represents the "power3" occurrence for the higher occurrence
+"C-Assy"
+* "arinc1/C-Assy/power3" represents the "C-Assy/power3" occurrence for the higher
+occurrence "arinc1"
+* "h1.1/arinc1/C-Assy/power3" represents the "arinc1/C-Assy/power3" occurrence for
+the higher occurrence "h1.1"
+
+[[fig17]]
+.SpecifiedOccurrence Tree with OccurrenceTerminals
+image::img17.png[]
+
+Now the terminal "jt" is made visible on the top assembly level and it can there be
+connected by an AssemblyShapeJoint to another terminal "h2.1/wire1/end-a" for which
+a similar structure will be build up.
+
+Please note that the flattening of the hierarchical structure into a flat structure
+is essential because:
+
+* the "5W2 assy" might contain another occurrence "power4" of an "#16 Rack plug
+power contact" (which is the case in our example)
+* the "ARINC 600 set" might contain another occurrence "D-Assy" of an "5W2 assy"
+* the "Part_H1" might contain another occurrence "arinc2" of an "ARINC 600 set"
+* the " Aircraft99x" might contain another example "h1.2" of an "Part_H1"
+
+If all this would be the case, an AssemblyShapeJoint on the top assembly level would
+need to be specific as to which one of the following "jt" OccurrenceTerminals a
+connection is made:
+
+* "h1.1/arinc1/C-Assy/power3"
+* "h1.1/arinc1/C-Assy/power4"
+* "h1.1/arinc1/D-Assy/power3"
+* "h1.1/arinc1/D-Assy/power4"
+* "h1.1/arinc2/C-Assy/power3"
+* "h1.1/arinc2/C-Assy/power4"
+* "h1.1/arinc2/D-Assy/power3"
+* "h1.1/arinc2/D-Assy/power4"
+* "h1.2/arinc1/C-Assy/power3"
+* "h1.2/arinc1/C-Assy/power4"
+* "h1.2/arinc1/D-Assy/power3"
+* "h1.2/arinc1/D-Assy/power4"
+* "h1.2/arinc2/C-Assy/power3"
+* "h1.2/arinc2/C-Assy/power4"
+* "h1.2/arinc2/D-Assy/power3"
+* "h1.2/arinc2/D-Assy/power4"
+
+[[cls-10.6.1]]
+==== Example: AssemblyShapeJoint in Hierarchical Assembly
+
+TODO: xxx
+
+[[cls-10.7]]
+=== Flat Assembly Structure with geometrically constrained Occurrences
+
+TODO: xx TBD, see HarnessExample_flat.xml
+
+Some connectors have a quite complex assembly structure consisting of contacts,
+inserts, housing, back-shell etc. Instead of using hierarchical assemblies some
+system uses a flat assembly structure where these components all show up directly in
+the main WiringHarnessAssemblyDesign. Having several connectors there is a need to
+know which connector components belong together. This information can be provided by
+either a pure mechanical AssemblyShapeJoint or AssemblyShapeConstraint. The
+difference between these two concepts is that an AssemblyShapeJoint provides some
+information on how the joined components hold together (e.g. by soldering) while an
+AssemblyShapeConstraint only provides the information that some objects should
+geometrically touch in some way, but without saying how this is achieved.
+
+[[cls-10.8]]
+=== Multi terminal connections
+
+A coax cable and connectors typically often of a single shield and single
+wire/contact. For practical reason only a single connection is used for data
+exchange, and sender and receiver will understand that it is in fact 2 connections.
+Other examples are e.g.
+
+* power connection, consisting of phase, neutral and GND
+* USB-C connection with 24 contacts in 12 pairs
+* ethernet connections consisting of 4 twisted cable pairs, so 8 connections
+
+Here a detailed example for a coax cable of type RG-58 (50 Ohms) and a corresponding
+male and female connector
+
+[TODO]
+--
+[[fig18a]]
+.xxx
+====
+image::img18a.png[]
+
+image::img18b.png[]
+====
+
+cable of `type`
+--

@@ -1,0 +1,333 @@
+[[cls-5]]
+== Analysis Control Structures
+
+The remaining sections in this document discuss the source of FEA results
+information and the mapping process to AP209 ed2 constructs. These topics are scoped
+to the following:
+
+* NASTRAN Analysis Control Overview
+* Analysis Control Structures -- Structures used to describe the operations
+performed on the FEM
+* Steps and States -- Describe the specification or requesting of model variables
+for a single execution of the solution process
+
+[[cls-5.1]]
+=== NASTRAN Analysis Control Input Overview
+
+The ATS pilot models are simplistic but useful to demonstrate the processes involved
+in defining the solution controls and interpretation of results. A quick overview of
+the NASTRAN solution control input information is presented prior to delving into
+the AP209 ed2 data model mapping and implementation. A complete NASTRAN analysis
+file is divided into five main input data sections:
+
+* NASTRAN (NASTRAN Command) -- Allows specification of NASTRAN execution options
+* FMS (File Management Section) -- Controls attachment and initialization of
+database management sets and files
+* EXEC (Executive Control Section) -- Selects solution sequences, alters and
+diagnostics
+* CASE (Case Control Section) -- Specifies load cases, loads, boundary conditions
+and requests for output formats and output variables
+* BULK (Bulk Data Section) -- Defines the FEA model along with input data required
+for the selected solution sequence and subcases
+
+The pilot models use the linear static analysis solution sequence (SOLUTION 101)
+specified in the Executive Control Section. No further details of the linear static
+solution sequence are presented in this document, but the details of the Case
+Control and related Bulk Data Sections and their mapping to AP209 ed2 are discussed.
+The reader can always explore more detailed explanations of the source information
+by reviewing the NASTRAN Quick Reference Guide (available online). The documentation
+is organized by the sections outlined above. The particular version used in this
+handbook is MSC/NASTRAN Version 2013.1 but any software provider that offers a
+version of the NASTRAN solver will have similar documentation available.
+
+The pilot models used for this handbook are very similar to the original volume 1
+models with the exception of addition output requests or output options specified in
+the NASTRAN Case Control Section subcases.
+
+The Executive and Case Control template for the ATS1 pilot model is illustrated in
+<<fig5>>. The other models have additional subcases but each is structured as shown
+with similar output requests. Requests that are not supported for a particular
+element type are ignored. The target for each output request is the 'ALL' string
+which indicates a request to output the quantity for all applicable nodes or elements.
+
+[[fig5]]
+[source]
+.NASTRAN CASE Control
+----
+{{{*_$ Linear Static Analysis_*}}}
+SOL 101
+TIME 600
+CEND
+{{{*_$_*}}}
+SEALL = ALL
+SUPER = ALL
+TITLE = Nastran job EAS test case ATS1m5
+ECHO = NONE
+MAXLINES = 999999999
+GPFORCE(PRINT,PUNCH) = ALL
+{{{*_$_*}}}
+SUBCASE 1
+  SUBTITLE=subcase1
+  SPC = 100
+  LOAD = 200
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+{{{*_$_*}}}
+{{{_<...Additional Subcases 2 through n...>_}}}
+----
+
+NASTRAN uses a hierarchical technique to interpret certain output request options.
+Output options specified for the first subcase STRESS output request are applied to
+subsequent subcases and to similar output quantities such as STRAIN. Also, output
+specified above the first subcase definition is applied to all subcases if not
+overridden. A brief discussion of each of the listed cards is shown in <<table1>>.
+Items in gray italics are solver specific control entries and are not currently
+processed or mapped to any STEP entity.
+
+[[table1]]
+[cols=3,options=header]
+.NASTRAN Solution Control Card Data
+|===
+| CARD | Option or Value | Description
+| SOL | 101 | Select the linear static solution sequence
+| [css color:gray]#_TIME_# | [css color:gray]#_600_# | [css color:gray]#_Set maximum CPU and I/O time_#
+| [css color:gray]#_CEND_# | | [css color:gray]#_Indicates the end of the EXEC section_#
+| [css color:gray]#_SEALL_# | [css color:gray]#_ALL_# | [css color:gray]#_Superelement ID used in executing the solution sequence_#
+| [css color:gray]#_SUPER_# | [css color:gray]#_ALL_# | [css color:gray]#_Assigns subcases to superelement or sets of superelements_#
+| TITLE | | Text label for overall solution
+| [css color:gray]#_ECHO_# | [css color:gray]#_NONE_# | [css color:gray]#_No printout of the input bulk data is selected_#
+| [css color:gray]#_MAXLINES_# | [css color:gray]#_9999999999_# | [css color:gray]#_Maximum number of output lines_#
+| GPFORCE | PRINT,PUNCH | Generate printed and punch file output for grid point force balance data
+| SUBCASE | 1 | Identifies start of subcase definitions
+| SUBTITLE | Subcase1 | Text label for this subcase
+| SPC | 100 | Selects the ID of a set or combination of single point constraint boundary conditions for this subcase
+| LOAD | 200 | Selects the ID of a set or combination of applied loads for this subcase
+.2+| DISPLACEMENT | PRINT,PUNCH | Generate printed and punch file output for node displacements for this subcase
+| SORT1, REAL | Organize node output as a deformed shape of the real component of displacement for this subcase
+| SPCFORCE | PRINT,PUNCH | Generate printed and punch file output for forces of single point constraint (reaction forces for equilibrium)
+| | SORT1, REAL | Real values sorted by subcase
+| STRESS | PRINT,PUNCH | Generate printed and punch file output for element stresses
+| | SORT1, REAL | Real values sorted by subcase
+| | VONMISES,BILIN | Compute Von Mises stresses at element center and bilinear interpolation to the element corners
+| STRAIN | PRINT,PUNCH | Generate printed and punch file output for element strains
+| FORCE | PRINT,PUNCH | Generate printed and punch file output for element forces
+|===
+
+The PRINT output option generates an ASCII output that is human readable and is
+formatted for printing on a line printer. The file extension for this file is .f06
+and also contains model statistics, summaries and diagnostics information. PUNCH
+output is also ASCII but is a data-record formatted file that can easily be read by
+humans or computers. The 'Item Codes' tables located in the NASTRAN Quick Reference
+Guide define the data record formats for this file. Additional binary output files
+(.op2, .xdb or .h5) can be requested that contain NASTRAN data blocks used in the
+solution sequence. Reading a binary file is the preferred method to obtain result
+data for all but trivial sized FEA models. For the pilot studies, several formats
+are provided.
+
+The sections that follow present how each quantity and option is implemented in the
+AP209 ed2 data model for the categories of elements (curve, surface or volume) used
+in the pilot studies.
+
+[[cls-5.2]]
+=== AP209 ed2 Analysis Control Structures
+
+The AP209 ed2 control structures represent the operations that are specified and
+performed on the *fea_model_3d* entity. Also, they relate the analysis results to
+the appropriate input controls. The basic control and result structure is presented
+in the AP209 ed2 Recommended Practices document and is repeated here as <<fig6>>.
+
+[[fig6]]
+.Linear Static Analysis - Control Structures
+image::img06.png[]
+
+This document focuses on the shaded area which shows the top level relationship of
+the control to the *fea_model* (superclass of *fea_model_3d*). The *fea_model* is
+the top level entity for the definition of the FEA model mesh, physical properties
+and material properties while the control structures define load cases, boundary
+conditions, loads and links to results. Refer to Volume 1 for a discussion of the
+*fea_model* and also the entities outside the shaded area.
+
+Below the control entities in <<fig6>> are entities that are specializations of the
+EXPRESS *analysis_step* class. These subclasses represent the FEA load case or
+subcase concept. A new set of the *control_linear_static_analysis_step* entities
+will be instantiated for each subcase. If no results are being mapped to AP209 ed2,
+then only the *control_linear_static_analysis_step* and related entities will be
+present. If only the model definition (mesh) without loads and boundary conditions
+are being processed, then no control entity will be required.
+
+<<fig7>> is the class inheritance diagram for the *analysis_step* subclasses
+followed by the flattened EXPRESS schema definitions in <<fig8>>. Through the
+inheritance mechanism, it shows how the full set of attributes for each subclass are
+built up to support the control entity structure defined in <<fig6>>. Note that each
+subclass references 'to' the top level control which forms a 'many-to-one'
+relationship between the analysis steps and the top level control.
+
+[[fig7]]
+.Analysis_step Class Inheritance Diagram
+image::img07.png[]
+
+The *control_result_relationship* class definition is also included in <<fig8>>.
+Instances of this class allow results steps to be associated to the appropriate
+control steps. Note that this is a 'one-to-one' relationship necessitating a
+separate instance for each combination of *control_analysis_step* and
+*result_analysis_step*.
+
+A basic understanding of the EXPRESS schema language for class and type definitions
+was discussed in Volume 1 of this handbook and is not repeated. Again, the reader is
+encouraged to review the AP209 ed2 standard and the Recommended Practices document
+which discusses these entities in detail. Red text are the formal names and the blue
+text highlights relevant attributes for review.
+
+[[fig8]]
+[source]
+.EXPRESS Schema for Control Step and Load Increment Process
+----
+ENTITY control_linear_static_analysis_step;
+  ENTITY analysis_step;
+    analysis_control              : control;
+  ENTITY control_analysis_step;
+    step_id                       : IDENTIFIER;
+    sequence                      : INTEGER;
+    initial_state                 : state;
+    description                   : TEXT;
+  ENTITY control_linear_static_analysis_step;
+    process                       : control_linear_static_load_increment_process;
+END_ENTITY;
+
+ENTITY control_linear_static_load_increment_process;
+  ENTITY control_process;
+    process_id                    : IDENTIFIER;
+    description                   : TEXT;
+  ENTITY control_linear_static_load_increment_process;
+    final_input_state             : state;
+END_ENTITY;
+
+ENTITY control_result_relationship;
+    control                       : control_analysis_step;
+    result                        : result_analysis_step;
+END_ENTITY;
+
+ENTITY specified_state;
+  ENTITY state;
+    state_id                      : IDENTIFIER;
+    description                   : TEXT;
+  ENTITY specified_state;
+END_ENTITY;
+----
+
+These schema definitions also contain attributes that refer to several other entity
+classes. The *control_step* references a
+*control_linear_static_load_increment_process*, which in turn, refers to a single
+*state* entity through the *final_input_state* attribute. These *state* entities
+function as top level collectors of all the information defining each subcase or
+step. A brief definition of the collector state entities used in <<fig6>> is
+presented in <<fig9>> along with an illustration of these states for a cantilevered
+beam.
+
+[[fig9]]
+[cols=3]
+.Interpretation of State Collectors for a Control_Step
+|===
+h| Initial input state | The initial values of the solution variables and related field variables (can be values from a prior step) a| [%unnumbered]
+image::img-t5.png[]
+
+h| Final input state | The boundary conditions and applied loads that are to be balanced by reaction forces and internal forces of the model to achieve static equilibrium a| [%unnumbered]
+image::img-t6.png[]
+
+h| Output request state | Requests specific output quantities. A single template instance of each result state with unspecified values. Relates directly to an analysis step a| [%unnumbered]
+image::img-t7.png[]
+
+h| Resulting state | The calculated values of the solution variables and related field variables after equilibrium has been achieved at the end of the solution process a| [%unnumbered]
+image::img-t8.png[]
+|===
+
+These collector **state**(s) are referenced 'from' an analysis step or process
+entity through a simple entity reference; therefore, there can only be a single
+instance for each analysis step. In general, *state* entities and its subclasses can
+be related to each other through use of *state_relationship* entities that have
+attributes representing the *relating* and the *related* state entities. Through use
+of these entities, complex hierarchical data structures can be constructed to
+represent the collections of FEA information associated to a load step or subcase.
+The *relating* state is the parent or aggregator while the *related* state is the
+child or item being aggregated.
+
+<<fig10>> is taken from the Recommended Practice document for AP209 ed2 to
+illustrate use of the *state_relationships* in relating the top level collector
+state and the lower level *specified_states* in a simple tree structure under the
+process entities. *Specified_states* are a sub-class of the state class but have no
+additional attributes and can be referenced by the *state_relationships*. This type
+of sub-classing is used to distinguish instances of the specialized sub-class from
+other entity classes that also inherit from the state super-class. Instances of
+*specified_state* can be used for the top level aggregator.
+
+[[fig10]]
+.Simple Tree Structure of States
+image::img10.png[]
+
+One concept that often causes confusion is the use of the terms 'initial' and
+'final' in the context of the control inputs. Do not confuse 'initial' with the
+applied loads or specified boundary conditions. 'Initial' refers to initial values
+of solution variables known from a prior step while 'final' refers to the set of
+inputs that are the specified part of the final set of solution variables at
+equilibrium. Details of these control structures are presented in the next section.
+
+[[cls-5.3]]
+=== NASTRAN Case Control Specified as Analysis Steps
+
+The AP209 ed2 control structures are used to capture the information specified in
+the NASTRAN Case Control Section. Specifically, the subcase definitions in a NASTRAN
+solver deck are mapped directly to *control_linear_static_analysis_step* and the
+related process and state entities. These top level control, process and state
+entities together provide attributes to capture the semantics of the subcase
+information. Each of the diagrams presented in this handbook follows this aggregate
+view of the subcase (step+process+state).
+
+There is limited guidance in the recommended practice on how to capture identifiers
+for this information; participants in the pilot study chose different mappings which
+led to problems interpreting each other's STEP output as well as problems
+identifying and visualizing the loads and boundary conditions for each subcase.
+Specifically, for each *control* entity, the
+*control_linear_static_analysis_step.step_id* must be populated with a unique
+subcase identifier. In NASTRAN, this refers to the unique integer subcase id.
+Additionally, the optional NASTRAN title, subtitle, and label for each subcase
+should map to the description attributes for the step, process and top level state
+instance. <<fig11>> illustrates guidance for identifying the subcase id and
+highlights the aggregate view of an FEA subcase. The sequence attribute provides an
+index for sorting the steps into the solver order and should be used for the
+*step_id* when no other value is provided. The sequence attribute also has a
+uniqueness requirement.
+
+[[fig11]]
+.Aggregate View of an FEA Subcase
+image::img11.png[]
+
+The pseudo listing shown in <<fig12>> illustrates where these attributes might
+appear in a typical NASTRAN Case Control Section and notional values for each.
+
+[[fig12]]
+[source]
+.NASTRAN Source Data Mapping for STEP Analysis_Step
+----
+$ first subcase => {{{_<analysis_step.**sequence**>_}}}              1
+SUBCASE {{{_<analysis_step.**step_id**>_}}}                          100
+  TITLE= {{{_<analysis_step.**description**_>}}}                     'EAS Analysis 001 Model'
+  SUBTITLE={{{_<control_process.**description**_>}}}                 'Subcase 100 -34T_Limit'
+  LABEL={{{_<specified_state.**description**_>}}}                    'Pull Up'
+
+$ second subcase => {{{_<analysis_step.**sequence**>_}}}             2
+SUBCASE {{{_<analysis_step.**step_id**>_}}}                          237
+  TITLE= {{{_<analysis_step.**description**>_}}}                     'EAS Analysis 001 Model'
+  SUBTITLE={{{_<control_process.**description**>_}}}                 'Subcase 237 +07R_Limit'
+  LABEL={{{_<specified_state.**description**>_}}}                    'Roll Left'
+
+$ etc...
+----
+
+The *control_process.process_id* and the top level *specified_state.state_id* should
+be populated with user defined identifiers that can include the
+*analysis_step.step_id* for readability. These guidelines are reflected in the pilot
+study STEP files that were used for developing this handbook. No additional guidance
+is provided for the state relationship instances.

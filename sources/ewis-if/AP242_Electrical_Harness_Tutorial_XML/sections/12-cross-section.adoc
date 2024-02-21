@@ -1,0 +1,152 @@
+[[cls-12]]
+== Cross Section of Cables or Harness Segments
+
+When cutting through a harness segment perpendicular to its centre line we will see
+cables, wires, and other auxiliary materials such as isolations, shields,
+protections and more. The following data model is provided to describe such a
+structure.
+
+The data model defines a directed acyclic graph, with
+CrossSectionalOccurrenceShapeElements as the leave elements that are defined by
+CrossSectionalPartShapeElements. The higher level nodes and root nodes in this graph
+are:
+
+* CrossSectionalAlternativePartShapeElement
+* TwistedCrossSectionalGroupShapeElement
+* CrossSectionalGroupShapeElement
+* TwistedCrossSectionalGroupShapeElement
+* CrossSectionalGroupShapeElementWithTubularCover
+* CrossSectionalGroupShapeElementWithLacing
+
+The cross-section of a HarnessSegment can be defined by any ones of these nodes.
+However the definition of any of these nodes and leaves is not restricted to a
+single HarnessSegment. These nodes may span several segments and are therefore
+defined and reusable for the whole harness.
+
+[[fig19]]
+.Cross-sections of extruded structures
+image::img19.png[]
+
+A CrossSectionalPartShapeElement, subtype of PartShapeElement represents an extruded
+shape along some centre-line of a part. The minimum bend radius for this shape (to
+the centre-line) as well as the minimal and maximal cross sectional diameter of the
+shape is provided. The exact geometry of the cross sectional ShapeElement (e.g.
+circular or rounded rectangle) is not specified as this may vary along the centre
+line. The boolean attribute Outer specifies if TRUE the outer shape along the centre
+line. If FALSE an inner shape is provided. A PartView can have at most one
+CrossSectionalPartShapeElement with value TRUE for Outer, but it may have zero, one
+or more CrossSectionalPartShapeElements with the value FALSE.
+
+A CrossSectionalOccurrenceShapeElement is an OccurrenceShapeElement defined by a
+CrossSectionalPartShapeElement for an Occurrence of a Part.
+CrossSectionalOccurrenceShapeElements are the leave elements from which the cross
+section of a harness segment is build up.
+
+A CrossSectionalConstituentElementSelect defines a select of either a
+CrossSectionalPartShapeElement or a CrossSectionalOccurrenceShapeElement.
+
+A CrossSectionalAlternativePartShapeElement is a CrossSectionalPartShapeElement that
+defines that one of two or more CrossSectionalConstituentElementSelects is to be
+used as alternatives in a cross section.
+
+A CrossSectionalGroupShapeElement is a CrossSectionalPartShapeElement that groups
+one or more items defined by CrossSectionalConstituentElementSelect. How the
+grouping is realised is not defined.
+
+A TwistedCrossSectionalGroupShapeElement is a CrossSectionalGroupShapeElement where
+the items are grouped by twisting. The twist direction and period can be specified.
+
+A CrossSectionalGroupShapeElementWithTubularCover is a
+CrossSectionalGroupShapeElement where the items are grouped by covering them all
+around with a specified side of material from a specific side of this material.
+
+CrossSectionalGroupShapeElementWithLacing is a CrossSectionalGroupShapeElement where
+the items are laced together by some material. The details of lacing such as the
+period length are not specified.
+
+[[fig20]]
+.Example cross-section for harness segments S2-1 and S3-1
+image::img20.png[]
+
+Explanation of the cross sectional structure in the provided example:
+
+* for the wire, coax cable RG 48, and the Speaker Cable no detailed information is
+provided about the inner structure, insulation etc. So only the *outer*
+CrossSectionalPartShapeElement is provided for these parts, together with
+corresponding CrossSectionalOccurrenceShapeElements for the Occurrences. See the
+upper part of <<table1>>
+* for the Braid, Wrap and HeatShrink the *inner* CrossSectionalPartShapeElement and
+corresponding CrossSectionalOccurrenceShapeElement is needed as they need to go over
+something else. See the lower part of <<table1>>.
+* wire2 in segment S2 is equivalent to wire3 in segment S3; so these are taken as
+alternatives for a AlternativeLongitudinalExtendPart (_31300)
+* the alternative of wire2 and wire3 are twisted with cable3, covered by
+TwistedCrossSectionalGroupShapeElement (_313002). The twist-direction is clockwise
+and the length of the period is 5 cm.
+* the result of the upper twist is together with cable1 and cable2 grouped together
+and covered by braid1 for shielding purpose by
+CrossSectionalGroupShapeElementWithTubularCover (_313004).
+* the group covered by braid1 is protected by wrap1 through
+CrossSectionalGroupShapeElementWithTubularCover (_313005).
+* the group protected by wrap1 is further protected by heatshrink1 through
+CrossSectionalGroupShapeElementWithTubularCover _313006
+* in some places (S2-2) the heatshrink1 is directly on braid1,
+CrossSectionalGroupShapeElementWithLacing (_313008).
+
+In <<table4>> and <<table5>> the details of the cross sectional structure used in H1
+are provided.
+
+[[table5]]
+[options=header,cols=4]
+.Cross-sectional ShapeElements of "bought" parts
+|===
+| Name | Occurrence | in/out | uid
+
+| WIRE,ELEC,COMP,SNGL CONDUCTOR,150 DEG C | Part | outer | _101020
+| wire1 | _201004 | outer | _201009
+| wire2 | _201104 | outer | _201109
+| wire3 | _201204 | outer | _201209
+| RG 58 | Part | outer | _102020
+| cable1 | _202006 | outer | _202007
+| cable2 | _202106 | outer | _202107
+| Speaker wire | Part | outer | _104020
+| cable3 | _204006 | outer | _204007
+| Braid 1/2inch | Part | inner | _120003
+| braid1 | _220005 | inner | _220006
+| Wrap | Part | inner | _121003
+| wrap1 | _221005 | inner | _221006
+| HeatShrink | Part | inner | _122003
+| heatshrink1 | _222005 | inner | _222006
+|===
+
+[[table6]]
+[options=header,cols=4]
+.Cross-sectional structure definitions in H1
+|===
+| Type | uid / uidRef | Segment | comment
+
+| AlternativeLongitudinalExtendPart | uid _313001 | internal | wire2 or wire3
+| item | uidRef _201109 | | wire2/outer
+| item | uidRef _201209 | | wire3/outer
+| TwistedCSGSE | uid _313002 | internal | twist (wire2 or wire3) with cable3
+| item | uidRef _313001 | | wire2 or wire3
+| item | uidRef _204007 | | cable3/outer
+| CSGSEWithTubularCover | uid _313004 | S2-3,S3-2 | braid1 on (twist... )
+| item | uidRef _313002 | | twist...
+| item | uidRef _202007 | | cable1/outer
+| item | uidRef _202107 | | cable2/outer
+| cover | uidRef _220006 | | braid1/inner
+| CSGSEWithTubularCover | uid _313005 | internal | wrap1 on braid1 ...
+| item | uidRef _313004 | | braid1 on (twist...
+| cover | uidRef _221006 | | wrap1/inner
+| CSGSEWithTubularCover | uid _313006 | S2-1,S3-1 | heatshrink1 on wrap1
+| item | uidRef _313005 | | wrap1 on ...
+| cover | uidRef _222006 | | heatshrink1/inner
+| CSGSEWithTubularCover | uid _313007 | S2-2 | heatshrink1 on braid1 ...
+| item | uidRef _313004 | | braid1 on (twist...
+| cover | uidRef _222006 | | heatshrink1/inner
+| CSGSEWithLacing | uid _313008 | S5 | Lacing of cable1, cable2 & wire3
+| item | uidRef _201209 | | wire3/outer
+| item | uidRef _202007 | | cable1/outer
+| item | uidRef _202107 | | cable2/outer
+|===

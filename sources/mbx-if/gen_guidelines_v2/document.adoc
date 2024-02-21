@@ -1,0 +1,43 @@
+= General Guidelines for the MBx Interoperability Forum
+:doctype: general-guidelines
+:technical-committee: mbx-if
+:version: 2.0
+:revdate: 2023-06-23
+:toclevels: 2
+:copyright-holder: MBx Interoperability Forum
+:mn-document-class: nist
+:fullname: Jochen Boy
+:affiliation: PROSTEP AG
+:email: jochen.boy@prostep.com
+:fullname_2: Phil Rosché
+:affiliation_2: ACCR, LLC.
+:email_2: phil.rosche@accr-llc.com
+:fullname_3: Rosemary Astheimer
+:affiliation_3: NIST
+:email_3: rosemary.astheimer@nist.gov
+:fullname_4: Robert Lipman
+:affiliation_4: NIST
+:email_4: robert.lipman@nist.gov
+:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
+:series:
+:language: en
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+[.preface,beforeclauses=true]
+== Document History
+
+[%unnumbered,options=header]
+|===
+| Version | Date | Change
+| 2.0 | 2023-06-23 | Re-Write from Version 1.x for MBx-IF Organization and Infrastructure
+| | |
+|===
+
+include::sections/01-intro.adoc[]
+
+include::sections/02-test-rounds.adoc[]
+
+include::sections/03-communication.adoc[]
+
+include::sections/04-infrastructure.adoc[]

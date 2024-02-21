@@ -1,0 +1,1179 @@
+== Synthetic Test Case Specifications
+
+=== Test Case CO2: Composite Materials (Ply Contour, EEOP & MEOP)
+
+All information about this test case can also be viewed in CAESAR on its Information
+page.
+
+==== Motivation
+
+For several years, some STEP composite interfaces have been available in several CAD
+tools such as CATIA V5, FiberSIM and in CT CoreTechnologie tools, with a certain
+level of maturity proven by LOTAR pilot projects.
+
+The goal of including Composite Materials in a CAx-IF test round is to align these
+implementations and provide an official framework for composite materials
+implementation tests as STEP AP 242 Ed.2 since it includes this capability.
+
+==== User Stories
+
+This test case supports the following User Stories provided by the CAx-IF UG on
+Redmine:
+
+[%unnumbered,options=header]
+|===
+| ID | Title
+
+| https://rd.pdes-ch.org/issues/41[#41] | Composite Validation property at part level
+| https://rd.pdes-ch.org/issues/42[#42] | Composite Validation property for each Laminate table, Sequence, Ply, core, ply piece, rosette
+| https://rd.pdes-ch.org/issues/44[#44] | Composite EEOP & MEOP
+| https://rd.pdes-ch.org/issues/46[#46] | Composite Core Samples
+| https://rd.pdes-ch.org/issues/77[#77] | Composite ply shape explicit contour
+| https://rd.pdes-ch.org/issues/78[#78] | Ply Material identifier
+|===
+
+==== Approach
+
+The scope of this test case is the "exact implicit" representation of composites
+where the ply geometry is based on surfaces and contours. "Basic" composite
+validation properties at the part level are also in scope of this test case. The
+approximate explicit representation of composite plies, where there is a 3D
+tessellated solid for each ply, is out of scope for this test case.
+
+In addition, the tests in Round 53J consider the Engineering Edge of Part (EEOP) and
+Manufacturing Edge Of Part (MEOP) definitions given in the test model. The EEOP
+denotes the dimensions of the finished part, while the MEOP denotes the boundary to
+be used for manufacturing the laminate.
+
+The approach is to export and to import composite information in STEP AP242 based on
+the:
+
+* Recommended Practices for Composite Materials; Version 4.2; 17 August 2022;
+available on the MBx-IF homepage under "CAx Interoperability Forum > Implementor
+Group > CAx Recommended Practices".
+
+* Draft Recommended Practices for Composite Structure Validation Properties; Release
+0.19; 11 February 2022; available on Nextcloud, folder +
+&#8962; > *MBX-IF* > *CAX-IF* > *Draft Recommended Practices*
+
+* AP242 Edition 2 or Edition 3 IS Longform Express Schema, available on the MBx-IF
+homepage under "CAx > Schemas".
+
+NOTE: As the validation properties recommended practices have not been completely
+agreed upon, some tests will be done by end user checks.
+
+==== Testing Instructions
+
+The native model is the file "CPD_PUBLIC_LOTAR.CATPart" which is available as
+_co2_native.zip_ on Nextcloud, folder: +
+&#8962; > *MBX-IF* > *CAX-IF* > *CAX-IG* > *Round 52J* > *CO2_CO5*
+
+[[fig2]]
+.Illustration of the CO2 Test Case
+image::img02.png[]
+
+[[fig3]]
+.CO2 Details for EEOP & MEOP
+image::img03.png[]
+
+==== Statistics
+
+For each STEP file exported or imported for the CO2 test case, vendors must submit
+the corresponding statistics. To do so, go to the [ CO2 Data Sheet ], and either fill
+in the web form, or upload a comma-delimited file (.csv) with the data as listed below.
+
+[discrete]
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should expect to find.
+For numeric statistics, enter the respective value or 'na' if not supported. For
+other statistics, select either 'full support' (i.e., test case and Rec. Pracs.
+definitions are fulfilled), 'limited support' (meaning the implementation does not
+meet all criteria and issues may be expected on import), or 'na' if not supported.
+
+[discrete]
+===== Target Statistics
+
+When importing a file, report the results found after processing the file as
+described below:
+
+[discrete]
+====== Ply-related Statistics
+
+Several of the Statistics for this test case are related to a specific ply within a
+specific sequence (e.g., material, orientation, rosette). The statistics cannot
+evaluate this for all plies in the model. Hence, the idea is to select one specific
+(interesting) sequence and ply on export, and to publish its name in the "Composite
+Ply Sequence" field of the statistics. Then, fill in the other plyrelated statistics
+with the values as valid for this particular sequence and ply. After import, select
+the sequence and ply with the name given in the native statistics, and again provide
+the values valid for this particular sequence and ply.
+
+The sequence and ply to be used for evaluating the CO2 test case in Round 46J is:
+
+[align=center]
+`PLY SC-0035 of SEQUENCE A035`
+
+[discrete]
+====== Statistics for Core Sample Point
+
+The position of the point for the Core Sample shall be given for:
+
+[align=center]
+`CORE SAMPLE CS1`
+
+[discrete]
+====== Statistics for Flatten Pattern
+
+The length of the curve contour of the flatten pattern shall be given for:
+
+[align=center]
+`PLY SC0200 of SEQUENCE C010`
+
+[discrete]
+===== Data Sheet Columns
+
+These statistics will be enhanced in future test rounds, especially with the release
+of newer versions of the Recommended Practices for Composite Structure Validation
+Properties.
+
+[%unnumbered,options=header]
+|===
+| column name | description
+
+h| model | The name of the test model, here 'CO2'
+h| system_n | The system code of the CAD system creating the STEP file
+h| system_t | The system code of the CAD system importing the STEP file. For native stats, select 'stp'
+h| unit | The unit the model is designed in
+h| compos_tables | The number of Composite Tables in the Model
+h| sequences | The number of Sequences in the model
+h| plies | The total number of plies in the file
+h| num_materials | Total number of Materials defined
+h| compos_table_name | The name of the Composite Table of the model
+h| ply_sequence | The ID of the Sequence and the ID of the Ply within that Sequence for all ply-related statistics; e.g., "Ply.P4 of Sequence.S4".
+h| seq_ply_number | The total number of Plies defined within the Sequence as listed in the "Composite Ply Sequence" column of the data sheet.
+h| seq_ply_material | The name of the Material of the specific Ply and Sequence as listed in the "Composite Ply Sequence" column of the data sheet.
+h| seq_ply_mat_type | The type of Material of the specific Ply and Sequence as listed in the "Composite Ply Sequence" column of the data sheet.
+h| seq_ply_orient | pass/fail - whether the orientation of the specific Ply and Sequence as listed in the "Composite Ply Sequence" column of the data sheet was correct
+h| seq_ply_rosette | The name of the Rosette of the specific Ply and Sequence as listed in the "Composite Ply Sequence" column of the data sheet.
+h| ply_surface_area | The value of the area of the specific Ply and Sequence as listed in the "Composite Ply Sequence" column of the data sheet.
+h| cores | The total number of cores in the file
+h| fp_length | The length of the curve contour of the Flatten pattern of the ply and sequence indicated in the Test Suite document.
+h| validation_c_tables | Total number of Composite Tables in the model, as received via the validation properties capability
+h| validation_sequences | Total number of Sequences as received via the validation properties capability
+h| validation_plies | Total number of Plies (entire assembly) as received via the validation properties capability
+h| validation_c_materials | Total number of Materials as received via the validation properties capability
+h| validation_c_orient | pass/fail, indicates whether the Number of Orientations per part in the model matches the Composite validation property value given in the STEP file
+h| validation_ply_area | pass/fail, indicates whether the sum of all ply surface areas in the part matches the Composite validation property value given in the STEP file
+h| validation_ply_centroid | pass/fail, indicates whether the sum of all ply geometric centroids in the part matches the Composite Validation Property value given in the STEP file
+h| valid_cvp | pass/fail, is the instantiation of the validation properties for Tessellated Geometry in the STEP file as per the recommended practices?
+h| date | The date when the statistics were last updated (will be filled in automatically)
+h| issues | A short statement on issues with the file
+|===
+
+=== Test Case CO5: Composite Part with Rosette Guided by a Curve 90°
+
+All information about this test case can also be viewed in CAESAR on its Information
+page.
+
+==== Motivation
+
+For several years STEP composite interfaces have been available in several CAD tools
+such as CATIA V5, FiberSIM and in CT CoreTechnologie tools, with a certain level of
+maturity proven by LOTAR pilot projects.
+
+The goal of including Composite Materials in a CAx-IF test round is to align these
+implementations and provide an official framework for composite materials
+implementation tests as STEP AP242 Edition 2 and above include this capability.
+
+The CAx-IF User group provided a user story including a composite part with Rosette
+Guided by a curve, where the primary direction is set to non-zero (i.e., 90°). The
+goal is to archive the data for certification, as well as exchanging it with a
+manufacturing supplier.
+
+==== User Stories
+
+This test case supports the following User Stories provided by the CAx-IF UG on
+Redmine:
+
+[%unnumbered,options=header]
+|===
+| ID | Title
+| https://rd.pdes-ch.org/issues/141[#141] | Rosette Guided by a curve 90°
+|===
+
+==== Approach
+
+The aim of this test is to transfer the rosettes defined in the part, the
+relationship to the respective guide curve, as well as the respective orientation as
+defined in the native model.
+
+The table in <<sec-2.2.5>> provides the details for the given test model.
+
+The basis for implementation of the CO5 test case is the following:
+
+* AP242 Edition 2 or Edition 3 IS Longform Express Schema, available on the MBx-IF
+homepage under "CAx > Schemas".
+* Recommended Practices for Composite Materials; Version 4.2; 17 August 2022;
+available on the MBx-IF homepage under "CAx > Rec. Practices".
+
+==== Testing Instructions
+
+The native model is the file "ASME_Y14.37_RosetteType2_90GuidedByCurve_A.CATPart"
+which is available as co5_native.zip on Nextcloud, folder:
+
+&#8962; > *MBX-IF* > *CAX-IF* > *CAX-IG* > *Round 52J* > *CO2_CO5*
+
+[[fig4]]
+.Illustration of the CO5 Test Case
+image::img04.png[]
+
+[[sec-2.2.5]]
+==== Statistics
+
+For each STEP file exported or imported for the CO5 test case, vendors must submit
+the corresponding statistics. To do so, go to the [ CO5 Data Sheet ], and either fill
+in the web form, or upload a comma-delimited file (.csv) with the data as listed below.
+
+[discrete]
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should expect to find.
+For numeric statistics, enter the respective value or 'na' if not supported. For
+other statistics, select either 'full support' (i.e. test case and Rec. Pracs.
+definitions are fulfilled), 'limited support' (meaning the implementation does not
+meet all criteria and issues may be expected on import), or 'na' if not supported.
+
+[discrete]
+===== Target Statistics
+
+When importing a STEP file, report the results found after processing the file as
+described in the table below.
+
+[discrete]
+===== Scope-specific Statistics:
+
+The following table lists the key parameters define in the test model. For the test
+to be considered a success, the following information must be preserved during the
+exchange:
+
+* Name of the Rosette
+* Name of the associated Guide Curve
+* Orientation Angle
+
+The statistics gathered in CAESAR will record whether all, some, or none of there
+were transferred successfully.
+
+[%unnumbered,options=header]
+|===
+| Sequence | Ply | Core Material ID | Orientation | Rosette | Guide Curve
+| Sequence.1 | Ply 1 | 10745 ^| 0° | Rosette A | Guide_Curve_90_Rosette A
+| Sequence.2 | Ply 2 | 10745 ^| 45° | Rosette A | Guide_Curve_90_Rosette A
+| Sequence.3 | Ply 3 | 10745 ^| -45° | Rosette A | Guide_Curve_90_Rosette A
+| Sequence.4 | Ply 4 | 10745 ^| 90° | Rosette A | Guide_Curve_90_Rosette A
+| Sequence.5 | Ply 5 | 10745 ^| 0° or 90° | Rosette A | Guide_Curve_90_Rosette A
+| Sequence.6 | Ply 6 | 10745 ^| +45° or -45° | Rosette A | Guide_Curve_90_Rosette A
+|===
+
+[discrete]
+===== Data Sheet Columns
+
+[%unnumbered,options=header]
+|===
+| column name | description
+h| model | The name of the test model, here 'CO5'
+h| system_n | The system code of the CAD system creating the STEP file
+h| system_t | The system code of the CAD system importing the STEP file. For native stats, select 'stp'
+h| rosette_names | all/partial/none - whether all, some, or none of the Rosette names for Ply X of Sequence Y have been transferred correctly per the test case definition.
+h| rosette_curve_names | all/partial/none - whether all, some, or none of the names of the curves related to the Rosettes have been transferred correctly per the test case definition.
+h| orientation_values | all/partial/none - whether all, some, or none of the orientation values for Ply X of Sequence Y have been transferred correctly per the test case definition.
+h| date | The date when the statistics were last updated (will be filled in
+automatically)
+h| issues | A short statement on issues with the file
+|===
+
+=== Test Case KM3: Kinematics
+
+All information about this test case can also be viewed in CAESAR on its Information
+page.
+
+==== Motivation
+
+CAD methods have been used for many years now to design individual parts and
+assemblies of all sizes across all industries, from a single rivet to an entire
+airplane. Classically, the main focus is to ensure that the part can be manufactured
+correctly.
+
+Products such as cars or planes are not static, however, contain many moving
+components as well: engine, power windows, foldable roof, windshield wipers, cargo
+doors, etc. thus, Kinematics are used to ensure they move correctly, and also to
+illustrate the behavior of the finished product. The use cases range from the
+definition of the Kinematic Mechanism, providing all relationships and constraints
+between the elements so that their definition can be changed in the receiving
+application, to Kinematic Motion, which works like a movie by providing discrete
+positions of the components over time.
+
+The goal is to use a neutral standard format -- AP242 Ed.3 Domain Model XML -- for
+the definition of the Kinematic mechanisms and motion, with external references to
+the applicable geometry format for the respective use case.
+
+==== Approach
+
+The approaches for "Kinematic Mechanism" as well as for "Kinematic Motion" are
+described in the draft "Recommended Practices for STEP AP242 Ed.3 Domain Model XML
+Kinematics", Version "1.2", which is available on Nextcloud, folder +
+&#8962; > *MBX-IF* > *CAX-IF* > *Draft Recommended Practices*
+
+The tests in Round 53J shall be based on AP242 Edition 3, which was published end of
+2022. The XML schema and name space definition to be used during this test are called
+out in the aforementioned Recommended Practices, section 1.1.2.
+
+[discrete]
+===== Collaboration with JT-IF
+
+The Kinematics capabilities are being developed and tested in close collaboration
+with the JT Implementor Forum. While the file format for the part geometry is
+different, the AP242 XML files and the Kinematics definitions therein are identical.
+Test files for this capability will be exchanged between the two groups, in order to
+increase the number of participating systems. Testing feedback will be exchanged as
+well between the actively participating vendors, and any resulting improvements will
+be documented in the joint Recommended Practices. These collaborative efforts are
+coordinated by Jochen Boy (jochen.boy@prostep.com).
+
+==== Testing Instructions
+
+In Round 53J, the test model "eRod Suspension/Front Axle Assembly" will be used
+again. The model was developed by Siemens PLM and Audi, via the prostep ivip / VDA JT
+Workflow Forum. The NX model originates from Siemens PLM; the CATIA model has been
+set up by Audi.
+
+It represents a front axle assembly. The CATIA and NX models are harmonized as far as
+possible, given the differences between the two systems. The Kinematic Pairs and
+Actuations have been set up in NX in the same way as in CATIA (same names, same
+limits, and same types, as far as possible). Compared to the gripper model, the scope
+has been extended with new joint types: universal joint, and rack & pinion pair. The
+model contains two actuations (commands): steering and suspension.
+
+The native CAD files for the KM3 test model can be found on Nextcloud, folder
+
+&#8962; > *MBX-IF* > *CAX-IF* > *CAX-IG* > *Round 53J* > *KM3*
+
+The latest versions of the native models are:
+
+* CATIA V5-6: 7 June 2023
+* NX 2206: 11 May 2023
+
+In addition, the "KM3" folder also contains a video showcasing the two actuations
+defined in the model.
+
+[NOTE]
+====
+Experiences from evaluating the first STEP files provided for KM3 (as part of the
+model development):
+
+* Take care of the correct parametrization. For instance, in CATIA, for the rack &
+pinion pair, use "Radius1", do not use the "GearRatio": stem:["Radius1" * 2pi =
+"GearRatio"].
+* Explicitly include the unit for the angles in GeometricCoordinateSpace.Units. The
+ExchangeContext typically contains only the length unit.
+====
+
+Regarding the testing scope, the following has been agreed:
+
+* *Kinematic Mechanism* is the primary use case, and the corresponding definitions
+shall be included in all provided files.
+* *Kinematic Motion* can be added by anyone interested in supporting this extended
+scope.
+* *Assembly & Kinematic Data* shall be provided in a single AP242 Ed.3 Domain Model
+XML file, using the schema indicated above.
+* *Geometry* shall be included as AP242 Part 21 files.
+
+[[fig5]]
+.Illustration of the KM3 model in CATIA V5
+image::img05.png[]
+
+[[fig6]]
+.Close-up of the KM3 model in NX
+image::img06.png[]
+
+==== Statistics
+
+For each STEP file exported or imported for the KM3 test case, vendors must submit
+the corresponding statistics. To do so, go to the [ KM3 Data Sheet ], and either fill
+in the web form, or upload a comma-delimited file (.csv) with the data as listed below.
+
+[discrete]
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should expect to find.
+For numeric statistics, enter the respective value or 'na' if not supported. For
+other statistics, select 'full support' (i.e., test case and Rec. Pracs. definitions
+are fulfilled), 'limited support' (meaning the implementation does not meet all
+criteria and issues may be expected on import), or 'na' if not supported.
+
+[discrete]
+===== Target Statistics
+
+When importing a file, report the results found after processing the file as
+described below.
+
+[discrete]
+===== Kinematics-specific Statistics
+
+For more detailed information about and discussion of in the Kinematics-specific
+statistics, please refer to section 4.12 of the Kinematics Recommended Practices
+mentioned above.
+
+[discrete]
+===== Data Sheet Columns
+
+[%unnumbered,options=header]
+|===
+| column name | description
+h| model | The name of the test model, here 'km2'
+h| system_n | The system code of the CAD system creating the STEP file
+h| system_t | The system code of the CAD system importing the STEP file. For native stats, select 'stp'
+h| assem_struct | pass/fail -- if the model structure (assembly tree) was transferred correctly, i.e., no nodes have been added or removed, and all elements are on the correct hierarchical level.
+h| kin_mechanisms | The number of Kinematic Mechanisms defined in the model
+h| kin_moving_parts | Number of moving parts in a Kinematic Mechanism
+h| kin_mech_pairs | The number of low/high order Kinematic Pairs defined for a Kinematic Mechanism
+h| kin_fix_joints | The number of fully constrained Kinematic Pairs (fixed joints) defined for a Kinematic Mechanism
+h| kin_revolute_pairs | The number of Revolute Pairs defined for Kinematic Mechanisms
+h| kin_sphere_pairs | The number of spherical Kinematic Pairs defined for a Kinematic
+Mechanism
+h| kin_cylindrical_pairs | The number of Cylindrical Pairs defined for Kinematic Mechanisms
+h| kin_prism_pairs | The number of prismatic Kinematic Pairs defined for a Kinematic
+Mechanism
+h| kin_rack_pinion | The number of Rack & Pinion Kinematic Pairs defined for a Kinematic Mechanism
+h| kin_placements | The number of AxisPlacements used by KinematicPairs
+h| kin_limits | pass/fail, if the lower and upper limits defined for kinematic pairs were transferred correctly.
+h| kin_mech_acts | The number of Kinematic Pairs that have a non-zero value in the attribute 'actuation', i.e., where an initial movement can occur
+h| valid_mechanism | pass/fail, whether the Kinematic Mechanism was successfully recognized by the target system and is moving as expected.
+h| kin_mech_valprops | all/partial/none - whether the validation properties for Kinematic Mechanism matched for all, some or none of the Kinematic definitions.
+h| date | The date when the statistics were last updated (will be filled in automatically)
+h| issues | A short statement on issues with the file
+|===
+
+=== Test Case PID: Persistent IDs
+
+All information about this test case can also be viewed in CAESAR on its Information
+page.
+
+==== Motivation
+
+The ability to track a product's model information during design iteration, and from
+design iteration through to manufacturing and quality analysis has been limited by
+the lack of support for persistent IDs in STEP.
+
+With the inclusion of persistent IDs in STEP, collaborating systems should now be
+able to exchange model data and track that data during design iteration. This
+suggests the ability to retain IDs contained in external data from a sender and
+reference those entities by the receiver. When a change to that model data occurs on
+the sender's side, the receiver should be able to update the receiver's copy of that
+external data and have any dependent data in their own models that refer to that
+external change, and update to respond to the change.
+
+As in the case of design iteration, the ability to track model entities via
+persistent IDs, will also allow downstream systems to update their representations of
+the design model and update their manufacturing and metrology planning to reflect
+changes in the design.
+
+An additional benefit of the establishment of persistent IDs in STEP is the ability
+to retain a permanent audit trail of custody and connection between design and
+downstream systems for potential forensic analysis of critical product systems after
+in-service failure.
+
+As stated earlier, vendors may choose to support either preprocessing native models
+to generate STEP data or postprocessing such STEP models. Iterative postprocessing
+can be performed to exercise the design iteration use case. Post-processing may also
+be performed to exercise the downstream consumption use case.
+
+Finally, although not covered in this test case, the introduction of persistent IDs
+provides the ability of any contributor to the information stream associated with a
+product's lifecycle to add information to the model that can be connected to existing
+model content and that additional information can be retrieved by subsequent users
+and used as feedback from the contributor.
+
+==== Approach
+
+The approach to be used is described in the "Recommended Practices for Permanent
+Entity IDs for Design Iteration and Downstream Exchange" (Version 1.0; 28 November
+2023), which can be found on Nextcloud, folder
+
+&#8962; > *MBX-IF* > *CAX-IF* > *Draft Recommended Practices*
+
+Within the domain of Persistent IDs, the following functionalities are in scope of
+Round 53J:
+
+* Persistent IDs on Model (Product) for
+** testing the retention of model ID after changes in the underlying content
+* Persistent IDs on Geometry and Topology for
+** testing the effect of a change in geometry and topology on design iteration
+between CAD systems that reference that geometry and topology during bidirectional
+exchange
+** this concept includes the introduction of Persistent IDs on Shape Aspect, when
+needed, to collect individual geometry elements into logical groups when sending and
+receiving systems have differing geometry or topological structures, e.g.
+periodic or aperiodic cylindrical holes.
+* Persistent IDs on Geometry and Topology and Persistent IDs on Semantic PMI
+Representation for
+** testing the effect of change in geometry and topology on dependent shape and
+semantic PMI that references that geometry and topology for design iteration or for
+downstream consumption.
+* Persistent IDs on Semantic PMI Representation for
+** testing the effect of changes in semantic PMI on dependent manufacturing planning
+that reference that semantic PMI
+** testing the effect of changes in semantic PMI on dependent metrology planning that
+reference that semantic PMI
+
+The following are out of scope for Round 53J and are moved to the Future Considerations
+section:
+
+* Persistent IDs on Geometry and Persistent IDs on Semantic PMI Representation for
+** testing assembly constraints referencing those geometries
+
+The preferred AP242 schema to be used is an extension to AP242 Edition 3 schema that
+will be introduced formally in AP242 Edition 4. The schema for this test case can be
+found on Nextcloud, folder
+
+&#8962; > *MBX-IF* > *CAX-IF* > *CAX-IG* > *Round 53J* > *PID*
+
+==== Testing Instructions
+
+The test will be performed based on a simple test model, developed by Rosemary
+Astheimer of NIST. The test case is a series of multiple exchanges between two
+exchanging systems with each system either making changes to existing native model
+features or adding new model features before exchanging with their exchange partner
+system.
+
+===== Test Model Overview
+
+The specific test model to be used in this test case is a simplified test case for
+testing the first exchange of persistent IDs and the effect of model change during
+iterative design exchange or downstream consumption exchange.
+
+===== Test Model Access
+
+Native CAD files are available in CATIA V5-6R2022, NX 2207, and Creo 9.03 formats for
+the test case can be downloaded from Nextcloud, folder
+
+&#8962; > *MBX-IF* > *CAX-IF* > *CAX-IG* > *Round 53J* > *PID*
+
+===== Test Model Configuration
+
+Unlike any previous CAx-IF test round, the PID test case requires iteration to
+confirm retention of persistent entity IDs. This test case is multi-model,
+uni-directional iterative exchange process in which a minimum of three exchanges will
+take place -- an initial exchange, a subsequent exchange in the same direction after
+a model design change is made by the original sender, an alternate subsequent
+exchange in the same direction after a model design change is made by the original
+sender, and a third exchange, also in the same direction, where an additional model
+feature is added by the sending system.
+
+The three iterations will be identified by model suffixes in CAESAR (PID_0 -- Initial
+Exchange; PID_1 -- Update Exchange, PID_2 -- alternate method for the Update
+Exchange, PID_3 -- Second Update Exchange). PID_3 is an optional case to further test
+model exchange with changes resulting in new entities (and thus new UUIDs) added and
+entities removed (with their UUIDs discarded).
+
+as an optional exercise.
+
+*[underline]#Note#* also that there are two mechanisms for supporting the
+introduction of persistent IDs to STEP. The first is via the creation of new
+persistent `uuid_attribute` entities attached to certain entities within the Data
+Section of the Part 21 file. The second is via the creation of persistent ID
+relationships between STEP entity IDs and persistent entity IDs within an Anchor
+Section of a Part 21 Edition 3 file. Please refer to the recommended practice
+document for further details about the valid entity subtypes to be used in place of
+the abstract `uuid_attribute` entity type in the Data Section. Based on agreement,
+the scope of Round 53J will include only the first type of ID, i.e. subtypes of
+`uuid_attribute` in the Data Section. This is reflected in the current version of the
+Recommended Practices. The testing of the Anchor Section approach will be considered
+in a future test round.
+
+*Test Case PID -- Persistent Identifiers, via Data Section*
+
+The test case for design and/or downstream exchange is an iterative sequence of
+simple exchanges that represent an exchange between two designers, designated A and B
+respectively, or alternatively between a designer and a downstream consumer,
+designated A and B respectively. This sequence of exchanges, each considered a
+sub-case of the PID test case are described and illustrated on the following pages -
+
+PID Test Cases and Iterative Exchange Sequence (3 exchanges required, last exchange
+optional)
+
+* PID_0 (initial exchange),
+* PID_1 (first change, hole moves),
+* PID_2 (alternate first change, hole replaced), and
+* PID_3 (second change, chamfer added).
+
+[[fig7]]
+.Illustration of PID_0 Test Case
+image::img07.png[]
+
+*PID_0 --*
+
+*Preprocessor (CAD System)*:: A's initial design is exchanged to B (model version is
+0.0).
+*Postprocessor (CAD System or Downstream System)*:: B checks for
++
+--
+. UUID on Product.
+. Version -- UUIDs on Product Version to be tested in a future test round.
+. UUIDs on all Advanced_Faces (either 7 or 8 depending on system)
+. UUIDs on all topological Edges (either 14 or 18 depending on system)
+. UUIDs on all topological Vertices (either 10 or 12 depending on system)
+. UUID on Closed Shell
+. UUID on MSBR
+. UUIDs on PMI (diameter and location tolerance; linear dimensions for the overall
+size of the plate have been removed in the released version of the test model)
+--
+
+[[fig8]]
+.Illustration of PID_1 Test Case
+image::img08.png[]
+
+*PID_1 -*
+
+*Preprocessor (CAD System)*:: A modifies the location of the hole (moved, not
+replaced), versions model, and resends revised model to B
+*Postprocessor (CAD or Downstream System)*:: B checks for
++
+--
+. Version -- UUIDs on Product Version to be tested in a future test round.
+. Model hole surface (or surfaces) move and PMI dimensions remain associated with
+geometry
+. All above UUIDS (Product, Advanced_Faces, Edge_Curves, Vertex_Points, Closed_Shell,
+MSBR, and PMI [if exchanged, optional]) should be the same as previously imported
+.. 1 Product
+.. 7 or 8 Faces
+.. 14 or 18 Edges
+.. 10 or 12 Vertices
+.. 1 Closed Shell
+.. 1 MSBR
+.. 2 PMI (Diameter and Location Tolerance)
+--
+
+[[fig9]]
+.Illustration of PID_2 Test Case
+image::img09.png[]
+
+*PID_2 --*
+
+*Preprocessor (CAD System)*:: In case 2, A modifies the location of the hole as in
+case 1 but the hole is removed from its old location and replaced in the new location
+(i.e. recreated, not moved), versions model, and resends revised model to B
+*Postprocessor (CAD System)*:: A checks for
++
+--
+. Version -- UUIDs on Product Version to be tested in a future test round.
+. Product UUID is the same
+. Original UUIDs for the block are the same
+. However, since the hole has been replaced, the UUIDs for the hole (Faces and
+Topology) are changed
+. PMI UUIDs are the same [if exchanged, optional]
+--
+
+[[fig10]]
+.Illustration of PID_3 Test Case
+image::img10.png[]
+
+*PID_3 --*
+
+*Preprocessor (CAD System)*:: A adds a chamfer to the corner of the block, versions
+model, and sends model back to B
+*Postprocessor (CAD System or Downstream System)*:: B checks for
++
+--
+. Version -- UUIDs on Product Version to be tested in a future test round.
+. Product UUID is the same
+. Original UUIDs for the block are the same (except for the changes noted in 5 below).
+. Original PMI UUIDs are the same [if exchanged, optional]
+. New UUIDs (generated by A on export) for the new chamfer face and its new
+topological edges and vertices
+--
+
+==== Statistics
+
+For each STEP file exported or imported during one of the iterations of the PID test
+case, vendors must submit the corresponding statistics. To do so, go to the [ PID
+Data Sheet ], and either fill in the web form, or upload a comma-delimited file
+(.csv) with the data as listed below.
+
+[discrete]
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should expect to find.
+For numeric statistics, enter the respective value or 'na' if not supported. For
+other statistics, select either 'full support' (i.e. test case and Rec. Pracs.
+definitions are fulfilled), 'limited support' (meaning the implementation does not
+meet all criteria and issues may be expected on import), or 'na' if not supported.
+
+[discrete]
+===== Target Statistics
+
+When importing a STEP file, report the results found after processing the file as
+described below.
+
+[discrete]
+===== Data Sheet Columns
+
+[%unnumbered,options=header]
+|===
+| column name | description
+
+h| model a| The name of the test model, here 'PID'.
+
+*[underline]#Important#*: Add the iteration as suffix to the model, i.e.:
+
+* PID_0 for the initial exchange
+* PID_1 for the first design change (hole move)
+* PID_2 for the first alternate design change (hole replace)
+* PID_3 for the second design change (chamfer add)
+h| system_n | The system code of the CAD system creating the STEP file
+h| system_t | The system code of the CAD system or downstream system importing the STEP file. For native stats, select 'stp'
+h| pid_product | pass/fail -- whether the persistent ID at the product level was transferred correctly
+h| pid_version | pass/fail -- whether the model version at the product level was transferred correctly (in this round, n/a)
+h| num_pid_pmi | The number of semantic PMI elements processed with persistent IDs
+h| num_pid_sfcs | The number of surface elements (e.g., `advanced_face`) processed with persistent IDs
+h| num_pid_topol | The number of topological elements (e.g., `edge_curve`, `vertex_point`) processed with persistent IDs
+h| num_pid_shape | The number of `shape_aspects` processed with persistent IDs
+h| design_update | all/partial/none - indicates whether the receiving system was able to successfully update the references on subsequent iterations
+h| date | The date when the statistics were last updated (will be filled in automatically)
+h| issues | A short statement on issues with the file
+|===
+
+=== Test Case STC: Graphic & Semantic PMI using NIST STC Models
+
+All information about this test case can also be viewed in CAESAR on its Information
+page.
+
+==== Motivation
+
+Product Manufacturing Information (PMI) is required for numerous business use cases
+in the context of STEP data exchange. Among others, it is a prerequisite for
+long-term data archiving. In addition, PMI can be used to drive downstream
+applications such as coordinate measuring and manufacturing.
+
+Semantic PMI Representation relates to the capability to store PMI data in the STEP
+file in a computer-interpretable way, so that it can be used for model redesign or
+downstream applications. Though the definition of the data is complete, it is by
+itself not visible in the 3D model.
+
+In addition to use cases that require a fully defined, precise, semantic definition
+of the part geometry and associated PMI, there are also scenarios where the
+presentation of the data - geometric elements and annotations - for visual
+consumption are the primary goal. In such cases, a simplified and optimized version
+of the model is sufficient. The tessellated geometry model included in AP242 provides
+an efficient mechanism to support this.
+
+A wide variety of test models is available from NIST as well as prostep ivip, each
+containing a different selection of PMI elements. Each model typically concentrated
+on particular subsets of PMI data.
+
+The suite of NIST test models so far contained the Complex Test Cases (CTC) and the
+Fully-toleranced Test Cases (FTC). The latter contained some advanced PMI constructs
+which were difficult to fully represent not only in STEP, but also in the native CAD
+systems. Hence the suggestion was made to create a set of Simplified Test Cases
+(STC), based on the FTC models 6 through 10, which focus on more common-practice PMI
+elements.
+
+==== User Stories
+
+This test case supports the following User Stories provided by the CAx-IF UG on
+Redmine:
+
+[%unnumbered,options=header]
+|===
+| ID | Title
+| https://rd.pdes-ch.org/issues/49[#49] | Saved views Validation Properties
+| https://rd.pdes-ch.org/issues/124[#124] | Default saved view
+| https://rd.pdes-ch.org/issues/184[#184] | Annotation placeholder
+|===
+
+==== Approach
+
+The approach to be used is described in the latest version (at least v4.0.12, dated
+10 March 2023) of the "Recommended Practices for Representation and Presentation of
+PMI (AP242)", which can be found on Nextcloud, folder:
+
+&#8962; > *MBX-IF* > *CAX-IF* > *Draft Recommended Practices*
+
+Within the PMI area, the following functionalities are in scope of Round 53J:
+
+* Semantic PMI Representation
+* Tessellated PMI Presentation
+* Correct implementation and definition of the Saved Views (view layout and contents)
+* Linking of PMI Representation to Presentation
+* Transfer of editable PMI text as User Defined Attributes
+* PMI Validation Properties (Representation & Presentation)
+* Presentation Placeholder (including Placeholder Leader Lines if supported)
+
+The AP242 schema to be used is the AP242 Edition 3 schema, which is available on the
+CAxIF homepages under "Public Testing Information". This schema provides full support
+of the latest changes and additions in the Recommended Practices, in particular, the
+Presentation Placeholder. The AP242 Ed.2 schema can be used if Ed.3 is not yet
+supported, respecting the scope limitations.
+
+*[underline]#Pre-checking of files with SFA#*: All vendors generating STEP files for
+the PMI test case shall run them through the latest version of NIST's STEP File
+Analyzer and Viewer (SFA; currently version 5.04). The tool provides feedback on
+basic syntax errors such as missing or malformed entity instances. Files with such
+errors will not be accepted for testing.
+
+SFA can be downloaded for free at +
+https://www.nist.gov/services-resources/software/step-file-analyzer-and-viewer
+
+==== Testing Instructions
+
+===== NIST Test Model Overview
+
+The Simplified Test Models are available in CATIA V5, Inventor, and NX native
+formats. The native models have been updated compared to Round 52J. They have been
+harmonized and validated, with support from ITI Global. A ZIP file containing updated
+native files is available here: +
+https://www.nist.gov/document/nist-stc-pmi-cad-models-version-3
+
+[[fig11]]
+.3D PDF Test Case Specification for STC-6
+image::img11.png[]
+
+===== NIST Test Model Selection
+
+The following Simplified Test Cases are available for testing in Round 53J:
+
+* *STC-6*: Datum targets (lines and curves), radius, more holes
+* *STC-7*: PMI validation properties, dimensions, position tolerances and surface
+profile tolerances
+* *STC-8*: Complex and stacked feature control frames, mix of tolerances and modifiers
+* *STC-9*: Perpendicularity on hole diameter (every vendor had a different solution)
+* *STC-10*: Datum features and Datum targets; mix of tolerances and modifiers
+
+For each test model, a 3D PDF document is provided showing the individual Saved View
+configurations.
+
+==== Test Model Configuration
+
+The following functionality shall be included in the test files provided for this
+round of testing, as far as it has been implemented by the CAx-IF participants and
+is described in the Recommended Practices:
+
+* [underline]#PMI Representation# -- the re-usable representation of PMI data should
+be included in all PMI models to the extent supported by the native system.
+* [underline]#PMI Tessellated Presentation# -- Many CAD systems require some minimal
+presentation information to be able to handle the PMI data in a model. Usually, both
+PMI representation and presentation data are included in the same file. Thus, some
+form of presentation information shall be included in the PMI test case as well.
+* [underline]#PMI Presentation Placeholder# -- This information enables a target
+system with PMI authoring capability to recreate the presentation of a PMI element
+based on its Semantic Representation data. It intends to provide a minimal set of
+presentation information to CAD systems, which require information such as the
+leader line attachment point on the part geometry to create the corresponding
+Semantic PMI Representation elements.
+** Implementation of this capability requires the AP242 Ed.3 MIM Longform EXPRESS
+Schema, which is available on the public CAx-IF homepage, as well as the section 7.2
+from version 4.0.12 of the PMI Recommended Practices, which is available on
+Nextcloud, folder __MBX-IF > CAX-IF > Draft Recommended Practices__.
+* [underline]#Definition of "Saved Views"# -- as far as supported, include the saved
+views defined in the models, which contain a subset of annotations in the file, and
+provide a pre-defined position of the model in the design space.
+** All models have multiple Saved Views defined. In the test case definition
+documents, each page of the PDF document represents one Saved View.
+** For each view, a screenshot showing the model layout (displayed elements,
+orientation, zoom) shall be provided.
+** *[underline]#Note#* that it is possible to attach several screenshots to one set
+of statistics
+in CAESAR. The name of the view shall be given as description for the screenshot.
+** Saved Views shall correctly show (or hide) the part geometry, as well as the
+non-solid Supplemental Geometry contained in some of the models (see section 9.4.2 /
+Figure 95 in the PMI Rec. Practices v4.0.12). A document pointing out important
+supplemental geometry elements for the NIST test cases is available in the old
+CAx-IF member area, under "Information on Round 42J of testing".
+* [underline]#Editable PMI Text# -- Some information relevant for PMI is not encoded
+in semantic entities, but given as plain text, such as the title block information
+or additional text on feature control frames. In the context of semantic data
+exchange, this content needs to be editable in the target system. The approach to be
+used for this is based on the transfer of User Defined Attributes, and its
+application in the context of PMI is described in section 7.4 of the PMI Recommended
+Practices v4.0.12.
+* [underline]#Linking PMI Representation to Presentation# -- If a model contains PMI
+Representation information as well as Presentation data, the corresponding elements
+shall be linked together, so that a Representation element "knows" which annotation
+it is being presented in the model. The approach to create this link is described in
+section 7.3 of the PMI Rec. Pracs. (v4.0.12).
+* [underline]#Cross-highlighting of annotations and annotated shape# -- if
+supported, include in the STEP file the information necessary to maintain the
+association between graphic annotations and the annotated shape elements in a way,
+that after import, when highlighting an annotation, the shape elements annotated by
+it are highlighted too, and vice versa.
+* [underline]#Validation Properties# -- All participants providing STEP files for
+this test case are encouraged to include validation properties for PMI semantic
+representation and graphic presentation, as defined in the PMI Recommended Practices
+v4.0.12, sections 10.1 and 10.2 respectively.
+* [underline]#Presentation Placeholder# -- As extension of the scope in Round 50J,
+STEP files created for the PMI test case shall also include Presentation
+Placeholders per section 7.2 in the PMI Recommended Practices (v4.0.12), as far as
+supported by the translator.
++
+--
+Vendors are encouraged to also include definitions of the placeholder leader lines
+(section 7.2.4), though these are not mandatory for an initial implementation of the
+placeholder. Note that AP242 Edition 3 is required to implement placeholder leader
+lines.
+--
+
+Also refer to <<annex-A>> for test model translation configuration considerations.
+
+==== File Naming Convention and SFA Checking
+
+In order for SFA to correctly identify the STC test cases, the STEP files must
+strictly follow the following naming convention:
+
+* `nist-stc-nn-systemcode-242.stp`
+
+For instance, nist-stc-06-c5-242.stp would be the STEP file exported by Dassault
+Systemes out of CATIA V5 for the CTC-6 model.
+
+The expected PMI in SFA, which are the basis for the SFA scores, have been adjusted
+for the STC models, but further adjustments might be necessary. Please get in touch
+with Bob Lipman if you encounter any discrepancies.
+
+==== Statistics
+
+For each STEP file exported or imported for the STC test case, vendors must submit
+the corresponding statistics. To do so, go to the STC Data Sheet, and either fill in
+the web form, or upload a comma-delimited file (.csv) with the data as listed below.
+
+[discrete]
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should expect to
+find. For numeric statistics, enter the respective value or 'na' if not supported.
+For other statistics, select either 'full support' (i.e., test case and Rec. Pracs.
+definitions are fulfilled), 'limited support' (meaning the implementation does not
+meet all criteria and issues may be expected on import), or 'na' if not supported.
+
+[discrete]
+===== Target Statistics
+
+When importing a STEP file, report the results after processing the file as
+described below.
+
+[discrete]
+===== Screenshots
+
+For each Saved View in the model, provide one screenshot, which illustrates the
+layout (displayed geometry and annotations, model orientation, and zoom factor).
+Give the name of the view as the description of the screenshot. Note that CASEAR
+allows the addition of multiple screenshots per dataset.
+
+*[underline]#Note#* that in order to count the GD&T elements for the statistics, per
+agreement during the R22J Review Meeting, the actual STEP entity types (datum,
+datum_target...) shall be considered.
+
+*[underline]#Note#* that all statistics -- native and target -- shall be based on
+the Semantic PMI Representation data only, and not take any presentation into account.
+
+*[underline]#Note#* that for evaluation, the spreadsheets generated by the STEP File
+Analyzer and Viewer will be amended with corresponding aggregations of relevant
+counts and charts.
+
+[discrete]
+===== Data Sheet Columns
+
+[%unnumbered,options=header]
+|===
+| column name | description
+h| model | The name of the test model, here 'stc', with one of the following suffixes: 06, 07, 08, 09, 10.
+h| system_n | The system code of the CAD system creating the STEP file
+h| system_t | The system code of the CAD system importing the STEP file. For native stats, select 'stp'
+h| scope | A short designation for the contents of the model as defined in the Test Suite. This is for information only; there will be no results for this field.
+h| dimensions | The number of dimensions processed
+h| datums | The number of datums processed
+h| datum_targets | The number of datum targets processed
+h| tolerances | The number of tolerances (all types combined) processed, regardless of composition.
+h| compos_tols | The number of composite tolerances processed (number of instances of geometric_tolerance_relationship per section 6.9.9. in the PMI Rec. Pracs. v4.0.10).
+h| labels | The number of labels processed
+h| pmi_semantic_txt | all/partial/none -- whether 'semantic' (editable) PMI text was transferred correctly (content and associativity)
+h| pmi_semantic_val-prop | all/partial/none -- whether the validation properties for Semantic PMI Representation matched for all, some or none of the semantic PMI elements.
+h| saved_view | The name of the Saved View which is the basis for the view-related statistics
+h| view_annot | The number of annotations (polyline or tessellated) included in the specified saved view. This does NOT include annotation placeholders.
+h| view_placeholders | The number of annotation placeholders included in the specified saved view.
+h| view_pos | pass/fail, whether the model orientation and zoom factor stored for the Saved View could be restored successfully.
+h| elem_visibility | all/partial/none -- whether all, some, or none of the elements to be displayed in the indicated saved view were mapped correctly into the corresponding draughting_model.
+h| pmi_savedview_valprop | all/partial/none - whether the validation properties for PMI Saved Views matched for all, some or none of the views defined in the model.
+h| pmi_graphic_pres | all/partial/none -- whether the graphic PMI annotations included in the file could be processed correctly
+h| pmi_present_valprop | all/partial/none -- whether the validation properties for Graphic PMI Presentation matched for all, some or none of the presentation elements.
+h| pmi_linked_pres_rep | all/partial/none -- whether the Semantic PMI Representation elements and (Graphic) PMI Presentation elements were linked correctly together.
+h| date | The date when the statistics were last updated (will be filled in automatically)
+h| issues | A short statement on issues with the file
+|===
+
+=== Test Case UD4: User Defined Parameters
+
+All information about this test case can also be viewed in CAESAR on its Information
+page.
+
+==== Motivation
+
+CAD models often contain user-defined parameters which define additional properties
+on the part. These can be parameters which drive the geometry (parametric
+definition), or engineering notes, requirements and custom properties that are
+relevant for downstream processes such as manufacturing.
+
+These properties are typically authored in the source CAD systems and need to be
+transferred in a way that target applications can identify and process them in such
+a way that they make the appropriate decisions and derive relevant information for
+downstream use.
+
+The CAx-IF User Group has defined several user stories related to user-defined
+properties and user-defined parameters at the part level as well as at the geometry
+level. The UD4 test case in Round 53J serves as an acceptance test for these user
+stories.
+
+While the exact naming, structuring and association of these parameters to model
+elements -- at part level as well as geometry level -- differs between the different
+CAD systems based on their respective internal data models, they can be mapped to
+common concepts in STEP.
+
+==== User Stories
+
+This test case supports the following User Stories provided by the CAx-IF UG on
+Redmine:
+
+[%unnumbered,options=header]
+|===
+| ID | Title
+
+| https://rd.pdes-ch.org/issues/34[#34] | User Defined Parameters at the part level
+| https://rd.pdes-ch.org/issues/35[#35] | User Defined Properties at the part level
+| https://rd.pdes-ch.org/issues/36[#36] | User Defined Parameters of a solid
+| https://rd.pdes-ch.org/issues/37[#37] | User Defined Parameters of a geometric set
+| https://rd.pdes-ch.org/issues/38[#38] | User Defined Parameters of surface, curves, point
+|===
+
+==== Approach
+
+The approach for transferring user-defined properties and parameters is described in
+the "Recommended Practices for User Defines Attributes", version 1.8 (18 February
+2021), which is available on the public web site of the CAx-IF Implementor Group.
+Specifically, section 5.3 of this document, which was newly introduced with version
+1.7, provides the necessary classification mechanism to properly identify
+user-defined parameters and properties.
+
+The precise mapping recommendation for testing user defined properties and
+parameters in Round 53J is as follows (all based on section 5.3 of the Recommended
+Practices):
+
+* `id_attribute.attribute_value` = 'general property'
+* `property_definition.description` =
+** 'customized PDM property' (for properties managed by the PLM system)
+** 'user defined attribute' (for user defined properties)
+
+The schema to be used is the AP242 Edition 2 IS schema, available in the public area
+of the CAx-IF Implementor Group web page.
+
+==== Testing Instructions
+
+*Test Models*
+
+The CAx-IF User Group has provided a set of native CATIA V5 test models with
+pre-defined parameters and properties:
+
+* The test model "ParameterTestPart_simplified.CATPart" contains the basic
+parameters described in the Illustration.
+* In addition, the test model "Parameter Test Part.CATPart" contains the complete
+set of Parameters/Properties that can be used.
+
+[[fig12]]
+.Overview on Parameters and Properties defined in the CATIA model
+image::img12.png[]
+
+In addition, Siemens has provided an NX native model, which contains the following
+attributes:
+
+[%unnumbered,options=header]
+|===
+| Attribute | Type | On Entity
+
+| DB_PART_DESC | PDM Property | On Part
+| DB_PART_REV | PDM Property | On Part
+| DB_PART_NAME | PDM Property | On Part
+| DB_PART_NO | PDM Property | On Part
+| DB_PART_TYPE | PDM Property | On Part
+| DB_PART_MFKID | PDM Property | On Part
+| PART_Attribute | CAD Property | On Part
+| DB_SEED_PART_USED | CAD Property | On Part
+| NX_ComponentGroup | CAD Property | On Part
+| NX_ReferenceSet | CAD Property | On Part
+| NX_MaterialMissingAssignments | CAD Property | On Part
+| NX_MaterialMultipleAssigned | CAD Property | On Part
+| BODY_1_Title | CAD Property | On Body 1
+| BODY_2_Title | CAD Property | On Body 2
+|===
+
+[[fig13]]
+.Overview on the Properties defined in the NX model for UD4.
+image::img13.png[]
+
+All native models can be downloaded from Nextcloud, folder
+
+&#8962; > *MBX-IF* > *CAX-IF* > *CAX-IG* > *Round 52J* > *UD4*
+
+*Testing Instructions*
+
+* CATIA / 3DExperience as well as NX STEP interfaces shall map the user defined
+properties and parameters as defined above, maintain their semantics on export and
+import.
+* STEP translators for other CAD systems shall import the generated files are report
+their experiences on how they map the data.
+
+The main objective for Round 53J, in addition to any roundtrip testing, is
+exchanging the information between CATIA-based and NX-based STEP interfaces to see
+whether the desired distinction between user-defined and system-managed properties
+is maintained across system boundaries.
+
+==== Statistics
+
+For each STEP file exported or imported for the UD4 test case, vendors must submit
+the corresponding statistics. To do so, go to the [ UD4 Data Sheet ], and either
+fill in the web form, or upload a comma-delimited file (.csv) with the data as
+listed below.
+
+[discrete]
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should expect to
+find. For numeric statistics, enter the respective value or 'na' if not supported.
+For other statistics, select 'full support' (i.e., test case and Rec. Pracs.
+definitions are fulfilled), 'limited support' (meaning the implementation does not
+meet all criteria and issues may be expected on import), or 'na' if not supported.
+
+[discrete]
+===== Target Statistics
+
+When importing a file, report the results found after processing the file as
+described below.
+
+[discrete]
+===== Data Sheet Columns
+
+[%unnumbered,options=header]
+|===
+| column name | description
+
+h| model | The name of the test model, here 'ud4'
+h| system_n | The system code of the CAD system creating the STEP file
+h| system_t | The system code of the CAD system importing the STEP file. For native stats, select 'stp'
+h| ud_param_part | pass / fail, have the user defined parameters at part / product level been transferred correctly?
+h| ud_prop_part | pass / fail, have the user defined properties at part / product level been transferred correctly?
+h| ud_param_solid | pass / fail, have the user defined parameters for solids been transferred correctly?
+h| ud_param_geoset | pass / fail, have the user defined parameters for CATIA geometric sets been transferred correctly?
+h| ud_param_scp | pass / fail, have the user defined parameters for surfaces, curves and points been transferred correctly?
+h| valid_attr | pass/fail, is the instantiation of the User Defined Attributes as per the Recommended Practices?
+h| uda_part_vp | pass/fail, has the number of User Defined Attributes at the Part/Product level been processed correctly? This includes UDA VP at assembly component instances and for groups of UDA.
+h| uda_geo_vp | pass/fail, has the number of User Defined Attributes at the Geometry level been processed correctly?
+h| uda_type_vp | pass/fail, has the number of User Defined Attributes per attribute type class (booelan/integer/real/string) been processed correctly?
+h| date | The date when the statistics were last updated (will be filled in automatically)
+h| issues | A short statement on issues with the file
+|===

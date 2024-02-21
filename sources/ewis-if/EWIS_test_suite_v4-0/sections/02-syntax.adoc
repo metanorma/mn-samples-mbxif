@@ -1,0 +1,26 @@
+== Formal Test Syntax
+
+This clause defines a formal syntax for the definition of synthetic test cases in the
+terms of the Domain Model. Purpose of this syntax is to formulate test cases in a
+clear, easy readable and unambiguous way. A macro capability allows to define
+standard patterns once and then apply them again and again. It is intended to convert
+test cases using this syntax into XML Schematron for the
+
+The formal test syntax allows the definition of patterns of instances of Application
+Objects (AO); here they are AOs of the Domain Model. The test syntax is used to
+define the test specifications for both import and export of STEP XML files.
+
+Instances of AOs and other values (string, real, ...) are identified (ID) by a
+leading "@" followed by a positive number. This number is unique within a particular
+test case and macro. If the same ID is used several times within a test case or
+macro, then this means the same AO instance or other value. If the same ID is used in
+different test cases or macros this does not have any meaning.
+
+Every instance or other value has to have a definition statement. Such a statement
+starts with the ID, followed by a ":" and then followed by it's type that is defined
+in the domain model. After this constraints on the attribute values of instances or
+the value itself can be stated within "("...")".
+
+The order of IDs within a macro is significantly. They should start with @1, @2, @3
+... @N. When invoking a macro from another test case or higher level macro, these IDs
+are replaced with the IDs and values defined within the macro invocation.

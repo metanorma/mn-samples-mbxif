@@ -1,0 +1,44 @@
+== MBx-IF Introduction
+
+STEP is an established ISO standard (ISO 10303) for the exchange of product data
+between different CAx and PDM/PLM systems. To promote the international use of the
+standard, AFNeT, PDES, Inc. and prostep ivip have created the Model-Based "x"
+Interoperability Forum (MBx-IF) as a new umbrella organization for the established
+CAx-IF, PDM-IF and EWIS-IF projects. The goal of the new joint project is to
+accelerate the development of STEP interfaces and ensure that user requirements are
+met.
+
+[[fig1]]
+.MBx-IF Overview
+image::img01.png[]
+
+The MBx umbrella organization is intended to intensify the further development of the
+STEP standard through cross-domain integration. It provides a trusted environment for
+user companies and software vendors to openly discuss requirements and technical
+challenges, develop a common understanding of the various topics, and derive robust
+approaches to implementation. Thus, each domain is comprised of a dedicated User
+Group and an Implementor Group:
+
+* The *User Group* (UG) consists of industry representatives who define and
+prioritize industry requirements, test cases and acceptance criteria for CAx
+capabilities in scope of AP242.
+* The *Implementor Group* (IG) is composed of CAx system developers and vendors of
+STEP translation and validation tools, implementing AP242 interfaces. It develops
+Recommended Practices based on industry needs and validates them in the CAx test
+rounds.
+
+[[fig2]]
+.MBx-IF Way of Working between User Groups and Implementor Groups
+image::img02.png[]
+
+The goals of the MBx Interoperability Forum's Implementor Groups are to:
+
+* Implement functionality for today's needs
+* Identify functionality for tomorrow's needs
+* Avoid roadblocks by establishing agreed upon approaches
+* Increase user confidence by providing system and AP interoperability testing
+* Ensure new functionality does not adversely impact existing implementations
+* Significantly improve STEP translator quality and decrease translator time-to-market
+
+This document is aimed at new members of any of the MBx-IF IGs to familiarize
+themselves with the corresponding infrastructure and procedures.

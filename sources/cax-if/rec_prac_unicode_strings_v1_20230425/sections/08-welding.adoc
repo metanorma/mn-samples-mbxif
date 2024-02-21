@@ -1,0 +1,547 @@
+[[sec-8]]
+== Welding Terms & Delimiters
+
+Welding symbols indicate the fabrication process to be used to join materials,
+usually metals or thermoplastics.
+
+[[sec-8.1]]
+=== Basic Welding Symbol Layout
+
+To capture Welding Symbol information as a Unicode string, it is divided into
+distinct regions, referred to as zones. The layout of a basic welding symbol is
+shown in <<fig2>>. Information within each zone will be treated as plain text
+unless a symbol from the table in <<sec-8.7>> "Elementary Weld Symbols" of this
+document is called out.
+
+[[fig2]]
+[height=150px]
+image::img75.png[]
+
+Following the convention of using compartments for annotations, the Unicode
+string for a weld callout uses \w to separate zone information. In the example
+below, zone 1 is empty as indicated by the first occurrence of \w immediately
+followed by another occurrence of \w.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=100px]
+image::img76.png[]
+a| WLD[css color:red]##\w\w##&#x25AD;[css color:red]##\w##&#x2304;\n3\/16\n45°[css color:red]##\w##3G
+
+_Zone 1 is intentionally empty._
+|===
+
+[[sec-8.2]]
+=== Graphical Presentation
+
+Some systems use a dashed line in addition to the reference line between sections
+2 and 3. The dashed line is placed above or below the reference line. The figure
+below shows examples from ISO 2553:2019. Welding symbols can be placed on the
+solid reference line or the dashed reference line. Unicode representations do not
+capture the presence of dashed lines as this is purely graphical information. The
+welding symbol's attachment determines whether the weld is located on the arrow
+side or other size. For the purposes of this document, arrow side information
+should be located in zone 3 and the other side information in zone 2. As a
+result, arrow side and other side information may vary graphically based on the
+system authoring the weld symbol, but information remains captured in a
+consistent manner.
+
+[[table1]]
+.ISO 2553:2019 Table 5
+image::img77.png[]
+
+[[sec-8.3]]
+=== Weld Delimiter (WLD)
+
+Denotes a weld symbol annotation. Information following WLD will identify what
+information is located in which zone on the symbol.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img78.png[]
+a| [css color:red]##WLD##\w\w2\w3\w4
+
+_Zone 1 is empty in this example._
+|===
+
+[[sec-8.4]]
+=== Field Weld / Flag (F)
+
+Suffix to the WLD designator indicates a weld make outside of the workshop.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img79.png[]
+a| WLD[css color:red]##F##NN\w\w\w&#x2A57;
+
+_Weld, [css color:red]##Flag##, Not All-Around, Not Reversed_
+a| [%unnumbered,height=70px]
+image::img80.png[]
+a| WLD[css color:red]##N##NN\w\w\w&#x2A57;
+
+_Weld, [css color:red]##No Flag##, Not All-Around, Not Reversed_
+|===
+
+[[sec-8.5]]
+=== All Around & Not All Around
+
+Indicator of the boundaries of a weld.
+
+[[sec-8.5.1]]
+==== All Around (A)
+
+Suffix to the Flag indicator on a Weld annotation callout.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img81.png[]
+a| WLDF[css color:red]##A##N\w\w\&#x25FA;\TXT1/2"
+
+_Weld, Flag, [css color:red]##All-Around##, Not Reversed_
+
+a| [%unnumbered,height=70px]
+image::img82.png[]
+a| WLDF[css color:red]##N##N\w\w\&#x25FA;\TXT1/2"
+
+_Weld, Flag, [css color:red]##Not All-Around##, Not Reversed_
+|===
+
+[[sec-8.5.2]]
+==== Not All Around (N)
+
+Suffix to the Flag indicator on a Weld annotation callout.
+
+[[sec-8.6]]
+=== Arrow Side / Other Side (&#x200c;R)
+
+Zone 3 represents the arrow side of the weld when no reversal indicator is used.
+
+Adding the reversal indicator defines Zone 2 as the arrow side and Zone 3 in the
+other side.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=100px]
+image::img83.png[]
+a| WLDNN[css color:red]##R##\w\w\w&#x2A57;
+
+_Weld, No Flag, Not All-Around, [css color:red]##Reversed##_
+a| [%unnumbered,height=70px]
+image::img84.png[]
+a| WLDNN[css color:red]##N##\w\w\w&#x2A57; +
+
+_Weld, No Flag, Not All-Around, [css color:red]##Not Reversed##_
+|===
+
+[[sec-8.7]]
+=== Elementary Weld Symbols
+
+Elementary symbols represent the type of weld to be made. Each weld will be
+represented with one symbol only. A second symbol that would graphically
+represent the inversion of a symbol is not used. The direction of the symbol is
+conveyed defined by the zone the symbol is define in.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img85.png[]
+| WLDNNN\w\w2°\n[css color:red]##&#x25E0;##
+
+a| [%unnumbered,height=70px]
+image::img86.png[]
+| WLDNNN\w\w\w3°\n[css color:red]##&#x25E0;##
+
+a| [%unnumbered,height=70px]
+image::img87.png[]
+| WLD\w\w[css color:red]##&#x2A57;##2
+
+a| [%unnumbered,height=70px]
+image::img88.png[]
+| WLD\w\w\w[css color:red]##&#x2A57;##3
+|===
+
+[[sec-8.8]]
+=== Weld Unicode Symbols
+
+[%unnumbered,cols="<,^,^,<",options=header]
+|===
+| Symbol | Weld Symbol Presentation | Unicode Presentation | Unicode String
+
+| Backing
+a| [%unnumbered,height=50px]
+image::img89.png[]
+| &#x25E0;
+| 25E0
+
+| Backing (unspecified)
+a| [%unnumbered,height=50px]
+image::img90.png[]
+| &#x25AD;
+| 25AD
+
+| Between Two Points
+a| [%unnumbered,height=20px]
+image::img91.png[]
+| &#x2194;
+| 2194
+
+| Bevel Butt
+a| [%unnumbered,height=50px]
+image::img92.png[]
+| &#x2A57;
+| 2A57
+
+| Bevel Butt (with Broad Root Face)
+a| [%unnumbered,height=50px]
+image::img93.png[]
+| &#x21BE;
+| 21BE
+
+| Concave
+a| [%unnumbered,height=30px]
+image::img94.png[]
+| &#x2323;
+| 2323
+
+| Consumable Insert
+a| [%unnumbered,height=50px]
+image::img95.png[]
+| &#x25A1;
+| 25A1
+
+| Convex
+a| [%unnumbered,height=30px]
+image::img96.png[]
+| &#x2322;
+| 2322
+
+| Double Bevel Butt with Broad Root Face and Fillet Welds
+a| [%unnumbered,height=70px]
+image::img97.png[]
+
+or
+
+[%unnumbered,height=70px]
+image::img98.png[]
+
+| &#x25FA;&#x21BE;
+a| 25FA 21BE
+
+_Symbols touching and separated are equivalent._
+
+| Edge
+a| [%unnumbered,height=50px]
+image::img99.png[]
+| &#x2980;
+| 2980
+
+| Flat / Flush
+a| [%unnumbered,height=20px]
+image::img100.png[]
+| &#x2212;
+| 2212
+
+| Fillet
+a| [%unnumbered,height=50px]
+image::img101.png[]
+| &#x25FA;
+| 25FA
+
+a| Flanged Butt
+
+Flanged Corner
+
+Butt with Raised Edges
+a| [%unnumbered,height=50px]
+image::img102.png[]
+| &#x25DE;&#x25DF;
+| 25DE 25DF
+
+| Flare
+| \|
+| &#x7C;
+| 007C
+
+| Flare Bevel
+a| [%unnumbered,height=50px]
+image::img103.png[]
+| &#x7C; &#x25DC;
+| 007C and 25DC
+
+a| Flare V
+
+Butt Weld with Raised Edges
+a| [%unnumbered,height=50px]
+image::img104.png[]
+| &#x25DD; &#x25DC;
+| 25DD and 25DC
+
+| Fold Joint
+a| [%unnumbered,height=70px]
+image::img105.png[]
+| &#x20AA;
+| 20AA
+
+a| Fusion Seam
+
+Resistance Seam
+a| [%unnumbered,height=50px]
+image::img106.png[]
+| &#x29C3;
+| 29C3
+
+| Fusion Spot
+a| [%unnumbered,height=50px]
+image::img107.png[]
+| &#x25EF;
+| 25EF
+
+| Fusion Spot
+a| [%unnumbered,height=50px]
+image::img108.png[]
+| &#x235C;
+| 235C
+
+| Inclined Joint
+a| [%unnumbered,height=50px]
+image::img109.png[]
+| &#x2AFD;
+| 2AFD
+
+| J-Butt
+a| [%unnumbered,height=50px]
+image::img110.png[]
+| &#x2441;
+| 2441
+
+| K-Groove
+a| [%unnumbered,height=50px]
+image::img111.png[]
+| &#x25F8;
+| 25F8
+
+| Overlay
+a| [%unnumbered,height=50px]
+image::img112.png[]
+| &#x25E0;&#x25E0;
+| 25E0 25E0
+
+| Permanent Backing
+a| [%unnumbered,height=50px]
+image::img113.png[]
+| [M]
+| [M]
+
+| Plug
+a| [%unnumbered,height=50px]
+image::img114.png[]
+| &#x25AD;
+| 25AD
+
+| Removeable / Temporary Backing
+a| [%unnumbered,height=50px]
+image::img115.png[]
+| [MR]
+| [MR]
+
+| Specified Root Reinforcement
+a| [%unnumbered,height=50px]
+image::img116.png[]
+| &#x25D2;
+| 25D2
+
+| Square Butt
+a| [%unnumbered,height=70px]
+image::img117.png[]
+| &#x2016;
+| 2016
+
+| Stake
+a| [%unnumbered,height=70px]
+image::img118.png[]
+| &#x25BD;
+| 25BD
+
+| Steep Flanked Bevel Butt
+a| [%unnumbered,height=70px]
+image::img119.png[]
+| Plain Text
+a| \|/
+
+(plain text: pipe and forward slash)
+
+| Steep-flanked V Butt
+a| [%unnumbered,height=70px]
+image::img120.png[]
+| Plain Text
+a| \/
+
+(plain text: backslash and forward slash)
+
+| Stud
+a| [%unnumbered,height=50px]
+image::img121.png[]
+| &#x24CD;
+| 24CD
+
+| Soldered Joint
+a| [%unnumbered,height=50px]
+image::img122.png[]
+| &#x232F;
+| 232F
+
+| Surface Joint
+a| [%unnumbered,height=70px]
+image::img123.png[]
+| =
+a| =
+
+(plain text: equal sign)
+
+| Toes Blended Smoothly
+a| [%unnumbered,height=70px]
+image::img124.png[]
+| &#x22CF;
+| 22CF
+
+| U-Butt
+a| [%unnumbered,height=50px]
+image::img125.png[]
+| &#x2442;
+| 2442
+
+| V-Butt
+a| [%unnumbered,height=50px]
+image::img126.png[]
+| &#x2304;
+| 2304
+
+| V-Butt with Broad Root Face
+a| [%unnumbered,height=70px]
+image::img127.png[]
+| Y
+| Y
+
+| Fold Joint
+a| [%unnumbered,height=70px]
+image::img128.png[]
+| &#x20AA;
+| 20AA
+|===
+
+[[sec-8.9]]
+=== Examples
+
+The following examples have been provided by Siemens PLM:
+
+[%unnumbered,cols=3,options=header]
+|===
+| | Weld Symbol | Unicode string
+| 1
+a| [%unnumbered,height=70px]
+image::img129.png[]
+| WLDNNN\w\w\u1°\n&#x25DE;&#x25DF;\u\w&#x2016;
+
+| 2
+a| [%unnumbered,height=70px]
+image::img130.png[]
+| WLDNNN\w\w\u2°\n&#x2304;\u\wY
+
+| 3
+a| [%unnumbered,height=70px]
+image::img131.png[]
+| WLDNNN\w\w\u3°\n&#x2A57;\u\w&#x21BE;
+
+| 4
+a| [%unnumbered,height=70px]
+image::img132.png[]
+| WLDNNN\w\w\u4°\n&#x2442;\u\w&#x2441;
+
+| 5
+a| [%unnumbered,height=70px]
+image::img133.png[]
+| WLDNNN\w\w\u5°\n&#x25DD;&#x25DC;\u\w&#x7C;&#x25DC;
+
+| 6
+a| [%unnumbered,height=70px]
+image::img134.png[]
+| WLDNNN\w\w\u6°\n&#x25FA;\u\w&#x25AD;
+
+| 7
+a| [%unnumbered,height=70px]
+image::img135.png[]
+| WLDNNN\w\w\u7°\n&#x2980;\u
+
+| 8
+a| [%unnumbered,height=70px]
+image::img136.png[]
+| WLDNNN\w\w\w\u&#x25EF;\n8°\u
+
+| 9
+a| [%unnumbered,height=70px]
+image::img137.png[]
+| WLDNNN\w\w\u9°\n&#x29C3;\u
+
+| 10
+a| [%unnumbered,height=100px]
+image::img138.png[]
+| WLDNNN\w\w\uG\n&#x25E0;\n10°\n5\n\_/\u\w\u\|\\n--\u
+
+| 11
+a| [%unnumbered,height=100px]
+image::img139.png[]
+| WLDNNN\w\w\u&#x25E1;\n11°\n&#x25D2;\u\w\u=\n&#x22CF;\u
+
+| 12
+a| [%unnumbered,height=50px]
+image::img140.png[]
+| WLDNNN\w\wa4\u12°\n&#x232F;\u
+
+| 13
+a| [%unnumbered,height=70px]
+image::img141.png[]
+| WLDNNN\w\w\u13°\n&#x2AFD;\u\w&#x20AA;
+
+| 15
+a| [%unnumbered,height=70px]
+image::img142.png[]
+| WLDNNN\w\w\u15°\n&#x25AD;\u\w[M]
+
+| 16
+a| [%unnumbered,height=70px]
+image::img143.png[]
+| WLDNNN\w\w\u16°n&#x25EF;\u\w[MR]
+
+| 17
+a| [%unnumbered,height=60px]
+image::img144.png[]
+| WLDNNN\w\w\u17°\n/\u&#x235C;\w&#x25E0;&#x25E0;
+
+| 18
+a| [%unnumbered,height=60px]
+image::img145.png[]
+| WLDNNN\w\w\w\u&#x25EF;\n18°u&#x25E1;&#x25E1;
+
+| 19
+a| [%unnumbered,height=70px]
+image::img146.png[]
+| WLDNNN\w\w\u19°\n&#x25AD;\u\w19.1
+
+| 20
+a| [%unnumbered,height=50px]
+image::img147.png[]
+| WLDNNN\w\w\u20°\n&#x7C;&#x25DF;\u
+
+| 21
+a| [%unnumbered,height=150px]
+image::img148.png[]
+| WLDFNN\w\w\ua4\nc7\u\uC\n23.1°\n6\n&#x25E1;\n&#x25E3;\n&#x7C;&#x25DC;\uAAA\w\ud8\ns2\u\u\n&#x25E3;\n&#x22CF;\n23.2\n5°\nR\uBBB\w\uline1\nline2\u
+
+| 22
+a| [%unnumbered,height=80px]
+image::img149.png[]
+| WLDFAN\w\wc1\u--\n14°\n&#x24CD;\u\w&#x25E0;&#x25E0;\wtext
+|===

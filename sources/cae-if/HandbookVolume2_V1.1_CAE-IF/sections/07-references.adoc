@@ -1,0 +1,50 @@
+[[cls-7]]
+== References and Links
+
+This section provides a list of useful links the reader can use to learn more about
+the STEP standard, the US and European organizations that administer, develop and
+support these standards, and the LOTAR Engineering and Simulation Workgroup which
+authored this handbook in the frame of the CAE-IF.
+
+The reader is encouraged to visit all the links for an introduction and overview of
+the activities of these organizations. However, the LOTAR EAS WG link and the
+CAx-IF and CAE-IF links contain reference material that is directly applicable to
+the topics discussed in the handbook.
+
+[[table2]]
+[cols=2]
+.Useful Links for Further Reading on ISO 10303-209 (STEP AP209)
+|===
+| LOTAR International
+| http://www.lotar-international.org
+
+| LOTAR EAS WG
+| http://www.lotar-international.org/lotar-workgroups/engineering-analysis-simulation.html
+
+| NAFEMS
+| http://www.nafems.org
+
+| AFNeT
+| http://www.afnet.fr
+
+| PDES, Inc.
+| https://www.pdesinc.org
+
+| prostep ivip
+| http://www.prostep.org/en.html
+
+| AIA
+| http://www.aia-aerospace.org
+
+| ASD-STAN
+| http://www.asd-stan.org
+
+| ISO STEP AP209 ed2
+| http://www.ap209.org
+
+| CAx-IF
+| https://www.cax-if.org
+
+| CAE-IF
+| http://afnet.fr/dotank/sps/cae-if
+|===

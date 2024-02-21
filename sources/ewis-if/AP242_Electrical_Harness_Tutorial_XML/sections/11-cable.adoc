@@ -1,0 +1,59 @@
+[[cls-11]]
+== Cable and Wire Occurrences
+
+Let's start with the IEC definitions of what a wire and cable is:
+
+* *wire* [IEV ref 151-12-28]: flexible cylindrical conductor, with or without an
+insulating covering, the length of which is large with respect to its
+cross-sectional dimensions
++
+--
+NOTE: The cross-section of a wire may have any shape, but the term "wire" is not
+generally used for ribbons or tapes.
+--
+* *cable* [IEV ref 151-12-38]: assembly of one or more conductors and/or optical
+fibres, with a protective covering and possibly filling, insulating and protective
+material
+
+For the purpose of AP242 the definitions may be used in a slightly different way.
+Important is that a wire has exactly one conductor, but it might be rigid (not
+flexible). And it is recommended to use cable only if there are two or more
+conductors.
+
+[[fig18]]
+.Terminals & TransportFeatures for Wires & Cables
+image::img18.png[]
+
+Cables and Wires as raw materials are treated as Parts with the PartTypes attribute
+set to the PartCategoryEnum values "cable" respectively "wire". Cables and wires are
+typically produced and sold in big lengths that are coiled. The length is often much
+bigger that the length needed for a particular usage and so a piece of wire or cable
+has to be cut from the coil in a certain length. Because of this the Part for the
+raw material get for PartType the additional PartCategoryEnum values "raw material
+by length".
+
+If the exact cut length is know it can directly be specified as a quantity with
+unit, e.g. 1.5 m. Otherwise a criterion can be specified e.g. "not determined in
+engineering; to be defined by manufacturer".
+
+CableOccurrence and WireOccurrence are Occurrences of Parts with a PartTypes that
+has the _PartCategoryEnum_ values "cable" respectively "wire". Because each
+_CableOccurrence_ and _WireOccurrence_ has a particular length they are subtypes of
+_QuantifiedOccurrence_.
+
+So far we looked only to _OccurrenceTerminals_ that are defined by _PartTerminals_.
+There is another class of _OccurrenceTerminals_ that are defined locally as part of
+an OccurrenceTransportFeature which is defined by a PartTransportFeature.
+
+Because the raw cable and wire material are typically rolled up and protected by
+some isolation, it is not possible to identify any particular _PartTerminal_ on that
+raw material. So instead of identifying _PartTerminals_ we only identify conductors
+(one or several) using _WireIdentification_. Both _PartTerminal_ and
+_WireIdentification_ are subtypes of _PartShapeElement_. A _WireIdentification_ has
+a pre-defined property named _Code_ for the "wire colour-based identification code".
+
+Cable and wire parts are raw material; they do no have specific _PartTerminals_.
+_CableOccurrences_ and _WireOccurrences_ on the other hand have terminals. These
+terminals are derived from the _WireIdentifications_ of the raw materials.
+
+In the same way we could have e.g. a GND-bar and define any number of terminals on it.

@@ -1,0 +1,25 @@
+[.preface]
+== Trademark Acknowledgments
+
+NASTRAN is a registered trademark of NASA.
+
+[.preface]
+== VERSION LOG
+
+[%unnumbered,cols=4]
+|===
+| Version Description | By | Revision | Date
+| Original Draft | JCJ | 0.0 | 3/12/2018
+| Updated Draft, added References and Links | JCJ | 0.2 | 4/15/2018
+| Split Output request and Results into Volume3 (now only Sections 1-6 in Vol.2) | JCJ | 0.3 | 7/16/2018
+| Incorporated edits recommended by AL | AL/JCJ | 0.4 | 8/27/2018
+| Incorporated edits recommended by RD | RD/JCJ | 0.5 | 9/24/2018
+| Remove markups and incorporate final comments per winter 2018 workshop | JCJ | 1.0 | 10/20/2018
+| Updated source STEP files and text to conform to handbook identifier guidelines | JCJ | 1.1 | 3/25/2019
+| | | |
+|===
+
+[%key]
+JCJ:: John C Johnson
+AL:: Albert Levy
+RD:: Rod Dreisbach

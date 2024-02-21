@@ -1,0 +1,294 @@
+[[cls-4]]
+== Part, PartVersion, Part category
+
+Objects of type *Part* are used for the all the parts that are used to build an
+electrical harness. In addition an electrical harness is modelled as Part as well, so
+that it can be used in a next higher assembly; e.g. for a complete aircraft. For each
+Part at least one PartVersion shall be defined. A PartVersion may have one or several
+views (see next chapter).
+
+[[fig5]]
+.Part, PartVersion and categories for Parts
+image::img05.png[]
+
+[example]
+====
+A wire part that is provided as bulk material. For the usage of the _Part_ in an
+_Occurrence_ it needs to be cut to a specific length.
+
+[%unnumbered]
+[source,xml]
+----
+<Part uid="_101000">
+  <Id id="04034-22-9"/>
+  <Name>
+  <CharacterString>WIRE,ELEC,COMP,SNGL CONDUCTOR,150 DEG C</CharacterString>
+</Name>
+<PartTypes>
+  <PartCategoryEnum>wire</PartCategoryEnum>
+  <PartCategoryEnum>raw_material_by_length</PartCategoryEnum>
+</PartTypes>
+<Versions>
+  <PartVersion uid="_101001">
+    <Id id="Version 1"/>
+      <Views>
+      ....
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+====
+
+The example provided by this tutorial contains the following Parts:
+
+[%unnumbered]
+image::img06a.png[]
+
+The main attributes for a Part are its Id (used as master part number without version
+information) and Name. For the design exchange of electrical harness the
+specification of a part category is essential so that a receiving system can filter
+the data in a certain way. In this example the pre-defined category "wire" is used.
+
+[[cls-4.1]]
+=== Generic Predefined Part Categories
+
+AP242 defines the following generic categories (not specific for electrical harness):
+
+* *application control*: this type of classification is used to indicate that a part
+shall be considered under certification aspects
++
+--
+[example]
+====
+Prior to the release of a new car to the market, both function and quality of certain
+parts have to be certified by an authority, e.g., the department of transportation.
+For such item objects, certification requirements have to be considered during the
+design phase.
+====
+--
+* *assembly*: this type of classification shall be used for any part that has an
+_AssemblyDefinition_ provided for at least one of its versions, i.e., it is
+decomposed further;
+* *boxed*: specifies the role of the boxed part;
++
+--
+[example]
+A can with one litre of a specific oil.
+--
+* *collection*: this type of classification shall be used for any part that has a
+_CollectionDefinition_ provided for at least one of its versions;
+* *completely knocked down*: this type of classification is used to indicate that a
+part is used in a production site that has assembling facilities only;
++
+--
+[example]
+The 'completely knocked down' may indicate that the components are shipped to and
+assembled in a different country.
+--
+* *continuous*: this type of classification is used to indicate the part that can be
+measured by its volume or weight;
+* *detail*: this type of classification shall be used for any part that has no
+_AssemblyDefinition_ provided for any of its versions, i.e., it is not further
+decomposed;
+* *discrete*: this type of classification is used to indicate that a part is one
+single piece.
+* *in process*: this type of classification is used to indicate that the part
+identifies an intermediate object in a manufacturing process;
++
+--
+NOTE: Detailed information about the stage the part has within the manufacturing
+process may be obtained from the _ProcessOperationOccurrence_.
+--
+* *inseparable assembly*: the part plays the role of an inseparable assembly;
+* *prototype*: this type of classification is used to indicate that the part
+identifies a prototype and is not intended for serial production;
+* *raw material*: the part plays the role of raw material;
+* *raw material by area*: the part plays the role of raw material, cut by area, e.g.
+chipboard;
+* *raw material by length*: the part plays the role of raw material, cut by length,
+e.g. cable;
+* *raw material by volume*: the part plays the role of raw material, cut by volume,
+e.g. a raw block of marble or oil;
+* *regulated*: this type of classification is used to indicate that for a part
+certain regulations have to be considered;
+* *safety*: this type of classification is used to indicate that a part is relevant
+for safety purposes;
+* *service*: this type of classification is used to indicate that a part is relevant
+for service purposes;
+* *tool*: the part plays the role of a tool.
+
+[CAUTION,type=recommendation]
+====
+For the purpose of an electrical wire harness design, most Parts
+require a part category of either "**discrete**" or "**raw material by length**". In
+special cases "**raw material by area**" or "**raw material by volume**" might be
+used alternatively.
+====
+
+[[cls-4.2]]
+=== Part and ProductClass Categories specific for Electrical Harness and other electrical applications
+
+Here the pre-defined categories for electrical harness and other electrical
+applications. Most of these categories are standardized by IEC in the Electropedia:
+http://www.electropedia.org/
+
+[CAUTION,type=""]
+====
+Preprocessors are required to provide the following part categories if they apply.
+This is needed so that a post-processor can be configures to act properly on the on
+the incoming information and sort the parts suitable for the receiving system.
+====
+
+* *wiring harness*: assembly with a harness topology, consisting of cables or wires
+to enable electrical or optical connectivity, grouped together in one or more harness
+segments, each between two harness nodes in which the cables or wires either switch
+to other harness nodes or in which the cables and wires ends in connectors, contact
+members or terminal lugs
+* *wire* [IEV ref 151-12-28]: flexible cylindrical conductor, with or without an
+insulating covering, the length of which is large with respect to its cross-sectional
+dimensions
++
+--
+NOTE: The cross-section of a wire may have any shape, but the term "wire" is not
+generally used for ribbons or tapes.
+--
+* *cable* [IEV ref 151-12-38]: assembly of one or more conductors and/or optical
+fibres, with a protective covering and possibly filling, insulating and protective
+material
+* *flat cable* [IEV ref 461-06-05]: multi-core cable having cores or groups of cores
+arranged in parallel flat formation
+* *connector kit*: collection of connector parts that are intended to be assembled
+together and that contain at least one connector housing and that may contain
+alternative parts that may or may not be used in the final assembly
+* *contact member* [IEV ref 151-12-16]: conductive element intended to make an
+electric contact
+* *connector contact*: contact member that is intended to be contained in a connector
+* *connector* [IEV ref 151-12-19]: device providing connection and disconnection to a
+suitable mating component
++
+--
+NOTE: A connector has one or more contact members.
+--
+* *plug* [IEV ref 151-12-21]: connector attached to a cable
+* *socket* [IEV ref 151-12-20]: connector attached to an apparatus, or to a
+constructional element or alike
++
+--
+NOTE: Contact members of a socket may be socket contacts, pin contacts or both.
+--
+* *shielded connector* [IEV ref 581-26-19]: connector designed to prevent the
+radiation of electromagnetic interference to and from the internal conductor(s)
+* *cavity plug*: plug for a connector cavity for the purpose of sealing
+* *seal*: mechanical object that helps join other mechanical objects together by
+preventing leakage, containing pressure, or excluding contamination
+* *connector housing* [IEV ref 581-27-10]: part of a connector into which the
+connector insert and contacts are assembled
+* *emi connector housing*: connector housing that shields against electromagnetic
+interference
+* *connector insert* [IEV ref 581-27-11]: insulating element designed to support and
+position contacts in a connector housing
+* *backshell*: connector accessory that is closing a connector from the back side and
+guide the wires and cables
+* *electrified backshell*: backshell that is intended to be conductive
+* *cable support sleeve* [IEV ref 581-27-23]: flexible accessory or a part of a
+component placed around the cable to minimize flexing of the cable at the point of
+entry into the component
+* *grommet* [IEV ref 581-27-19]: part of a component or an accessory, used to support
+and protect the wires or cable at the point of entry; it may also prevent the ingress
+of moisture or contaminants
+* *strain relief accessory*: connector accessory to guide and provide strain relief
+to wires and cables
+* *protective covering*, sheat (North America jacket) [IEV ref 461-05-03]: uniform
+and continuous tubular covering of metallic or non-metallic material, generally
+extruded
++
+--
+NOTE: The term sheath is only used for metallic coverings in North America, whereas
+the term jacket is used for non-metallic coverings.
+--
+* *overbraid*: protective covering (sheath) that is also a braid
+* *conduit* [IEV ref 442-02-03]: a part of a closed wiring system of generally
+circular cross section for insulated conductors and/or cables in electrical or
+communication installations, allowing them to be drawn in and/or replaced
+* *corrugated conduit* [IEV ref 442-02-06]: a conduit in which the profile is
+corrugated in the longitudinal section
++
+--
+NOTE: Both annular and helical corrugated conduits are permissible and a combination
+of both corrugated and plain conduit is possible.
+--
+* *shield* (of a cable) [IEV ref 461-03-04]: surrounding earthed metallic layer which
+serves to confine the electric field within the cable and/or to protect the cable
+from external electrical influence
++
+--
+NOTE: Metallic sheaths, foils, braids, armours and earthed concentric conductors may
+also serve as shields.
+
+NOTE: In French, the term "blindage" may be used when the main purpose of the screen
+is the protection from external electrical influence.
+--
+* *terminal lug* [IEV ref 461-17-01]: metallic device to connect a cable conductor to
+other electrical equipment
+* *terminal block* [IEV ref 581-26-26]: part of a component or an accessory, used to
+support and protect the wires or cable at the point of entry; it may also prevent the
+ingress of moisture or contaminants
+* *joint ferrule*, through connector (of cables) [IEV ref 461-17-04]: metallic device
+for connecting two consecutive lengths of conductor
+* *cable ferrule* [IEV ref 581-27-18]: accessory in the form of a short tube to
+provide cable support or termination for a cable screen
+* *shield connector*, screen connector [IEV ref 461-17-12]: device used to make a
+connection to the screen or shield of a cable for the purpose of continuity or earthing
+* *insulation piercing connector* [IEV ref 461-11-08]: connector in which electrical
+contact with the conductor is made by metallic protrusions which pierce the
+insulation of the cable core
+* *splice* [IEV ref 581-24-19]: connecting device with barrel(s) accommodating
+conductor(s) with or without additional provision to accommodate and secure the
+insulation
+* *fixing device* [IEV ref 442-02-40]: system component specifically designed to
+secure other components to the wall, ceiling, floor or other structure
+* *cable fixing device*: fixing device for a cable on a structure
+* *label*: part that is intended to attach written information to other parts
+* *tape* [IEV ref 212-15-03]: sheeting or plastic film of limited width and in long
+continuous lengths
++
+--
+NOTE: The width is typically less than some hundred millimetres.
+--
+* *end cap* [IEV ref 461-20-07]: device placed on the ends of a cable to prevent the
+ingress of moisture during storage, transportation and installation
+* *connector cavity*: cavity in a connector, connector housing or insert intended to
+receive a connector contact or multi contact
+
+[[cls-4.3]]
+== Example part with PartCategories
+
+Here an example of a _Part_ with a single _PartVersion_ (at least one is mandatory). The
+part categories tells an importing tool on how to handle the part. In this case we
+know that it is a *discrete* part, and so it comes in pieces, not in some quantity such
+as length, area or volume that one would need to specify before it can be used (see
+subtypes of Occurrence). Another important information is that it is a
+*connector_contact*; so it is something that is used to assembly a connector and that
+it is a part that most likely has electrical or optical connectivity functionality.
+
+[%unnumbered]
+[source,xml]
+----
+<Part uid="_113000">
+  <Id id="8660-2485"/>
+  <Name> <CharacterString>#5 Coax contact</CharacterString> </Name>
+  <PartTypes>
+    <PartCategoryEnum>connector_contact</PartCategoryEnum>
+    <PartCategoryEnum>discrete</PartCategoryEnum>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="_113001">
+      <Id id="Version 1"/>
+      <Views>
+      ...
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----

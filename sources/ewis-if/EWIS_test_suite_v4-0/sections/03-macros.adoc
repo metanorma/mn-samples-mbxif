@@ -1,0 +1,122 @@
+== Macros
+
+[[cls-3.1]]
+=== Part_with_PartView
+
+This macro constraints single instances of a Part, a PartVersion, a PartView and a
+ViewContext to be linked together. Only the name for a Part is constrained as the ID
+of a Part is often rather system dependent. The ViewContext used as the
+initialContext for the PartView is constrained for the predefined LifeCycleStage
+"design".
+
+[source%unnumbered]
+----
+Macro Part_with_PartView (
+  @1:Part( Name=@2, Versions[i]=@3 );
+  @2:CharacterString
+  @3:PartVersion( Views[i]=@4 );
+  @4:PartView( InitialContext=@5 );
+  @5:ViewContext( LifeCycleStage=PredefinedApplicationDomainEnum(design) );
+);
+----
+
+[[cls-3.2]]
+=== Part_with_ID_and_PartView
+
+This macro is similar to the macro Part_with_PartView but instead of constraining the
+name of a Part the ID of a part is constraint.
+
+[source%unnumbered]
+----
+Macro Part_with_ID_and_PartView (
+  @1:Part( Id=@2, Versions=(@3) );
+  @2:Identifier;
+  @3:PartVersion( Views=(@4) );
+  @4:PartView( InitialContext=@5 );
+  @5:ViewContext( LifeCycleStage=PredefinedApplicationDomainEnum(design) );
+);
+----
+
+[[cls-3.3]]
+=== Part_WiringHarnessAssemblyDesign
+
+This macro is similar to the macro Part_with_PartView and constraints single
+instances of a Part, a PartVersion, a WiringHarnessAssemblyDesign (that is a
+sub-subytype of PartView) and a ViewContext to be linked together. The Part is
+constrained for the PartType "wiring_harness".
+
+[source%unnumbered]
+----
+Macro Part_WiringHarnessAssemblyDesign (
+  @1:Part( Name=@2,
+           Versions[i]=@3,
+           PartTypes[i]=PartCategoryEnum(wiring_harness) );
+  @2:CharacterString
+  @3:PartVersion( Views[i]=@4 );
+  @4:WiringHarnessAssemblyDesign( InitialContext=@5 );
+  @5:ViewContext( LifeCycleStage=PredefinedApplicationDomainEnum(design),
+           ApplicationDomain=PredefinedApplicationDomainEnum(electrical)
+                 );
+);
+----
+
+[[cls-3.4]]
+=== Part_WiringHarnessAssemblyDesign_with_topology
+
+This macro is an extension of the macro Part_WiringHarnessAssemblyDesign. In addition
+to this it adds a constraint for an additional ViewContext with the predefined
+LifeCycleStage "wiring_harness_segment_topology".
+
+[source%unnumbered]
+----
+Macro Part_WiringHarnessAssemblyDesign_with_topology (
+  Part_WiringHarnessAssemblyDesign(@1,@2,@3,@4,@5);
+  @1:Part;
+  @2:CharacterString;
+  @3:PartVersion;
+  @4:WiringHarnessAssemblyDesign( AdditionalContexts[i]=@6 );
+  @5:ViewContext;
+  @6:ViewContext( ApplicationDomain=PredefinedApplicationDomainEnum(
+         wiring_harness_segment_topology) );
+);
+----
+
+[[cls-3.5]]
+=== Joint2
+
+This macro constrains an _AssemblyDefinition_ and two _OccurrenceShapeFeatures_ (that
+belong to _Occurrences_ that are brought into the assembly by
+_NextAssemblyOccurrenceUsage_ to be connected by an _AssemblyShapeJoint_ with a
+specified _AssemblyJointTypeEnum_ value.
+
+[source%unnumbered]
+----
+Macro Joint2 (
+  @1:AssemblyDefinition;
+  @2:OccurrenceShapeFeature;
+  @3:OccurrenceShapeFeature;
+  @4:AssemblyJointTypeEnum;
+  @5:AssemblyShapeJoint( ElementOf=@1, JointType=@4 );
+  @6:AssemblyShapeJointItemRelationship( Relating=@5, Related=@2 );
+  @7:AssemblyShapeJointItemRelationship( Relating=@5, Related=@3 );
+);
+----
+
+[[cls-3.6]]
+=== Undirected_edge
+
+This macro constrains an edge with two vertices so that either one of the Vertices is
+the EdgeStart and the other Vertices is the EdgeEnd. In STEP all Edges are by default
+directed, however for the design of the topology of an EWH the direction of an Edge
+is not relevant (however it might be relevant for the purpose of manufacturing).
+
+[source%unnumbered]
+----
+Macro Undirected_edge (
+  @1=Edge( ( EdgeStart=@2, EdgeEnd=@3)
+            OR
+           ( EdgeStart=@3, EdgeEnd=@2) );
+  @2=Vertex;
+  @3=Vertex;
+);
+----

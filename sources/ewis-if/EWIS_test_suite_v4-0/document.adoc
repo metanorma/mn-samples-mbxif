@@ -1,0 +1,36 @@
+= EWIS Interoperability Forum Test Suite v4.0
+:customize: ewisif_metanorma.yml
+:doctype: test-suite
+:technical-committee: ewis
+:version: 4.0
+:issued-date: 2021-12-09
+:toclevels: 2
+:mn-document-class: nist
+:fullname: Lothar Klein
+:address: Steinweg 1
+:postcode: 36093
+:region: Künzell
+:country: Germany
+:email: lothar.klein@lksoft.com
+:fullname_2: Daniel Ganser
+:affiliation_2: Gulfstream Aerospace Corporation
+:street_2: BTC
+:address_2: 171 Crossroads Parkway
+:postcode_2: 31407
+:region_2: Savannah, GA
+:country_2: U.S.A.
+:email_2: dan.ganser@gulfstream.com
+:series:
+:language: en
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+include::sections/00-preface.adoc[]
+
+include::sections/01-intro.adoc[]
+
+include::sections/02-syntax.adoc[]
+
+include::sections/03-macros.adoc[]
+
+include::sections/04-test-case.adoc[]

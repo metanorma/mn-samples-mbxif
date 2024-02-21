@@ -1,0 +1,56 @@
+[[cls-16]]
+== Overall connectivity in top Assembly
+
+TODO: SO FAR INCOMPLETE
+
+STEP AP242 ed2 has two ways to express connectivity, either by AssemblyShapeJoint or
+by PartConnectivityDefinition. How they differ and when to use which one:
+
+* As the name indicates, an AssemblyShapeJoint can only be used for an
+AssemblyDefinition (or subtype WiringHarnessAssemblyDesign) that contains
+Occurrences (aka devices) that are connected with each other. This is done by
+referencing the two or more OccurrenceShapeFeatures(or subtypes
+OccurrenceContactFeature and OccurrenceTerminal) of these Occurrences
+
+* An AssemblyShapeJoint is used for the representation With
+AssemblyShapeJointItemRelationship two or more any kind of OccurrenceShapeFeatures
+(e.g. OccurrenceTerminals) can be connected. This might be for pure mechanical
+reasons (OccurrenceShapeFeatures or OccurrenceContactFeature), but can also be to
+exchange energy or information (OccurrenceTerminal).
+* A PartConnectivityDefinition can be used in different way
+** for a part to tell which terminal are internally connected
+** for an assemble to state which internal devices are connected
+** for an assembly to state how the internal devices are connected by wires, cables,
+harnesses ... / also covered by AssemblyShapeJoint
+** for an assembly to state how the terminal of internal devices are made accessible
+to the outside by terminals of the assembly
+
+OccurrenceTerminal,
+
+PartTerminal
+
+poke-home
+
+Some aircrafts (especially bigger ones) are build in sections with each having its
+own wiring harness(es). E.g. separate sections for the cockpit, the front fuselage,
+the central fuselage, the rear fuselage, the wings and the turbines. These sections
+might be manufactured and assembled in different factories. Only in the final
+assembly line these sections are combined into the final aircraft, and part of this
+process is that the wiring harnesses in the separate sections are joined by
+connecting corresponding plugs and receptacles from different harnesses. By this the
+overall electrical system of an aircraft is set up. For each such join a single
+AssemblyShapeJoint is needed for the purpose of data exchange.
+
+[[fig32a]]
+[%unnumbered]
+image::img32a.png[]
+
+When all the high level AssemblyShapeJoints between all the plugs and receptacles
+for the top assembly of a vehicle are given, a receiving system can then deduce all
+the lower level AssemblyShapeJoints and so generate the overall electrical network
+of the whole top assembly.
+
+Connectivity between all the devices (sensors, actors, computers, batteries, lamps,
+...) in a top assembly.
+
+TODO: SO FAR INCOMPLETE

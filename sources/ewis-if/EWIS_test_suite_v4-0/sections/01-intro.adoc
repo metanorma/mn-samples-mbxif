@@ -1,0 +1,5 @@
+== Introduction
+
+This document describes the suite of test cases to be used for the EWIS
+Interoperability Forum. The EWIS-IF is a joint testing forum, organized and
+facilitated by AFNeT and PDES.

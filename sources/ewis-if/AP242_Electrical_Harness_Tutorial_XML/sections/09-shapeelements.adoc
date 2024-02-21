@@ -1,0 +1,102 @@
+[[cls-9]]
+== ShapeElements, Features & Beyond
+
+A *ShapeElement* identifies a piece of the shape of some product or of another
+ShapeElement, but without defining its geometry. Some subtypes of ShapeElements are
+called ...ShapeFeature. The term "shape feature" in AP242 means that some piece of
+the outside surface of a product is identified that typically has a specific
+functional purpose. A shape feature is a "definitional" part of the shape of a
+product. There are other shapes of a product that are not definitional, e.g. a
+rotational axis is not part of the outer surface of a product.
+
+A *ShapeFeatureDefinition* is the identification of a feature independent of a
+particular product. It can be used like a template for several products. This
+concept is widely used in the electrical world for standardized shapes of e.g.
+connectors or contacts.
+
+[[fig9]]
+.ShapeElement and ShapeFeatureDefinition
+image::img09.png[]
+
+ShapeElements can in principle be defined for ProductConfiguration, PartView,
+Occurrence, IndividualPartView, AssemblyViewRelationship, BreakdownElementType or
+ShapeFeatureDefinition. For the purpose of electrical harness only the following
+specific subtypes of ShapeElements or one of their subsubtypes are to be used:
+
+* *PartShapeElement* and subtype PartFeature for PartView or ProductConfiguration
+* *OccurrenceShapeElement* and subtype OccurrenceShapeFeature for Occurrences
+* *ShapeFeatureDefinitionElement* for ShapeFeatureDefinition
+
+ShapeElements can be related in various ways to each other using
+ShapeElementRelationship. A PartShapeElementRelationship relates two
+PartShapeElements that might be from the same PartView or from different PartViews.
+A PartFeatureFitRelationship indicates that two PartFeatures fit together like a
+plug and a socket. ShapeFeatureDefinitionElementRelationship is providing the same
+capability on a generic ShapeFeature level independent of a product.
+
+The following pre-defined type information are defined for electrical wiring
+harness. Whenever suitable these types should be used to enable the proper function
+of converters:
+
+* cavity_plug_or_contact_profile: an outer profile of a cavity plug or connector
+contact that fits into a cavity_profile.
+* cavity_profile: an inner profile of a connector cavity that can accept a
+cavity_plug_or_contact_profile.
+* contact_barrel: an inner profile of a barrel that can accept a wire_profile.
+* contact_profile: an inner profile of a socket contact into which a pin_profile fits.
+* insert_profile: an outer profile of a connector insert that fits into a
+slot_profile.
+* pin_profile: an outer profile of a pin contact that fits into a contact_profile.
+* plug_profile: an outer profile of a plug that fits into a socket_profile.
+* slot_profile: an inner profile of a connector slot that can accept an
+insert_profile.
+* socket_profile: an inner profile of a socket into which a plug_profile fits.
+* unspecified: the kind of shape is not specified.
+* wire_profile: an outer profile of a wire or cable that fits into a contact_barrel.
+
+[TODO]
+====
+SO FAR INCOMPLETE: Main usage in clauses 10.x ff. Explain al concepts of above diagra,
+====
+
+[[cls-9.1]]
+=== Templates for Slots, Inserts, Cavities and Contact Profiles
+
+In the cases that a particular shape feature is used for several PartDesignViews
+there is a possibility to define a feature only once, and then to used it for
+several PartDesignViews by reference.
+
+Examples for this are modular connectors such as the ARINC 600 series that are
+available from different vendors and variations and where different kind of inserts
+fit into the same slot, or different kind of contacts fit into a cavity of a certain
+size and shape.
+
+[TODO]
+====
+xx PartShapeElements defined by ShapeFeatureDefinitions
+
+xx TBD
+
+Example pictures for the following pairs:
+
+* insert_profile & slot_profile
+* plug_profile and socket_profile
+* contact_barrel & wire_profile
+* cavity_plug_or_contact_profile & cavity_profile
+====
+
+[TODO]
+====
+[[fig10a]]
+.xx
+image::img10a.png[]
+
+[[fig11a]]
+.xx
+image::img11a.png[]
+====
+
+[[cls-9.2]]
+=== Example for ShapeFeatureDetinitionFitRelationship & PartFeatureFitRelationship
+
+TODO: xxx

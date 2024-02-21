@@ -1,0 +1,269 @@
+[[sec-5]]
+== Specific Characters and Text
+
+This section defines how characters with specific syntax, such as a character in a
+circle or a spotface symbol, are identified. Characters that are not in this
+section are defined as plain text.
+
+[[sec-5.1]]
+=== Characters Within Parenthesis
+
+Information displayed inside parenthesis in a dimension does not require special
+mapping. If it is desired to have parenthesis display as text that is not part of
+the dimension information, the TXT indicator should be placed in front of it.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img27.png[]
+a| DIM\w[css color:red]##(##&#xD8;1.000&#xB1;.005[css color:red]##)##
+
+_Reference dimension with tolerance_
+
+a| [%unnumbered,height=80px]
+image::img28.png[]
+a| DIM\w30 f7 [css color:red]##(##\u-0,020\n-0,041\u[css color:red]##)##
+|===
+
+[[sec-5.2]]
+=== Characters Within a Shape
+
+A single character surrounded by a circle, or more than one character surrounded
+by an oval.
+
+[[sec-5.2.1]]
+==== Circle
+
+Single letters in a circle used as geometric modifiers, such as Maximum Material
+Condition. Unicode representations are available for all single letters in a
+circle. Refer to for commonly used letters in a circle such, as &#x24C2;
+represented with the Unicode string 24C2.
+
+as defined in Section 6.9.3 of the
+https://www.cax-if.eu/cax/cax_recommPractice.php[CAx-IF Recommended Practice for Representation and Presentation of PMI (AP242)].
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=30px]
+image::img29.png[]
+| FCF\u&#x2313;\u4.5[css color:red]##&#x24CA;##1.5\uA\uB[css color:red]##&#x24C2;##\uC[css color:red]##&#x24C2;##
+|===
+
+[[sec-5.2.2]]
+==== Hexagon
+
+Denotes letter in a hexagon, used as dimension modifiers as defined in Section 5.3
+of the https://www.cax-if.eu/cax/cax_recommPractice.php[CAx-IF Recommended Practice for Representation and Presentation of PMI (AP242)].
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img30.png[]
+a| [css color:red]##<CF>##FCF\w&#x2313;\w0.4\wA\wB
+|===
+
+[[sec-5.3]]
+=== Characters Within Brackets
+
+DIM with a numeric dimension in square brackets represent a basic dimension (see
+<<sec-6.1>>).
+
+FCF with square brackets represent a basic dim or degrees of freedom (see below).
+
+TXT with square brackets represents text in a box.
+
+[[sec-5.3.1]]
+==== Degree of Freedom
+
+Symbols: [x,y,z,u,v,w] in any combination
+
+Used to indicate which Degrees of Freedom are eliminated by the Datum Feature
+Simulator, potentially overriding the default conditions. Does not require all 6
+symbols be displayed. Does not require the TXT delimiter to display as square
+brackets in a feature control frame.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered]
+image::img31.png[]
+| FCF\w&#x2313;\w3.75\wD[css color:red]##[z,u,v]##\wE&#x24C2;[css color:red]##[x]\w##F[css color:red]##[y,w]##
+|===
+
+[[sec-5.3.2]]
+==== Special Case -- Basic Dimensions
+
+Symbols: [BSC] and [BASIC]
+
+[BASIC], [BSC], and [value] are methods to override the default size/boundary for
+Datum Feature Simulators. [BSC] is an abbreviation for [BASIC], which means the
+basic size / shape. Used in a feature control frame, the TXT delimiter is not
+required.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered]
+image::img32.png[]
+| FCF\w&#x2313;\w4.5&#x24CA;1.5&#x24BB;\wA\wB[css color:red]##[BASIC]##\wC
+
+a| [%unnumbered]
+image::img33.png[]
+| FCF\w&#x2313;\w4.5&#x24CA;1.5&#x24BB;\wA\wB[css color:red]##[BSC]##\wC
+
+a| [%unnumbered]
+image::img34.png[]
+| FCF\w&#x2313;\w4.5&#x24CA;1.5&#x24BB;\wA\wB[css color:red]##[##&#xD8;10.505[css color:red]##]##[\wC
+|===
+
+[[sec-5.4]]
+=== Text
+
+Text is a string of characters and symbols used to provide further information on
+an annotation. Sections 5.1 through 0 define text representation in special cases
+where the text carries specific meaning.
+
+[[sec-5.4.1]]
+==== General Text
+
+Keyword: TXT
+
+Denotes text with no context. Does not require its own separator before or after.
+
+NOTE: A gap between symbols or text denotes a space as entered on a keyboard
+(white space) and does not require mapping.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img35.png[]
+| [css color:red]##TXT##\w6X\wDIM&#xD8;1.0
+a| [%unnumbered,height=70px]
+image::img36.png[]
+| FCF\w&#x23CA;\w0.5\wA\n[css color:red]##TXT##\wEACH ELEMENT
+|===
+
+[[cls-5.4.2]]
+==== General Note
+
+Keyword: NOTE
+
+Subtypes of text can be used to provide a more semantic meaning. The delimiters
+below can be used in place of NOTE.
+
+[%unnumbered,cols=2]
+|===
+| UNLESS OTHERWISE SPECIFIED, ALL DIMENSIONS ARE IN MILLIMETERS
+| [css color:red]##NOTE##\wUNLESS OTHERWISE SPECIFIED, ALL DIMENSIONS ARE IN MILLIMETERS
+|===
+
+[[sec-5.4.3]]
+==== Special Cases
+
+Special cases of using text can be used to provide more meaning. As suggested by
+Siemens.
+
+[[sec-5.4.3.1]]
+===== Balloon
+
+Keyword: BAL
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img37.png[]
+| [css color:red]##BAL##12
+|===
+
+[[sec-5.4.3.2]]
+===== Coordinate Note
+
+Keyword: COR
+
+[%unnumbered,cols=2]
+|===
+a| x=100.0000a +
+y=0.0000b +
+z=100.0000c +
+I=0.0000d +
+J=0.0000e +
+K=0.0000f +
+Label=g +
+Level=h
+a| [css color:red]##COR##\wx=100.0000a\ny=0.0000b\nz=100.0000c\nI=0.0000d\nJ=0.0000e\nK= +
+0.0000f\nLabel=g\nLevel=h
+|===
+
+[[sec-5.4.3.3]]
+===== Enterprise Identification
+
+Keyword: ENT
+
+[%unnumbered,cols=2]
+|===
+a| Siemens PLM Software
+
+10824 Hope St.
+
+Cypress, CA 90630
+
+Development Headquarters
+
+A1234
+| [css color:red]##ENT##\wSiemens PLM Software\n10824 Hope St.Cypress, CA 90630\nDevelopment Headquarters\nA1234
+|===
+
+[[sec-5.4.3.4]]
+===== Material Specifications
+
+Keyword: MAT
+
+[%unnumbered,cols=2]
+|===
+a| ABS (-1)
+
+Nomenclature Text
+
+Open Field Text
+| [css color:red]##MAT##\wABS (-1)\n Nomenclature Text\nOpen Field Text
+|===
+
+[[sec-5.4.3.5]]
+===== Part ID
+
+Keyword: PID
+
+[%unnumbered,cols=2]
+|===
+| WorkingPMIExample.prt (-) ASSEMBLY, f1 -- g2
+| [css color:red]##PID##\wWorkingPMIExample.prt (-) ASSEMBLY, f1 -- g2
+
+| WorkingPMIExample.prt (-) BEARING, f2
+| [css color:red]##PID##\wWorkingPMIExample.prt (-) BEARING, f2
+|===
+
+[[sec-5.4.3.6]]
+===== Process
+
+Keyword: PRO
+
+[%unnumbered,cols=2]
+|===
+a| Chromium (-)
+
+CHROMIUM PLATE
+
+open
+| [css color:red]##PRO##\wChromium (-)\nCHROMIUM PLATE\nopen
+|===
+
+[[sec-5.4.3.7]]
+===== Locator designator
+
+Keyword: LOC
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img38.png[]
+a| [css color:red]##LOC##\wS\wX\wOSKCF\wWorkingPMIExample.prt +
+\nNoteText HotSpot
+|===

@@ -1,0 +1,51 @@
+= CAx-IF Recommended Practices for PMI Unicode String Specifications
+:customize: caxif_metanorma.yml
+:doctype: recommended-practices
+:technical-committee: cax-if
+:version: 1.0
+:issued-date: 2023-04-25
+:toclevels: 2
+:copyright-holder: CAx Interoperability Forum
+:mn-document-class: nist
+:fullname: Jochen Boy
+:affiliation: PROSTEP AG
+:email: jochen.boy@prostep.com
+:contact-type: CAx-IF
+:fullname_2: Phil Rosché
+:affiliation_2: ACCR, LLC.
+:email_2: phil.rosche@accr-llc.com
+:contact-type_2: CAx-IF
+:fullname_3: Jacques Heinisch
+:affiliation_3: AFNeT Services
+:email_3: jacques.heinisch@afnet-services.fr
+:contact-type_3: CAx-IF
+:fullname_4: Rosemary Astheimer
+:affiliation_4:
+:email_4: rastheimer@gmail.com
+:contact-type_4: Technical
+:fullname_5: Robert Lipman
+:affiliation_5: NIST
+:email_5: robert.lipman@nist.gov
+:contact-type_5: Technical
+:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
+:series:
+:language: en
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+
+include::sections/01-intro.adoc[]
+
+include::sections/02-scope.adoc[]
+
+include::sections/03-rules.adoc[]
+
+include::sections/04-delimiters.adoc[]
+
+include::sections/05-spec-chars.adoc[]
+
+include::sections/06-gdt.adoc[]
+
+include::sections/07-surface.adoc[]
+
+include::sections/08-welding.adoc[]

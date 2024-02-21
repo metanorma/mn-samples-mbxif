@@ -1,0 +1,1371 @@
+[[annexA]]
+[appendix,obligation=informative]
+== Appendix A -- NASTRAN Input File Full Listing
+
+The NASTRAN input files for the four pilot models, as listed in the following four
+subsections, were used for this pilot study. They are not expected to be changed or
+updated unless a significant issue is identified that materially affects the
+generation of the STEP files. The first load case is defined consistently for all
+models with appropriate loads and boundary conditions to enable comparable solution
+data. However, the results will not be numerically identical due to differences in
+the model abstractions and element selection.
+
+[[cls-8.1]]
+=== ATS1m5.bdf
+
+[source%unnumbered]
+----
+$ Linear Static Analysis
+SOL 101
+TIME 600
+CEND
+$
+SEALL = ALL
+SUPER = ALL
+TITLE = Nastran job EAS test case ATS1m5
+ECHO = NONE
+MAXLINES = 999999999
+GPFORCE(PRINT,PUNCH) = ALL
+$
+SUBCASE 1
+  SUBTITLE=subcase1 - axial load at tip
+  SPC = 100
+  LOAD = 200
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+  ELSUM=ALL
+$
+BEGIN BULK
+PARAM   POST      -1
+PARAM   AUTOSPC   YES
+PARAM   NOCOMPS   -1
+PARAM   PRTMAXIM  YES
+PARAM   GRDPNT    0
+$
+PROD     1     1     8.    0.
+$
+CROD     1     1     1     2
+CROD     2     1     2     3
+CROD     3     1     3     4
+CROD     4     1     4     5
+CROD     5     1     5     6
+CROD     6     1     6     7
+CROD     7     1     7     8
+CROD     8     1     8     9
+CROD     9     1     9     10
+CROD     10    1     10    11
+CROD     11    1     11    12
+CROD     12    1     12    13
+CROD     13    1     13    14
+CROD     14    1     14    15
+CROD     15    1     15    16
+CROD     16    1     16    17
+$
+MAT1     1     1.+7        .33     2.54-4     1.3-5     70.
+$
+GRID     1     1     0.    -2.     1.
+GRID     2     1     1.    -2.     1.
+GRID     3     1     2.    -2.     1.
+GRID     4     1     3.    -2.     1.
+GRID     5     1     4.    -2.     1.
+GRID     6     1     5.    -2.     1.
+GRID     7     1     6.    -2.     1.
+GRID     8     1     7.    -2.     1.
+GRID     9     1     8.    -2.     1.
+GRID     10    1     9.    -2.     1.
+GRID     11    1     10.   -2.     1.
+GRID     12    1     11.   -2.     1.
+GRID     13    1     12.   -2.     1.
+GRID     14    1     13.   -2.     1.
+GRID     15    1     14.   -2.     1.
+GRID     16    1     15.   -2.     1.
+GRID     17    1     16.   -2.     1.
+$
+SPC1     100     123     1
+$
+FORCE    200     17      0     1000.   -1.     0.     0.
+$
+CORD2R   1               0.    0.       0.     0.     0.     1.
+         1.      0.      0.
+$
+ENDDATA
+----
+
+[[cls-8.2]]
+=== ATS2m5.bdf
+
+[source%unnumbered]
+----
+$ Linear Static Analysis
+SOL 101
+TIME 600
+CEND
+$
+SEALL = ALL
+SUPER = ALL
+TITLE = Nastran EAS test case ATS2m5
+ECHO = NONE
+MAXLINES = 999999999
+GPFORCE(PRINT,PUNCH) = ALL
+SUBCASE 1
+  SUBTITLE=subcase1
+  SPC = 100
+  LOAD = 200
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+  ELSUM=ALL
+SUBCASE 2
+  SUBTITLE=subcase2
+  SPC = 10
+  LOAD = 22
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+SUBCASE 3
+  SUBTITLE=subcase3
+  SPC = 10
+  LOAD = 23
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+$
+BEGIN BULK
+PARAM   POST      -1
+PARAM   AUTOSPC   YES
+PARAM   NOCOMPS   -1
+PARAM   PRTMAXIM  YES
+PARAM   GRDPNT    0
+$
+PBAR     1       1        8.      2.667  10.667    0.      0.
+         1.      2.       1.     -2.     -1.       -2.     -1.       2.
+                          0.
+$
+CBAR*    1                1               1                 2
+*        0.               7.54979-8       1.
+CBAR*    2                1               2                 3
+*        0.               7.54979-8       1.
+CBAR*    3                1               3                 4
+*        0.               7.54979-8       1.
+CBAR*    4                1               4                 5
+*        0.               7.54979-8       1.
+CBAR*    5                1               5                 6
+*        0.               7.54979-8       1.
+CBAR*    6                1               6                 7
+*        0.               7.54979-8       1.
+CBAR*    7                1               7                 8
+*        0.               7.54979-8       1.
+CBAR*    8                1               8                 9
+*        0.               7.54979-8       1.
+CBAR*    9                1               9                 10
+*        0.               7.54979-8       1.
+CBAR*    10               1               10                11
+*        0.               7.54979-8       1.
+CBAR*    11               1               11                12
+*        0.               7.54979-8       1.
+CBAR*    12               1               12                13
+*        0.               7.54979-8       1.
+CBAR*    13               1               13                14
+*        0.               7.54979-8       1.
+CBAR*    14               1               14                15
+*        0.               7.54979-8       1.
+CBAR*    15               1               15                16
+*        0.               7.54979-8       1.
+CBAR*    16               1               16                17
+*        0.               7.54979-8       1.
+$
+MAT1     1       1.+7             .33     2.54-4 1.3-5      70.
+$
+GRID     1       1        0.      -2.     1.
+GRID     2       1        1.      -2.     1.
+GRID     3       1        2.      -2.     1.
+GRID     4       1        3.      -2.     1.
+GRID     5       1        4.      -2.     1.
+GRID     6       1        5.      -2.     1.
+GRID     7       1        6.      -2.     1.
+GRID     8       1        7.      -2.     1.
+GRID     9       1        8.      -2.     1.
+GRID     10      1        9.      -2.     1.
+GRID     11      1        10.     -2.     1.
+GRID     12      1        11.     -2.     1.
+GRID     13      1        12.     -2.     1.
+GRID     14      1        13.     -2.     1.
+GRID     15      1        14.     -2.     1.
+GRID     16      1        15.     -2.     1.
+GRID     17      1        16.     -2.     1.
+$
+SPCADD   10      100
+$
+LOAD     22      1.       1.      300     1.       400
+LOAD     23      1.       1.      200     1.       300      1.     400
+$
+SPC1     100     123456   1
+$
+FORCE    200     17       0       1000.   -1.      0.       0.
+FORCE    300     11       0       10.     0.       -1.      0.
+FORCE    300     17       0       10.     0.       -1.      0.
+FORCE    400     12       0       20.     0.       -1.      0.
+FORCE    400     13       0       20.     0.       -1.      0.
+FORCE    400     14       0       20.     0.       -1.      0.
+FORCE    400     15       0       20.     0.       -1.      0.
+FORCE    400     16       0       20.     0.       -1.      0.
+$
+CORD2R   1             0.         0.      0.       0.       0.     1.
+         1.       0.      0.
+$
+ENDDATA
+----
+
+[[cls-8.3]]
+=== ATS3m5.bdf
+
+[source%unnumbered]
+----
+$ Linear Static Analysis
+SOL 101
+TIME 600
+CEND
+$
+SEALL = ALL
+SUPER = ALL
+TITLE = Nastran job EAS test case ATS3m5
+ECHO = NONE
+MAXLINES = 999999999
+GPFORCE(PRINT,PUNCH) = ALL
+$
+SUBCASE 1
+  SUBTITLE=subcase1
+  SPC = 11
+  LOAD = 21
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH,FIBER)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+  ELSUM=ALL
+SUBCASE 2
+  SUBTITLE=subcase2
+  SPC = 12
+  LOAD = 22
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH,FIBER)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+SUBCASE 3
+  SUBTITLE=subcase3
+  SPC = 12
+  LOAD = 23
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH,FIBER)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+SUBCASE 4
+  SUBTITLE=subcase4
+  SPC = 103
+  LOAD = 500
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH,FIBER)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+$
+BEGIN BULK
+PARAM   POST       -1
+PARAM   AUTOSPC    YES
+PARAM   NOCOMPS    -1
+PARAM   PRTMAXIM   YES
+PARAM   GRDPNT     0
+$
+PSHELL     1     1     2.    1     1
+$
+CQUAD4     1     1     1     2     13     12
+CQUAD4     2     1     2     3     14     13
+CQUAD4     3     1     3     4     15     14
+CQUAD4     4     1     4     5     16     15
+CQUAD4     5     1     5     6     17     16
+CQUAD4     6     1     6     7     18     17
+CQUAD4     7     1     7     8     19     18
+CQUAD4     8     1     8     9     20     19
+CQUAD4     9     1     9     10    21     20
+CQUAD4     10    1     10    11    22     21
+CQUAD4     11    1     12    13    24     23
+CQUAD4     12    1     13    14    25     24
+CQUAD4     13    1     14    15    26     25
+CQUAD4     14    1     15    16    27     26
+CQUAD4     15    1     16    17    28     27
+CQUAD4     16    1     17    18    29     28
+CQUAD4     17    1     18    19    30     29
+CQUAD4     18    1     19    20    31     30
+CQUAD4     19    1     20    21    32     31
+CQUAD4     20    1     21    22    33     32
+CQUAD4     21    1     23    24    35     34
+CQUAD4     22    1     24    25    36     35
+CQUAD4     23    1     25    26    37     36
+CQUAD4     24    1     26    27    38     37
+CQUAD4     25    1     27    28    39     38
+CQUAD4     26    1     28    29    40     39
+CQUAD4     27    1     29    30    41     40
+CQUAD4     28    1     30    31    42     41
+CQUAD4     29    1     31    32    43     42
+CQUAD4     30    1     32    33    44     43
+CQUAD4     31    1     34    35    46     45
+CQUAD4     32    1     35    36    47     46
+CQUAD4     33    1     36    37    48     47
+CQUAD4     34    1     37    38    49     48
+CQUAD4     35    1     38    39    50     49
+CQUAD4     36    1     39    40    51     50
+CQUAD4     37    1     40    41    52     51
+CQUAD4     38    1     41    42    53     52
+CQUAD4     39    1     42    43    54     53
+CQUAD4     40    1     43    44    55     54
+CTRIA3     41    1     64    22    11
+CTRIA3     42    1     11    57    64
+CTRIA3     43    1     57    58    64
+CTRIA3     44    1     65    64    58
+CTRIA3     45    1     66    65    58
+CTRIA3     46    1     58    59    66
+CTRIA3     47    1     59    60    66
+CTRIA3     48    1     67    66    60
+CTRIA3     49    1     68    67    60
+CTRIA3     50    1     60    61    68
+CTRIA3     51    1     61    62    68
+CTRIA3     52    1     69    68    62
+CTRIA3     53    1     22    64    33
+CTRIA3     54    1     71    33    64
+CTRIA3     55    1     72    71    64
+CTRIA3     56    1     64    65    72
+CTRIA3     57    1     65    66    72
+CTRIA3     58    1     73    72    66
+CTRIA3     59    1     74    73    66
+CTRIA3     60    1     66    67    74
+CTRIA3     61    1     67    68    74
+CTRIA3     62    1     75    74    68
+CTRIA3     63    1     76    75    68
+CTRIA3     64    1     68    69    76
+CTRIA3     65    1     78    44    33
+CTRIA3     66    1     33    71    78
+CTRIA3     67    1     71    72    78
+CTRIA3     68    1     79    78    72
+CTRIA3     69    1     80    79    72
+CTRIA3     70    1     72    73    80
+CTRIA3     71    1     73    74    80
+CTRIA3     72    1     81    80    74
+CTRIA3     73    1     82    81    74
+CTRIA3     74    1     74    75    82
+CTRIA3     75    1     75    76    82
+CTRIA3     76    1     83    82    76
+CTRIA3     77    1     44    78    55
+CTRIA3     78    1     85    55    78
+CTRIA3     79    1     86    85    78
+CTRIA3     80    1     78    79    86
+CTRIA3     81    1     79    80    86
+CTRIA3     82    1     87    86    80
+CTRIA3     83    1     88    87    80
+CTRIA3     84    1     80    81    88
+CTRIA3     85    1     81    82    88
+CTRIA3     86    1     89    88    82
+CTRIA3     87    1     90    89    82
+CTRIA3     88    1     82    83    90
+$
+MAT1       1     1.+7        .33   2.54-4    1.3-5    70.
+$
+GRID*      1                       -6.24022-8         -4.
+*          1.
+GRID       2           1.    -4.   1.
+GRID       3           2.    -4.   1.
+GRID       4           3.    -4.   1.
+GRID       5           4.    -4.   1.
+GRID       6           5.    -4.   1.
+GRID       7           6.    -4.   1.
+GRID       8           7.    -4.   1.
+GRID       9           8.    -4.   1.
+GRID       10          9.    -4.   1.
+GRID       11          10.   -4.   1.
+GRID*      12                      -6.24022-8         -3.
+*          1.
+GRID       13          1.    -3.   1.
+GRID       14          2.    -3.   1.
+GRID       15          3.    -3.   1.
+GRID       16          4.    -3.   1.
+GRID       17          5.    -3.   1.
+GRID       18          6.    -3.   1.
+GRID       19          7.    -3.   1.
+GRID       20          8.    -3.   1.
+GRID       21          9.    -3.   1.
+GRID       22          10.   -3.   1.
+GRID*      23                      -6.24022-8         -2.
+*          1.
+GRID       24          1.    -2.   1.
+GRID       25          2.    -2.   1.
+GRID       26          3.    -2.   1.
+GRID       27          4.    -2.   1.
+GRID       28          5.    -2.   1.
+GRID       29          6.    -2.   1.
+GRID       30          7.    -2.   1.
+GRID       31          8.    -2.   1.
+GRID       32          9.    -2.   1.
+GRID       33          10.   -2.   1.
+GRID*      34                      -6.24022-8         -1.
+*          1.
+GRID       35          1.    -1.   1.
+GRID       36          2.    -1.   1.
+GRID       37          3.    -1.   1.
+GRID       38          4.    -1.   1.
+GRID       39          5.    -1.   1.
+GRID       40          6.    -1.   1.
+GRID       41          7.    -1.   1.
+GRID       42          8.    -1.   1.
+GRID       43          9.    -1.   1.
+GRID       44          10.   -1.   1.
+GRID*      45                      -6.24022-8         -5.27577-8
+*          1.
+GRID*      46                      1.                 -5.27577-8
+*          1.
+GRID*      47                      2.                 -5.27577-8
+*          1.
+GRID*      48                      3.                 -5.27577-8
+*          1.
+GRID*      49                      4.                 -5.27577-8
+*          1.
+GRID*      50                      5.                 -5.27577-8
+*          1.
+GRID*      51                      6.                 -5.27577-8
+*          1.
+GRID*      52                      7.                 -5.27577-8
+*          1.
+GRID*      53                      8.                 -5.27577-8
+*          1.
+GRID*      54                      9.                 -5.27577-8
+*          1.
+GRID*      55                      10.                -5.27577-8
+*          1.
+GRID       57          11.   -4.   1.
+GRID       58          12.   -4.   1.
+GRID       59          13.   -4.   1.
+GRID       60          14.   -4.   1.
+GRID       61          15.   -4.   1.
+GRID       62          16.   -4.   1.
+GRID       64          11.   -3.   1.
+GRID       65          12.   -3.   1.
+GRID       66          13.   -3.   1.
+GRID       67          14.   -3.   1.
+GRID       68          15.   -3.   1.
+GRID       69          16.   -3.   1.
+GRID       71          11.   -2.   1.
+GRID       72          12.   -2.   1.
+GRID       73          13.   -2.   1.
+GRID       74          14.   -2.   1.
+GRID       75          15.   -2.   1.
+GRID       76          16.   -2.   1.
+GRID       78          11.   -1.   1.
+GRID       79          12.   -1.   1.
+GRID       80          13.   -1.   1.
+GRID       81          14.   -1.   1.
+GRID       82          15.   -1.   1.
+GRID       83          16.   -1.   1.
+GRID*      85                      11.                -5.27577-8
+*          1.
+GRID*      86                      12.                -5.27577-8
+*          1.
+GRID*      87                      13.                -5.27577-8
+*          1.
+GRID*      88                      14.                -5.27577-8
+*          1.
+GRID*      89                      15.                -5.27577-8
+*          1.
+GRID*      90                      16.                -5.27577-8
+*          1.
+$
+SPCADD     11    100   101   110
+SPCADD     12    100   102   110
+$
+LOAD       21    1.    1.    200
+LOAD       22    1.    1.    300   1.    400
+LOAD       23    1.    1.    200   1.    300   1.    400
+$
+SPC1       100   123   23
+SPC1       101   1     1     12    34    45
+SPC1       102   123   1     12    34    45
+SPC1       103   123   23
+SPC1       103   23    76
+SPC1       103   3     1     12    34    45
+SPC1       103   3     62    69    83    90
+SPC1       110   45    1     THRU  55
+SPC1       110   45    57    58    59    60    61    62
+           64    65    66    67    68    69    71    72
+           73    74    75    76    78    79    80    81
+           82    83    85    86    87    88    89    90
+$
+FORCE      200   62    0     125.  -1.   0.    0.
+FORCE      200   69    0     250.  -1.   0.    0.
+FORCE      200   76    0     250.  -1.   0.    0.
+FORCE      200   83    0     250.  -1.   0.    0.
+FORCE      200   90    0     125.  -1.   0.    0.
+FORCE      300   55    0     10.   0.    -1.   0.
+FORCE      300   90    0     10.   0.    -1.   0.
+FORCE      400   85    0     20.   0.    -1.   0.
+FORCE      400   86    0     20.   0.    -1.   0.
+FORCE      400   87    0     20.   0.    -1.   0.
+FORCE      400   88    0     20.   0.    -1.   0.
+FORCE      400   89    0     20.   0.    -1.   0.
+$
+PLOAD2        500-125.0     8
+PLOAD2        500-125.0     9
+PLOAD2        500-125.0    18
+PLOAD2        500-125.0    19
+PLOAD2        500-125.0    28
+PLOAD2        500-125.0    29
+PLOAD2        500-125.0    38
+PLOAD2        500-125.0    39
+$
+ENDDATA
+----
+
+[[cls-8.4]]
+=== ATS4m5.bdf
+
+[source%unnumbered]
+----
+$ Linear Static Analysis
+SOL 101
+TIME 600
+CEND
+$
+SEALL = ALL
+SUPER = ALL
+TITLE = Nastran job EAS test case ATS4m5
+ECHO = NONE
+MAXLINES = 999999999
+GPFORCE(PRINT,PUNCH) = ALL
+$
+SUBCASE 1
+  SUBTITLE=subcase1
+  SPC = 11
+  LOAD = 21
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+  ELSUM=ALL
+SUBCASE 2
+  SUBTITLE=subcase2
+  SPC = 12
+  LOAD = 22
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+SUBCASE 3
+  SUBTITLE=subcase3
+  SPC = 12
+  LOAD = 23
+  DISPLACEMENT(PRINT,PUNCH,SORT1,REAL)=ALL
+  SPCFORCES(PRINT,PUNCH,SORT1,REAL)=ALL
+  STRESS(PRINT,PUNCH,SORT1,REAL,VONMISES,BILIN)=ALL
+  STRAIN(PRINT,PUNCH)=ALL
+  FORCE(PRINT,PUNCH)=ALL
+$
+BEGIN BULK
+PARAM   POST -1
+PARAM   AUTOSPC YES
+PARAM   PRTMAXIM YES
+PARAM    GRDPNT 0
+$
+PSOLID   1    1    0
+$
+CHEXA    1    1    1      2      7      6      16     17
+         22   21
+CHEXA    2    1    2      3      8      7      17     18
+         23   22
+CHEXA    3    1    3      4      9      8      18     19
+         24   23
+CHEXA    4    1    4      5      10     9      19     20
+         25   24
+CHEXA    5    1    6      7      12     11     21     22
+         27   26
+CHEXA    6    1    7      8      13     12     22     23
+         28   27
+CHEXA    7    1    8      9      14     13     23     24
+         29   28
+CHEXA    8    1    9      10     15     14     24     25
+         30   29
+CHEXA    9    1    16     17     22     21     31     32
+         37   36
+CHEXA    10   1    17     18     23     22     32     33
+         38   37
+CHEXA    11   1    18     19     24     23     33     34
+         39   38
+CHEXA    12   1    19     20     25     24     34     35
+         40   39
+CHEXA    13   1    21     22     27     26     36     37
+         42   41
+CHEXA    14   1    22     23     28     27     37     38
+         43   42
+CHEXA    15   1    23     24     29     28     38     39
+         44   43
+CHEXA    16   1    24     25     30     29     39     40
+         45   44
+CHEXA    17   1    31     32     37     36     46     47
+         52   51
+CHEXA    18   1    32     33     38     37     47     48
+         53   52
+CHEXA    19   1    33     34     39     38     48     49
+         54   53
+CHEXA    20   1    34     35     40     39     49     50
+         55   54
+CHEXA    21   1    36     37     42     41     51     52
+         57   56
+CHEXA    22   1    37     38     43     42     52     53
+         58   57
+CHEXA    23   1    38     39     44     43     53     54
+         59   58
+CHEXA    24   1    39     40     45     44     54     55
+         60   59
+CHEXA    25   1    46     47     52     51     61     62
+         67   66
+CHEXA    26   1    47     48     53     52     62     63
+         68   67
+CHEXA    27   1    48     49     54     53     63     64
+         69   68
+CHEXA    28   1    49     50     55     54     64     65
+         70   69
+CHEXA    29   1    51     52     57     56     66     67
+         72   71
+CHEXA    30   1    52     53     58     57     67     68
+         73   72
+CHEXA    31   1    53     54     59     58     68     69
+         74   73
+CHEXA    32   1    54     55     60     59     69     70
+         75   74
+$
+CTETRA   33   1    76     83     111    77
+CTETRA   34   1    118    111    83     119
+CTETRA   35   1    84     77     119    83
+CTETRA   36   1    112    119    77     111
+CTETRA   37   1    77     83     111    119
+CTETRA   38   1    84     119    77     85
+CTETRA   39   1    112    77     119    113
+CTETRA   40   1    78     113    85     77
+CTETRA   41   1    120    85     113    119
+CTETRA   42   1    77     85     119    113
+CTETRA   43   1    78     85     113    79
+CTETRA   44   1    120    113    85     121
+CTETRA   45   1    86     79     121    85
+CTETRA   46   1    114    121    79     113
+CTETRA   47   1    79     85     113    121
+CTETRA   48   1    86     121    79     87
+CTETRA   49   1    114    79     121    115
+CTETRA   50   1    80     115    87     79
+CTETRA   51   1    122    87     115    121
+CTETRA   52   1    79     87     121    115
+CTETRA   53   1    80     87     115    81
+CTETRA   54   1    122    115    87     123
+CTETRA   55   1    88     81     123    87
+CTETRA   56   1    116    123    81     115
+CTETRA   57   1    81     87     115    123
+CTETRA   58   1    88     123    81     64
+CTETRA   59   1    116    81     123    70
+CTETRA   60   1    65     70     64     81
+CTETRA   61   1    69     64     70     123
+CTETRA   62   1    81     64     123    70
+CTETRA   63   1    90     125    83     91
+CTETRA   64   1    118    83     125    119
+CTETRA   65   1    84     119    91     83
+CTETRA   66   1    126    91     119    125
+CTETRA   67   1    83     91     125    119
+CTETRA   68   1    84     91     119    85
+CTETRA   69   1    126    119    91     127
+CTETRA   70   1    92     85     127    91
+CTETRA   71   1    120    127    85     119
+CTETRA   72   1    85     91     119    127
+CTETRA   73   1    92     127    85     93
+CTETRA   74   1    120    85     127    121
+CTETRA   75   1    86     121    93     85
+CTETRA   76   1    128    93     121    127
+CTETRA   77   1    85     93     127    121
+CTETRA   79   1    128    121    93     129
+CTETRA   80   1    94     87     129    93
+CTETRA   81   1    122    129    87     121
+CTETRA   82   1    87     93     121    129
+CTETRA   83   1    94     129    87     95
+CTETRA   84   1    122    87     129    123
+CTETRA   85   1    88     123    95     87
+CTETRA   86   1    130    95     123    129
+CTETRA   87   1    87     95     129    123
+CTETRA   88   1    88     95     123    64
+CTETRA   89   1    130    123    95     68
+CTETRA   90   1    63     64     68     95
+CTETRA   91   1    69     68     64     123
+CTETRA   92   1    64     95     123    68
+CTETRA   93   1    90     97     125    91
+CTETRA   94   1    132    125    97     133
+CTETRA   95   1    98     91     133    97
+CTETRA   96   1    126    133    91     125
+CTETRA   97   1    91     97     125    133
+CTETRA   98   1    98     133    91     99
+CTETRA   99   1    126    91     133    127
+CTETRA   100  1    92     127    99     91
+CTETRA   101  1    134    99     127    133
+CTETRA   102  1    91     99     133    127
+CTETRA   103  1    92     99     127    93
+CTETRA   104  1    134    127    99     135
+CTETRA   105  1    100    93     135    99
+CTETRA   106  1    128    135    93     127
+CTETRA   107  1    93     99     127    135
+CTETRA   108  1    100    135    93     101
+CTETRA   109  1    128    93     135    129
+CTETRA   110  1    94     129    101    93
+CTETRA   111  1    136    101    129    135
+CTETRA   112  1    93     101    135    129
+CTETRA   113  1    94     101    129    95
+CTETRA   114  1    136    129    101    137
+CTETRA   115  1    102    95     137    101
+CTETRA   116  1    130    137    95     129
+CTETRA   117  1    95     101    129    137
+CTETRA   118  1    102    137    95     62
+CTETRA   119  1    130    95     137    68
+CTETRA   120  1    63     68     62     95
+CTETRA   121  1    67     62     68     137
+CTETRA   122  1    95     62     137    68
+CTETRA   123  1    104    139    97     105
+CTETRA   124  1    132    97     139    133
+CTETRA   125  1    98     133    105    97
+CTETRA   126  1    140    105    133    139
+CTETRA   127  1    97     105    139    133
+CTETRA   128  1    98     105    133    99
+CTETRA   129  1    140    133    105    141
+CTETRA   130  1    106    99     141    105
+CTETRA   131  1    134    141    99     133
+CTETRA   132  1    99     105    133    141
+CTETRA   133  1    106    141    99     107
+CTETRA   134  1    134    99     141    135
+CTETRA   135  1    100    135    107    99
+CTETRA   136  1    142    107    135    141
+CTETRA   137  1    99     107    141    135
+CTETRA   138  1    100    107    135    101
+CTETRA   139  1    142    135    107    143
+CTETRA   140  1    108    101    143    107
+CTETRA   141  1    136    143    101    135
+CTETRA   142  1    101    107    135    143
+CTETRA   143  1    108    143    101    109
+CTETRA   144  1    136    101    143    137
+CTETRA   145  1    102    137    109    101
+CTETRA   146  1    144    109    137    143
+CTETRA   147  1    101    109    143    137
+CTETRA   148  1    102    109    137    62
+CTETRA   149  1    144    137    109    66
+CTETRA   150  1    61     62     66     109
+CTETRA   151  1    67     66     62     137
+CTETRA   152  1    62     109    137    66
+CTETRA   153  1    118    153    111    119
+CTETRA   154  1    146    111    153    147
+CTETRA   155  1    112    147    119    111
+CTETRA   156  1    154    119    147    153
+CTETRA   157  1    111    119    153    147
+CTETRA   158  1    112    119    147    113
+CTETRA   159  1    154    147    119    155
+CTETRA   160  1    120    113    155    119
+CTETRA   161  1    148    155    113    147
+CTETRA   162  1    113    119    147    155
+CTETRA   163  1    120    155    113    121
+CTETRA   164  1    148    113    155    149
+CTETRA   165  1    114    149    121    113
+CTETRA   166  1    156    121    149    155
+CTETRA   167  1    113    121    155    149
+CTETRA   168  1    114    121    149    115
+CTETRA   169  1    156    149    121    157
+CTETRA   170  1    122    115    157    121
+CTETRA   171  1    150    157    115    149
+CTETRA   172  1    115    121    149    157
+CTETRA   173  1    122    157    115    123
+CTETRA   174  1    150    115    157    151
+CTETRA   175  1    116    151    123    115
+CTETRA   176  1    158    123    151    157
+CTETRA   177  1    115    123    157    151
+CTETRA   178  1    116    123    151    70
+CTETRA   179  1    158    151    123    74
+CTETRA   180  1    69     70     74     123
+CTETRA   181  1    75     74     70     151
+CTETRA   182  1    70     123    151    74
+CTETRA   183  1    118    125    153    119
+CTETRA   184  1    160    153    125    161
+CTETRA   185  1    126    119    161    125
+CTETRA   186  1    154    161    119    153
+CTETRA   187  1    119    125    153    161
+CTETRA   188  1    126    161    119    127
+CTETRA   189  1    154    119    161    155
+CTETRA   190  1    120    155    127    119
+CTETRA   191  1    162    127    155    161
+CTETRA   192  1    119    127    161    155
+CTETRA   193  1    120    127    155    121
+CTETRA   194  1    162    155    127    163
+CTETRA   195  1    128    121    163    127
+CTETRA   196  1    156    163    121    155
+CTETRA   197  1    121    127    155    163
+CTETRA   198  1    128    163    121    129
+CTETRA   199  1    156    121    163    157
+CTETRA   200  1    122    157    129    121
+CTETRA   201  1    164    129    157    163
+CTETRA   202  1    121    129    163    157
+CTETRA   203  1    122    129    157    123
+CTETRA   204  1    164    157    129    165
+CTETRA   205  1    130    123    165    129
+CTETRA   206  1    158    165    123    157
+CTETRA   207  1    123    129    157    165
+CTETRA   208  1    130    165    123    68
+CTETRA   209  1    158    123    165    74
+CTETRA   210  1    69     74     68     123
+CTETRA   211  1    73     68     74     165
+CTETRA   212  1    123    68     165    74
+CTETRA   213  1    132    167    125    133
+CTETRA   214  1    160    125    167    161
+CTETRA   215  1    126    161    133    125
+CTETRA   216  1    168    133    161    167
+CTETRA   217  1    125    133    167    161
+CTETRA   218  1    126    133    161    127
+CTETRA   219  1    168    161    133    169
+CTETRA   220  1    134    127    169    133
+CTETRA   221  1    162    169    127    161
+CTETRA   222  1    127    133    161    169
+CTETRA   223  1    134    169    127    135
+CTETRA   224  1    162    127    169    163
+CTETRA   225  1    128    163    135    127
+CTETRA   226  1    170    135    163    169
+CTETRA   227  1    127    135    169    163
+CTETRA   228  1    128    135    163    129
+CTETRA   229  1    170    163    135    171
+CTETRA   230  1    136    129    171    135
+CTETRA   231  1    164    171    129    163
+CTETRA   232  1    129    135    163    171
+CTETRA   233  1    136    171    129    137
+CTETRA   234  1    164    129    171    165
+CTETRA   235  1    130    165    137    129
+CTETRA   236  1    172    137    165    171
+CTETRA   237  1    129    137    171    165
+CTETRA   238  1    130    137    165    68
+CTETRA   239  1    172    165    137    72
+CTETRA   240  1    67     68     72     137
+CTETRA   241  1    73     72     68     165
+CTETRA   242  1    68     137    165    72
+CTETRA   243  1    132    139    167    133
+CTETRA   244  1    174    167    139    175
+CTETRA   245  1    140    133    175    139
+CTETRA   246  1    168    175    133    167
+CTETRA   247  1    133    139    167    175
+CTETRA   248  1    140    175    133    141
+CTETRA   249  1    168    133    175    169
+CTETRA   250  1    134    169    141    133
+CTETRA   251  1    176    141    169    175
+CTETRA   252  1    133    141    175    169
+CTETRA   253  1    134    141    169    135
+CTETRA   254  1    176    169    141    177
+CTETRA   255  1    142    135    177    141
+CTETRA   256  1    170    177    135    169
+CTETRA   257  1    135    141    169    177
+CTETRA   258  1    142    177    135    143
+CTETRA   259  1    170    135    177    171
+CTETRA   260  1    136    171    143    135
+CTETRA   261  1    178    143    171    177
+CTETRA   262  1    135    143    177    171
+CTETRA   263  1    136    143    171    137
+CTETRA   264  1    178    171    143    179
+CTETRA   265  1    144    137    179    143
+CTETRA   266  1    172    179    137    171
+CTETRA   267  1    137    143    171    179
+CTETRA   268  1    144    179    137    66
+CTETRA   269  1    172    137    179    72
+CTETRA   270  1    67     72     66     137
+CTETRA   271  1    71     66     72     179
+CTETRA   272  1    137    66     179    72
+$
+CPENTA   273  1    189    188    181    224    223    216
+CPENTA   274  1    181    182    189    216    217    224
+CPENTA   275  1    182    183    189    217    218    224
+CPENTA   276  1    190    189    183    225    224    218
+CPENTA   277  1    191    190    183    226    225    218
+CPENTA   278  1    183    184    191    218    219    226
+CPENTA   279  1    184    185    191    219    220    226
+CPENTA   280  1    192    191    185    227    226    220
+CPENTA   281  1    193    192    185    228    227    220
+CPENTA   282  1    185    186    193    220    221    228
+CPENTA   283  1    186    76     193    221    111    228
+CPENTA   284  1    83     193    76     118    228    111
+CPENTA   285  1    188    189    195    223    224    230
+CPENTA   286  1    196    195    189    231    230    224
+CPENTA   287  1    197    196    189    232    231    224
+CPENTA   288  1    189    190    197    224    225    232
+CPENTA   289  1    190    191    197    225    226    232
+CPENTA   290  1    198    197    191    233    232    226
+CPENTA   291  1    199    198    191    234    233    226
+CPENTA   292  1    191    192    199    226    227    234
+CPENTA   293  1    192    193    199    227    228    234
+CPENTA   294  1    200    199    193    235    234    228
+CPENTA   295  1    90     200    193    125    235    228
+CPENTA   296  1    193    83     90     228    118    125
+CPENTA   297  1    203    202    195    238    237    230
+CPENTA   298  1    195    196    203    230    231    238
+CPENTA   299  1    196    197    203    231    232    238
+CPENTA   300  1    204    203    197    239    238    232
+CPENTA   301  1    205    204    197    240    239    232
+CPENTA   302  1    197    198    205    232    233    240
+CPENTA   303  1    198    199    205    233    234    240
+CPENTA   304  1    206    205    199    241    240    234
+CPENTA   305  1    207    206    199    242    241    234
+CPENTA   306  1    199    200    207    234    235    242
+CPENTA   307  1    200    90     207    235    125    242
+CPENTA   308  1    97     207    90     132    242    125
+CPENTA   309  1    202    203    209    237    238    244
+CPENTA   310  1    210    209    203    245    244    238
+CPENTA   311  1    211    210    203    246    245    238
+CPENTA   312  1    203    204    211    238    239    246
+CPENTA   313  1    204    205    211    239    240    246
+CPENTA   314  1    212    211    205    247    246    240
+CPENTA   315  1    213    212    205    248    247    240
+CPENTA   316  1    205    206    213    240    241    248
+CPENTA   317  1    206    207    213    241    242    248
+CPENTA   318  1    214    213    207    249    248    242
+CPENTA   319  1    104    214    207    139    249    242
+CPENTA   320  1    207    97     104    242    132    139
+CPENTA   321  1    224    223    216    259    258    251
+CPENTA   322  1    216    217    224    251    252    259
+CPENTA   323  1    217    218    224    252    253    259
+CPENTA   324  1    225    224    218    260    259    253
+CPENTA   325  1    226    225    218    261    260    253
+CPENTA   326  1    218    219    226    253    254    261
+CPENTA   327  1    219    220    226    254    255    261
+CPENTA   328  1    227    226    220    262    261    255
+CPENTA   329  1    228    227    220    263    262    255
+CPENTA   330  1    220    221    228    255    256    263
+CPENTA   331  1    221    111    228    256    146    263
+CPENTA   332  1    118    228    111    153    263    146
+CPENTA   333  1    223    224    230    258    259    265
+CPENTA   334  1    231    230    224    266    265    259
+CPENTA   335  1    232    231    224    267    266    259
+CPENTA   336  1    224    225    232    259    260    267
+CPENTA   337  1    225    226    232    260    261    267
+CPENTA   338  1    233    232    226    268    267    261
+CPENTA   339  1    234    233    226    269    268    261
+CPENTA   340  1    226    227    234    261    262    269
+CPENTA   341  1    227    228    234    262    263    269
+CPENTA   342  1    235    234    228    270    269    263
+CPENTA   343  1    125    235    228    160    270    263
+CPENTA   344  1    228    118    125    263    153    160
+CPENTA   345  1    238    237    230    273    272    265
+CPENTA   346  1    230    231    238    265    266    273
+CPENTA   347  1    231    232    238    266    267    273
+CPENTA   348  1    239    238    232    274    273    267
+CPENTA   349  1    240    239    232    275    274    267
+CPENTA   350  1    232    233    240    267    268    275
+CPENTA   351  1    233    234    240    268    269    275
+CPENTA   352  1    241    240    234    276    275    269
+CPENTA   353  1    242    241    234    277    276    269
+CPENTA   354  1    234    235    242    269    270    277
+CPENTA   355  1    235    125    242    270    160    277
+CPENTA   356  1    132    242    125    167    277    160
+CPENTA   357  1    237    238    244    272    273    279
+CPENTA   358  1    245    244    238    280    279    273
+CPENTA   359  1    246    245    238    281    280    273
+CPENTA   360  1    238    239    246    273    274    281
+CPENTA   361  1    239    240    246    274    275    281
+CPENTA   362  1    247    246    240    282    281    275
+CPENTA   363  1    248    247    240    283    282    275
+CPENTA   364  1    240    241    248    275    276    283
+CPENTA   365  1    241    242    248    276    277    283
+CPENTA   366  1    249    248    242    284    283    277
+CPENTA   367  1    139    249    242    174    284    277
+CPENTA   368  1    242    132    139    277    167    174
+$
+MAT1     1    1.+7        .33    2.54-4 1.3-5  70.
+$
+GRID*    1                       0.            -4.
+*        -3.43152-8
+GRID*     2                      0.            -3.
+*        -3.43152-8
+GRID*     3                      0.            -2.
+*        -3.43152-8
+GRID*     4                      0.            -1.
+*        -3.43152-8
+GRID*     5                      0.            -6.01376-9
+*        -3.43152-8
+GRID      6         0.    -4.    1.
+GRID      7         0.    -3.    1.
+GRID      8         0.    -2.    1.
+GRID      9         0.    -1.    1.
+GRID*     10                     0.            -6.01376-9
+*         1.
+GRID      11        0.    -4.    2.
+GRID      12        0.    -3.    2.
+GRID      13        0.    -2.    2.
+GRID      14        0.    -1.    2.
+GRID*     15                     0.            -6.01376-9
+*         2.
+GRID*     16                     1.            -4.
+*         -2.53545-8
+GRID*     17                     1.            -3.
+*         -2.09009-8
+GRID*     18                     1.            -2.
+*         -3.74229-8
+GRID*     19                     1.            -1.
+*         -5.3945-8
+GRID*     20                     1.            -2.86429-9
+*         -4.94913-8
+GRID      21        1.    -4.    1.
+GRID      22        1.    -3.    1.
+GRID      23        1.    -2.    1.
+GRID      24        1.    -1.    1.
+GRID*     25                     1.            -3.28417-9
+*         1.
+GRID      26        1.    -4.    2.
+GRID      27        1.    -3.    2.
+GRID      28        1.    -2.    2.
+GRID      29        1.    -1.    2.
+GRID*     30                     1.            -3.70404-9
+*         2.
+GRID*     31                     2.            -4.
+*         -1.63938-8
+GRID*     32                     2.            -3.
+*         -7.48651-9
+GRID*     33                     2.            -2.
+*         -4.05306-8
+GRID*     34                     2.            -1.
+*         -7.35747-8
+GRID*     35                     2.            2.85177-10
+*         -6.46674-8
+GRID      36        2.    -4.    1.
+GRID      37        2.    -3.    1.
+GRID      38        2.    -2.    1.
+GRID      39        2.    -1.    1.
+GRID*     40                     2.            -5.54573-10
+*         1.
+GRID      41        2.    -4.    2.
+GRID      42        2.    -3.    2.
+GRID      43        2.    -2.    2.
+GRID      44        2.    -1.    2.
+GRID*     45                     2.            -1.39432-9
+*         2.
+GRID*     46                     3.            -4.
+*         -7.43315-9
+GRID*     47                     3.            -3.
+*         5.92784-9
+GRID*     48                     3.            -2.
+*         -4.36383-8
+GRID*     49                     3.            -1.
+*         -9.32045-8
+GRID*     50                     3.            3.43465-9
+*         -7.98435-8
+GRID      51        3.    -4.    1.
+GRID      52        3.    -3.    1.
+GRID      53        3.    -2.    1.
+GRID      54        3.    -1.    1.
+GRID*     55                     3.            2.17502-9
+*         1.
+GRID      56        3.    -4.    2.
+GRID      57        3.    -3.    2.
+GRID      58        3.    -2.    2.
+GRID      59        3.    -1.    2.
+GRID*     60                     3.            9.154-10
+*         2.
+GRID*     61                     4.            -4.
+*         1.52753-9
+GRID*     62                     4.            -3.
+*         1.93422-8
+GRID*     63                     4.            -2.
+*         -4.6746-8
+GRID*     64                     4.            -1.
+*         -1.12834-7
+GRID*     65                     4.            6.58412-9
+*         -9.50196-8
+GRID      66        4.    -4.    1.
+GRID      67        4.    -3.    1.
+GRID      68        4.    -2.    1.
+GRID      69        4.    -1.    1.
+GRID*     70                     4.            4.90462-9
+*         1.
+GRID      71        4.    -4.    2.
+GRID      72        4.    -3.    2.
+GRID      73        4.    -2.    2.
+GRID      74        4.    -1.    2.
+GRID*     75                     4.            3.22512-9
+*         2.
+GRID*     76                     10.           -5.27577-8
+*         0.
+GRID*     77                     9.            -5.27577-8
+*         0.
+GRID*     78                     8.            -5.27577-8
+GRID*     79                     7.            -5.27577-8
+*         0.
+GRID*     80                     6.            -5.27577-8
+*         0.
+GRID*     81                     5.            -5.27577-8
+*         0.
+GRID      83        10.    -1.   0.
+GRID      84        9.     -1.   0.
+GRID      85        8.     -1.   0.
+GRID      86        7.     -1.   0.
+GRID      87        6.     -1.   0.
+GRID      88        5.     -1.   0.
+GRID      90        10.    -2.   0.
+GRID      91        9.     -2.   0.
+GRID      92        8.     -2.   0.
+GRID      93        7.     -2.   0.
+GRID      94        6.     -2.   0.
+GRID      95        5.     -2.   0.
+GRID      97        10.    -3.   0.
+GRID      98        9.     -3.   0.
+GRID      99        8.     -3.   0.
+GRID      100       7.     -3.   0.
+GRID      101       6.     -3.   0.
+GRID      102       5.     -3.   0.
+GRID      104       10.    -4.   0.
+GRID      105       9.     -4.   0.
+GRID      106       8.     -4.   0.
+GRID      107       7.     -4.   0.
+GRID      108       6.     -4.   0.
+GRID      109       5.     -4.   0.
+GRID*     111                    10.           -5.27577-8
+*         1.
+GRID*     112                    9.            -5.27577-8
+*         1.
+GRID*     113                    8.            -5.27577-8
+*         1.
+GRID*     114                    7.            -5.27577-8
+*         1.
+GRID*     115                    6.            -5.27577-8
+*         1.
+GRID*     116                    5.            -5.27577-8
+*         1.
+GRID      118       10.    -1.   1.
+GRID      119       9.     -1.   1.
+GRID      120       8.     -1.   1.
+GRID      121       7.     -1.   1.
+GRID      122       6.     -1.   1.
+GRID      123       5.     -1.   1.
+GRID      125       10.    -2.   1.
+GRID      126       9.     -2.   1.
+GRID      127       8.     -2.   1.
+GRID      128       7.     -2.   1.
+GRID      129       6.     -2.   1.
+GRID      130       5.     -2.   1.
+GRID      132       10.    -3.   1.
+GRID      133       9.     -3.   1.
+GRID      134       8.     -3.   1.
+GRID      135       7.     -3.   1.
+GRID      136       6.     -3.   1.
+GRID      137       5.     -3.   1.
+GRID      139       10.    -4.   1.
+GRID      140       9.     -4.   1.
+GRID      141       8.     -4.   1.
+GRID      142       7.     -4.   1.
+GRID      143       6.     -4.   1.
+GRID      144       5.     -4.   1.
+GRID*     146                    10.           -5.27577-8
+*         2.
+GRID*     147                    9.            -5.27577-8
+*         2.
+GRID*     148                    8.            -5.27577-8
+*         2.
+GRID*     149                    7.            -5.27577-8
+*         2.
+GRID*     150                    6.            -5.27577-8
+*         2.
+GRID*     151                    5.            -5.27577-8
+*         2.
+GRID      153       10.    -1.   2.
+GRID      154       9.     -1.   2.
+GRID      155       8.     -1.   2.
+GRID      156       7.     -1.   2.
+GRID      157       6.     -1.   2.
+GRID      158       5.     -1.   2.
+GRID      160       10.    -2.   2.
+GRID      161       9.     -2.   2.
+GRID      162       8.     -2.   2.
+GRID      163       7.     -2.   2.
+GRID      164       6.     -2.   2.
+GRID      165       5.     -2.   2.
+GRID      167       10.    -3.   2.
+GRID      168       9.     -3.   2.
+GRID      169       8.     -3.   2.
+GRID      170       7.     -3.   2.
+GRID      171       6.     -3.   2.
+GRID      172       5.     -3.   2.
+GRID      174       10.    -4.   2.
+GRID      175       9.     -4.   2.
+GRID      176       8.     -4.   2.
+GRID      177       7.     -4.   2.
+GRID      178       6.     -4.   2.
+GRID      179       5.     -4.   2.
+GRID*     181                    16.           -5.27577-8
+*         0.
+GRID*     182                    15.           -5.27577-8
+*         0.
+GRID*     183                    14.           -5.27577-8
+*         0.
+GRID*     184                    13.           -5.27577-8
+*         0.
+GRID*     185                    12.           -5.27577-8
+*         0.
+GRID*     186                    11.           -5.27577-8
+*         0.
+GRID      188       16.    -1.   0.
+GRID      189       15.    -1.   0.
+GRID      190       14.    -1.   0.
+GRID      191       13.    -1.   0.
+GRID      192       12.    -1.   0.
+GRID      193       11.    -1.   0.
+GRID      195       16.    -2.   0.
+GRID      196       15.    -2.   0.
+GRID      197       14.    -2.   0.
+GRID      198       13.    -2.   0.
+GRID      199       12.    -2.   0.
+GRID      200       11.    -2.   0.
+GRID      202       16.    -3.   0.
+GRID      203       15.    -3.   0.
+GRID      204       14.    -3.   0.
+GRID      205       13.    -3.   0.
+GRID      206       12.    -3.   0.
+GRID      207       11.    -3.   0.
+GRID      209       16.    -4.   0.
+GRID      210       15.    -4.   0.
+GRID      211       14.    -4.   0.
+GRID      212       13.    -4.   0.
+GRID      213       12.    -4.   0.
+GRID      214       11.    -4.   0.
+GRID*     216                    16.           -5.27577-8
+*         1.
+GRID*     217                    15.           -5.27577-8
+*         1.
+GRID*     218                    14.           -5.27577-8
+*         1.
+GRID*     219                    13.           -5.27577-8
+*         1.
+GRID*     220                    12.           -5.27577-8
+*         1.
+GRID*     221                    11.           -5.27577-8
+*         1.
+GRID      223       16.    -1.   1.
+GRID      224       15.    -1.   1.
+GRID      225       14.    -1.   1.
+GRID      226       13.    -1.   1.
+GRID      227       12.    -1.   1.
+GRID      228       11.    -1.   1.
+GRID      230       16.    -2.   1.
+GRID      231       15.    -2.   1.
+GRID      232       14.    -2.   1.
+GRID      233       13.    -2.   1.
+GRID      234       12.    -2.   1.
+GRID      235       11.    -2.   1.
+GRID      237       16.    -3.   1.
+GRID      238       15.    -3.   1.
+GRID      239       14.    -3.   1.
+GRID      240       13.    -3.   1.
+GRID      241       12.    -3.   1.
+GRID      242       11.    -3.   1.
+GRID      244       16.    -4.   1.
+GRID      245       15.    -4.   1.
+GRID      246       14.    -4.   1.
+GRID      247       13.    -4.   1.
+GRID      248       12.    -4.   1.
+GRID      249       11.    -4.   1.
+GRID*     251                    16.           -5.27577-8
+*         2.
+GRID*     252                    15.           -5.27577-8
+*         2.
+GRID*     253                    14.           -5.27577-8
+*         2.
+GRID*     254                    13.           -5.27577-8
+*         2.
+GRID*     255                    12.           -5.27577-8
+*         2.
+GRID*     256                    11.           -5.27577-8
+*         2.
+GRID      258       16.    -1.   2.
+GRID      259       15.    -1.   2.
+GRID      260       14.    -1.   2.
+GRID      261       13.    -1.   2.
+GRID      262       12.    -1.   2.
+GRID      263       11.    -1.   2.
+GRID      265       16.    -2.   2.
+GRID      266       15.    -2.   2.
+GRID      267       14.    -2.   2.
+GRID      268       13.    -2.   2.
+GRID      269       12.    -2.   2.
+GRID      270       11.    -2.   2.
+GRID      272       16.    -3.   2.
+GRID      273       15.    -3.   2.
+GRID      274       14.    -3.   2.
+GRID      275       13.    -3.   2.
+GRID      276       12.    -3.   2.
+GRID      277       11.    -3.   2.
+GRID      279       16.    -4.   2.
+GRID      280       15.    -4.   2.
+GRID      281       14.    -4.   2.
+GRID      282       13.    -4.   2.
+GRID      283       12.    -4.   2.
+GRID      284       11.    -4.   2.
+$
+SPCADD    11   100  101
+SPCADD    12   100  102
+$
+LOAD      21   1.   1.    200
+LOAD      22   1.   1.    300    1.   400
+LOAD      23   1.   1.    200    1.   300   1.   400
+$
+SPC1      100  123  8
+SPC1      100  3    6
+SPC1      101  1    1     THRU   7
+SPC1      101  1    9     THRU   15
+SPC1      102  123  1     THRU   7
+SPC1      102  123  9     THRU   15
+$
+FORCE     200  181  0     31.25  -1.  0.    0.
+FORCE     200  209  0     31.25  -1.  0.    0.
+FORCE     200  251  0     31.25  -1.  0.    0.
+FORCE     200  279  0     31.25  -1.  0.    0.
+FORCE     200  188  0     62.50  -1.  0.    0.
+FORCE     200  195  0     62.50  -1.  0.    0.
+FORCE     200  202  0     62.50  -1.  0.    0.
+FORCE     200  216  0     62.50  -1.  0.    0.
+FORCE     200  244  0     62.50  -1.  0.    0.
+FORCE     200  258  0     62.50  -1.  0.    0.
+FORCE     200  265  0     62.50  -1.  0.    0.
+FORCE     200  272  0     62.50  -1.  0.    0.
+FORCE     200  223  0     125.0  -1.  0.    0.
+FORCE     200  230  0     125.0  -1.  0.    0.
+FORCE     200  237  0     125.0  -1.  0.    0.
+FORCE        300  76    01.0    0.0  -2.5  0.0
+FORCE        300 146    01.0    0.0  -2.5  0.0
+FORCE        300 181    01.0    0.0  -2.5  0.0
+FORCE        300 251    01.0    0.0  -2.5  0.0
+FORCE        300 111    01.0    0.0  -5.0  0.0
+FORCE        300 186    01.0    0.0  -5.0  0.0
+FORCE        300 183    01.0    0.0  -5.0  0.0
+FORCE        300 184    01.0    0.0  -5.0  0.0
+FORCE        300 185    01.0    0.0  -5.0  0.0
+FORCE        300 182    01.0    0.0  -5.0  0.0
+FORCE        300 216    01.0    0.0  -5.0  0.0
+FORCE        300 252    01.0    0.0  -5.0  0.0
+FORCE        300 253    01.0    0.0  -5.0  0.0
+FORCE        300 254    01.0    0.0  -5.0  0.0
+FORCE        300 255    01.0    0.0  -5.0  0.0
+FORCE        300 256    01.0    0.0  -5.0  0.0
+FORCE        400 217    01.0    0.0  -10.0 0.0
+FORCE        400 218    01.0    0.0  -10.0 0.0
+FORCE        400 219    01.0    0.0  -10.0 0.0
+FORCE        400 220    01.0    0.0  -10.0 0.0
+FORCE        400 221    01.0    0.0  -10.0 0.0
+$
+ENDDATA
+----

@@ -1,0 +1,57 @@
+[[cls-1]]
+== Overview
+
+This document focuses on the Electrical Wire Harness capabilities of STEP AP242
+edition 2 amendment (1). It explains the concepts and provide recommendations of how
+to use them. The concepts are defined in a rather generic way that also covers all
+kinds of electrical installation as well as connectivity for glass fibres, piping and
+ventilation installations.
+
+Version 1.0 of this document had been based on the initial CD (Committee Draft) of
+AP242 ed2, and version 1.1 on the DIS (Draft International Standard) and FDIS (Final
+Draft International Standard). This version is updated for the upcoming (first)
+amendment of AP242 ed2 and extended for recommended practises. As such this document
+is an extension of the "Recommended Practices for AP242 Business Object Model XML
+Assembly Structure". Readers are expected to be familiar with that underlying
+document. Only differences and extensions will be highlighted here.
+
+This document explains on how to do data exchange via XML, based on the Domain Model
+(DO-Model). The Domain Model in AP242 ed2 is an upward compatible extension of the
+Business Object Model (BOModel) of AP242 ed1.The Domain Model is primarily defined in
+SysML, but a corresponding Express (ISO 10303-11) representation is also provided.
+From the Domain Model an XML schema has been derived that defines the structure of
+the XML files to exchange. The examples provided in this document are based on this
+XML Schema.
+
+The standard provides a formal mapping from the Domain Model to the Application
+Reference Model (ARM), and from there to the Application Integrated Model (AIM) of
+STEP. The AIM is an alternative way on how to implement data exchange and integration
+for electrical wire harnesses, using either STEP-Part21 files (ISO 10303-21) or other
+implementation methods such as SDAI (Standard Data Access Interface (ISO 10303-22).
+
+Formal References:
+
+* Recommended Practices for AP242 Business Object Model XML Assembly Structure
+Release 2.1; 2019-12-20; on: www-cax-if.orgPlease refer to that document for all
+general concepts. Note that release 2.1 is based on the first edition AP242
+(technical corrigendum).
+* STEP: ISO 10303 "Industrial automation systems and integration -- Product data
+representation and exchange"
+** AP242 ed2: ISO 10303-242:2019: Application protocol: Managed model-based 3D
+engineering"
+** XSD of AP242 ed2 Amendment, derived from the Domain Model documented in SysML
++
+--
+NOTE: This XSD is the basis for this tutorial.
+--
+** the SMRL, "STEP Module and Resource Library", version 9? that contains the ARM
+(Application Reference Model) and mapping to the MIM (Modular Integrated Model).
++
+--
+NOTE: This tutorial does not address on how to implement EWH on the MIM level using p21
+--
+* ISO 13584-42:2010 Industrial automation systems and integration -- Parts library
+-- Part 42: Description methodology: Methodology for structuring parts families
+
+The work is performed for the joint ASD-Stan / AIA / ProSTEP iViP / PDES Inc.
+consortium "LOTAR International".

@@ -1,0 +1,47 @@
+= Test Suite for the CAx Interoperability Forum Round 53J
+:customize: caxif_metanorma.yml
+:doctype: test-suite
+:technical-committee: cax-if
+:round: 53J
+:version: 1.0
+:issued-date: 2024-01-16
+:date: 2023-09-01
+:date_2: 2024-03-01
+:toclevels: 2
+:toc-figures:
+:copyright-holder: CAx Interoperability Forum
+:mn-document-class: nist
+:fullname: Jochen Boy
+:affiliation: PROSTEP AG
+:email: jochen.boy@prostep.com
+:fullname_2: Phil Rosché
+:affiliation_2: ACCR, LLC.
+:email_2: phil.rosche@accr-llc.com
+:fullname_3: Rosemary Astheimer
+:affiliation_3: NIST
+:email_3: rosemary.astheimer@nist.gov
+:fullname_4: Robert Lipman
+:affiliation_4: NIST
+:email_4: robert.lipman@nist.gov
+:pub-uri: www.mbx-if.org
+:series:
+:language: en
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+
+[.preface,beforeclauses=true]
+== Document History
+
+[%unnumbered,options=header]
+|===
+| Version | Date | Change
+| 1.0 | 2024-01-16 | Initial Release
+| | |
+|===
+
+include::sections/01-intro.adoc[]
+
+include::sections/02-synthetic-test.adoc[]
+
+include::sections/aa-nist-models.adoc[]

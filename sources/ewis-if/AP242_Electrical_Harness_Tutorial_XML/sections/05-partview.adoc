@@ -1,0 +1,304 @@
+[[cls-5]]
+== PartView and ViewContext
+
+The meaning and structure for _Part_, _PartVersion_, _PartView_ with reference to
+ViewContext and also how to associate a geometric model is explained in great detail
+in the AP242 BO-Model XML Assembly Structure document and so we do not need to repeat
+this here.
+
+[[fig6]]
+.Data model for PartView and ViewContext
+image::img06.png[]
+
+The specifics for electrical harness, compared to the Assembly Structure Recommended
+Practises, is explained in the following sub-clauses:
+
+[[cls-5.1]]
+=== ViewContext: ApplicationDomain
+
+A _PartView_ shall have at least one _ViewContext_ for the _InitialContext_ and may
+have further _ViewContexts_ as _AdditionalContexts_. In the recommended practises for
+assembly design an example of a _ViewContext_ with the _ApplicationDomain_
+"**mechanical design**" and the _LifeCycleStage_ "**design**" is provided. This
+clause defines the values for _ApplicationDomain_ and _LifeCycleStage_ to be used for
+the purpose of electrical wire harness.
+
+[CAUTION,type=""]
+====
+For the design of an electrical harness the _ViewContexts_ of the harness view itself
+and the ones of all assembled underlying _Part/PartVersion/PartViews_ shall have the
+value "design" for the _LifeCycleStage_ attribute.
+====
+
+[CAUTION,type=""]
+====
+For the purpose of the design of an electrical harness the _ApplicationDomain_
+"**electrical**" shall be used for all _PartViews_ that define elements relevant for
+the electrical or optical connectivity such as electrical terminals and nodes. When
+this _ApplicationDomain_ is used for a _PartView_ it tells an importing tool that all
+relevant electrical connectivity information is provided. The _ApplicationDomain_
+"**electrical**" may be used as either _InitialContext_ or _AdditionalContexts_.
+====
+
+As detailed in the assembly recommended practises, an _AssemblyDefinition_ is a
+specialization of a _PartView_ that is to be used to define an assembly of parts. In
+the case that the assembly of an electrical harness is defined, the sub-subtype
+_**WiringHarnessAssemblyDesign**_ shall be used . The following values for the
+_ApplicationDomain_ of additional contexts for a _WiringHarnessAssemblyDesign_ are
+defined:
+
+* electrical: the application domain is electrical. This value should be used for all
+parts that have electrical relevant content such as terminals (e.g. a connector) or
+conductors (e.g. a wire).
+* the exchange content of a wiring harness assembly view can be stated by these
+pre-defined values:
+** wiring_harness_assembly_3d_design: a 3D geometry model of the harness topology of
+a wiring harness assembly.
+** wiring_harness_assembly_design_stick_line: a stick line drawing of a wiring
+harness assembly.
+** wiring_harness_formboard_drawing: a formboard drawing of a wiring harness assembly.
+** wiring_harness_formboard_drawing: the application domain comprises a formboard
+drawing of a wiring harness assembly.
+** wiring_harness_segment_topology: the complete harness topology of a wiring harness
+assembly.
+
+For a simple harness design there is only one _PartView_ of type
+_**WiringHarnessAssemblyDesign**_. However for complex design there might be the need
+to split a harness into several partial harnesses that are manufactured independently
+and only combined into a single one during installation. For a rather big harness it
+might be needed to split the complete harness design into several partial harness
+designs for which separate teams are responsible; and that may be versioned
+independently. The model also supports the design process from high level concepts
+down to detailed designs and be able to trace through the accumulated data from
+version to version. The completion state of a _WiringHarnessAssemblyDesign_ is
+indicated by its application domain to cover one or more of these
+
+* complete_design: the PartView that represents a complete design.
+* partial_design_interface: the PartView that represents the interface between two or
+more partial designs. wire_and_part_list_with_connectivity: all wires and wire caps,
+cables, connectors, and associated material, contact members, terminal lugs, terminal
+blocks, splices and electrically non-conductive through termination, electrical
+shielding definition in the assembly, tape marking of a wiring harness assembly.
+* partial_design_interface: the PartView that represents the interface between two or
+more partial designs.
+
+*Harness Structures*:
+
+[TODO]
+====
+*xxxx Provide only references to later clause on HarnesSegment, HarnesNode,
+Connectivity, topology ....*
+
+An electrical wire harness is primarily build up of flexible segments that contain
+the wire and cables and that are connected by branch nodes and extremity nodes for
+the connectors. The data structure in AP242 is a bit more complex than this as the
+use cases also require to represent partial harnesses and the way harnesses are built
+up and installed later on. To support this (and as a general STEP approach) the
+HarnessSegments and HarnessNodes are specific to a single WiringHarnessAssemblyDesign
+and reference to a topological harness model that can be shared by several partial
+designs or designs representing different states of the development process. The
+topological model consists primarily of Edges and Nodes. For very simple designs
+there is a one-to-one relation between HarnessNode and Vertex on one hand, and
+HarnessSegment and Edge on the other hand. However for a bit more complex case the
+need to work with several related harness design views is essential. The link between
+common HarnessNodes and common HarnessSegments of different
+WiringHarnessAssemblyDesign of the same final Part is established by common Edges and
+Vertices within a common RepresentationContext.
+
+Cross-section/Onion
+
+Flat versus hierarchical assembly
+
+Connectivity
+====
+
+[[cls-5.2]]
+=== Examples: simple electrical PartView
+
+Example taken from HarnessExample_Hierarchical.stpx: A _Part/PartVersion_ that is
+categorized to be a "*terminal lug*" and "discrete" with a single PartVersion and
+PartView. The PartView has an initial ViewContext with the ApplicationDomain
+"electrical" and LifeCycleStage "design". There are two _SingleOccurrences_, "lug1" and
+"lug2" defined for the PartView. See <<cls-8>> for using these occurrences in an
+assembly.
+
+[%unnumbered]
+[source,xml]
+----
+<ViewContext uid="_100102">
+  <ApplicationDomain>
+    <PredefinedApplicationDomainEnum>electrical</PredefinedApplicationDomainEnum>
+  </ApplicationDomain>
+  <LifeCycleStage>
+    <ProxyString>design</ProxyString>
+  </LifeCycleStage>
+</ViewContext>
+...
+<Part uid="_103000">
+  <Id id="MS5036-153"/>
+  <Name>
+    <LocalizedString lang="en-US">TERMINAL LUG CRIMP STYLE COPPER INSULATED RING
+TONGUE</LocalizedString>
+    <LocalizedString lang="fr-FR">COSSE</LocalizedString>
+  </Name>
+  <PartTypes>
+    <PartCategoryEnum>discrete</PartCategoryEnum>
+    <PartCategoryEnum>terminal_lug</PartCategoryEnum>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="_103001">
+      <Id id="Version 1"/>
+      <Views>
+        <PartView uid="_103002">
+          <DefiningGeometry uidRef="_103090"/>
+          <InitialContext uidRef="_100102"/>
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="_203005">
+            <Id id="lug1"/>
+            ...
+          </Occurrence>
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="_203105">
+            <Id id="lug2"/>
+            ...
+          </Occurrence>
+          ...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[cls-5.3]]
+=== Example: simple WiringHarnessAssemblyDesign
+
+Example taken from HarnessExample_Hierarchical.stpx:
+
+A _Part_ with the categories "wiring_harness" and "discrete" is defined. Its single
+_PartVersion_ contains a _PartView_ of type _WiringHarnessAssemblyDesign_. As all
+other PartViews used for design of an electrical wire harness this has an initial
+ViewContext with the ApplicationDomain "electrical" and LifeCycleStage "design".
+There are two additional ViewContexts defined for this design view. By ViewContexts
+"_100104" with the ApplicationDomain "wiring_harness_segment_topology" it is made
+clear that the __WiringHarnessAssemblyDesign__ contains a complete topological
+representation. By ViewContexts "_100105" with the ApplicationDomain
+"wire_and_part_list_with_connectivity" it is made clear that the
+__WiringHarnessAssemblyDesign__ contains all electrical relevant occurrences such as
+wires, cables, connectors, contacts, terminal lugs and more.
+
+[%unnumbered]
+[source,xml]
+----
+<ViewContext uid="_100104">
+  <ApplicationDomain>
+    <PredefinedApplicationDomainEnum>wiring_harness_segment_topology</
+PredefinedApplicationDomainEnum>
+  </ApplicationDomain>
+  <LifeCycleStage>
+    <ProxyString>design</ProxyString>
+  </LifeCycleStage>
+</ViewContext>
+
+<ViewContext uid="_100105">
+  <ApplicationDomain>
+    <PredefinedApplicationDomainEnum>wire_and_part_list_with_connectivity</
+PredefinedApplicationDomainEnum>
+  </ApplicationDomain>
+  <LifeCycleStage>
+    <ProxyString>design</ProxyString>
+  </LifeCycleStage>
+</ViewContext>
+
+<Part uid="_311000">
+  <Id id="Part_H1"/>
+  <Name> <CharacterString>Electrical Harness example 1</CharacterString> </Name>
+  <PartTypes>
+    <PartCategoryEnum>wiring_harness</PartCategoryEnum>
+    <PartCategoryEnum>discrete</PartCategoryEnum>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="_311001">
+      <Id></Id>
+      <Views>
+        <PartView xsi:type="n0:WiringHarnessAssemblyDesign" uid="_311002">"
+uid="_311002">
+          <AdditionalContexts>
+            <ViewContext uidRef="_100104"/>
+            <ViewContext uidRef="_100105"/>
+          </AdditionalContexts>
+          <DefiningGeometry uidRef="_314090"/>
+          <InitialContext uidRef="_100102"/>
+          ...
+          <Topology uidRef="_321010" />
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+For the attributes DefiningGeometry and Topology of a WiringHarnessAssemblyDesign
+see later
+
+TODO: clauses.
+
+[[cls-5.4]]
+=== Example: complete and partial WiringHarnessAssemblyDesign
+
+example taken from file: HarnessExample_DesignSplitting.xml
+
+TODO: xxx
+
+[[cls-5.5]]
+=== Parts used in the reference example
+
+<<table1>> lists all the Part used in the reference example, together with the used
+PartVersion, PartView and part category.
+
+[[table4]]
+[options=header,cols=6]
+.Parts used in the example
+|===
+| Part | Version | View | Id | Name | Category/type
+
+| _101000 | _101001 | _101002 | 04034-22-9 | WIRE,ELEC,COMP,SNGL CONDUCTOR,150 DEG C | wire, raw material by length
+
+| _102000 | _102001 | _102002 | RG 58 | RG 58 | cable, raw material by length
+
+| _103000 | _103001 | _103002 | MS5036-153 | TERMINAL LUG CRIMP STYLE COPPER INSULATED RING TONGUE | terminal lug
+
+| _104000 | _104001 | _104002 | 16 AWG | Speaker wire | cable, raw material by length
+
+| _110000 | _110001 | _110002 | SB6 4 1 M G 05 W2 P E1 01 AA | ARINC 600 set | connector kit
+
+| _111000 | _111001 | _111002 | 8660-31A-100-01A/AA | ARINC 600 shell 1 A and B dummy | connector insert
+
+| _112000 | _112001 | _112002 | 8660-5W2 | ARINC 600 shell 1 C 5W2 insert | connector insert
+
+| _113000 | _113001 | _113002 | 8660-2485 | #5 Coax contact | connector contact
+
+| _114000 | _114002 | _103090 | 8660-249 | #16 Rack plug power contact | connector contact
+
+| _115000 | _115001 | _115002 | 8660-5W2x1 | Insert 5W2 assembly | connector insert
+
+| _116000 | _116001 | _116002 | 8660-250 | #12 Rack plug signal contact | connector contact
+
+| _117000 | _117001 | _117002 | TM2PB | Phone connector 6.35mm | connector
+
+| _118000 | _118001 | _118002 | M81824 | Butt Splice Terminal | splice
+
+| _119000 | _119001 | _119002 | DEP09S065TLF | D-sub 9 Pin Db9 Female Solder Type Socket Connector | connector
+
+| _120000 | _120001 | _120002 | TC122 | Braid 1/2inch | overbraid
+
+| _121000 | _121001 | _121002 | F6W1.50BK | Wrap | protective covering
+
+| _122000 | _122001 | _122002 | H4N1.00BK | HeatShrink | protective covering
+
+| _123000 | _123001 | _123002 | 8660-140 | Backshell EMI connector | electrified backshell
+
+| _311000 | _311001 | _311002 | Part_H1 | Electrical Harness team reference example | wiring harness
+
+| _411000 | _411001 | _411002 | Part_H2 | Electrical Harness example 2 (minmal) | wiring harness
+
+| _511000 | _511001 | _511002 | Aircraft99x | Aircraft99x |
+|===

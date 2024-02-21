@@ -1,0 +1,629 @@
+[[cls-15]]
+== Transformations and Associations
+
+There are different kinds of _RepresentationRelationship_ for different purposes. In
+this clause we will compare the traditional ones for assembly structures of rigid
+component with the ones used for flexible structures such as electrical wire harness
+
+[[cls-15.1]]
+=== Assembly structure of rigid components
+
+In an assembly structure of rigid components a _NextAssemblyOccurrenceUsage_ is used
+to relate a _SingleOccurrence_ that is typically defined by a _PartView_ of a piece
+part into another _PartView_ that is an _AssemblyDefinition_ of another Part that is
+the assembly.
+
+In such a situation both _PartViews_ may have the _DefiningGeometry_ attributes set.
+The _PartView_ of the piece part typically refers to an _ExternalGeometricModel_
+where all the details are defined. On the XML level only an _AxisPlacement_ for the
+_Origin_ of the model is provided (typically at coordinates 0/0/0 with no rotation).
+For the _PartView_ of the assembly however there is typically no external geometric
+model available. Instead there is a _ComposedGeometricModel_ that is the composition
+of all it's components with some transformation.
+
+The geometric composition and transformation is defined by
+_GeometricRepresentationRelationshipWithPlacementTransformation_ that relates the
+_ExternalGeometricModels_ of the piece parts into the _ComposedGeometricModel_ of
+the assembly. The transformation is defined by a pair of _AxisPlacements_, one that
+defines an _Origin_ for the _ExternalGeometricModel_ and one that defines the
+_Target_ within the _ComposedGeometricModel_ where a "copy" of the
+ExternalGeometricModel is virtually placed (this is done by a receiving system that
+visualize a ComposedGeometricModel).
+
+As a piece part might show up several times in an assembly through several
+_SingleOccurrences_, it is essential to know which transformation applied for which
+SingleInstance. For this purpose the Placement attribute of a
+_NextAssemblyOccurrenceUsage_ refers to the
+_GeometricRepresentationRelationshipWithPlacementTransformation_ for a given
+_SingleOccurrence_ within the assembly.
+
+[CAUTION,type=""]
+====
+A _GeometricRepresentationRelationshipWithPlacementTransformation_ that is used as
+described here must have the _Definitional_ attribute set to TRUE as the
+_ExternalGeometricModel_ becomes a definitional piece of the
+_ComposedGeometricModel_. There are other usages of
+_GeometricRepresentationRelationshipWithPlacementTransformation_ where the
+Definitional attribute has to be set to FALSE; e.g. for a ToolPartRelationship
+between the PartViews of a screw and a screw-driver.
+====
+
+[[fig26]]
+.Simple assembly structure for a rigid component
+image::img26.png[]
+
+[[cls-15.2]]
+=== Flexible topological and rigid 3D models of a Harness
+
+The top object of an electrical wiring harness is a _Part_ with the
+_PartCategoryEnum_ "wiring harness".
+
+The specific associations needed to represent the design of an electrical wiring
+harness are supported by _WiringHarnessAssemblyDesign_ that is a specialization of
+_AssemblyDefinition_ that is a _PartView_.
+
+As explained in clause
+
+TODO: xxx
+
+the main geometric model of a WiringHarnessAssemblyDesign
+is defined by an EdgeBasedTopologicalRepresentationWithLengthConstraint that is
+referenced by the attribute Topology. In addition the WiringHarnessAssemblyDesign
+might have the attributes DefiningGeometry and AuxiliaryGeometry set to a 2D or 3D
+GeometricModels that represent the final intended shape of the harness when
+installed, or shape when the harness is delivered, or as manufactured on a foam
+board. However it must be clear that all these GeometricModels represent only one of
+of very many possible ones the wiring harness may have. Only when a wiring harness
+is installed in a higher assembly (e.g. an aircraft or vehicle) a fixed 3D model can
+be applied. But even for this case there might be variations, e.g. because part of a
+harness may end in a door that can move relative to other parts of a harness that
+are in the main part of the vehicle (see Kinematics capabilities of AP242). It is
+also to mention that for maintenance purpose the 3D shape of a harness will change,
+e.g. when opening a plug-socket connection.
+
+For a full design documentation a _WiringHarnessAssemblyDesign_ shall have an
+associated topological model in the form of a
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ topology. The attribute
+_Topology_ might not be set if the
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ is not available or if the
+topology is too simple that it is not needed; e.g. in the case of a single cable with
+two connectors at the ends.
+
+Example taken from HarnessExample_Hierarchical.stpx:
+
+The _WiringHarnessAssemblyDesign_ "_311002" refers to the
+__EdgeBasedTopologicalRepresentationWithLengthConstraint__ "_321010" by the attribute
+__Topology__ and to the __ExternalAdvancedBrepShapeRepresentation__ "_314090"by the
+attribute __DefiningGeometry__.
+
+[%unnumbered]
+[source,xml]
+----
+<Part uid="_311000">
+  <Id id="Part_H1"/>
+  <Name> <CharacterString>Electrical Harness example 1</CharacterString> </Name>
+  <PartTypes>
+    <PartCategoryEnum>wiring_harness</PartCategoryEnum>
+    <PartCategoryEnum>discrete</PartCategoryEnum>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="_311001">
+      <Id></Id>
+      <Views>
+        <PartView xsi:type="n0:WiringHarnessAssemblyDesign" uid="_311002">"
+uid="_311002">
+          ...
+          <DefiningGeometry uidRef="_314090"/>
+          ...
+          <Topology uidRef="_321010" />
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[cls-15.3]]
+=== Assembly structure of flexible components
+
+For the purpose of electrical wiring harness with flexible components such as wires
+and cables, two additional _RepresentationRelationships_ have been introduced,
+_GeometryToTopologyModelAssociation_ and _TopologyToGeometryModelAssociation_. Both
+can be used as well by the _Placement_ attribute of _NextAssemblyOccurrenceUsage_,
+but these new associations don't define a geometric transformation. Therefore the
+inherited _Definitional_ attribute must be set to FALSE; the _Relating
+Representation_ will not become part of the _Related_ one.
+
+[[fig27]]
+.RepresentationRelationships for Transformation and Association
+image::img27.png[]
+
+Only specific kinds of RepresentationItems that are allowed as Origin and Target for
+_GeometryToTopologyModelAssociation_ and _TopologyToGeometryModelAssociation_.
+
+* For the _Origin_ of a _GeometryToTopologyModelAssociation_ or the _Target_ of a
+_TopologyToGeometryModelAssociation_ only the types _Edge_ (subtype
+_EdgeBoundedCurveWithLength_ or _SubEdge_), _Path_ and _Vertex_ (subtype
+_VertexPoint_) are allowed.
+* For the _Target_ of a _GeometryToTopologyModelAssociation_ or the _Origin_ of a
+_TopologyToGeometryModelAssociation_ only the types _AxisPlacement_,
+_CartesianPoint_, _Curve_, _EdgeCurve_ or _VertexPoint_ are allowed.
+
+[[fig28]]
+.RepresentationItems used for Associations
+image::img28.png[]
+
+[[cls-15.4]]
+=== Associating Models of rigid and flexible Part to the topological Model of a Wire Harness Model
+
+This clause focuses on the application object *GeometryToTopologyModelAssociation*
+(G2TMAsso). It is used to associate the GeometricModels of occurrences of rigid and
+flexible parts to the topological items of a
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ (EBTRepWLC) of a
+_WiringHarnessAssemblyDesign_ (WHAD), see <<fig30>>. The structure and usage of a
+G2TMAsso is very similar to a
+*GeometricRepresentationRelationshipWithPlacementTransformation* (GeoRepWPT) as they
+are both subtypes of the main supertype *RepresentationRelationship*. They consists
+of two pairs of associated objects. With the Related/Relating attributes the
+_Representations_ are associated and with Origin/Target attributes the detailed
+_RepresentationItems_ of these _Representations_ are associated.
+
+[[fig29]]
+.Transformation of a rigid part occurrences into an assembly
+image::img29.png[]
+
+The default pattern of how _Occurrences_ (Single or Quantified) are brought into an
+_AssemblyDesign_ apply also for a WHAD. The _Single-_ and _QuantifiedOccurrences_
+are brought into a WHAD through _NextAssemblyOccurrenceUsages_ (NAOU). With it's
+attribute Placement, the NAOU is pointing to the corresponding G2TMAsso. This
+structure is important as there may be several occurrences of the same PartView and
+so it is possible to distinguish to association between these different occurrences.
+
+The underlying _PartViews_ of the Occurrences must have an associated
+_GeometryModel_. For a rigid Part/PartVersion/PartView such as a connector, the
+GeometricModel is typically a placeholder for a 3D model that is available elsewhere
+(e.g. an externally defined ABREP). This GeometricModel contains as minimum a single
+AxisPlacement that typically represents the origin of the 3D
+GeometricCoordinateSpace (at point 0/0/0 with no rotation). The G2TMAsso references
+this AxisPlacement as its Origin attribute and with the Target attribute it refers
+to a VertexPoint of the EBTRepWLC.
+
+Unlike rigid components, cables and wires are typically flexible and are available
+at arbitrary lengths with with a (semi-) constant cross-section. Because of this
+cables and wires have typically no fixed 3D model. However they have typically a
+constant cross-section, at least within some limits. This 2D geometric cross-section
+is represented by a 2D GeometricModel. In most cases this GeometricModel contains no
+details and so consists only of a single 2D AxisPlacement that represents the centre
+(typically at point 0/0 with no rotation). Like with rigid parts the G2TMAsso
+references this AxisPlacement with its Origin attribute, but with the Target
+attribute the G2TMAsso refers to a *Path* of the EBTRepWLC. This Path with its
+underlying *EdgeBoundedCurveWithLengths* (EdgeBCWL) defines the "Placement" of the
+wire or cable occurrence within the topological model. In the case that a wire or
+cable is not round and there is a need to represent the real geometric cross-section
+this can be done by this 2D GeometricModel as well. For the XML representation this
+has to be realized by using the subtype ExternalGeometricModel in 2D.
+
+NOTE: To control to orientation of the flexible cable or wire in 3D it is possible
+to define a second AxisPlacement that can then be used to be associated with the
+directrix of a curve_swept_solid_shape_representation (see ISO 10303-523).
+
+NOTE: This standard does not only support the geometric cross-section of e.g. cable
+or wire, but also supports the topological cross-section structure of e.g. complex
+cables or HarnessSegments with their inner structure, see <<cls-13>>.
+
+[[fig30]]
+.Associating of flexible and rigid part occurrences to the topological wire harness model
+image::img30.png[]
+
+[example]
+====
+The mapping of flexible objects such as wires, cables and tubular covers to the topological model is done as follows.
+
+. A generic _GeometricModel_ (example _104890) is representing an unspecific 2D
+cross-section for arbitrary __PartViews__ for wires, cables and others. A single
+__RepresentationItem__ of type __AxisPlacement__ is defined for the centre of the
+cross-section. This __AxisPlacement__ is later associated to a topological Path of the
+topological harness representation and then further on to a curve in a 3D
+GeometricModel.
++
+--
+[%unnumbered]
+[source,xml]
+----
+<!--Generic single AxisPlacement representation for all wire, cable, covering -->
+<RepresentationContext xsi:type="n0:GeometricCoordinateSpace" uid="_104891">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation xsi:type="n0:GeometricModel" uid="_104890">
+      <Id id="xxx"/>
+      <Items>
+        <RepresentationItem uidRef="_104896"/>
+      </Items>
+    </Representation>
+  </Representations>
+  <Items>
+  <RepresentationItem xsi:type="n0:AxisPlacement" uid="_104896">
+    <Position>0.0 0.0 0.0</Position>
+  </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+----
+--
+
+. A _PartView_ refers to the generic geometric cross-section representation as its
+_DefiningGeometry_. As a consequence this geometric cross-section applies also for
+the _Occurrences_ of the _PartView_ (in the example these are wire2/_201104 and
+wire3/_201204).
++
+--
+[%unnumbered]
+[source,xml]
+----
+<Part uid="_101000">
+  ...
+  <Versions>
+    <PartVersion uid="_101001"> ...
+      <Views>
+        <PartView uid="_101002">
+          <DefiningGeometry uidRef="_104890"/> ...
+          <Occurrence xsi:type="n0:WireOccurrence" uid="_201104">
+            <Id id="wire2"/> ...
+          </Occurrence>
+          <Occurrence xsi:type="n0:WireOccurrence" uid="_201204">
+            <Id id="wire3"/> ...
+          </Occurrence>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+--
+
+. The _WiringHarnessAssemblyDesign_ (Part_H1/_311002) contains
+__NextAssemblyOccurrenceUsages__ (wire2/_315012, wire3/_315041, ...) with __Placement__
+attribute to __GeometryToTopologyModelAssociation__ (subtypes _321080, _321082) and a
+__NextAssemblyOccurrenceUsages__ (lug1/_315041) with __Placement__ attribute to
+__GeometricRepresentationRelationship__ specialization
+__GeometricRepresentationRelationshipWithPlacementTransformation__.
++
+--
+[%unnumbered]
+[source,xml]
+----
+<PartView xsi:type="n0:WiringHarnessAssemblyDesign" uid="_311002">
+  ...
+  <DefiningGeometry uidRef="_314090"/>
+  ...
+  <ViewOccurrenceRelationship uid="_315012" xsi:type="n0:NextAssemblyOccurrenceUsage">
+    <Related uidRef="_201104"/> <!--WireOccurrence wire2-->
+    <RelationType>
+      <ClassString>next assembly occurrence</ClassString>
+    </RelationType>
+    <Placement>
+      <GeometryToTopologyModelAssociation uidRef="_321081"/>
+    </Placement>
+  </ViewOccurrenceRelationship>
+  <ViewOccurrenceRelationship uid="_315013" xsi:type="n0:NextAssemblyOccurrenceUsage">
+    <Related uidRef="_201204"/> <!--WireOccurrence wire3-->
+    <RelationType>
+      <ClassString>next assembly occurrence</ClassString>
+    </RelationType>
+    <Placement>
+      <GeometryToTopologyModelAssociation uidRef="_321082"/>
+    </Placement>
+  </ViewOccurrenceRelationship>
+  ...
+  <ViewOccurrenceRelationship uid="_315041" xsi:type="n0:NextAssemblyOccurrenceUsage">
+    <Related uidRef="_203005"/> <!--SingleOccurrence lug1 -->
+    <RelationType>
+      <ClassString>next assembly occurrence</ClassString>
+    </RelationType>
+    <Placement>
+      <GeometricRepresentationRelationship uidRef="_314210"/>
+    </Placement>
+  </ViewOccurrenceRelationship>
+  ...
+  <Topology uidRef="_321010" />
+</PartView>
+----
+--
+
+. A _EdgeBasedTopologicalRepresentationWithLengthConstraint_ is representing the
+topology of a wiring harness. It contains _RepresentationRelationships_ that are
+referenced by the _NextAssemblyOccurrenceUsages_ of the wire harness. The specific
+subtype _GeometryToTopologyModelAssociation_ is used to indicate how the flexible
+centreline of the extruded parts is mapped to either a single _Edge_ or a _Path_
+that is a sequence of _Edges_.
++
+--
+[%unnumbered]
+[source,xml]
+----
+<RepresentationContext xsi:type="n0:GeometricCoordinateSpace" uid="_321000">
+  <Id id="H1.x Harness topology context"/>
+  <Units> ... </Units>
+  <Representations>
+    <Representation
+xsi:type="n0:EdgeBasedTopologicalRepresentationWithLengthConstraint" uid="_321010">
+      <Id id="Topological representation of H1 harness"/>
+      <Items> ... </Items>
+      <!--Transformation of wire2-->
+      <RepresentationRelationship xsi:type="n0:GeometryToTopologyModelAssociation"
+uid="_321081">
+        <Definitional>false</Definitional>
+        <Related uidRef="_104890"/>
+        <Origin>
+          <AxisPlacement uidRef="_104896"/>
+        </Origin>
+        <Target>
+          <Edge uidRef="_321022"/> <!-- Edge S2 -->
+        </Target>
+      </RepresentationRelationship>
+      <!--Transformation of wire3-->
+      <RepresentationRelationship xsi:type="n0:GeometryToTopologyModelAssociation"
+uid="_321082">
+        <Definitional>false</Definitional>
+        <Related uidRef="_104890"/>
+        <Origin>
+          <AxisPlacement uidRef="_104896"/>
+        </Origin>
+        <Target>
+          <Path uidRef="_321066"/> <!-- Path S3-S5 -->
+        </Target>
+      </RepresentationRelationship>
+      ...
+    </Representation>
+    ...
+  </Representations>
+  <DimensionCount>1</DimensionCount>
+</RepresentationContext>
+----
+--
+====
+
+[[cls-15.5]]
+=== Association of harness topology to Geometry Models
+
+This clause focuses on the use of the application object
+TopologyToGeometryModelAssociation. It is used to associate topological items from
+the _EdgeBasedTopologicalRepresentationWithLengthConstraint_ to corresponding
+geometric representation items in an external geometric model.
+
+TODO: ... pairwise ...
+
+The geometric model of _WiringHarnessAssemblyDesign_ is often represented as a
+_CompositeGeometricModel_, that is composed of the flexible part of the harness
+(harness segments) and the rigid parts such as connectors (at harness nodes). For
+the representation of rigid parts and there geometries see the CAX-IF recommended
+practises. For the structure of harness segments some CAX-Systems
+
+other geometric representations; e.g. the ones for the representation of the
+flexible harness segments and the ones for the rigid connectors. For the rigid
+components such as connectors, their geometry is typically brought into the
+_CompositeGeometrcModel_ by a
+GeometricRepresentationRelationshipWithPlacementTransformation. For the harness
+segments some CAD system prefer to introduce an artificial product for which there
+is no place in AP242, as there is no way to build or buy the harness segments
+without all the rigid parts such as connectors (we can buy individual connectors,
+but we typically can not buy harness segments). However even these system provide an
+external geometric model that is used for the _CompositeGeometricModel_ of the
+overall harness.
+
+[TODO]
+--
+There is a ExternalGeometricModel that represents the centre-line curves for the for
+the topological edges, paths and vertices of the harness model. Also there are
+external geometric models for the rigid components. +
+multi branchable
+
+[CAUTION,type=recommendation]
+====
+To use anchors in p21 files for all the sources and targets (curves,
+cartesian_points, axis_placements). This capability is available from ISO
+10303-21:2016 / edition3 on.
+====
+
+[CAUTION,type=recommendation]
+====
+For the external 2D or 3D representation of the centre line curves for the harness
+segments it is best to use ExternalGeometricallyBoundedWireframeShapeRepresentation
+or ExternalEdgeBasedWireframeShapeRepresentation for the 3D case on the XML level.
+These correspond for the p21 level to
+geometrically_bounded_wireframe_shape_representation or
+edge_based_wireframe_shape_representation respectively. For the 2D case
+geometrically_bounded_2d_wireframe_representation should be used on the p21 level
+when available.
+====
+--
+
+On the right side of <<fig31>> we see a placement transformation of a rigid part
+into the harness assembly. The structure is identical to what is detailed in the
+Recommended Practices for AP242 Business Object Model XML Assembly Structure. E.g.
+the _PartView_ of a connector calls out an _ExternalAdvancedBrepShapeRepresentation_
+as its _DefiningGeometry_. This representation is defined within a
+_GeometricCoordinateSpace_ (Geo.Coor.Space) and contains an _AxisPlacement_ (usually
+at the position 0/0/0 with no rotation) for placement purposes.
+
+[[fig31]]
+.Flexible (by length) and rigid (2D/3D) model association
+image::img31.png[]
+
+A _SingleOccurrence_ of the _PartView_ of the connector is brought into the
+_WiringHarnessAssemblyDesign_ by a _NextAssemblyOccurrenceUsage_. The
+_DefiningGeometry_ of a _WiringHarnessAssemblyDesign_ is represented by another
+_GeometricCoordinateSpace_ that also contains several _AxisPlacements_ that are on
+the positions and orientations on where to place the _SingleOccurrences_. A
+_GeometricRepresentationRelationshipWithPlacementTransformation_ (GeoRepWPT) brings
+the ABREP of the connector into the _ComposedGeometricModel_ of the
+_WiringHarnessAssemblyDesign_. The transformation is defined by aligning two
+_AxisPlacements_ onto each other. The _Placement_ attribute of the
+_NextAssemblyOccurrenceUsage_ refers to this GRRWPT. This is needed to be able to
+distinguish the geometry of several occurrences of the same type.
+
+On the left side of <<fig31>> we see the transformation of flexible parts such as
+cables and wires into the wiring harness assembly that is different, but similar to
+the one of a rigid part. As a first step the occurrence of a cable is transformed
+onto a _Path_ or _Edge_ of the
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ that defines the _Topology_
+of the _WiringHarnessAssemblyDesign_ by a _GeometryToTopologyModelAssociation_
+(G2TAsso). Here the position of the _AxisPlacement_ represents the start of the
+cable that is mapped onto the start _Vertex_ of the _Path_. The z-direction
+(_Axis[3]_) of the _AxisPlacement_ represents the direction of the centreline of the
+cable. As the target _Path_ and underlying _Edges_ have no particular geometry
+defined yet, we only know that this direction refers to the direction of the first
+_Edge_ of the _Path_ at the start _Vertex_.
+
+At a next step the topological elements of the
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ are associated to items of
+the _ExternalAdvancedBrepShapeRepresentation_ that defines one of possible many
+representations of the wire harness. For this a _GeometryToTopologyModelAssociation_
+(T2GAMP) is used that allows a pair-wise transformation of the items of the
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ onto the items of a
+_GeometricModel_. Usually _Edges_ and _Paths_ are transformed onto _Curves_ and
+_Vertices_ onto _AxisPlacements_. The figure shows a single _Edge_ that is mapped
+onto an external _Curve_ within the _ExternalAdvancedBrepShapeRepresentation_.
+
+NOTE: In the provided example a _GeometryToTopologyModelAssociation_ is only used to
+map _Edges_ and _Paths_ onto _Curves_. It could also be used to map _Vertices_ to
+_AxisPlacement_. This possible alternative had not been chosen because traditional
+3D STEP implementations are used to directly map the 3D model of the piece-parts to
+the 3D model of the assembly.
+
+. First we have to identify the STEP p21 file that contains the real Advanced
+boundary representation of the complete H1 harness. This STEP file might be included
+in the zip file that also contains the example XML file that is described here.
++
+--
+[%unnumbered]
+[source,xml]
+----
+<!--3D geometric model for the Harness design-->
+<File xsi:type="n0:DigitalFile" uid="_314080">
+  <FileFormat uidRef="_100300"/>
+  <FileLocations>
+    <FileLocationIdentification uid="_314081">
+      <SourceId>H1_abrep.stp</SourceId>
+      <SourceType>file</SourceType>
+    </FileLocationIdentification>
+  </FileLocations>
+</File>
+----
+--
+
+. Next we have to create placeholders for the content we expect to find in the
+external p21 STEP file. For this we create a special RepresentationContext of type
+GeometricCoordinateSpace that includes the relevant RepresentationItems (here 2
+Curves and an AxisPlacement) and an ExternalAdvancedBrepShapeRepresentation:
++
+--
+[%unnumbered]
+[source,xml]
+----
+<RepresentationContext xsi:type="n0:GeometricCoordinateSpace" uid="_314091">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation xsi:type="n0:ExternalGeometricModel" uid="_314090">
+      <Id id="xxx"/>
+      <Items>
+        <RepresentationItem uidRef="_314092"/>
+        <RepresentationItem uidRef="_314096"/>
+      </Items>
+      <!--Transformation of topology model-->
+      <RepresentationRelationship
+xsi:type="n0:TopologyToGeometryModelAssociation" uid="_314200">
+        <Definitional>false</Definitional>
+        <Related uidRef="_321010"/>
+        <Origin>
+          <Vertex uidRef="_321041"/>
+          <Edge uidRef="_321021"/>
+        </Origin>
+        <Target>
+          <AxisPlacement uidRef="_314096"/>
+          <Curve uidRef="_314092"/>
+        </Target>
+      </RepresentationRelationship>
+      <!--Transformation of lug1-->
+      <RepresentationRelationship
+xsi:type="n0:GeometricRepresentationRelationshipWithPlacementTransformation"
+uid="_314210">
+        <Definitional>true</Definitional>
+        <Related uidRef="_103090"/>
+        <Origin uidRef="_103096"/>
+        <Target uidRef="_314096"/>
+      </RepresentationRelationship>
+      <ExternalFile uidRef="_314080"/>
+<!-- specific #15=SHAPE_REPRESENTATION -->
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem xsi:type="n0:Curve" uid="_314092">
+      <External xsi:type="n0:NextInstanceInverse" uid="_314092_1">
+        <Id id="#15"/>
+<!-- #15=SHAPE_REPRESENTATION(' ',
+(#1917,#5143,#31773,#44222,#45076,#45089,#45943,#47475,#50537,#50845,#51147,#51449,#517
+51,#51772),#21) ; -->
+        <AttributeName>rep_2</AttributeName>
+        <NextInstance xsi:type="n0:NextInstanceForward" uid="_314092_2">
+          <Id id="#1915"/>
+<!-- #1915=(REPRESENTATION_RELATIONSHIP(' ','
+',#24,#15)REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#1916)SHAPE_REPRESENTATION_RE
+LATIONSHIP()) ; -->
+          <AttributeName>rep_1</AttributeName>
+          <NextInstance xsi:type="n0:NextInstanceForward" uid="_314092_3">
+            <Id id="#24"/>
+<!-- #24=SHAPE_REPRESENTATION(' ',(#1918),#23) ; -->
+            <AttributeName>context_of_items</AttributeName>
+            <NextInstance xsi:type="n0:NextInstanceInverse" uid="_314092_4">
+              <Id id="#23"/>
+<!--
+#23=(GEOMETRIC_REPRESENTATION_CONTEXT(3)GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#22))GLOBA
+L_UNIT_ASSIGNED_CONTEXT((#17,#18,#19))REPRESENTATION_CONTEXT(' ',' ')) ; -->
+              <AttributeName>context_of_items</AttributeName>
+              <NextInstance xsi:type="n0:NextInstanceForward" uid="_314092_5">
+                <Id id="#96"/>
+<!-- #96=GEOMETRICALLY_BOUNDED_SURFACE_SHAPE_REPRESENTATION('NONE',(#97),#23) ; -->
+                <AttributeName>items</AttributeName>
+                <NextInstance xsi:type="n0:NextInstanceForward" uid="_314092_6">
+                  <Id id="#97"/>
+<!-- #97=GEOMETRIC_SET('NONE',(#90,#99,#104,#109,#114,#119,#124,#141,#157)) ; -->
+                  <AttributeName>elements</AttributeName>
+                  <NextInstance xsi:type="n0:ExternalEntityInstance" uid="_314092_7">
+                    <Id id="#141"/>
+<!-- #141=COMPOSITE_CURVE('Flexible Curve.2',(#140),.U.) ; -->
+                  </NextInstance>
+                </NextInstance>
+              </NextInstance>
+            </NextInstance>
+          </NextInstance>
+        </NextInstance>
+      </External>
+    </RepresentationItem>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="_314096">
+      <External uid="_314096_1">
+        <Id id="#5143"/>
+      </External>
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+----
+--
+
+The _ExternalAdvancedBrepShapeRepresentation_ contains a
+_GeometryToTopologyModelAssociation_ that maps two origen objects (a Vertex and an
+Edge) of the _EdgeBasedTopologicalRepresentationWithLengthConstraint_ onto
+corresponding target objects (here _AxisPlacement_ and curve) of the complete H1
+geometry.
+
+There is also an _GeometricRepresentationRelationshipWithPlacementTransformation_
+that maps the defining geometry the terminal lug (here a
+ExternalAdvancedBrepShapeRepresentation) to a corresponding position and orientation
+in the H1 geometry.
+
+For further details see CAx-IF Recommended Practices AP242 BO Model XML Assembly
+Structure
+
+TODO: (version 2?)

@@ -1,0 +1,82 @@
+[[cls-2]]
+== Pilot Study Overview
+
+The pilot studies were created to encourage software providers to participate in
+initial efforts to develop commercial tools capable of converting traditional FEA
+information, expressed in solver ASCII format, to the AP209 ed2 format. A second
+goal of the pilot studies was to produce a reference set of AP209 ed2 STEP files
+that have been validated with the AP209 ed2 EXPRESS schema and have been checked for
+semantics with respect to the Recommended Practices for AP 209 ed2 10303-209:2014
+and the document, Geometric Founding and Associativity in ISO 10303-209, Rev. B,
+2/15/2001. A longer term goal is to enable FEA pre and post processors to both read
+and write AP209ed2 compliant data sets.
+
+The pilot studies provide a small test suite of FEA models and solutions to be
+translated from a native solver format, in this case NASTRAN, to the STEP AP209 ed2
+ASCII file representation (Part 21). These models are prismatic beam models with
+various linear element types, boundary conditions, load cases, and output requests.
+The overall geometry for each model is the same and is simple (see <<fig1>>). This
+simplicity was intentional to focus the effort on the interpretation of the FEM
+definitions, constructs and results, not the geometric abstractions related to
+meshing techniques.
+
+[[fig1]]
+.Pilot Model Geometry
+image::img01.png[]
+
+[%key]
+Implied Model Units:
+
+* Length: inch
+* Force: lbf
+* Mass: lbf-s^2/in
+
+Discretization of the geometry to the finite element model domain was accomplished
+through the abstractions and resulting finite element models shown in <<fig2>>. The
+finite element models were exported in NASTRAN bulk data format for use in this
+pilot study. These models were solved using MSC/NASTRAN V2013.1.0 to generate the
+requested results.
+
+[[fig2]]
+[options=header,cols=3]
+.Pilot Model Abstractions
+|===
+| Abstraction - Geometry | NASTRAN Element Type | Pilot Model
+
+| 1 Dimensional - Line
+| Linear CROD +
+[Axial Stiffness -- 1 DOF]
+a| [%unnumbered]
+image::img-t1.png[]
+
+| 1 Dimensional - Line
+| Linear CBAR +
+[Bending/Axial/Shear -- 5 DOF]
+a| [%unnumbered]
+image::img-t2.png[]
+
+| 2 Dimensional - Surface
+| Linear CQUAD4/CTRIA3 +
+[Bending/Membrane/Shear -- 5 DOF]
+a| [%unnumbered]
+image::img-t3.png[]
+
+| 3 Dimensional - Solid
+| Linear CHEXA/CPENTA/CTETRA +
+[Bending/Membrane/Shear -- 3 DOF]
+a| [%unnumbered]
+image::img-t4.png[]
+|===
+
+Volume 1 of this handbook discussed each pilot model in order and presented the same
+topics in each sub-section. Where topics were identical (such as using a common
+isotropic material for all models), a reference to the first occurrence of the topic
+was presented. This allowed the discussion to focus on the new information unique to
+each model.
+
+Volume 2 of the handbook differs in how the material is presented to the reader.
+First, the overall structure of solution controls is discussed, followed by the
+details of the loads and boundary conditions. Examples from the pilot models are
+presented to illustrate how the concepts apply to the different model abstractions.
+Lastly, complete listings of the solver input, excerpts of the solver outputs, and
+the STEP output are included in the Appendices.

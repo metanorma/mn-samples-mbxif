@@ -1,0 +1,43 @@
+== Introduction
+
+Product and Manufacturing Information (PMI) is used in 3D Computer-aided Design
+(CAD) systems to convey information about the product requirements for
+manufacturing, inspection, and sustainment, which supplements the geometric shape
+of the product. This includes but is not limited to dimensions, tolerances,
+surface finish, weld symbols, material specifications, and user-defined attributes
+defined as 3D annotations. A Unicode string representation of this information
+allows a consistent definition when translating into STEP.
+
+This report defines *rules* for Unicode strings of Geometric Dimensioning and
+Tolerancing (GD&T), Surface Finish, and Weld symbols as defined in ASME and ISO
+standards.
+
+The following Engineering Product Definition and Related Documentation Practices
+were used as references for this document:
+
+* ASME Y14.5-2018 Dimensioning and Tolerancing
+* ASME Y14.36-2018 Surface Texture Symbols
+* ISO 2553:2019 Welding and allied processes
+* ISO 1101:2017 Geometrical product specifications
+* ISO 14405-3:2016 GPS Dimensional Tolerancing of Linear Sizes
+
+=== Document History
+
+The previous Revision J of this recommended practice was developed at the request
+of LOTAR International in July 2009 and released in May 2011. The goal was to
+build upon previous efforts by LOTAR member companies and suppliers to develop an
+extensive list of GD&T and Dimensioning and Tolerancing PMI entities that may be
+encountered in annotated models and within data sets, and subsequently translated
+into STEP.
+
+Refer to the previous Revision J for many specific examples of GD&T annotations
+and their representation as Unicode strings. However, there have been a few minor
+changes in the Unicode string specification. This is noted in the examples below.
+
+This current recommended practice, version 1.0 (now using a numeric version
+number), defines the *rules* for creating PMI Unicode strings. The intent is to
+make the document easier to navigate by documenting how information should be
+formatted rather than providing many cumbersome examples to sort through. This new
+format also eliminates the possible omission of some entity types, symbols,
+configurations, and representative examples of PMI that may be encountered in an
+annotated model data set and eliminates the need for an exhaustive list of examples.

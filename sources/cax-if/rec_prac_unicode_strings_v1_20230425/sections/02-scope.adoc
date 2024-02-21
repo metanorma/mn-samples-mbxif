@@ -1,0 +1,12 @@
+== Scope
+
+*The following are within the scope of this document*:
+
+* Rules that define how GD&T, Surface Finish, and Weld symbol information should
+be represented as Unicode strings.
+* 4 letter Unicode representation of GD&T, Surface Finish and Weld symbols.
+
+*The following are out of the scope of this document*:
+
+* An exhaustive list of GD&T, Surface Finish, and Weld symbol examples.
+* Graphical and semantic representation of the GD&T.

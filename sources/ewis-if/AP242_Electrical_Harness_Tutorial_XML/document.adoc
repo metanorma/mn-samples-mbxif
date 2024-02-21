@@ -1,0 +1,78 @@
+= STEP AP 242 Electrical Harness XML Tutorial & Recommended Practises
+:customize: ewisif_metanorma.yml
+:doctype: recommended-practices
+:technical-committee: ewis
+:version: 2.0
+:status: draft
+:iteration: 2
+:issued-date: 2020-11-16
+:status-note: Updated for AP242 IS Second Edition 2020 & upcoming Amendment 2020/2021
+:toclevels: 3
+:copyright-holder: LOTAR International 2020
+:mn-document-class: nist
+:fullname: Lothar Klein
+:address: Steinweg 1
+:postcode: 36093
+:region: Künzell
+:country: Germany
+:email: lothar.klein@lksoft.com
+:fullname_2: Sophie Herail
+:affiliation_2: CIMPA S.A.S.
+:street_2: Centreda 1
+:address_2: 4, Avenue Didier Daurat
+:postcode_2: 31700
+:region_2: Blagnac
+:country_2: France
+:role_2: Subcontractor for AIRBUS; Operations SAS -- IZMA
+:email_2: sophie.herail.external@airbus.com
+:fullname_3: Daniel Ganser
+:affiliation_3: Gulfstream Aerospace Corporation
+:street_3: BTC
+:address_3: 171 Crossroads Parkway
+:region_3: Savannah, GA
+:postcode_3: 31407
+:country_3: U.S.A.
+:email_3: dan.ganser@gulfstream.com
+:link: https://www.cax-if.org/ewis/ewis_introduction.php
+:link_2: http://www.lotar-international.org/
+:link_3: http://www.ap242.org/
+:link_4: https://en.wikipedia.org/wiki/ISO_10303
+:link_5: http://www.iso.org
+:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
+:series:
+:language: en
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+:draft:
+
+include::sections/01-overview.adoc[]
+
+include::sections/02-intro.adoc[]
+
+include::sections/03-examples.adoc[]
+
+include::sections/04-part.adoc[]
+
+include::sections/05-partview.adoc[]
+
+include::sections/06-productconcept.adoc[]
+
+include::sections/07-classes.adoc[]
+
+include::sections/08-occurences.adoc[]
+
+include::sections/09-shapeelements.adoc[]
+
+include::sections/10-electrical.adoc[]
+
+include::sections/11-cable.adoc[]
+
+include::sections/12-cross-section.adoc[]
+
+include::sections/13-harnessnode.adoc[]
+
+include::sections/14-representation.adoc[]
+
+include::sections/15-transformations.adoc[]
+
+include::sections/16-overall.adoc[]

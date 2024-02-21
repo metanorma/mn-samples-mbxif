@@ -1,0 +1,212 @@
+[[sec-7]]
+== Surface Texture Terms & Delimiters
+
+Surface texture (also known as surface finish) symbols define the lay
+(direction), roughness and waviness of a surface. Various manufacturing processes
+are used to achieve the desired surface texture on the finished part.
+
+[[sec-7.1]]
+=== Surface Texture Symbol Layout
+
+To capture Surface Finish Symbols as a Unicode string, it is divided into
+distinct regions, referred to as zones. The surface texture symbol layout from
+Figure 4-2 of ASME Y14.36-2018 is shown and will be used to layout the zones as
+labeled in that figure.
+
+Information will be treated as plain text. There are no symbols used when
+representing surface texture.
+
+[%unnumbered,height=100px]
+image::img52.png[]
+
+Following the convention of using compartments for annotations, the Unicode
+string for a surface finish uses \w to separate zone information. In the example
+below, zones 1 and 2 are empty as indicated by the first two occurrences of \w\w.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img53.png[]
+a| SRFMRR[css color:red]##\w\w\w##TURN[css color:red]##\w##0.8 / Ra 3.2\n&#x23CA; 2.5 / Wt 0.8
+
+_Zones 1 and 2 are intentionally blank._
+|===
+
+Delimiters for the surface texture symbol are listed below in order of the zones
+that information is put in.
+
+[[sec-7.2]]
+=== Surface Texture Symbol (SRF)
+
+Denotes a surface finish annotation.
+
+Surface Texture Symbols are typically expanded, showing a horizontal line drawn
+to the right of the longer angled leg of the basic surface texture symbol, unless
+zones 3 and 4 of the symbol are empty.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img54.png[]
+| [css color:red]#SRF#
+a| [%unnumbered,height=50px]
+image::img55.png[]
+| [css color:red]#SRF#
+a| [%unnumbered,height=70px]
+image::img56.png[]
+| [css color:red]##SRF##\w1.6\n0.8\w\w\w0.8
+|===
+
+[[sec-7.3]]
+=== Symbol Modifiers
+
+Modifiers indicate parameters to be applied to a surface that vary from those
+specified on a drawing or referenced specification sheet to specific surfaces.
+
+[%unnumbered,height=100px]
+image::img57.png[]
+
+[[sec-7.4]]
+=== Material Removal Designator
+
+The material removal designator is appended to the surface texture designator and
+specifies if material removal is required. Graphically, the angled lines of the
+surface texture symbol are modified to denote this information. Valid options are
+listed below.
+
+[[sec-7.4.1]]
+==== Any Process Allowed (APA)
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=40px]
+image::img58.png[]
+| SRF[css color:red]##APA##
+a| [%unnumbered,height=40px]
+image::img59.png[]
+| SRF[css color:red]##APA##\w\w\w08./Ra 1.4
+|===
+
+[[sec-7.4.2]]
+==== Material Removal Required (MRR)
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=40px]
+image::img60.png[]
+| SRF[css color:red]##MRR##
+a| [%unnumbered,height=40px]
+image::img61.png[]
+| SRF[css color:red]##MRR##\w\w\w\0.8 / Ra 1.6 / n=3
+|===
+
+[[sec-7.4.3]]
+==== No Material Removed (NMR)
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=40px]
+image::img62.png[]
+| SRF[css color:red]##NMR##
+a| [%unnumbered,height=40px]
+image::img63.png[]
+| SRF[css color:red]##NMR##\w\w\w\2.5 / Ra 6.4
+|===
+
+[[sec-7.5]]
+=== All Around and All Over Designator
+
+The all around or all over designator define surfaces that require different
+parameters than those stated in the title block or other specification. This
+designator is captured as a suffix to the Material Removal designator.
+
+[[sec-7.5.1]]
+==== All Around (A)
+
+Suffix to the process indicator on a surface texture annotation callout.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img64.png[]
+| SRFAPA[css color:red]##A##\w1.6\n0.8\w\w\w0.8
+|===
+
+[[sec-7.5.2]]
+==== Not All Around (N)
+
+It is recommended that "N" be included in the Unicode string. Without the "N", it
+is assumed that any character other than A or no character in the last position
+implies that it is not all around.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img65.png[]
+| SRFMRR[css color:red]##N##\w1.6\n0.8\w\w0.8
+|===
+
+[[sec-7.5.3]]
+==== All Over (AOS)
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img66.png[]
+| SRFAPA[css color:red]##AOS##\w\w\wTXT\u0.8/Ra 1.6\u
+
+a| [%unnumbered,height=50px]
+image::img67.png[]
+a| SRFAPA\w\w\wTXT2.5/Ry 0.5
+
+_No text after APA indicates the surface finish is not all over._
+|===
+
+[[sec-7.6]]
+=== Surface Finish Lay Symbols
+
+The lay symbol indicates the direction of the surface marks of the surface
+finish. The lay symbol is specified in zone 4 of the surface finish symbol. The
+symbol is the first character on the second line. Even though some symbols are
+the same as those used in GD&T, they are represented as plain text to maintain
+consistency with ASME Y14.36-2018.
+
+Lay Symbols and Examples:
+
+[%unnumbered,cols=3]
+|===
+| Angular (X)
+a| [%unnumbered,height=50px]
+image::img68.png[]
+| SRFAPAN\w\w\w\w\n[css color:red]##X##
+
+| Circular (&#x200c;C)
+a| [%unnumbered,height=50px]
+image::img69.png[]
+| SRF\w\w\w\w\n[css color:red]##C##
+
+| Multi-directional (M)
+a| [%unnumbered,height=50px]
+image::img70.png[]
+| SRF\w\w\w\w\n[css color:red]##M##
+
+| Parallel (PRL)
+a| [%unnumbered,height=50px]
+image::img71.png[]
+| SRF\w\w\w\w\n[css color:red]##PRL##
+
+| Particulate. (P)
+a| [%unnumbered,height=50px]
+image::img72.png[]
+| SRF\w\w\w\w\n[css color:red]##P##
+
+| Perpendicular (PERP)
+a| [%unnumbered,height=50px]
+image::img73.png[]
+| SRF\w\w\w\w\n[css color:red]##PERP##
+
+| Radial (&#x200c;R)
+a| [%unnumbered,height=50px]
+image::img74.png[]
+| SRF\w\w\w\w\n[css color:red]##R##
+|===

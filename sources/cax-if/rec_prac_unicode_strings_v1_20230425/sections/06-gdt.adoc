@@ -1,0 +1,151 @@
+[[sec-6]]
+== GD&T Terms & Delimiters
+
+GD&T is a set of symbols that convey allowable variation in form and size of
+features on a part as well as variation between those features. The symbols can be
+captured on 2D engineering drawings or as annotations in CAD models.
+
+[[sec-6.1]]
+=== Dimension (DIM)
+
+Denotes a dimension annotation. Does not require its own separator before or after
+its contents.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=30px]
+image::img39.png[]
+| [css color:red]##DIM##\w25.4&#xB1;0.1
+
+a| [%unnumbered,height=30px]
+image::img40.png[]
+| TXT\w6X\w[css color:red]##DIM##&#xD8;1.0
+|===
+
+[[sec-6.2]]
+=== Feature Control Frame (FCF)
+
+Represents the start of a feature control frame. Each \w following FCF will
+denote the beginning of the next compartment of the feature control frame.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=40px]
+image::img41.png[]
+| [css color:red]##FCF##\w&#x2316;\w0.1\wA\wB\wC
+
+a| [%unnumbered,height=100px]
+image::img42.png[]
+a| _There are three ways to represent a composite FCF._
+
+_As two segments:_
+
+[css color:red]##FCF##\w&#x2316;\w&#x2300;0.8 &#x24C2;\wD\wE\wF\n\w&#x2316;\w&#x24C2;0.25&#x24C2;\wD\wE
+
+_Concatenated:_
+
+[css color:red]##FCF##\w&#x2316;\w&#x2300;0.8&#x24C2;\wD\wE\wF[css color:red]##\x\##w&#x2316;\w&#x24C2;0.25&#x24C2;\wD\wE
+
+_As two individual feature control frames_
+
+[css color:red]##FCF##\w&#x2316;\w&#x2300;0.8&#x24C2;\wD\wE\wF
+[css color:red]##FCF##\w&#x2316;\w&#x2300;0.25&#x24C2;\wD\wE
+|===
+
+[[sec-6.3]]
+=== Datum Feature Symbol (DTM)
+
+Denotes a datum feature.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img43.png[]
+| [css color:red]##DTM##\wA
+|===
+
+[[sec-6.4]]
+=== Datum Target (TGT)
+
+Datum targets and moveable datum targets are represented as TGT.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=50px]
+image::img44.png[]
+| [css color:red]##TGT##\w&#xD8;25\nA1
+a| [%unnumbered,height=80px]
+image::img45.png[]
+a| [css color:red]##TGT##\w25 X 25\nA1
+
+NOTE: Moveable indicator not captured
+|===
+
+[[sec-6.5]]
+=== All Around (AAS)
+
+Prefix to a DIM or FCF keyword.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img46.png[]
+| [css color:red]##AAS##\w\FCF\w&#x2313;\0.05\wA\wB
+|===
+
+[[sec-6.6]]
+=== All Over (AOS)
+
+Prefix to a DIM or FCF designator.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img47.png[]
+| [css color:red]##AOS##\w\FCF\w&#x2313;\w0.05\wA\wB
+|===
+
+[[sec-6.7]]
+=== Threads
+
+Thread information will be treated as text.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img48.png[]
+| [css color:red]##TXT##\w0.250-20 UNC-3B
+a| [%unnumbered,height=70px]
+image::img49.png[]
+| [css color:red]##TXT##\wM6X1 - 5H6H -- LH\n\&#x21A7;10
+|===
+
+[[sec-6.8]]
+=== Standard Holes
+
+Hole callouts are handled as plain text describing the details of the hole. This
+includes information such as hole diameter(s), number of threads per inch, single
+or double thread, form, class, left hand, and other information that may not be
+listed here.
+
+Symbols in hole callouts may include counterbore, countersink, and chamfer angle
+information.
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img50.png[]
+| DIM\w&#xD8;0.397 THRU\n&#x2334;&#xD8;0.709&#x21A7;0.433
+|===
+
+[[sec-6.9]]
+=== Spotface (SF)
+
+Spotface will be identified by the characters "SF".
+
+[%unnumbered,cols=2]
+|===
+a| [%unnumbered,height=70px]
+image::img51.png[]
+| DIM\w4X&#xD8;8\n[css color:red]##SF##&#xD8;20 R2
+|===

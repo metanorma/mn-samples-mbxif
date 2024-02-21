@@ -1,0 +1,80 @@
+= STEP AP209 ed2
+:title-main: Linear Static Structural FEA Handbook
+:title-sub: FEA Steps, Loads and Boundary Conditions for LOTAR EAS Pilot Study
+:customize: caeif_metanorma.yml
+:doctype: general-guidelines
+:technical-committee: cae-if
+:volume: 2
+:edition: 1.1
+:issued-date: 2019-03-25
+:toclevels: 3
+:mn-document-class: nist
+:fullname: Jochen Boy
+:affiliation: PROSTEP AG
+:address: Dolivostraße 11
+:postcode: 64293
+:city: Darmstadt
+:country: Germany
+:email: jochen.boy@prostep.com
+:contact-type: CAE-IF
+:fullname_2: Jean-Marc Crepel
+:affiliation_2: AFNeT
+:address_2: 30, Rue de Miromesnil
+:postcode_2: 75008
+:city_2: Paris
+:country_2: France
+:email_2: jean-marc.crepel@afnet.fr
+:contact-type_2: CAE-IF
+:fullname_3: Phil Rosché
+:affiliation_3: ACCR, LLC.
+:address_3: 125 King Charles Circle
+:city_3: Summerville, SC
+:postcode_3: 29485
+:country_3: USA
+:email_3: phil.rosche@accr-llc.com
+:contact-type_3: CAE-IF
+:fullname_4: Chris Johnson
+:role_4: Technical
+:affiliation_4: LOTAR EAS WG - Americas
+:affiliation_subdiv_4: Lockheed Martin
+:email_4: john.c.johnson@lmco.com
+:contact-type_4: LOTAR EAS
+:fullname_5: Joseph G. Draper
+:role_5: Co-leader
+:affiliation_5: LOTAR EAS WG -- Americas
+:affiliation_subdiv_5: The Boeing Company
+:email_5: joseph.g.draper@boeing.com
+:contact-type_5: LOTAR EAS
+:fullname_6: Albert Lévy
+:role_6: Co-leader
+:affiliation_6: LOTAR EAS WG - Europe
+:affiliation_subdiv_6: CIMPA on behalf of Airbus
+:email_6: albert.levy.external@airbus.com
+:contact-type_6: LOTAR EAS
+:toc-figures:
+:series:
+:language: en
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+include::sections/00-preface.adoc[]
+
+include::sections/01-intro.adoc[]
+
+include::sections/02-pilot-study.adoc[]
+
+include::sections/03-overview.adoc[]
+
+include::sections/04-test-case.adoc[]
+
+include::sections/04-data-model.adoc[]
+
+include::sections/05-analysis.adoc[]
+
+include::sections/06-states.adoc[]
+
+include::sections/07-references.adoc[]
+
+include::sections/aa-nastran.adoc[]
+
+include::sections/ab-step.adoc[]

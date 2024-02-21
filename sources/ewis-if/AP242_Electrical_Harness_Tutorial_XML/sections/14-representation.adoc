@@ -1,0 +1,537 @@
+[[cls-14]]
+== Representation & Geometry Models
+
+<<fig22>> shows the data model for _Representation_ with subtypes
+_GeometricRepresentation_ and _-Model_ and relationships between them, including
+transformations and associations. A Representation is a collection of
+RepresentationItems for which many subtypes are defined (e.g. _AxisPlacement_,
+_Curve_, _CartesianPoint_, _Edge_, _Vertex_, _Path_ ...). _RepresentationItems_ are
+defined within a _RepresentationContext_ and can therefore be used by the
+_Representations_ of the same context. A _RepresentationItem_ is included in a
+_Representation_ either directly (via the _Items_ attribute or indirectly because it
+it referenced by another _RepresentationItem_. E.g. when a _Representation_ contains
+an _Edge_, it also contains the two _Vertices_ called out by its _EdgeStart_ and
+_EdgeEnd_ attribute. In this tutorial we only explain the representation
+specializations that are needed for electrical harness.
+
+[TODO]
+====
+[[fig22]]
+.GeometricRepresentation, Relationship and Transformation
+image::img22.png[]
+====
+
+_GeometricCoordinateSystem_ is a subtype of _RepresentationContext_ that defines a
+geometric coordinate system in which CartesianPoints, Vectors and others can be
+defined. The attribute _DimensionCount_ of _GeometricCoordinateSystem_ defines the
+number of axis of the coordinate system which is typically 2 for 2D or 3 for 3D.
+Further down we see a special case where a 1D coordinate system is used.
+
+_GeometricRepresentation_, a subtype of Representation, requires the use of a
+_GeometricCoordinateSystem_. It is further subtyped to _GeometricModel_ that might
+be used as the _DefiningGeometry_ of a _PartView_. A _GeometricModel_ might be an
+_ExternalGeometricModel_ that is available as a separate file; e.g. a STEP-p21 file.
+
+A pair of _Representations_ from either the same or different contexts can be
+related to each other by _RepresentationRelationship_. If the _Definitional_
+attribute is set to TRUE, the _Related Representation_ becomes a definitional part
+of the _Relating Representation_. Note that the _Relating_ attribute is covered as
+containment for the XML exchange.
+
+Geometrically defined transformations between two _GeometricRepresenations_ are
+defined by subtypes of _GeometricRepresentationRelationship_:
+
+* most widely used in STEP is
+_GeometricRepresentationRelationshipWithPlacementTransformation_ where the
+transformation is indirectly defined by placing an _AxisPlacement_ from the related
+_Representation_ (attribute _Origin_) onto an _AxisPlacement_ (attribute _Target_)
+of the relating _Representation_.
+* when scaling or mirroring is needed a
+GeometricRepresentationRelationshipWithCartesianTransformation is to be used
+
+Relations between _GeometricRepresentations_ of the same _GeometricCoordinateSpace_
+typically don't allow any transformations and so the
+_GeometricRepresentationRelationshipWithSameCoordinateSpace_ is to be used.
+
+For a general introduction and usage guide of these concepts see the "Recommended
+Practices for AP242 Business Object Model XML Assembly Structure". That document
+provides several alternatives on how to do assemblies with transformation. For the
+purpose of EWH it is recommended to use the method as explained in clause "7.3.2.1
+Implicit Transformation". When using the method as described in clause '7.3.1
+Template "Simplified Positioning Representation"' it won't be possible to link a 2D
+or 3D geometric representation with the topological representation of an EWH.
+
+[[cls-14.1]]
+=== Harness Topology Representation
+
+The topological structure of an electrical wire harness, is primarily build up from
+the root topological elements _Vertex_ and _Edge_. An _Edge_ defines a directed link
+between two _Vertices_, a _Start_ and an _End-Vertex_. For the purpose to represent
+the topology structure of an electrical wire harness, a _Vertex_ is associated to a
+geometric _Point_ and an _Edge_ is associated to a _Curve_. Because of this the
+subtypes _VertexPoint_ and _EdgeCurve_ or _SubEdge_ are to be used.
+
+In most traditional STEP geometric models the subtype _CartesianPoint_ for a _Point_
+and any of the subtypes of _Curve_ such as a straight line are used, so that the
+points and curves are fully located and described within a geometric coordinate
+space, either 2D or 3D. However an electrical wire harness is typically flexible and
+has no fixed geometric appearance. Because of this a 2D or 3D geometric coordinate
+space is meaningless to describe the flexible nature of a harness. The above
+mentioned subtypes _CartesianPoint_, straight line and others can not be used as
+there are no fixed coordinates or directions.
+
+Because of this only the supertype _Point_ or the subtype _PointOnCurve_ are to be
+used for the attribute _VertexGeometry_ of _VertexPoints_. For _EdgeCurves_ only the
+subtype _BoundedCurveWithLength_ is to be used for attribute _BasicCurve_. A
+_BoundedCurveWithLength_ is a curve with a fixed length that is parametrised from 0
+to the length of the curve. When _PointOnCurve_ is used, then the underlying curve
+must be a _BoundedCurveWithLength_. For the purpose to define proper rules to ensure
+these constraint the subtype _EdgeBoundedCurveWithLength_ has been introduced. When
+a SubEdge is used, the ParentEdge must either be another SubEdge (a "bigger" one) or
+an _EdgeBoundedCurveWithLength_..
+
+[CAUTION,type=""]
+====
+When using geometric entities such as _Point_ or _Curve_ within a _Representation_
+the use of a _RepresentationContext_ that is a _GeometricCoordinateSpace_ is
+enforced (see also ISO 10303-42). A _GeometricCoordinateSpace_ requires the
+specification of a _DimensionCount_ that is typically 2D or 3D. However as explained
+above a 2D or 3D coordinate space is not suitable to describe the flexible nature of
+a harness. It is therefore recommended to use for the _DimensionCount_ the value 1
+to ensure that it is not meant to be 2D or 3D. However the value 1 does not means
+that a harness is defined in a one dimensional coordinate space (even if a single
+_BoundedCurveWithLength_ might suggest there is one dimension, think about what
+happens if there are several independent _BoundedCurveWithLength_).
+====
+
+The _EdgeBoundedCurveWithLengths_ are grouped within a ConnectedEdgeSet that ensures
+that all edges are somehow connected by sharing a common VertexPoint. Such a
+ConnectedEdgeSet is the main RepresentationItem of an
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_, the specialized
+Representation for the topological structure of WiringHarnessAssemblyDesign.
+
+An _EdgeBasedTopologicalRepresentationWithLengthConstraint_ must contain exactly one
+ConnectedEdgeSet. Other Items of an
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ can be Path and
+VertexPoint. They are constraint in the following way:
+
+* the attribute VertexGeometry of the additional VertexPoints must refer to a
+PointOnCurve that has a its BasicCurves one of the _BoundedCurveWithLength of the
+EdgeBoundedCurveWithLength used in the_ ConnectedEdgeSet or by one of the Paths (see
+below)
+* the additional Paths must either be formed from the _EdgeBoundedCurveWithLength_
+within the ConnectedEdgeSet or are of type SubEdge
+
+[[fig23]]
+.EdgeBasedTopologicalRepresentationWithLengthConstraint
+image::img23.png[]
+
+The main topological structure consists of the following subtypes of
+RepresentationItems:
+
+* _Vertex_
+* _Edge_
+* _EdgeWithLength_
+* _ConnectedEdgeSet_
+* _Path_
+
+These items are grouped together in an
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_.
+
+An _Edge_ is starting in one _Vertex_ and is ending in another _Vertex_. Because of
+this an _Edge_ has a direction. An _EdgeWithLength_ is an _Edge_ for which the
+length is defined. _Edges_ that are connected with each other through common
+vertices can be grouped together in a _ConnectedEdgeSet_. A _ConnectedEdgeSet_
+defines a directed graph that may be cyclic (in other words, it may contain loops).
+Within this graph _Paths_ can be specified that consists of an ordered list of
+connected _Edges_ and a corresponding ordered list of boolean values for the
+orientation of the _Edges_. The _Edges_ in a _Path_ are constrained, so that the
+start _Vertex_ of a following _Edge_ must start at the end _Vertex_ of a previous
+_Edge_. As needed the direction of an Edge can be inverted in its usage by the
+corresponding boolean attribute in the _OrientationList_.
+
+Sub-topological structures can be defined on the main topological structure or a
+higher sub-topological structure with the following _RepresentationItems_:
+
+* _SubEdge_
+* _VertexOnEdge_
+* _ConnectedEdgeSubSet_
+
+A _SubEdge_ is an _Edge_ that represents a portion of a _ParentEdge_. A _SubEdge_
+might have the same start or same end Vertex or none of the Vertices of the parent
+_Edge_. In all other cases the start and end Vertex of a SubEdge must be VertexOnEdge.
+
+A _VertexOnEdge_ is a _Vertex_ on a parent Edge that is an EdgeWithLength in a defined
+distance from either the start or the end Vertex. A VertexOnEdge must only be
+referenced by SubEdges with the same parent Edge.
+
+A _ConnectedEdgeSubSet_ is a _ConnectedEdgeSet_ that defines a sub-set of connected
+Edges of a ParentEdgeSet.
+
+A _EdgeBasedTopologicalRepresentationWithLengthConstraint_ is a _Representation_
+that consists of exactly one _ConnectedEdgeSet_ (with all the underlying edges and
+vertices) and any number of _Paths_ on that _ConnectedEdgeSet_ and any number of
+additional _SubEdges_ and _VertexOfEdges_ defined on the _Edges_ of the
+_ConnectedEdgeSet_.
+
+As with all kinds of _Representations_, the _RepresentationItems_ are defined under
+the _Items_ section of a _RepresentationContext_ and referenced in the Items section
+of a _EdgeBasedTopologicalRepresentationWithLengthConstraint_. Several
+_EdgeBasedTopologicalRepresentationWithLengthConstraint_ can be defined under the
+same RepresentationContext, and thus allowing to share the same RepresentationItems.
+
+[[cls-14.2]]
+=== Example Topological Harness Representation
+
+Extract taken from HarnessExample_Hierarchical.xml:
+
+The RepresentationContext _321000 is of type
+EdgeBasedTopologicalRepresentationWithLengthConstraints with a DimensionCount of 1.
+All length values are given in Metres. Within this context three
+EdgeBasedTopologicalRepresentationWithLengthConstraints are defined. The first one
+(_321010) defines the complete harness topology for the H1 example, while the other
+two defines sub-sets of the main one (_323010 for "H1-a" and _323010 for "H1-b");
+see <<fig1>>.
+
+[%unnumbered]
+[source,xml]
+----
+<RepresentationContext xsi:type="n0:GeometricCoordinateSpace" uid="_321000">
+  <Id id="H1.x Harness topology context"/>
+  <Units>
+    <Unit uidRef="_100301"/>
+  </Units>
+  <Representations>
+    <Representation
+xsi:type="n0:EdgeBasedTopologicalRepresentationWithLengthConstraint" uid="_321010">
+      <Id id="Topological representation of H1 harness"/>
+      <Items>
+        ... References to RepresentationItems
+      </Items>
+      <Representation
+xsi:type="n0:EdgeBasedTopologicalRepresentationWithLengthConstraint" uid="_323010">
+        <Id id="SubRep H1.b"/>
+        <Items>
+        ... References to RepresentationItems
+        </Items>
+        </Representation>
+      </Representations>
+      <Items>
+      ... Definitions of RepresentationItems
+      </Items>
+    <DimensionCount>1</DimensionCount>
+  </RepresentationContext>
+
+  <Unit uid="_100301">
+  <Name><ClassString>metre</ClassString></Name>
+  <Quantity><ClassString>length</ClassString></Quantity>
+</Unit>
+----
+
+Example of some topological representation items that are contained within
+_RepresentationContext/Items_:
+
+The _ConnectedEdgeSet_ _321020 consists of five __Edges__ that are referenced. One of
+them is "_321023" that is has the specific subtype __EdgeBoundedCurveWithLength__ and
+that is given the name S3. The underlying geometry of this edge is defined by the
+curve "_341023" with the specific subtype __BoundedCurveWithLength__ with a length of
+2.0 m. The __EdgeBoundedCurveWithLength__ is an edge between two vertices. One of them
+(the __EdgeEnd__) is "_321043" that is of the specific subtype VertexPoint and that
+references for its geometry the Point "_341043".
+
+The Path "_321065" consists of the two edges ("_321022" and "_321023"). The
+OrientationList contains the values TRUE and FALSE. This means that the first edge
+is followed as defined (from EdgeStart to EdgeEnd), while the second edge is
+followed in inverse order (EdgeEnd to EdgeStart). Consequently the path starts with
+the EdgeStart of the first edge and ends with the EdgeStart of the second edge.
+
+[%unnumbered]
+[source,xml]
+----
+<RepresentationItem xsi:type="n0:ConnectedEdgeSet" uid="_321020">
+  <ConnectedEdges>
+    <Edge uidRef="_321021"/>
+    <Edge uidRef="_321022"/>
+    <Edge uidRef="_321023"/>
+    <Edge uidRef="_321024"/>
+    <Edge uidRef="_321025"/>
+  </ConnectedEdges>
+</RepresentationItem>
+<RepresentationItem xsi:type="n0:EdgeBoundedCurveWithLength " uid="_321023">
+  <Name> <CharacterString>S3</CharacterString> </Name>
+  <EdgeEnd uidRef="_321043"/>
+  <EdgeStart uidRef="_321044"/>
+  <EdgeGeometry uidRef="_341023"/>
+  <SameSense>true</SameSense>
+</RepresentationItem>
+<RepresentationItem xsi:type="n0:BoundedCurveWithLength " uid="_341023">
+  <CurveLength>2.0</CurveLength>
+</RepresentationItem>
+...
+<RepresentationItem xsi:type="n0:VertexPoint" uid="_321043">
+  <Name> <CharacterString>N3</CharacterString> </Name>
+  <VertexGeometry uidRef="_341043"/>
+</RepresentationItem>
+<RepresentationItem xsi:type="n0:Point" uid="_341043"/>
+...
+<RepresentationItem xsi:type="n0:Path" uid="_321065">
+  <Name> <CharacterString>S2-S3</CharacterString> </Name>
+  <EdgeList>
+    <Edge uidRef="_321022"/>
+    <Edge uidRef="_321023"/>
+  </EdgeList>
+  <OrientationList>
+    <Boolean>true</Boolean>
+    <Boolean>false</Boolean>
+  </OrientationList>
+</RepresentationItem>
+----
+
+Example of sub-topological elements for the main topological elements defined above:
+The VertexOnEdge _321051 with the name X1 is defined on the Edge _321023 (S3) at a
+distance of 0.8 m from Vertex _321044 (N4). The SubEdge _321035 (S3-2) is defined on
+_321023 (S3) between the start vertex _321051 (X1) and the end vertex _321044 (N4).
+Another SubEdge _321034 (S3-1) is defined on the same parent edge between the start
+vertex _321051 (X1) and the end vertex _321043 (N3). Because the main edge S3 is 2.0
+m long, a receiving system can deduce that the length of the S3-1 SubEdge is 1.2 m.
+The ConnectedEdgeSubSet defines a sub-set of Edges from the parent _321020 and
+contains the main edge _321022 (S2), the sub-edge _321034 (S-1) and others.
+
+[%unnumbered]
+[source,xml]
+----
+<RepresentationItem xsi:type="n0:ConnectedEdgeSubSet" uid="_322020">
+  <ConnectedEdges>
+    <Edge uidRef="_321021"/> <!-- S1 -->
+    <Edge uidRef="_321022"/> <!-- S2 -->
+    <Edge uidRef="_321034"/> <!-- S3-a -->
+  </ConnectedEdges>
+  <ParentEdgeSet uidRef="_321020"/>
+</RepresentationItem>
+
+<RepresentationItem xsi:type="n0:SubEdge" uid="_321034">
+  <Name> <CharacterString>S3-1</CharacterString> </Name>
+  <EdgeEnd uidRef="_321043"/>
+  <EdgeStart uidRef="_321051"/>
+  <ParentEdge uidRef="_c"/>
+</RepresentationItem>
+
+<RepresentationItem xsi:type="n0:VertexPoint" uid="_321051">
+  <Name> <CharacterString>X1</CharacterString> </Name>
+  <VertexGeometry uidRef="_341051"/>
+</RepresentationItem>
+<RepresentationItem xsi:type="n0:PointOnCurve" uid="_341051">
+  <BasicCurve uidRef="_341023"/>
+  <Parameter>0.8</Parameter>
+</RepresentationItem>
+----
+
+[[cls-14.3]]
+=== Direction control of Edges and Paths
+
+Both, Edges and Paths have a dedicated direction. For an Edge the direction is
+defined from the EdgeStart to the EdgeEnd. For a Path the direction is defined from
+one of the Vertices of the first Edge to one of the Vertices of the last Edge:
+
+* If for the first Edge the OrientationList is TRUE, then the Path starts with its
+EdgeStart, otherwise with its EdgeEnd.
+* If for the last Edge the OrientationList is TRUE, then the Path ends with its
+EdgeEnd, otherwise with its EdgeStart.
+
+Two consecutive Edges in a Path must share a common VertexPoint. On whether this the
+EdgeStart or the EdgeEnd of these Edges depends on the corresponding values in the
+OrientationList:
+
+* If the preceding Edge has an OrientationList value of TRUE, its EdgeEnd is used;
+otherwise its EdgeStart.
+* If the succeeding Edge has an OrientationList value of TRUE, its EdgeStart is
+used; otherwise its EdgeEnd.
+
+The following figure shows an example of a _Path_ consisting of 3 _Edges_ of type
+_EdgeBoundesCurveWithLength_:
+
+[[fig24]]
+.Example of Edge and Path directions
+image::img24.png[]
+
+For the purpose of electrical wire harness the chosen directions of singleEdges and
+Paths don't matter. However the chosen directions of all the Edges and Paths must be
+consistent with each other.
+
+[[cls-14.4]]
+=== External References for Geometry
+
+As the AP242 DomainModel and its XML encoding do not support detailed geometric
+representations there is a need to reference traditional STEP files in p21 format
+that contain the needed geometry. The reference from the DomainModel XML file to the
+p21 file and then to specific entity instances in that files requires a sequence of
+steps.
+
+. a _FormatProperty_ defines the _DataFormat_ of the external file, e.g. one that is
+defined by "AP 10303-214".
+. a _DigitalFile_ identifies the external file. If refers to the _FormatProperty_ so
+that the type of external file is known on the XML level. With _FileLocations_ the
+information where to find the file can be provided. Attribute _SourceId_ of
+_FileLocationIdentification_ is used for the file name.
+. _ExternalGeometricModel_, that is a wrapper on the XML level for an external
+geometry model, refers to the _DigtialFile_ that contains the geometric model.
+. In the case that the external file contains more than one external geometric
+model, it is essential to specify which one. This is done through the attribute
+_ExternalItem_.
+. In the case that the external file is a STEP p21 file, _ExternalItem_ shall be of
+type _ExternalEntityInstance_ with the _Id_ attribute specifying either the local
+instance ID that is used in the data section of the p21 file (e.g. "#1234") or the
+external anchor name that can be provided in the anchor section of a p21 file
+(available from edition 3 on).
+. an _ExternalGeometryModel_ contain one or more _RepresentationItems_, some of
+which might be _ExternalRepresentationItems_. This can be use to replicate entity
+instances of an external p21 file on the XML level so that they can be references by
+other XML elements.
+. There are cases when it is not sufficient to just reference a particular entity
+instance in a p21 file but there is a need to follow a chain of entity instances
+that provide essential context information. This can be done by
+_NextInstanceForward_ and _NextInstanceInverse_. Both specify the _AttributeName_ to
+follow and the NextInstance in the chain of instances. For _NextInstanceForward_,
+_AttributeName_ specified an attribute of the current instance, while for
+_NextInstanceInverse_, _AttributeName_ specifies an attribute of the _NextInstance_.
+
+[CAUTION,type=""]
+====
+There had been a change from AP242 edition 1 to edition 2 on the attributes of
+_DigitalFile_. With edition 2 the attribute _FileLocation_ was added (in green
+colour), replacing the attribute _Locations_ (red colour) from edition 1. For an XML
+file generated according to AP242 edition 2, the _Locations_ attribute must not be
+used.
+====
+
+[[fig25]]
+.Referencing into External Models
+image::img25.png[]
+
+[[cls-14.4.1]]
+==== External References to geometry files (as a whole)
+
+For an explanation and example on how to use an _ExternalGeometricModel_ to
+reference into a _DigitalFile_ as a whole see the Recommended Practices for "Product
+& Assembly Structure".
+
+[[cls-14.4.2]]
+==== Example of External Element References into p21 file
+
+For the purpose of electrical wire harness it is often essential to not only
+reference an external file that but also to reference to specific elements of an
+external file. This clause provides an example of how to reference an external STEP
+file and within this file reference to 3 specific entity instances, one that is a
+_representation_ and two __representation_items__.
+
+Extract taken from HarnessExample_Flat.xml:
+
+. _FileFormat_ "_100300" defines a file type according to the "ISO 10303-214"
+standard.
+. _DigitalFile_ "_103080" references this FileFormat and defines the __SourceId__
+"c-51864-1-af-3d.stp" as the name of the STEP file. It is assumed that this STEP
+file contains only a single __Representation__.
+. _GeometricCoordinateSpace_ "_103091" contains a single __Representation__ of type
+__ExternalAdvancedBrepShapeRepresentation__ that specified as its external file the
+__DigitalFile__ (see above). As the file may contain several representation instances,
+the exact one is specified by __ExternalItem__.
+. The _ExternalAdvancedBrepShapeRepresentation_ contains 3 _RepresentationItems_.
+two of which are of type _ExternalRepresentationItem_ and references to some
+_ExternalEntityInstance_ in the digital file. The third one is an _AxisPlacement_
+that is needed for positioning inside the XML file.
+. A PartView of some Part/PartVersion specifies the above
+_ExternalAdvancedBrepShapeRepresentation_ as its RepresentedGeometry..
+. The _PartView_ contains two _ShapeElements_ (here of type _PartTerminals_) that
+defines the above _ExternalRepresentationItems_ as their RepresentedGeometry
+respectively.
+
+Through this chain of references the two ShapeElements are linked to two specific
+RepresentationItems in the external GeometryModel.
+
+[%unnumbered]
+[source,xml]
+----
+<FormatProperty uid="_100300">
+  <DataFormat>
+    <ClassString>ISO 10303-214</ClassString>
+  </DataFormat>
+</FormatProperty>
+...
+<!-- terminal lug geometric representation-->
+<File xsi:type="n0:DigitalFile" uid="_103080">
+  <FileFormat uidRef="_100300"/>
+  <FileLocations>
+    <FileLocationIdentification uid="_103081">
+      <SourceId>c-51864-1-af-3d.stp</SourceId>
+      <SourceType>file</SourceType>
+    </FileLocationIdentification>
+  </FileLocations>
+</File>
+
+<!--Geometry for terminal lug-->
+<RepresentationContext xsi:type="n0:GeometricCoordinateSpace" uid="_103091">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation
+xsi:type="n0:ExternalAdvancedBrepShapeRepresentation" uid="_103090">
+      <Id id="c-51864-1-af-3d.stp"/>
+      <Items>
+        <RepresentationItem uidRef="_103092"/>
+        <RepresentationItem uidRef="_103094"/>
+      </Items>
+      <ExternalFile uidRef="_103080"/>
+      <ExternalItem xsi:type="n0:ExternalEntityInstance" uid="_103099">
+        <Id id="#999"/>
+      </ExternalItem>
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem xsi:type="n0:ExternalRepresentationItem" uid="_103092">
+      <External xsi:type="n0:ExternalEntityInstance" uid="_103093">
+        <Id id="#521"/>
+      </External>
+    </RepresentationItem>
+    <RepresentationItem xsi:type="n0:ExternalRepresentationItem" uid="_103094">
+      <External xsi:type="n0:ExternalEntityInstance" uid="_103095">
+        <Id id="#940"/>
+      </External>
+    </RepresentationItem>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="_103096">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+...
+<Part uid="_103000">
+  ...
+  <Versions>
+    <PartVersion uid="_103001">
+      <Id id="Version 1"/>
+      <Views>
+        <PartView uid="_103002">
+          ...
+          <DefiningGeometry uidRef="_103090"/>
+          ...
+          <ShapeElement xsi:type="n0:PartTerminal" uid="_103003">
+            ...
+            <RepresentedGeometry uidRef="_103092"/>
+            ...
+          </ShapeElement>
+          <ShapeElement xsi:type="n0:PartTerminal" uid="_103004">
+            ...
+            <RepresentedGeometry uidRef="_103094"/>
+            ...
+          </ShapeElement>
+          ...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[cls-14.4.3]]
+==== External Element Reference: chain of instances
+
+TODO: TBD in a later edition

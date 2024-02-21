@@ -1,0 +1,334 @@
+== Test Rounds
+
+There are two test rounds per year in each domain, so each campaign is about six
+months in duration. The test rounds usually begin and end in March and October for
+the CAx and EWIS domains, and June and December respectively for the PDM and CAE
+domains. In general, a test campaign is:
+
+* A round of distributed testing
+* Followed by a test review meeting. This typically covers:
+** Detailed discussion of the results
+** Discussion of technical and standardization issues
+** Definition of the following round's scope and schedule
+** Joint meeting with users
+** Joint meeting with related project teams
+
+Each test round consists of several individual tests designed to meet / prove out
+requirements identified by the User Groups for STEP interoperability testing. Each
+campaign encompasses:
+
+* Definition of testing scope
+* Development of testing instructions and criteria
+* Selection of test cases
+* Modeling of the test parts
+* Preprocessing
+* Transmission of files and related statistics
+* Checking files for syntax, structure, and semantics
+* Distribution of "checked" files
+* Post-processing
+* Transmission of results for comparison
+* Discussion of issues
+* Conclusions and definition of nest steps
+
+An overview of an arbitrary test round is as follows:
+
+[[fig3]]
+.Schematic course of an MBx-IF Test Round
+image::img03.png[]
+
+=== Prerequisites for Participation
+
+Several prerequisites have to be met before an MBx vendor can participate in the
+Implementor Forum. They are:
+
+* The vendor must have a relatively mature STEP translator for either AP209 Edition 2
+or a recent version of AP242, and be able to:
+** post-process a test suite of representative STEP files successfully
+** provide STEP files which pass syntax, structure, and semantic checking
+* The vendor must sign a non-disclosure agreement with AFNeT, PDES, Inc. or prostep
+ivip
+* The vendor must agree to actively participate in the testing, which includes:
+** Pre- and post-processing test cases
+** Participating in conference calls
+** Identifying and discussing issues
+** Attending the meetings at the culmination of a round of testing
+
+=== File Naming Conventions
+
+==== For STEP Files
+
+To ensure proper configuration management of the test files, the following naming
+conventions are to be used for the STEP files from each vendor:
+
+*ccc-xx-yyy.stp*::
++
+--
+ccc = test case identifier per testing instructions +
+xx = vendor code of creating system +
+yyy = 209 or 242
+--
+
+So, for instance for the submitted STEP file from Autodesk Inventor for the solid
+assembly test case AS1 conforming to AP242, the proper file name would be:
+
+[align=center]
+*as1-in-242.stp*
+
+Either the "*.stp" or "*.step" file extensions are permissible, but "*.stp" is
+recommended.
+
+==== For native and target Models
+
+Native and target models (i.e., models in the native format of the target system
+importing a STEP file) need to be exchanged to enable data transfer quality
+validation. Since many CAx systems automatically generate the file names from the id
+of the contained models, no naming convention for the models themselves is given. It
+is however recommended to rename the files (if possible) so that it becomes clear
+from the file name which system generated the model on the basis of what STEP file.
+
+However, it is recommended to ZIP the model files before submitting them. The naming
+convention for these ZIP files is:
+
+*ccc-nnn-ttt.zip*::
++
+--
+ccc = test case identifier per testing instructions +
+nnn = vendor code of the system that created the models +
+ttt = use 'nat' for native models, 'tgt' for target models.
+--
+
+As an example, the target models for the Production Models imported into Dassault
+Systèmes CATIA V5 would be contained in the archive named:
+
+[align=center]
+*pm14-c5-tgt.zip*
+
+NOTE: For Unix based systems it is allowed to submit *.tgt.gz formatted archives
+instead of *.zip.
+
+==== For any other files
+
+Since the introduction of CAESAR (see <<sec-4.1>>), it is no longer necessary to
+provide statistics (either native or target), or screenshots, to the facilitators,
+since these can be uploaded directly to the web database. If any files are submitted
+for additional information, the following naming convention is suggested:
+
+*ccc-nnn-ttt.ext*::
++
+--
+ccc = test case identifier per testing instructions +
+nnn = vendor code of the system that created the native model / STEP file +
+ttt = 'nat' for native models, 'tgt' for target models, or target system's code +
+ext = extension according to file type
+--
+
+So, for instance for a PNG-formatted screenshot showing the import of a PTC Creo
+production model into Datakit's CrossCad for SolidWorks, the proper file name would be:
+
+[align=center]
+*pm20-cr-dw.png*
+
+Screenshots uploaded to CAESAR will automatically follow this naming convention.
+
+=== Vendor Codes
+
+For the vendor codes used in the file naming conventions and further documentation,
+the following two letter designations shall be used:
+
+[%unnumbered,options=header,cols=3]
+|===
+| Code | System | Vendor
+h| 3de | 3D_Evolution | CT CoreTechnologie
+h| c3e | 3DExperience | Dassault Systèmes
+h| c5 | CATIA V5 | Dassault Systèmes
+h| cr | Creo | PTC
+h| ct5 | CATIA V5 | CT CoreTechnologie
+h| cto | Creo | CT CoreTechnologie
+h| ctx | NX | CT CoreTechnologie
+h| d5 | CrossCad (CATIA V5) | Datakit
+h| dc | CrossCad | Datakit
+h| di | CrossCad (Inventor) | Datakit
+h| do | CrossCad (Creo) | Datakit
+h| dw | CrossCad (SolidWorks) | Datakit
+h| dx | CrossCad (NX) | Datakit
+h| e5 | 3DxSuite (CATIA V5) | Elysium
+h| ec | CadDoctor | Elysium
+h| eo | 3DxSuite (Creo) | Elysium
+h| ew | 3DxSuite (SolidWorks) | Elysium
+h| ex | 3DxSuite (NX) | Elysium
+h| h3 | HOOPS 3D Exchange | TechSoft 3D
+h| h5 | HOOPS 3D (CATIA V5) | TechSoft 3D
+h| hc | HOOPS 3D (Creo) | TechSoft 3D
+h| hx | HOOPS 3D (NX) | TechSoft 3D
+h| i5 | CADfix (CATIA V5) | ITI Global
+h| ic | CADfix (Creo) | ITI Global
+h| id | NX I-DEAS | Siemens PLM Software
+h| if | CADfix | ITI Global
+h| ii | CADfix (Inventor) | ITI Global
+h| in | Inventor | Autodesk
+h| iw | CADfix (SolidWorks) | ITI Global
+h| ix | CADfix (NX) | ITI Global
+h| k3d | 3D Framework | Kubotek Kosmos
+h| k5 | CATIA V5 | Kubotek Kosmos
+h| nx | NX | Siemens PLM Software
+h| oc | CrossCad (OpenCascade) | Datakit
+h| osv | Open STEP Viewer | Open Design Alliance
+h| pdm | PDM-IF | prostep ivip
+h| s5 | COMFOX (CATIA V5) | T-Systems
+h| se | SolidEdge | Siemens PLM Software
+h| stp | STEP | ISO 10303
+h| sw | SolidWorks | Dassault Systèmes
+|===
+
+*[underline]#Please note#* that for historic reasons,
+
+* Siemens NX is occasionally listed as "UG" or "Unigraphics"
+* PTC Creo is occasionally still referred to as "Pro/E" or "Pro/Engineer"
+
+*Deprecated Codes*
+
+The following vendor codes are no longer used, but appear in earlier CAx-IF statistics:
+
+[%unnumbered,options=header]
+|===
+| Code | System | Vendor
+h| a3 | Acrobat 3D | Adobe
+h| a5 | Acrobat 3D (CATIA V5) | Adobe
+h| ac | AutoCAD | Autodesk
+h| al | AliasStudio | Autodesk
+h| ap | Acrobat 3D (Pro/E) | Adobe
+h| au | Acrobat 3D (NX) | Adobe
+h| c4 | CATIA V4 | Dassault Systèmes
+h| cm | CoCreate Modeling | PTC
+h| dp | CrossCad (Pro/Engineer) | Dataki
+h| eb | _(for AP209 testing)_ | Electric Boat
+h| fs | FiberSim | Vistagy
+h| i4 | CADfix (CATIA V4) | ITI Global
+h| ip | CADfix (Pro/Engineer) | ITI Global
+h| jn | NASTRAN | Jotne EPM
+h| jo | openSimDM | Jotne EPM
+h| kc | KeyCreator | Kubotek
+h| kr | REALyze | Kubotek
+h| lk | IDA-STEP | LKSoft
+h| mm | MiCAT Planner | Mitutoyo
+h| mp | PATRAN | MSC
+h| nas | NASTRAN | MSC
+h| pc | CADDS | PTC
+h| pe | Pro/Engineer | PTC
+h| s4 | COM/STEP (CATIA V4) | T-Systems
+h| t4 | Cadverter (CATIA V4) | Theorem Solutions
+h| tc | Cadverter (CADDS) | Theorem Solutions
+h| tp | Cadverter (Pro/Engineer) | Theorem Solutions
+h| tx | Cadverter (NX) | Theorem Solutions
+|===
+
+[[sec-2.4]]
+=== Checking of STEP Files for Syntax and Structure
+
+==== MIM Part 21 Files
+
+STEP files from the various vendors will be checked for syntax and structure by the
+MBx-IF facilitators in close cooperation with NIST.
+
+Validation of the files relative to the respective Recommended Practices will be done
+by the facilitators as required, using the NIST STEP File Analyzer and Viewer (SFA)
+as well as by performing extended manual checks. SFA is publicly available at:
+
+https://www.nist.gov/services-resources/software/step-file-analyzer-and-viewer
+
+It is recommended that all participants run their files through SFA before submitting
+them for testing. Files with significant syntax errors reported by SFA will not be
+accepted for testing.
+
+==== Domain Model XML Files
+
+For Domain Model XML files, basic conformance checking can be done with generally
+available XML tools, e.g., Altova XML Spy, to ensure the files conform with the
+underlying XSD Schema.
+
+In addition, Schematron is used to perform extended checks similar to SFA for Part 21
+files, with additional rules that check for patterns defined in the Recommended
+Practices. At the moment, these checks are run by the MBx-IF facilitators and
+detailed feedback is provided. It is planned to make the Schematron application
+available to all vendors so they can check their files themselves.
+
+=== File Transmission
+
+==== Distribution and Confidentiality of Test Models
+
+[IMPORTANT]
+====
+Many aspects of the MBx Interoperability Forum are closed to the outside world. This
+means that all information including test models (native and STEP), results, and
+issues, remain within the group and shall not be used for any other purpose than
+MBx-IF testing. Adhering to this rule on the one hand allows the members of the group
+to openly discuss their findings in order to help to advance their development
+activities, and on the other hand enables user companies to provide test models which
+may contain intellectual property in a way that ensures that access to this data is
+strictly limited. All detailed information will be handled within member-only parts
+of the MBx-IF Infrastructure (see <<sec-4>>).
+====
+
+Exceptions to this rule are screenshots, management summary presentations as are
+provided during the MBx-IF User/Vendor Roundtable, recommended practices, and
+synthetic STEP files the group agrees on publishing in the public area of the CAx-IF
+web site.
+
+Also, there are joint activities with other project on certain topics, e.g., LOTAR
+pilots, or cooperation on joint AP242 XML use cases with the JT Implementor Forum. In
+these cases, detailed information will be shared with these projects. This will be
+clearly stated in advance.
+
+==== STEP Files
+
+Any STEP files to be tested in a CAx-IF Test Round need to be sent to the testing
+administrators of the respective Implementor Group.
+
+*CAx-IF*:
+
+* Jochen Boy (jochen.bpy@prostep.com)
+* Phil Rosché (phil.rosche@accr-llc.com)
+
+*PDM-IF*:
+
+* Guillaume Hirel (guillaume.hirel@t-systems.com)
+* Kevin Le Tutour (kevin.letutour@afnet-services.fr)
+
+*EWIS-IF*:
+
+* Lothar Klein (lothar.klein@lksoft.com)
+
+The files will be run through the syntax and structure checks by the facilitators to
+confirm the correctness of the file (see <<sec-2.4>>). In case there are issues with the
+files, the testing administrators will get in touch with the originating vendor.
+
+Once all files for a test round are submitted and checked, they will be distributed
+for testing.
+
+==== Native and target Statistics
+
+For each test case, a set of statistics to validate the success of the exchange will
+be defined in the corresponding test suite document. There are two types of statistics:
+
+* *native statistics* are calculated in the native system. They are submitted along
+with the STEP files and state what a consumer of the files can expect to find.
+* *target statistics* are calculated by the target system. They are submitted after
+importing the files and state what was actually found when reading the files.
+
+All statistics are handled by the CAx-IF Evaluation, Statistics And Results (CAESAR)
+system; an online web data base which collects the statistics and renders immediate
+results for the submitted test cases.
+
+The statistics may be entered manually using a web form, or by uploading a .csv file
+(text file with comma-separated values) in the format specified in the test suite
+document. For registration and use of CAESAR, see <<sec-4.1>>.
+
+==== Native and Target Models
+
+The native and target models required for data transfer quality validation will be
+exchanged using the Nextcloud platform as described in <<sec-4.2>>.
+
+[reviewer=Phil Rosche]
+****
+?!?!?!
+****

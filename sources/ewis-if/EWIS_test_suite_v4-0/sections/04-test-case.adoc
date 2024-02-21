@@ -1,0 +1,3026 @@
+[[cls-4]]
+== Test Case Specifications
+
+[[cls-4.1]]
+=== EWH-Assembly1
+
+This test case focuses on a very basic flat assembly structures as it might show up
+in EWH. This test does not address connectivity or topological information. This test
+is an extension of the typical assembly structure as provided in the document
+"Recommended Practices for AP242 Business Object Model XML Assembly Structure".
+
+The following elements are tested:
+
+* Part with PartCategories: discrete_part, raw_material_by_length, wire, cable,
+connector, lug
+* WiringHarnessAssemblyDesign that is a subtype of AssemblyDefinition
+* specific kinds of Part Occurrences: SingleOccurrence, QuantifiedOccurrence,
+Wire-Occurrence, CableOccurrence
+
+[[fig1]]
+.EWH-Assembly1
+image::img01.png[]
+
+Formal test-case specification:
+
+[source%unnumbered]
+----
+Test EWH-Assembly1 (
+
+@4:ViewContext;
+@5:ViewContext;
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@100:Part( PartTypes[i]=PartCategoryEnum(connector), PartTypes[i]=PartCategoryEnum(
+discrete) );
+@101:PartVersion;
+@102:PartView;
+Part_with_Name_and_PartView( @100, "Connector-A", @101, @102, @4);
+@111:SingleOccurrence( Id=IdentifierString("J1"), Definition=@102 );
+@121:SingleOccurrence( Id=IdentifierString("J2"), Definition=@102 );
+
+@200:Part( PartTypes[i]=PartCategoryEnum(terminal_lug), PartTypes[i]=Part-
+CategoryEnum(discrete) );
+@201:PartVersion;
+@202:PartView;
+Part_with_Name_and_PartView(@200, "Lug-B", @201, @202, @4);
+@211:SingleOccurrence( Id=IdentifierString("J3"), Definition=@202 );
+@221:SingleOccurrence( Id=IdentifierString("J4"), Definition=@202 );
+
+@300:Part( PartTypes[i]=PartCategoryEnum(wire), PartTypes[i]=PartCategoryEnum(
+raw_material_by_length) );
+@301:PartVersion;
+@302:PartView;
+Part_with_Name_and_PartView(@300, "Wire-C", @301, @302, @4);
+@311:WireOccurrence( Id=IdentifierString("W1"), Definition=@302,
+Quantity=@312 );
+@312:NumericalValue( Unit=@8, ValueComponent=3.5 );
+@321:WireOccurrence( Id=IdentifierString("W2"), Definition=@302,
+Quantity=@322 );
+@312:NumericalValue( Unit=@8, ValueComponent=2.7 );
+
+@400:Part( PartTypes[i]=PartCategoryEnum(cable), PartTypes[i]=PartCategoryEnum(
+raw_material_by_length) );
+@401:PartVersion;
+@402:PartView;
+Part_with_Name_and_PartView(@400, "Cable-D", @401, @402, @4);
+@411:CableOccurrence( Id=IdentifierString("W3"), Definition=@402,
+Quantity=@412 );
+@412:NumericalValue( Unit=@8, ValueComponent=1.8 );
+@421:CableOccurrence( Id=IdentifierString("W4"), Definition=@402,
+Quantity=@422 );
+@412:NumericalValue( Unit=@8, ValueComponent=7.2 );
+
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign;
+@9003:ViewContext;
+@9004:ViewContext;
+Part_WiringHarnessAssemblyDesign( @9000,"EWH Test-Case
+Assembly1",@9001,@9002,@9003,@9004 );
+
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@111 );
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@121 );
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@211 );
+@9104:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@221 );
+@9105:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@311 );
+@9106:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@321 );
+@9107:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@411 );
+@9108:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@421 );
+
+sizeof(Part) = 5;
+sizeof(PartVersion) = 5;
+sizeof(PartView) = 4;
+sizeof(WiringHarnessAssemblyDesign) = 1;
+sizeof(NextAssemblyOccurrenceUsage) = 8;
+sizeof(SingleOccurrence) = 4;
+sizeof(WireOccurrence) = 2;
+sizeof(CableOccurrence) = 2;
+
+);
+----
+
+[[cls-4.2]]
+=== EWH-Topology1
+
+This test case focuses on a very basic topological structure needed for EWH without
+any other information. The test consists of a flexible topological/geometric
+representation of the harness, consisting of 6 vertices and 5 edges with length.
+
+[[fig2]]
+.EWH-Topology1
+image::img02.png[]
+
+Formal test-case specification:
+
+[source%unnumbered]
+----
+Test EWH-Topology1 (
+
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign( Topology=@9901 );
+@9003:ViewContext;
+@9004:ViewContext;
+Part_WiringHarnessAssemblyDesign_with_topology(@9000,
+  "EWH Test-Case Topology1",@9001,@9002,@9003,@9004);
+
+@9900:GeometricCoordinateSpace( Units=@8, DimensionCount=1 );
+@9901:EdgeBasedTopologicalRepresentationWithLengthConstraint(
+  Items=(@9902), ContextOfItems=@9900 );
+@9902:ConnectedEdgeSet( ConnectedEdges=(@9931,@9932,@9933,@9934,@9935) );
+
+@9911:Point();
+@9912:Point();
+@9913:Point();
+@9914:Point();
+@9915:Point();
+@9916:Point();
+
+@9921:VertexPoint( name='N1' VertexGeometry=@9911 );
+@9922:VertexPoint( name='N2' VertexGeometry=@9912 );
+@9923:VertexPoint( name='N3' VertexGeometry=@9913 );
+@9924:VertexPoint( name='N4' VertexGeometry=@9914 );
+@9925:VertexPoint( name='N5' VertexGeometry=@9915 );
+@9926:VertexPoint( name='N6' VertexGeometry=@9916 );
+
+@9931:EdgeBoundedCurveWithLength( name='S1', EdgeGeometry=@9941 );
+undirected_edge(@9931, @9921, @9923)
+@9932:EdgeBoundedCurveWithLength( name='S2', EdgeGeometry=@9942 );
+undirected_edge(@9932, @9922, @9923)
+@9933:EdgeBoundedCurveWithLength( name='S3', EdgeGeometry=@9943 );
+undirected_edge(@9933, @9923, @9924);
+@9934:EdgeBoundedCurveWithLength( name='S4', EdgeGeometry=@9944 );
+undirected_edge(@9934, @9924, @9925);
+@9935:EdgeBoundedCurveWithLength( name='S5', EdgeGeometry=@9945 );
+undirected_edge(@9935,@9924,@9926);
+
+@9941:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(2.0) );
+@9942:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(4.0) );
+@9943:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(6.0) );
+@9944:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(8.0) );
+@9945:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(10.0) );
+
+sizeof(Part) = 1;
+sizeof(PartVersion) = 1;
+sizeof(WiringHarnessAssemblyDesign) = 1;
+sizeof(NextAssemblyOccurrenceUsage) = 0;
+
+sizeof(GeometricCoordinateSpace) = 1;
+sizeof(EdgeBasedTopologicalRepresentationWithLengthConstraint) = 1;
+sizeof(ConnectedEdgeSet) = 1;
+sizeof(BoundedCurveWithLength) = 5;
+sizeof(EdgeBoundedCurveWithLength) = 5;
+sizeof(VertexPoint) = 6;
+sizeof(Point) = 6;
+sizeof(CartesianPoint) = 0;
+sizeof(PointOnCurve) = 0;
+
+);
+----
+
+[[fig3]]
+.Example in CATIA
+image::img03.png[]
+
+Provided test files:
+
+AP242ed2 XML: EWH-UseCase-Topology1.xml
+
+Native CATIA: Topology Test1 - Sample CatiaV5 STP.zip
+
+Mentor/Siemens Capital Harness: Topology Test1 - Sample Capital HX2ML.xml
+
+KBL, generated from Capital Harness:
+
+Topology Test1 - Sample Capital KBL_2.3.kbl
+
+Topology Test1 - Sample Capital KBL2.4.kbl
+
+[[cls-4.3]]
+=== EWH-Topology2
+
+This test case is an extension of test case EWH-Topology1 that is merged with a
+simplified EWH-Assembly1 test case.
+
+* the topology model is extended for Paths, SubEdges and PointOnCurves
+** Path P1 traverses the EdgeBoundedCurveWithLength S1, S3, S4
+** Path P2 traverses the EdgeBoundedCurveWithLength S2, S3, S5
+** Path P3 traverses the SubEdges S2.2, S3.1
+** for the definition of the VertexPoints for the SubEdges, two PointOnCurves are
+defined in the middle of the underlying BoundedCurveWithLength
+** it is up to the implementations to ensure that the orientations of the Edges in
+the EdgeList of a Path fits with the orientation of the underlying BoundedCurveWith-
+Length. See the attributes _Path.OrientationList_ and _EdgeCurve.SameSense_ for this
+purpose.
+* the simplified assembly structure consists of
+** a single wire
+** a single cable
+** a protective covering for only a certain region
+* two simple 2-pin connectors and two terminal lugs; one at each extremity of the
+harness topology
+* geometry-to-topology association of
+** wire/cable/protection _Occurrences_ to _Paths_
+** connectors and terminal lug _Occurrences_ to _VertexPoints_
+
+[[fig4]]
+.EWH-Topology2
+image::img04.png[]
+
+Formal test-case specification:
+
+(Draft; not completed yet; references depends on the available p21 files)
+
+[source%unnumbered]
+----
+Test EWH-Topology2 (
+
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@100:Part( PartTypes[i]=PartCategoryEnum(connector),
+           PartTypes[i]=PartCategoryEnum(discrete) );
+@101:PartVersion;
+@102:PartView( DefiningGeometry=@191 );
+Part_with_Name_and_PartView( @100, "Connector-A", @101, @102, @4);
+@111:SingleOccurrence( Id=IdentifierString("J1"), Definition=@102 );
+@121:SingleOccurrence( Id=IdentifierString("J2"), Definition=@102 );
+@190:GeometricCoordinateSpace( DimensionCount=3 );
+@191:GeometricModel( items[i]=@192, ContextOfItems=@190 );
+@192:AxisPlacement;
+
+@200:Part( PartTypes[i]=PartCategoryEnum(terminal_lug),
+           PartTypes[i]=PartCategoryEnum(discrete) );
+@201:PartVersion;
+@202:PartView( DefiningGeometry=@291 );
+Part_with_Name_and_PartView(@200, "Lug-B", @201, @202, @4);
+@211:SingleOccurrence( Id=IdentifierString("J3"), Definition=@202 );
+@221:SingleOccurrence( Id=IdentifierString("J4"), Definition=@202 );
+@290:GeometricCoordinateSpace( DimensionCount=3 );
+@291:GeometricModel( items[i]=@292, ContextOfItems=@290 );
+@292:AxisPlacement;
+
+@300:Part( PartTypes[i]=PartCategoryEnum(wire),
+           PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@301:PartVersion;
+@302:PartView( DefiningGeometry=@391 );
+Part_with_Name_and_PartView(@300, "Wire-C", @301, @302, @4);
+@311:WireOccurrence( Id=IdentifierString("W1"),
+  Definition=@302, Quantity=@312 );
+@312:NumericalValue( Unit=@8, ValueComponent=3.5 );
+@390:GeometricCoordinateSpace( DimensionCount=2 );
+@391:GeometricModel( name='2D cross section',
+  items[i]=@392, ContextOfItems=@390 );
+@392:AxisPlacement; # placeholder for 2D centre
+
+@400:Part( PartTypes[i]=PartCategoryEnum(cable),
+           PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@401:PartVersion;
+@402:PartView( DefiningGeometry=@491 );
+Part_with_Name_and_PartView(@400, "Cable-D", @401, @402, @4);
+@411:CableOccurrence( Id=IdentifierString("W2"), Definition=@402,
+Quantity=@412 );
+@412:NumericalValue( Unit=@8, ValueComponent=1.8 );
+@490:GeometricCoordinateSpace( DimensionCount=2 );
+@491:GeometricModel( name='cross section', items[i]=@492,
+ContextOfItems=@490 );
+@492:AxisPlacement;
+@500:Part( PartTypes[i]=PartCategoryEnum(protective_covering),
+           PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@501:PartVersion;
+@502:PartView( DefiningGeometry=@591 );
+Part_with_Name_and_PartView(@500, "Protection-E", @501, @502, @4);
+@511:QuantifiedOccurrence( Id=IdentifierString("W3"),
+                           Definition=@402, Quantity=@412 );
+@512:NumericalValue( Unit=@8, ValueComponent=1.2 );
+@590:GeometricCoordinateSpace( DimensionCount=2 );
+@591:GeometricModel( name='cross section',
+                     items[i]=@592, ContextOfItems=@590 );
+@592:AxisPlacement;
+
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign( Topology=@9901 );
+@9003:ViewContext;
+@9004:ViewContext;
+Part_WiringHarnessAssemblyDesign_with_topology(@9000,
+  "EWH Test-Case Topology2",@9001,@9002,@9003,@9004);
+
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@111,
+                                   Placement=(@9111) ); # connector J1
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@121,
+                                   Placement=(@9112) ); # connector J2
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@211,
+                                   Placement=(@9113) ); # terminal lug J3
+@9104:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@221,
+                                   Placement=(@9114) ); # terminal lug J4
+@9105:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@311,
+                                   Placement=(@9115 ) ); # wire W1
+@9106:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@411,
+                                   Placement=(@9116 ) ); # cable W2
+@9107:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@511,
+                                   Placement=(@9117 ) ); # protection W3
+
+@9111:GeometryToTopologyModelAssociation (
+  Relating=@9901, Related=@191, Origin=@192, Target=@9921); # connector J1
+@9112:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@191, Origin=@192, Target=@9925); # connector J2
+@9113:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@291, Origin=@292, Target=@9922); # terminal lug
+J3
+@9114:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@291, Origin=@292, Target=@9926); # terminal lug
+J4
+@9115:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@391, Origin=@392, Target=@9952); # wire W1
+@9116:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@491, Origin=@492, Target=@9951); # cable W2
+@9117:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@591, Origin=@493, Target=@9953); # protection W3
+@9900:GeometricCoordinateSpace( Units=@8, DimensionCount=1 );
+@9901:EdgeBasedTopologicalRepresentationWithLengthConstraint(
+  Items=(@9902,@9951,@9952,@9953), # the ConnectedEdgeSet + paths
+  ContextOfItems=@9900 );
+@9902:ConnectedEdgeSet( ConnectedEdges=(@9931,@9932,@9933,@9934,@9935) );
+  # only main edges, not sub-edges
+
+@9911:Point();
+@9912:Point();
+@9913:Point();
+@9914:Point();
+@9915:Point();
+@9916:Point();
+@9917:PointOnCurve( BasicCurve=@9942, Parameter=2.0 );
+  # in the middle of the basic curve
+@9918:PointOnCurve( BasicCurve=@9943, Parameter=3.0 );
+  # in the middle of the basic curve
+
+@9921:VertexPoint( name='N1', VertexGeometry=@9911 );
+@9922:VertexPoint( name='N2', VertexGeometry=@9912 );
+@9923:VertexPoint( name='N3', VertexGeometry=@9913 );
+@9924:VertexPoint( name='N4', VertexGeometry=@9914 );
+@9925:VertexPoint( name='N5', VertexGeometry=@9915 );
+@9926:VertexPoint( name='N6', VertexGeometry=@9916 );
+@9927:VertexPoint( name='N7', VertexGeometry=@9917 );
+@9928:VertexPoint( name='N8', VertexGeometry=@9918 );
+
+@9931:EdgeBoundedCurveWithLength( name='S1', EdgeGeometry=@9941 );
+undirected_edge(@9931, @9921, @9923)
+@9932:EdgeBoundedCurveWithLength( name='S2', EdgeGeometry=@9942 );
+undirected_edge(@9932, @9922, @9923)
+@9933:EdgeBoundedCurveWithLength( name='S3', EdgeGeometry=@9943 );
+undirected_edge(@9933, @9923, @9924);
+@9934:EdgeBoundedCurveWithLength( name='S4', EdgeGeometry=@9944 );
+undirected_edge(@9934, @9924, @9925);
+@9935:EdgeBoundedCurveWithLength( name='S5', EdgeGeometry=@9945 );
+undirected_edge(@9935,@9924,@9926);
+@9936:SubEdge( name='S2.2', ParentEdge=@9932 );
+undirected_edge(@9936,@9927,@9923);
+@9937:SubEdge( name='S3.1', ParentEdge=@9933);
+undirected_edge(@9937,@9923,@9928);
+
+@9941:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(2.0) );
+  # for S1
+@9942:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(4.0) );
+  # for S2
+@9943:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(6.0) );
+  # for S3
+@9944:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(8.0) );
+  # for S4
+@9945:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(10.0) );
+  # for S5
+
+# vendors to ensure that the edge are oriented in correct way
+@9951:Path( name="P1", EdgeList=(@9931,@9933,@9934) ); # S1+S3+S4
+@9952:Path( name="P2", EdgeList=(@9932,@9933,@9935) ); # S2+S3+S5
+@9953:Path( name="P3", EdgeList=(@9936,@9937) );       # S2.2+S3.1
+
+sizeof(Part) = 6;
+sizeof(PartVersion) = 6;
+sizeof(PartView) = 5;
+sizeof(WiringHarnessAssemblyDesign) = 1;
+sizeof(NextAssemblyOccurrenceUsage) = 7;
+sizeof(SingleOccurrence) = 4;
+sizeof(WireOccurrence) = 1;
+sizeof(CableOccurrence) = 1;
+
+sizeof(GeometricCoordinateSpace) = 1;
+sizeof(EdgeBasedTopologicalRepresentationWithLengthConstraint) = 1;
+sizeof(ConnectedEdgeSet) = 1;
+sizeof(BoundedCurveWithLength) = 5;
+sizeof(EdgeBoundedCurveWithLength) = 5;
+sizeof(VertexPoint) = 8;
+sizeof(Point) = 6;
+sizeof(CartesianPoint) = 0;
+sizeof(PointOnCurve) = 2;
+sizeof(SubEdge) = 2;
+sizeof(Path) = 3;
+
+);
+----
+
+[[cls-4.4]]
+=== EWH-Topology3
+
+This test case is an extension of the content in EWH-Topology2 for:
+
+* external references into p21 files:
+** complete p21 files for discrete parts "Connector-A" and "Lug-B"
+** element reference into p21 file for centre-curves and axis-placements
+* topology-to-geometry association
+
+This test case is likely to be refined later on as the topic of XML "external element
+references" is new to the community of STEP implementers, and there are no final
+recommended practices yet for this area (need common work with CAX-IF and PDM-IF). So
+even if only a subset of the below gets implemented would already be a success.
+
+Formal test-case specification:
+
+[source%unnumbered]
+----
+Test EWH-Topology3 (
+
+@9:FormatProperty( DataFormat="ISO 10303-242", CharacterCode="ISO 8859-
+1" );
+
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@100:Part( PartTypes[i]=PartCategoryEnum(connector),
+           PartTypes[i]=PartCategoryEnum(discrete) );
+@101:PartVersion;
+@102:PartView( DefiningGeometry=@191 );
+Part_with_Name_and_PartView( @100, "Connector-A", @101, @102, @4);
+@111:SingleOccurrence( Id=IdentifierString("J1"), Definition=@102 );
+@121:SingleOccurrence( Id=IdentifierString("J2"), Definition=@102 );
+@190:GeometricCoordinateSpace( DimensionCount=3, Items=(@192) );
+@191:ExternalGeometricModel( items=(@192), ContextOfItems=@190,
+       ExternalFile=@193 ); # was GeometricModel in EWH-Topology2
+@192:AxisPlacement( Position=(0.0, 0.0, 0.0) ); # Axis and RefDirection defaults
+  # alternatively use ExternalRepresentationItem to select placement in p21
+file
+@193:DigitalFile( FileLocations=@194, FileFormat=@9, exists(Id) ); #
+id=file name
+
+@200:Part( PartTypes[i]=PartCategoryEnum(terminal_lug),
+           PartTypes[i]=PartCategoryEnum(discrete) );
+@201:PartVersion;
+@202:PartView( DefiningGeometry=@291 );
+Part_with_Name_and_PartView(@200, "Lug-B", @201, @202, @4);
+@211:SingleOccurrence( Id=IdentifierString("J3"), Definition=@202 );
+@221:SingleOccurrence( Id=IdentifierString("J4"), Definition=@202 );
+@290:GeometricCoordinateSpace( DimensionCount=3, Items=(@192) );
+@291:ExternalGeometricModel( Items=(@292), ContextOfItems=@290,
+  ExternalFile=@293 ); # was GeometricModel in EWH-Topology2
+@292:AxisPlacement( Position=(0.0, 0.0, 0.0) ); # Axis and RefDirection defaults
+@293:DigitalFile( FileLocations=@294, FileFormat=@9, exists(Id) ); #
+id=file name
+
+@300:Part( PartTypes[i]=PartCategoryEnum(wire),
+           PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@301:PartVersion;
+@302:PartView( DefiningGeometry=@391 );
+Part_with_Name_and_PartView(@300, "Wire-C", @301, @302, @4);
+@311:WireOccurrence( Id=IdentifierString("W1"),
+  Definition=@302, Quantity=@312 );
+@312:NumericalValue( Unit=@8, ValueComponent=3.5 );
+@390:GeometricCoordinateSpace( DimensionCount=2 );
+@391:GeometricModel( name='2D cross section',
+  items[i]=@392, ContextOfItems=@390 );
+@392:AxisPlacement; # placeholder for 2D centre
+
+@400:Part( PartTypes[i]=PartCategoryEnum(cable),
+           PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@401:PartVersion;
+@402:PartView( DefiningGeometry=@491 );
+Part_with_Name_and_PartView(@400, "Cable-D", @401, @402, @4);
+@411:CableOccurrence( Id=IdentifierString("W2"), Definition=@402,
+Quantity=@412 );
+@412:NumericalValue( Unit=@8, ValueComponent=1.8 );
+@490:GeometricCoordinateSpace( DimensionCount=2 );
+@491:GeometricModel( name='cross section', items[i]=@492,
+ContextOfItems=@490 );
+@492:AxisPlacement;
+
+@500:Part( PartTypes[i]=PartCategoryEnum(protective_covering),
+           PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@501:PartVersion;
+@502:PartView( DefiningGeometry=@591 );
+Part_with_Name_and_PartView(@500, "Protection-E", @501, @502, @4);
+@511:QuantifiedOccurrence( Id=IdentifierString("W3"),
+                           Definition=@402, Quantity=@412 );
+@512:NumericalValue( Unit=@8, ValueComponent=1.2 );
+@590:GeometricCoordinateSpace( DimensionCount=2 );
+@591:GeometricModel( name='cross section',
+                     items[i]=@592, ContextOfItems=@590 );
+@592:AxisPlacement;
+
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign(
+  Topology=@9901, DefiningGeometry=@9201 );
+@9003:ViewContext;
+@9004:ViewContext;
+Part_WiringHarnessAssemblyDesign_with_topology(@9000,
+  "EWH Test-Case Topology3",@9001,@9002,@9003,@9004);
+
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@111,
+  Placement=(@9111,@9801) ); # connector J1
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@121,
+  Placement=(@9112,@9802) ); # connector J2
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@211,
+  Placement=(@9113,@9803) ); # terminal lug J3
+@9104:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@221,
+  Placement=(@9114,@9804) ); # terminal lug J4
+@9105:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@311,
+  Placement=(@9115) ); # wire W1
+@9106:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@411,
+  Placement=(@9116) ); # cable W2
+@9107:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@511,
+  Placement=(@9117) ); # protection W3
+
+@9111:GeometryToTopologyModelAssociation (
+  Relating=@9901, Related=@191, Origin=@192, Target=@9921); # connector J1
+@9112:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@191, Origin=@192, Target=@9925); # connector J2
+@9113:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@291, Origin=@292, Target=@9922); # terminal lug
+J3
+@9114:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@291, Origin=@292, Target=@9926); # terminal lug
+J4
+@9115:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@391, Origin=@392, Target=@9952); # wire W1
+@9116:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@491, Origin=@492, Target=@9951); # cable W2
+@9117:GeometryToTopologyRepresentationAssociation(
+  Relating=@9901, Related=@591, Origin=@493, Target=@9953); # protection W3
+
+@9200:GeometricCoordinateSpace( Units=@8, DimensionCount=3 );
+@9201:ComposedGeometricModel( ContextOfItems=@9200;
+Items=(@9211,@9212,@9213,@9214) );
+  # contains the connectors and multi-branchable
+@9211=AxisPlacement; # alternativel ExternalRepresentationItem from p21
+files
+@9212=AxisPlacement;
+@9213=AxisPlacement;
+@9214=AxisPlacement;
+@9801:GeometricRepresentationRelationshipWithPlacementTransformation(
+  origin=@192, target=@9211,
+  relating=@9201, related=@191, Definitional=TRUE ); # connector J1
+@9802:GeometricRepresentationRelationshipWithPlacementTransformation(
+  origin=@192, target=@9212,
+  relating=@9201, related=@191, Definitional=TRUE ); # connector J2
+@9803:GeometricRepresentationRelationshipWithPlacementTransformation(
+  origin=@292, target=@9213,
+  relating=@9201, related=@292, Definitional=TRUE ); # terminal lug J3
+@9804:GeometricRepresentationRelationshipWithPlacementTransformation(
+  origin=@292, target=@9214,
+  relating=@9201, related=@292, Definitional=TRUE ); # terminal lug J4
+@9808:GeometricRepresentationRelationshipWithSameCoordinateSpace(
+  relating=@9201, related=@9211, Definitional=TRUE ); # for stuff in the
+multi-branchable
+
+@9210:DigitalFile( FileFormat=@9, FileFormat=@9, exisit(Id) ); # Id=name of
+p21 file
+@9211:ExternalGeometricModel( items=(@9212,@9213,@9214,@9215),
+  ContextOfItems=@9200, ExternalFile=@9210 ); # multi-branchable
+@9220:AxisPlacement;
+@9221:ExternalRepresentationItem( External=@9231 );
+@9222:ExternalRepresentationItem( External=@9232 );
+@9223:ExternalRepresentationItem( External=@9233 );
+@9224:ExternalRepresentationItem( External=@9234 );
+@9225:ExternalRepresentationItem( External=@9235 );
+@9226:ExternalRepresentationItem( External=@9236 );
+@9227:ExternalRepresentationItem( External=@9237 );
+
+# for the following instance the ID attribute must be set
+# corresponding to an anchor or instance-id in the target p21 file
+@9231:ExternalEntityInstance( exist(Id), Source=@9210 );
+@9232:ExternalEntityInstance( exist(Id), Source=@9210 );
+@9223:ExternalEntityInstance( exist(Id), Source=@9210 );
+@9224:ExternalEntityInstance( exist(Id), Source=@9210 );
+@9225:ExternalEntityInstance( exist(Id), Source=@9210 );
+@9226:ExternalEntityInstance( exist(Id), Source=@9210 ); # curve for S2.2
+@9227:ExternalEntityInstance( exist(Id), Source=@9210 ); # curve for S3.1
+
+# Alternative for @9226 and @9227
+# use PointOnCurve with PARAMETER given in p21 file and
+# construct a new curve in XML to associate to
+@9299:TopologyToGeometryModelAssociation( Relating=@9201, Related=@9901,
+  # order of pairs: connector J1, ... J2, terminal lug J3, ... J4, edges
+S1..S5, S2.2, S3.1
+  # maybe instead of paths we have to map single EdgeBoundedCurveWithLength
+  Origin=(@9921,@9925,@9922,@9926, @9931,@9932,@9933,@9934,@9935,
+@9936,@9937),
+  Target=(@9211,@9212,@9213,@9214, @9221,@9222,@9223,@9224,@9225,
+@9226,@9227) );
+
+@9900:GeometricCoordinateSpace( Units=@8, DimensionCount=1 );
+@9901:EdgeBasedTopologicalRepresentationWithLengthConstraint(
+  Items=(@9902,@9951,@9952,@9953), # the ConnectedEdgeSet + paths
+  ContextOfItems=@9900 );
+@9902:ConnectedEdgeSet( ConnectedEdges=(@9931,@9932,@9933,@9934,@9935) );
+  # only main edges, not sub-edges
+
+@9911:Point();
+@9912:Point();
+@9913:Point();
+@9914:Point();
+@9915:Point();
+@9916:Point();
+@9917:PointOnCurve( BasicCurve=@9942, Parameter=2.0 );
+  # in the middle of the basic curve
+@9918:PointOnCurve( BasicCurve=@9943, Parameter=3.0 );
+  # in the middle of the basic curve
+
+@9921:VertexPoint( name='N1', VertexGeometry=@9911 );
+@9922:VertexPoint( name='N2', VertexGeometry=@9912 );
+@9923:VertexPoint( name='N3', VertexGeometry=@9913 );
+@9924:VertexPoint( name='N4', VertexGeometry=@9914 );
+@9925:VertexPoint( name='N5', VertexGeometry=@9915 );
+@9926:VertexPoint( name='N6', VertexGeometry=@9916 );
+@9927:VertexPoint( name='N7', VertexGeometry=@9917 );
+@9928:VertexPoint( name='N8', VertexGeometry=@9918 );
+
+@9931:EdgeBoundedCurveWithLength( name='S1', EdgeGeometry=@9941 );
+undirected_edge(@9931, @9921, @9923)
+@9932:EdgeBoundedCurveWithLength( name='S2', EdgeGeometry=@9942 );
+undirected_edge(@9932, @9922, @9923)
+@9933:EdgeBoundedCurveWithLength( name='S3', EdgeGeometry=@9943 );
+undirected_edge(@9933, @9923, @9924);
+@9934:EdgeBoundedCurveWithLength( name='S4', EdgeGeometry=@9944 );
+undirected_edge(@9934, @9924, @9925);
+@9935:EdgeBoundedCurveWithLength( name='S5', EdgeGeometry=@9945 );
+undirected_edge(@9935,@9924,@9926);
+@9936:SubEdge( name='S2.2', ParentEdge=@9932 );
+undirected_edge(@9936,@9927,@9923);
+@9937:SubEdge( name='S3.1', ParentEdge=@9933);
+undirected_edge(@9937,@9923,@9928);
+
+@9941:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(2.0) );
+  # for S1
+@9942:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(4.0) );
+  # for S2
+@9943:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(6.0) );
+  # for S3
+@9944:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(8.0) );
+  # for S4
+@9945:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(10.0) );
+  # for S5
+
+# vendors to ensure that the edge are oriented in correct way
+@9951:Path( name="P1", EdgeList=(@9931,@9933,@9934) ); # S1+S3+S4
+@9952:Path( name="P2", EdgeList=(@9932,@9933,@9935) ); # S2+S3+S5
+@9953:Path( name="P3", EdgeList=(@9936,@9937) );       # S2.2+S3.1
+
+);
+----
+
+[[cls-4.5]]
+=== EWH-Connectivity1
+
+This test case consists of a WiringHarnessAssemblyDesign that is composed of
+
+* a terminal lug "LUG01" that is defined by Part "640903-1" with a single terminal "1"
+* a connector "PLUG01" that is defined by Part "RCA123" with terminals "0" and "1"
+* a connector "P-CONN01" that is defined by Part "IMC16-2002X" with terminals "1" and
+"2"
+* a cable "CABLE01" that is defined by Part "9962 009100" with two wires, one black
+and the other white
+* a wire "WIRE01" that is defined by Part "83027 001100"
+* the two connectors are joint to the two ends of the cable.
+* the single wire connects LUG01 with terminal "1" of "PLUG01"
+
+[[fig5]]
+.EWH-Connectivity1
+image::img05.png[]
+
+Formal test-case specification:
+
+[source%unnumbered]
+----
+Test EWH-Connectivity1 (
+@4:ViewContext;
+@5:ViewContext;
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@50:Organization( name="MIL ...??")
+@51:Organization( name="Deutch Company Ltd ...")
+@52:Organization( name="BELDEN company ...")
+@60:Identifier( Id=IdentifierString("Standard RCA connector") )
+
+@70:WireColourBasedIdentificationCode( Id="white" );
+@71:WireColourBasedIdentificationCode( Id="black" );
+
+# Terminal Lug
+@100:Part( PartTypes[i]=PartCategoryEnum(terminal_lug),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@101:PartVersion;
+@102:PartView;
+@103:Identifier( Id=IdentifierString("640903-1"), IdentificationContext=@50
+)
+Part_with_ID_and_PartView(@100, @103, @101, @102, @4);
+@104:PartTerminal( ElementOf=@102, Id="1", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@111:SingleOccurrence( Id=IdentifierString("LUG01"), Definition=@102 );
+@112:OccurrenceTerminal( ElementOf=@111, Definition=@104 );
+
+# Connector with integrated contacts
+@200:Part( PartTypes[i]=PartCategoryEnum(connector), PartTypes[i]=PartCategoryEnum(
+discrete) );
+@201:PartVersion;
+@202:PartView;
+@203:Identifier( Id=IdentifierString("RCA123"), IdentificationContext=@60 )
+Part_with_ID_and_PartView(@200, @203, @201, @202, @4);
+@204:PartTerminal( ElementOf=@202, Id="0", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@205:PartTerminal( ElementOf=@202, Id="1", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@211:SingleOccurrence( Id=IdentifierString("PLUG01"), Definition=@202 );
+  @214:OccurrenceTerminal( ElementOf=@211, Definition=@204 );
+  @215:OccurrenceTerminal( ElementOf=@211, Definition=@205 );
+
+# Simplified model for Deutch connector with direct PartTerminals
+@300:Part( PartTypes[i]=PartCategoryEnum(connector), PartTypes[i]=PartCategoryEnum(
+discrete) );
+@301:PartVersion;
+@302:PartView;
+@303:Identifier( Id=IdentifierString("IMC16-2002X"),
+IdentificationContext=@51 )
+Part_with_ID_and_PartView(@300, @303, @301, @302, @4);
+@306:PartTerminal( ElementOf=@302, Id="1", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@307:PartTerminal( ElementOf=@302, Id="2", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@311:SingleOccurrence( Id=IdentifierString("P-CONN01"), Definition=@302 );
+#316:OccurrenceTerminal( ElementOf=@311, Definition=@306 );
+#317:OccurrenceTerminal( ElementOf=@311, Definition=@307 );
+
+# Cable
+@500:Part( PartTypes[i]=PartCategoryEnum(cable), PartTypes[i]=PartCategoryEnum(
+raw_material_by_length) );
+@501:PartVersion;
+@502:PartView;
+@503:Identifier( Id=IdentifierString("9962 009100"),
+IdentificationContext=@52 )
+Part_with_ID_and_PartView(@500, @503, @501, @502, @4);
+@504:WirePartIdentification( ElementOf=@502, Id="CABLE01-WHT", code=@70 );
+@505:WirePartIdentification( ElementOf=@502, Id="CABLE01-BLK", code=@71 );
+@511:CableOccurrence( Id=IdentifierString("CABLE01"), Definition=@502,
+Quantity=@512 );
+  @512:NumericalValue( Unit=@8, ValueComponent=1.8 );
+  @513:WireOccurrenceIdentification( ElementOf=@511, Id="CABLE01-WHT", Definition=@
+504 );
+  @514:WireOccurrenceIdentification( ElementOf=@511, Id="CABLE01-BLK", Definition=@
+505 );
+  @515:CableOccurrenceTerminalLocationGroup( ElementOf=@511, Name="end
+a" );
+  @521:CableOccurrenceTerminal( ElementOf=@515, AssociatedTransportFeature=@
+513 );
+  @523:CableOccurrenceTerminal( ElementOf=@515, AssociatedTransportFeature=@
+514 );
+  @516:CableOccurrenceTerminalLocationGroup( ElementOf=@511, Name="end
+b" );
+  @522:CableOccurrenceTerminal( ElementOf=@516, AssociatedTransportFeature=@
+513 );
+  @524:CableOccurrenceTerminal( ElementOf=@516, AssociatedTransportFeature=@
+514 );
+
+# Wire
+@600:Part( PartTypes[i]=PartCategoryEnum(wire),
+  PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@601:PartVersion;
+@602:PartView;
+@603:Identifier( Id=IdentifierString("83027 001100"), IdentificationContext=@
+52 )
+Part_with_ID_and_PartView(@600, @603, @601, @602, @4);
+@611:WireOccurrence( Id=IdentifierString("WIRE01"), Definition=@602, Quantity=@
+612 );
+@612:NumericalValue( Unit=@8, ValueComponent=3.5 );
+@613=WireOccurrenceIdentification( ElementOf=@611,
+DomainType="electrical" ... )
+@614=WireOccurrenceTerminal( ElementOf=@611,
+AssociatedTransportFeature=@613,
+  Name="end a" );
+@615=WireOccurrenceTerminal( ElementOf=@611,
+AssociatedTransportFeature=@613,
+  Name="end b" );
+
+# EWH-Assembly
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign;
+@9003:ViewContext;
+Part_WiringHarnessAssemblyDesign( @9000,
+  "EWH Test-Case Connectivity1",@9001,@9002,@9003 );
+
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@111 );
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@211 );
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@311 );
+@9106:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@511 );
+@9107:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@611 );
+
+# connections
+@9210:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9211:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@214 );
+# PLUG01 / 0
+  @9212:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@521 );
+# CABLE01-WHT / end a
+@9220:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9221:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@316 );
+# P-CONN01 / 01
+  @9222:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@522 );
+# CABLE01-WHT / end b
+@9230:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9231:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@215 );
+# PLUG01 / 1
+  @9232:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@523 );
+# CABLE01-BLK / end a
+  @9232:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@614 );
+# WIRE01 / end a
+@9240:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9241:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@317 );
+# P-CONN01 / 02
+  @9242:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@524 );
+# CABLE01-BLK / end a
+@9250:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9251:AssemblyShapeJointItemRelationship( Relating=@9250, Related=@112 );
+# LUG01 / 1
+  @9252:AssemblyShapeJointItemRelationship( Relating=@9250, Related=@615 );
+# WIRE01 / end b
+
+sizeof(Part) = 6;
+sizeof(PartVersion) = 6;
+sizeof(PartView) = 5;
+sizeof(WiringHarnessAssemblyDesign) = 1;
+sizeof(NextAssemblyOccurrenceUsage) = 5;
+sizeof(SingleOccurrence) = 3;
+sizeof(WireOccurrence) = 1;
+sizeof(CableOccurrence) = 1;
+
+sizeof(PartTerminal) = 5; # only the join terminals
+sizeof(OccurrenceTerminal) = 5; # only the join terminals
+sizeof(WireColourBasedIdentificationCode) = 2;
+sizeof(WireOccurrenceTerminal) = 2;
+sizeof(CableOccurrenceTerminalLocationGroup) = 2;
+sizeof(CableOccurrenceTerminal) = 4;
+sizeof(AssemblyShapeJoint) = 5;
+sizeof(AssemblyShapeJointItemRelationship) = 11;
+
+);
+----
+
+[[cls-4.6]]
+=== EWH-Connectivity2
+
+This test case is very similar to the test case EWH-Connectivity1. The difference is
+that the connector "P-CONN01" is now modelled more realistically. There is no direct
+terminal but instead there are the two cavities "1" and "2" for two separate
+connector contacts:
+
+* a terminal lug "LUG01" that is defined by Part "640903-1" with a single terminal "1"
+* a connector "PLUG01" that is defined by Part "RCA123" with terminals "0" and "1"
+* a connector "P-CONN01" that is defined by Part "IMC16-2002X" with cavities "1" and
+"2"
+* two connector contacts "P-CONN01-01" and "P-CONN01-02" that are defined by Part
+"6860-201-20278" that fits into the cavities of a connector of type "IMC16-2002X".
+Each of the connector contacts has a single join terminal.
+* a cable "CABLE01" that is defined by Part "9962 009100" with two wires, one black
+and the other white
+* a wire "WIRE01" that is defined by Part "83027 001100"
+* connector "PLUG01" is joint to one ends of the cable, and the two connector
+contacts are joint to the other end. The connector contacts are then inserted into
+connector "PLUG01"
+* the single wire connects LUG01 with terminal "1" of "PLUG01"
+
+*Initial input data from users to this test:*
+
+[[table1]]
+[options=header,cols=5]
+.Original part list for connectivity test
+|===
+| Part Number | Occurrence (REFDES) | Terminals | Description | Images
+
+| 640903-1 | LUG01 | 1 | MIL standard Receptacle (similar to Lug) a| [%unnumbered,width=100]
+image::img-t1.png[]
+
+.2+| RCA123 .2+| PLUG01 | 0 .2+a| Standard RCA plug (Or Cinch)
+
+https://en.wikipedia.org/wiki/RCA_connector .2+a| [%unnumbered,width=100]
+image::img-t2.png[]
+| 1
+
+| IMC16-2002X | P-CONN01 | | Deutch waterproof connector with two cavities a| [%unnumbered,width=100]
+image::img-t3.png[]
+
+.2+| 6860-201-20278 | P-CONN01-01 | .2+| Deutch Plug Contact .2+a| [%unnumbered,width=100]
+image::img-t4.png[]
+| P-CONN01-02 |
+
+| 9962 009100 | | | BELDEN Cable a| [%unnumbered,width=100]
+image::img-t5.png[]
+
+| 83027 001100 | | | BELDEN Wire a| [%unnumbered,width=100]
+image::img-t6.png[]
+|===
+
+[[table2]]
+[options=header,cols=6]
+.Original wire list for connectivity test
+|===
+| From | From Pin | Wire Name | Material | To | To Pin
+| PLUG01 | 0 | CABLE01-WHT | 9962 009100 | P-CONN01 | P-CONN01-01
+| PLUG01 | 1 | CABLE01-BLK | 9962 009100 | P-CONN01 | P-CONN01-02
+| PLUG01 | 1 | WIRE01 | 83027 001100 | LUG01 |
+|===
+
+Adaptions on the original input data to be used by AP242-EWH:
+
+* the cavities of the connector "IMC16-2002X" are not numbered, but they are in the
+Deutsch documentation indicated with "1" and "2". It is essential to not mix them up;
+* no terminals are defined for the connector contact "6860-201-20278", but of course
+there is an implicit join-terminal (for crimping) and an interface-terminal for the
+external connection (the later one is not covered here);
+* there is no explicit information which connector contact P-CONN01-01/-02 goes into
+the cavities 1/2 of the connector. This can only be derived from the naming. For
+AP242-EWH it is essential to state which connector-contact is inserted into which
+cavity of the connector (by AssemblyShapeJoint);
+* the wire list indicates two connections onto the PLUG01/1 pin. For AP242-EWH this
+is handled by a triple AssemblyShapeJoint of PLUG01/1 with the cable and single wire
+terminals.
+
+[[fig6]]
+.EWH-Connectivity2
+image::img06.png[]
+
+For the AssemblyShapeJoints the following JointTypes are to be used:
+
+* JointType="soldered_connection" for the electrical joints on PLUG01 and LUG01;
+* JointType="crimped_connection" for the electrical connections of P-CONN01-01/-02
+with the cable;
+* JointType="snap_connection" for the mechanical connection of P-CONN01-01/-02 with
+P-CONN01.
+
+*Formal test-case specification:*
+
+[source%unnumbered]
+----
+Test EWH-Connectivity2 (
+
+@4:ViewContext;
+@5:ViewContext;
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@50:Organization( name="MIL ...??")
+@51:Organization( name="Deutch Company Ltd ...")
+@52:Organization( name="BELDEN company ...")
+@60:Identifier( Id=IdentifierString("Standard RCA connector") )
+
+@70:WireColourBasedIdentificationCode( Id="white" );
+@71:WireColourBasedIdentificationCode( Id="black" );
+
+
+# Terminal Lug
+@100:Part( PartTypes[i]=PartCategoryEnum(terminal_lug),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@101:PartVersion;
+@102:PartView;
+@103:Identifier( Id=IdentifierString("640903-1"),
+    IdentificationContext=@50 )
+  Part_with_ID_and_PartView(@100, @103, @101, @102, @4);
+@104:PartTerminal( ElementOf=@102, Id="1", DomainType="electrical",
+    InterfaceOrJoinTerminal="join_terminal" );
+@111:SingleOccurrence( Id=IdentifierString("LUG01"), Definition=@102 );
+  @112:OccurrenceTerminal( ElementOf=@111, Definition=@104 );
+
+# Connector with integrated contacts
+@200:Part( PartTypes[i]=PartCategoryEnum(connector),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@201:PartVersion;
+@202:PartView;
+@203:Identifier( Id=IdentifierString("RCA123"),
+  IdentificationContext=@60 )
+Part_with_ID_and_PartView( @200, "", @201, @202, @4);
+@204:PartTerminal( ElementOf=@202, Id="0", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" ); # or left, right m GND ?
+@205:PartTerminal( ElementOf=@202, Id="1", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@211:SingleOccurrence( Id=IdentifierString("PLUG01"), Definition=@202 );
+  @214:OccurrenceTerminal( ElementOf=@211, Definition=@204 );
+  @215:OccurrenceTerminal( ElementOf=@211, Definition=@205 );
+
+# Realistic model for Deutsch connector with cavities
+@300:Part( PartTypes[i]=PartCategoryEnum(connector),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@301:PartVersion;
+@302:PartView;
+@303:Identifier( Id=IdentifierString("IMC16-2002X"),
+  IdentificationContext=@51 )
+Part_with_ID_and_PartView( @300, @303, @301, @302, @4);
+@306:PartContactFeature( ElementOf=@302, Id="1", PartDefinition=@1001 );
+@307:PartContactFeature( ElementOf=@302, Id="2", PartDefinition=@1001 );
+@311:SingleOccurrence( Id=IdentifierString("P-CONN01"), Definition=@302 );
+  #316:OccurrenceContactFeature( ElementOf=@311, Definition=@306 );
+  #317:OccurrenceContactFeature( ElementOf=@311, Definition=@307 );
+
+# Contact for Deutsch connector
+@400:Part( PartTypes[i]=PartCategoryEnum(connector_contact),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@401:PartVersion;
+@402:PartView;
+@403:Identifier( Id=IdentifierString("6860-201-20278"),
+  IdentificationContext=@51 )
+Part_with_ID_and_PartView( @400, @403, @401, @402, @4);
+@406:PartTerminal( ElementOf=@402, Id="j", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@407:PartContactFeature( ElementOf=@402, Id="o", PartDefinition=@1002 );
+@411:SingleOccurrence( Id=IdentifierString("P-CONN01-01"),
+Definition=@402 );
+  @412:OccurrenceTerminal( ElementOf=@411, Definition=@406 );
+  @413:OccurrenceContactFeature( ElementOf=@411, Definition=@407 );
+@421:SingleOccurrence( Id=IdentifierString("P-CONN01-02"),
+Definition=@402 );
+  @422:OccurrenceTerminal( ElementOf=@421, Definition=@406 );
+  @423:OccurrenceContactFeature( ElementOf=@421, Definition=@407 );
+
+# Cable
+@500:Part( PartTypes[i]=PartCategoryEnum(cable),
+  PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@501:PartVersion;
+@502:PartView;
+@503:Identifier( Id=IdentifierString("9962 009100"),
+IdentificationContext=@52 )
+Part_with_Name_and_PartView(@500, "Cable-D", @501, @502, @4);
+@504:WirePartIdentification( ElementOf=@503, Id="CABLE01-WHT", code=@70 );
+@505:WirePartIdentification( ElementOf=@503, Id="CABLE01-BLK", code=@71 );
+@511:CableOccurrence( Id=IdentifierString("CABLE01"), Definition=@502,
+Quantity=@512 );
+  @512:NumericalValue( Unit=@8, ValueComponent=1.8 );
+  @513:WireOccurrenceIdentification( ElementOf=@511, Id="CABLE01-WHT", Definition=@
+504 );
+  @514:WireOccurrenceIdentification( ElementOf=@511, Id="CABLE01-BLK", Definition=@
+505 );
+  @515:CableOccurrenceTerminalLocationGroup( ElementOf=@511, Name="end
+a" );
+    @521:CableOccurrenceTerminal( ElementOf=@515, AssociatedTransportFeature=@
+513 );
+    @523:CableOccurrenceTerminal( ElementOf=@515, AssociatedTransportFeature=@
+514 );
+  @516:CableOccurrenceTerminalLocationGroup( ElementOf=@511, Name="end
+b" );
+    @522:CableOccurrenceTerminal( ElementOf=@516, AssociatedTransportFeature=@
+513 );
+    @524:CableOccurrenceTerminal( ElementOf=@516, AssociatedTransportFeature=@
+514 );
+
+# Wire
+@600:Part( PartTypes[i]=PartCategoryEnum(wire),
+  PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@601:PartVersion;
+@602:PartView;
+@603:Identifier( Id=IdentifierString("83027 001100"),
+  IdentificationContext=@52 )
+Part_with_Name_and_PartView(@600, "Wire-C", @601, @602, @4);
+@611:WireOccurrence( Id=IdentifierString("WIRE01"), Definition=@602,
+  Quantity=@612 );
+@612:NumericalValue( Unit=@8, ValueComponent=3.5 );
+@613=WireOccurrenceIdentification( ElementOf=@611,
+DomainType="electrical" ... )
+@614=WireOccurrenceTerminal( ElementOf=@611,
+  AssociatedTransportFeature=@613, Name="end a" );
+@615=WireOccurrenceTerminal( ElementOf=@611,
+  AssociatedTransportFeature=@613, Name="end b" );
+
+# Deutsch IMC Series cavity & contact shapes
+@1000:ContactFeatureDefinitionFitRelationship( Name="Deutsch IMC Series
+Size 20 fit",
+  Relating=@1001, Related=@1002 );
+@1001:ContactFeatureDefinition( Name="Deutsch IMC Series Size 20 cavity",
+  ShapeFeatureType=cavity_profile );
+@1002:ContactFeatureDefinition( Name="Deutsch IMC Series Size 20 pin",
+  ShapeFeatureType=contact_profile );
+
+# EWH-Assembly
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign;
+@9003:ViewContext;
+Part_WiringHarnessAssemblyDesign( @9000,"EWH Test-Case Connectivity2",
+  @9001,@9002,@9003 );
+
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@111 );
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@211 );
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@311 );
+@9104:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@411 ); # "PCONN01-
+01"
+@9105:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@421 ); # "PCONN01-
+02"
+@9106:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@511 );
+@9107:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@611 );
+
+# electrical connections
+@9210:AssemblyShapeJoint( ElementOf=@9002,
+JointType="soldered_connection" );
+  @9211:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@214 );
+# PLUG01 / 0
+  @9212:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@521 );
+# CABLE01-WHT / end a
+@9220:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9221:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@412 );
+# P-CONN01-01 / j
+  @9222:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@522 );
+# CABLE01-WHT / end b
+@9230:AssemblyShapeJoint( ElementOf=@9002,
+JointType="soldered_connection" );
+ @9231:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@215 );
+# PLUG01 / 1
+  @9232:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@523 );
+# CABLE01-BLK / end a
+  @9232:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@614 );
+# WIRE01 / end a
+@9240:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9241:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@422 );
+# P-CONN01-02 / j
+  @9242:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@524 );
+# CABLE01-BLK / end b
+@9250:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9251:AssemblyShapeJointItemRelationship( Relating=@9250, Related=@112 );
+# LUG01 / 1
+  @9252:AssemblyShapeJointItemRelationship( Relating=@9250, Related=@615 );
+# WIRE01 / end b
+# mechanical connections
+@9260:AssemblyShapeJoint( ElementOf=@9002, JointType="snap_connection" );
+  @9261:AssemblyShapeJointItemRelationship( Relating=@9260, Related=@316 );
+# P-CONN01 / 1
+  @9262:AssemblyShapeJointItemRelationship( Relating=@9260, Related=@317 );
+# P-CONN01-01 / o
+@9270:AssemblyShapeJoint( ElementOf=@9002, JointType="snap_connection" );
+  @9271:AssemblyShapeJointItemRelationship( Relating=@9270, Related=@112 );
+# P-CONN01 / 2
+  @9272:AssemblyShapeJointItemRelationship( Relating=@9270, Related=@423 );
+# P-CONN01-02 / o
+
+sizeof(Part) = 7;
+sizeof(PartVersion) = 7;
+sizeof(PartView) = 6;
+sizeof(WiringHarnessAssemblyDesign) = 1;
+sizeof(NextAssemblyOccurrenceUsage) = 7;
+sizeof(SingleOccurrence) = 5;
+sizeof(WireOccurrence) = 1;
+sizeof(CableOccurrence) = 1;
+
+sizeof(PartTerminal) >= 4; # there might me interface terminals
+sizeof(OccurrenceTerminal) >= 4; # there might me interface terminals
+sizeof(PartContactFeature) = 3;
+sizeof(OccurrenceContactFeature) = 4;
+sizeof(WireColourBasedIdentificationCode) = 2;
+sizeof(WireOccurrenceTerminal) = 2;
+sizeof(CableOccurrenceTerminalLocationGroup) = 2;
+sizeof(CableOccurrenceTerminal) = 4;
+sizeof(AssemblyShapeJoint) = 7;
+sizeof(AssemblyShapeJointItemRelationship) = 15;
+
+);
+----
+
+[[cls-4.7]]
+=== EWH-Connectivity3
+
+This test case consists of a "simple" coaxial cable with two coaxial connectors at
+the ends. The design is an extract from a bigger commercial product. The used parts
+are:
+
+* coaxial connector *TC-400-SM-X* from Times Microwave Systems +
+https://www.timesmicrowave.com/Products/Connectors/TC-400-SM-X/
+* coaxial cable *PFLX400-500* from Rockwell Collins +
+https://www.collinsaerospace.com/what-we-do/Business-Aviation/Flight-Deck/Avionics-Integration/Avionics-Integration-Products/Cables-And-Connectors/50-And-75-Ohm-Coaxial-And-Triaxial-Cables
+
+[[fig7]]
+.EWH-Connectivity3 - Wire-list
+image::img07.png[]
+
+<<fig7>> list the inner core and the shield. The mapping of the columns to AP242 is:
+
+* 1, 6: the from and to reference designators are composed by the
+_SingleOccurrence-Id_ and the _Part/OccurrenceTerminal-Id_.
+* 2, 7: the terminal hardware to which the connection is established. Below these
+_Parts_ are identified as TC-400-SM-X_contact_pin and TC-400-SM-X_ferrule to have a
+consistent naming.
+* 3: _CableOccurrence-Id_
+* 4, 8: The From and To End Preparation. AP242ed2 does not provide explicit details
+for wire/cable end preparation, but support the kind of _AssemblyShapeJoints_ to be
+used
+** ST -- Strip and Tin, specified by _JointType_ soldered_connection
+** SC -- Strip and Crimp, specified by _JointType_ crimped_connection
+* 5: the _WireIdentification-Id_ within the cable
+* 9: the cable _Part-Id_
+* 10: the length of the _CableOccurrence_ in inch
+
+[[fig8]]
+.EWH-Connectivity3 - Wiring diagram
+image::img08.png[]
+
+[[cls-4.7.1]]
+==== Coaxial Connector Model
+
+Some systems might represent the coaxial connector as a simple piece part with two
+join terminals (core and shield). The focus of this test case is however to
+represent the coaxial connector as a (sub) *_AssemblyDefinition_* (_@102_),
+_consisting_ of five pieces (named CONTACT PIN, INSULATOR, BODY, FERRULE and SHELL):
+
+* The CONTACT PIN has a joint and an interface terminal that are internally connected
+by a *_PartConnectivityDefinition_*
+* The BODY has a joint and an interface terminal that are internally connected by a
+PartConnectivityDefinition
+* *_SingleOccurrences_* of all five parts (CONTACT PIN, INSULATOR, BODY, FERRULE and
+SHELL) are assembled with *_NextAssemblyOccurrenceUsages_*.
+* The *_AssemblyDefinition_* (_@102_) has two join terminals that are reflected back
+to the OccurrenceTerminals of the SingleOccurrences for the CONTACT PIN and BODY.
+
+The example chosen for this test case is the TC-400-SM-X BNC connector (@100). It is
+of a male type and suitable to be used for an LMR-400 coax cable (@600). The
+connector consists of five piece parts named and categorized as:
+
+* body / connector_housing: @200,
+* contact pin / connector_contact: @300,
+* insulator / <no predefined part category available> : @400,
+* shell / backshell: @500,
+* ferrule / cable_ferrule: @600.
+
+Because the connector is delivered as a kit, there are no individual part numbers
+supplied for the piece parts; so we have to make up part numbers for this test case.
+
+The electrical _AssemblyShapeJoints_ of the coaxial connector to an end of a coaxial
+cable is realized by the _JointType_ soldered_connection for the coaxial core and by
+the _JointType_ __crimped_connection__ for the crimped_connection.
+
+[[fig9]]
+.Datasheet of Coax Connector TC-400-SM-X
+image::img09.png[]
+
+[[fig10]]
+.Connector contact inserted into connector shell
+image::img10.png[]
+
+[[fig10a]]
+.Electrical contacts in red, mechanical contacts in green
+image::img10a.png[]
+
+General references:
+
+* TC-400-SM-X
+** https://www.timesmicrowave.com/Products/Connectors/TC-400-SM-X with 3D STEP files
+as single piece part
+** https://eu.mouser.com/ProductDetail/Amphenol-Times-Microwave-Systems/TC-
+400-SM-X?qs=OTrKUuiFdkYP4uoBuXBVRA==
+** https://eu.mouser.com/datasheet/2/18/3190-3046A-1826531.pd f
+** https://www.digikey.com/en/products/detail/amphenol-times-microwave-systems/
+TC-400-SM-X/9644101
+* PFLX400-500RF coaxial cable
+** https://www.collinsaerospace.com/-/media/project/collinsaerospace/collinsaerospace-website/product-assets/marketing/0-9/50-75-ohm-coaxial-cables/1_50-74-coaxial-cables/30_pflx400-500_rf_coaxial_cable_datasheet.pdf?rev=a569a39747e94bbdb1b5ee7995cacd5d&hash
+** https://www.pasternack.com/50-ohm-low-loss-flexible-lmr400-pe-jacket-doubleshielded-black-lmr-400-p.aspx
+
+Formal test-case specification:
+
+[source%unnumbered]
+----
+Test EWH-Connectivity3 (
+
+@4:ViewContext;
+@5:ViewContext;
+@8:Unit( Name=ClassString("inch"), Quantity=ClassString("length") );
+
+@50:Organization( name="Times Microwaves System")
+@52:Organization( name="Rockwell Collins")
+
+@70:WireColourBasedIdentificationCode( Id="core" );
+@71:WireColourBasedIdentificationCode( Id="shield" );
+# Connector TC-400-SM-X
+@100:Part( Name="RF Connectors",
+  Description="Coaxial Connectors SMA-Male (plug) crimp connector; no braid
+trim"
+  PartTypes[i]=PartCategoryEnum(shielded_connector),
+  PartTypes[i]=PartCategoryEnum(connector_kit),
+  PartTypes[i]=PartCategoryEnum(connector),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@101:PartVersion;
+#
+# Mandatory assembly view needed to represent the structure of the coaxial
+connector
+@102:AssemblyDefinition;
+@103:Identifier( Id=IdentifierString("TC-400-SM-X"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@100, @103, @101, @102, @4);
+#
+# interface aspects of assembly
+@104:PartTerminal( ElementOf=@102, Id="1", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal", PartDefinition=@312 );
+@105:PartTerminal( ElementOf=@102, Id="C/S", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal", PartDefinition=@212 );
+
+# occurrence level
+@111:SingleOccurrence( Id=IdentifierString("connector 1"),
+Definition=@102 ); # connector 1
+  @112:OccurrenceTerminal( ElementOf=@111, Definition=@104 );
+  @113:OccurrenceTerminal( ElementOf=@111, Definition=@105 );
+@121:SingleOccurrence( Id=IdentifierString("connector 2"),
+Definition=@102 ); # connector 2
+  @122:OccurrenceTerminal( ElementOf=@111, Definition=@104 );
+  @123:OccurrenceTerminal( ElementOf=@111, Definition=@105 );
+
+# internal sub-assembly aspects of assembly
+@162:NextAssemblyOccurrenceUsage( Relating=@102, Related=@211 ); # body /
+connector_housing
+@163:NextAssemblyOccurrenceUsage( Relating=@102, Related=@311 ); # pin /
+connector_contact
+@164:NextAssemblyOccurrenceUsage( Relating=@102, Related=@411 ); # insulator
+@165:NextAssemblyOccurrenceUsage( Relating=@102, Related=@511 ); # shell /
+backshell
+@166:NextAssemblyOccurrenceUsage( Relating=@102, Related=@611 ); #
+ferrule / cable_ferrule
+
+# Connector housing
+@200:Part(
+  PartTypes[i]=PartCategoryEnum(connector_housing),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@201:PartVersion;
+@202:PartView;
+@203:Identifier( Id=IdentifierString("TC-400-SM-X_body"), Identification-
+Context=@50 )
+Part_with_ID_and_PartView(@200, @203, @201, @202, @4);
+@204:PartTerminal( ElementOf=@202, Id="C/S", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+# @205 and @206 are optional. They are not needed for this test case
+@205:PartTerminal( ElementOf=@202, Id="it", DomainType="electrical",
+  InterfaceOrJoinTerminal="interface_terminal" );
+@206:PartConnectivityDefinition( ConnectedTerminals=(@204, @205) );
+#
+@211:SingleOccurrence( Id=IdentifierString("housing"), Definition=@202 );
+  @212:OccurrenceTerminal( ElementOf=@211, Definition=@204 );
+# Connector contact-pint
+@300:Part(
+  PartTypes[i]=PartCategoryEnum(connector_contact),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@301:PartVersion;
+@302:PartView;
+@303:Identifier( Id=IdentifierString("TC-400-SM-X_contact_pin"), IdentificationContext=@50 )
+Part_with_ID_and_PartView(@300, @303, @301, @302, @4);
+@304:PartTerminal( ElementOf=@302, DomainType="electrical",
+InterfaceOrJoinTerminal="join_terminal" );
+# @305 and @306 are optional. They are not needed for this test case
+@305:PartTerminal( ElementOf=@302, DomainType="electrical",
+  InterfaceOrJoinTerminal="interface_terminal" );
+@306:PartConnectivityDefinition( ConnectedTerminals=(@304, @305) );
+#
+@311:SingleOccurrence( Id=IdentifierString("???"), Definition=@302 );
+  @312:OccurrenceTerminal( ElementOf=@311, Definition=@304 );
+
+# Connector insulator
+@400:Part(
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@401:PartVersion;
+@402:PartView;
+@403:Identifier( Id=IdentifierString("TC-400-SM-X_insulator"), IdentificationContext=@
+50 )
+Part_with_ID_and_PartView(@400, @403, @401, @402, @4);
+@411:SingleOccurrence( Id=IdentifierString("???"), Definition=@402 );
+
+# Connector shell
+@500:Part(
+  PartTypes[i]=PartCategoryEnum(backshell),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@501:PartVersion;
+@502:PartView;
+@503:Identifier( Id=IdentifierString("TC-400-SM-X_shell"), Identification-
+Context=@50 )
+Part_with_ID_and_PartView(@500, @503, @501, @502, @4);
+@511:SingleOccurrence( Id=IdentifierString("???"), Definition=@502 );
+
+# Connector ferrule
+@600:Part(
+  PartTypes[i]=PartCategoryEnum(cable_ferrule),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@601:PartVersion;
+@602:PartView;
+@603:Identifier( Id=IdentifierString("TC-400-SM-X_ferrule"), IdentificationContext=@
+50 )
+Part_with_ID_and_PartView(@600, @603, @601, @602, @4);
+@611:SingleOccurrence( Id=IdentifierString("???"), Definition=@602 );
+
+# Cable
+@700:Part(
+  PartTypes[i]=PartCategoryEnum(cable),
+  PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@701:PartVersion;
+@702:PartView;
+@703:Identifier( Id=IdentifierString("PFLX400-500"),
+IdentificationContext=@52 )
+Part_with_ID_and_PartView(@700, @703, @701, @702, @4);
+@704:WirePartIdentification( ElementOf=@503, Id="core", code=@70 );
+@705:WirePartIdentification( ElementOf=@503, Id="shield", code=@71 );
+@711:CableOccurrence( Id=IdentifierString("088-1CX1"), Definition=@702,
+Quantity=@712 );
+  @712:NumericalValue( Unit=@8, ValueComponent=279.79 );
+  @713:WireOccurrenceIdentification( ElementOf=@711, Id="F48A-4", Definition=@
+704 );
+  @714:WireOccurrenceIdentification( ElementOf=@711, Id="088-1CX1", Definition=@
+705 );
+  @715:CableOccurrenceTerminalLocationGroup( ElementOf=@711, Name="end
+a" );
+    @721:CableOccurrenceTerminal( ElementOf=@715, AssociatedTransportFeature=@
+713); # cable1/core / end a
+    @723:CableOccurrenceTerminal( ElementOf=@715, AssociatedTransportFeature=@
+714); # cable1/shield / end a
+  @716:CableOccurrenceTerminalLocationGroup( ElementOf=@711, Name="end
+b" );
+    @722:CableOccurrenceTerminal( ElementOf=@716, AssociatedTransportFeature=@
+713); # cable1/core / end b
+    @724:CableOccurrenceTerminal( ElementOf=@716, AssociatedTransportFeature=@
+714); # cable1/shield / end a
+
+# EWH-Assembly
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign;
+@9003:ViewContext;
+Part_WiringHarnessAssemblyDesign( @9000,
+  "EWH Test-Case Connectivity3",@9001,@9002,@9003 );
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@111 ); # SingleOccurrence
+"connector 1"
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@121 ); # SingleOccurrence
+"connector 2"
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@711 ); # CableOccurrence
+"088-1CX1"
+@9210:AssemblyShapeJoint( ElementOf=@9002,
+JointType="soldered_connection" );
+  @9211:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@112 );
+# connector 1/ 1
+  @9212:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@721 );
+# 088-1CX1/core / end a
+@9220:AssemblyShapeJoint( ElementOf=@9002,
+JointType="soldered_connection" );
+  @9221:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@122 );
+# connector 2/ 1
+  @9222:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@722 );
+# 088-1CX1/core / end b
+@9230:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9232:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@113 );
+# connector 1/ C/S
+  @9232:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@723 );
+# 088-1CX1/shield / end a
+@9240:AssemblyShapeJoint( ElementOf=@9002,
+JointType="crimped_connection" );
+  @9241:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@123 );
+# connector 2/ C/S
+  @9242:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@724 );
+# 088-1CX1/shield / end b
+
+);
+----
+
+[[cls-4.8]]
+=== EWH-Connectivity4
+
+This test case is similar to the previous connectivity test cases. On the left side
+we have a connector of type PT06A-10-6S with 6 non-removable contact, while on the
+right side we have a connector with 6 cavities into which either connector-contacts
+or if not used sealing plugs are to be inserted. Between the two connectors there is
+a single wire and a shielded cable with two cores. On the left side the shield of
+the cable is connected to connector terminal "C" by a shield sleeve of type
+M83519/2-8. A special "Banding and Shrink Boot Adapter" of type 440DS031NF1002-3 is
+screwed onto the back-shell of the adapter to guide the wire, cable and shield
+sleeve. On the right side the shield of the cable is directly connected to the
+electrified back-shell of the connector (indicated as "B/S").
+
+Both connectors are delivered as a connector set that have to be assembled while
+manufacturing the harness. The PT06A-10-6S connector is delivered as three piece
+parts, the connector_housing, the connector_insert with integrated soldering pins,
+and the backshell. The MS27484T8F35SB is delivered in likely 8 parts,
+
+[[fig11]]
+.EWH-Connectivity4 - Wiring diagram
+image::img11.png[]
+
+[[fig12]]
+[options=header,cols=5]
+.EWH-Connectitvity4 - Part List
+|===
+| Name | Part Number | Nomenclature | Vendor | Test Case
+
+| W118E12 | M83519/2-8 | Shield Sleeve | | @100
+| 021P6 | PT06A-10-6S | connector | Amphenol | @200
+| 021P6E | 440DS031NF1002-3 | backshell | Glenair | @300
+| 021A5P2 | MS27484T8F35SB | RFI grounding plug | Conesys | @400
+| 021A5P2E | PART OF 021A5P2 | Backshell | - dito - | @500
+| 118-2S12 | 04049A22A02J24 | Two Conductor Shielded Cable | | @600
+| 3RA59A22-4 | 04034-22-9 | Wire | | @700
+| ??? | 680-116-22 | Dummy Contact Sealing Plug | Glenair | @800
+|===
+
+[[fig13]]
+.M83519/2-8: Solder Sleeves & Shield Tubing
+image::img13.png[]
+
+[[fig14]]
+.Connector: PT06A-10-6S with 6 solder contacts of size 20
+image::img14.png[]
+
+Breakdown of MS27484T8F35SB
+
+* MS: Mil. Prefix
+* 27484: RFI grounding plug
+* T: With accessory thread
+* 8: Shell Size = 8
+* F: Finish = Aluminum shell, electroless nickel finish
+* 35: Insert Arrangement
+* S: S=Socket
+* B: Polarization / Keying = B
+
+[[fig15]]
+.Two Conductor Shielded Cable 04049A22A02J24
+image::img15.png[]
+
+Formal test-case specification:
+
+[source%unnumbered]
+----
+Test EWH-Connectivity4 (
+
+@4:ViewContext;
+@5:ViewContext;
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@50:Organization( name="TE Connectivity / Raychem")
+@51:Organization( name="Amphenol")
+@52:Organization( name="Glenair")
+
+@70:WireColourBasedIdentificationCode( Id="white" );
+@71:WireColourBasedIdentificationCode( Id="blue" );
+@72:WireColourBasedIdentificationCode( Id="shield" );
+
+# Shield Sleeve
+@100:Part( Name="Shield Sleeve",
+  Description="Solder Sleeves & Shield Tubing S-SLEEVE SHLD TRMNTR 22 AWG"
+  PartTypes[i]=PartCategoryEnum(shield_connector),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@101:PartVersion;
+@102:PartView;
+@103:Identifier( Id=IdentifierString("M83519/2-8"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@100, @103, @101, @102, @4);
+@104:PartTerminal( ElementOf=@102, Id="Shield-Terminal", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@105:PartTerminal( ElementOf=@102, Id="Wire-Terminal", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@111:SingleOccurrence( Id=IdentifierString("W118E12"), Definition=@102 );
+  @112:OccurrenceTerminal( ElementOf=@111, Definition=@104 );
+  @113:OccurrenceTerminal( ElementOf=@111, Definition=@105 );
+
+# connector
+@200:Part( name="Miniature Cylindrical Connectors"
+  Description="Bayonet Coupling with Solder Contact Termination"
+  PartTypes[i]=PartCategoryEnum(connector),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@201:PartVersion;
+@202:PartView;
+@203:Identifier( Id=IdentifierString("PT06A-10-6S"),
+IdentificationContext=@51 )
+Part_with_ID_and_PartView(@200, @203, @201, @202, @4);
+@204:PartTerminal( ElementOf=@202, Id="A", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@205:PartTerminal( ElementOf=@202, Id="B", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@206:PartTerminal( ElementOf=@202, Id="C", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@207:PartTerminal( ElementOf=@202, Id="D", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@208:PartTerminal( ElementOf=@202, Id="E", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@209:PartTerminal( ElementOf=@202, Id="F", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@210:PartFeature( ElementOf=@202, Id="Thread", DomainType="mechanical" );
+@211:SingleOccurrence( Id=IdentifierString("021P6"), Definition=@202 );
+  @214:OccurrenceTerminal( ElementOf=@211, Definition=@204 );
+  @215:OccurrenceTerminal( ElementOf=@211, Definition=@205 );
+  @216:OccurrenceTerminal( ElementOf=@211, Definition=@206 );
+  @217:OccurrenceTerminal( ElementOf=@211, Definition=@207 );
+  @218:OccurrenceTerminal( ElementOf=@211, Definition=@208 );
+  @219:OccurrenceTerminal( ElementOf=@211, Definition=@209 );
+  @220:OccurrenceTerminal( ElementOf=@211, Definition=@210 );
+
+# backshell
+@300:Part(
+  PartTypes[i]=PartCategoryEnum(backshell),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@301:PartVersion;
+@302:PartView;
+@303:Identifier( Id=IdentifierString("440DS031NF1002-3"), Identification-
+Context=@52 )
+Part_with_ID_and_PartView(@300, @303, @301, @302, @4);
+@307:PartContactFeature( ElementOf=@302, Id="Thread");
+@308:PartFeature( ElementOf=@302, Id="Segment-Opening");
+@311:SingleOccurrence( Id=IdentifierString("021P6E"), Definition=@302 );
+  @317:OccurrenceContactFeature( ElementOf=@311, Definition=@307 );
+  @318:OccurrenceShapeFeature( ElementOf=@311, Definition=@308 );
+
+# connector
+@400:Part( PartTypes[i]=PartCategoryEnum(connector), PartTypes[i]=PartCategoryEnum(
+discrete) );
+@401:PartVersion;
+@402:PartView;
+@403:Identifier( Id=IdentifierString("MS27484T8F35SB"), IdentificationContext=@
+51 )
+Part_with_ID_and_PartView(@400, @403, @401, @402, @4);
+@404:PartTerminal( ElementOf=@402, Id="1", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@405:PartTerminal( ElementOf=@402, Id="2", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@406:PartTerminal( ElementOf=@402, Id="3", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@407:PartTerminal( ElementOf=@402, Id="4", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@408:PartTerminal( ElementOf=@402, Id="5", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@409:PartTerminal( ElementOf=@402, Id="6", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@410:PartFeature( ElementOf=@402, Id="Tread"); # contact feature
+@411:SingleOccurrence( Id=IdentifierString("021A5P2"), Definition=@402 );
+  @414:OccurrenceTerminal( ElementOf=@411, Definition=@404 );
+  @415:OccurrenceTerminal( ElementOf=@411, Definition=@405 );
+  @416:OccurrenceTerminal( ElementOf=@411, Definition=@406 );
+  @417:OccurrenceTerminal( ElementOf=@411, Definition=@407 );
+  @418:OccurrenceTerminal( ElementOf=@411, Definition=@408 );
+  @419:OccurrenceTerminal( ElementOf=@411, Definition=@409 );
+  @420:OccurrenceTerminal( ElementOf=@411, Definition=@410 );
+
+# electrified backshell
+@500:Part(
+  PartTypes[i]=PartCategoryEnum(electrified_backshell),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@501:PartVersion;
+@502:PartView;
+@503:Identifier( Id=IdentifierString("PART OF 021A5P2"), IdentificationContext=@
+51 )
+Part_with_ID_and_PartView(@500, @503, @501, @502, @4);
+@506:PartTerminal( ElementOf=@502, Id="BS", DomainType="electrical",
+  InterfaceOrJoinTerminal="join_terminal" );
+@507:PartContactFeature( ElementOf=@502, Id="Thread");
+@508:PartFeature( ElementOf=@502, Id="Segment-Opening");
+@511:SingleOccurrence( Id=IdentifierString("021A5P2E"), Definition=@502 );
+  @516:OccurrenceTerminal( ElementOf=@511, Definition=@506 );
+  @517:OccurrenceContactFeature( ElementOf=@511, Definition=@507 );
+  @518:OccurrenceShapeFeature( ElementOf=@511, Definition=@508 );
+
+# Cable
+@600:Part( PartTypes[i]=PartCategoryEnum(cable), PartTypes[i]=PartCategoryEnum(
+raw_material_by_length) );
+@601:PartVersion;
+@602:PartView;
+@603:Identifier( Id=IdentifierString("04049A22A02J24"), IdentificationContext=@
+52 )
+Part_with_ID_and_PartView(@600, @603, @601, @602, @4);
+@604:WirePartIdentification( ElementOf=@603, Id="white", code=@70 );
+@605:WirePartIdentification( ElementOf=@603, Id="blue", code=@71 );
+@606:WirePartIdentification( ElementOf=@603, Id="shield", code=@72 );
+@611:CableOccurrence( Id=IdentifierString("118-2S12"), Definition=@602,
+Quantity=@612 );
+  @612:NumericalValue( Unit=@8, ValueComponent=1.8 );
+  @613:WireOccurrenceIdentification( ElementOf=@611, Id="3RA6A22-6 (WHT)",
+Definition=@604 );
+  @614:WireOccurrenceIdentification( ElementOf=@611, Id="3RA7A22N-6 (BLU)",
+Definition=@605 );
+  @615:WireOccurrenceIdentification( ElementOf=@611, Id="118-2S12", Definition=@
+606 );
+  @615:CableOccurrenceTerminalLocationGroup( ElementOf=@611, Name="end
+a" );
+    @621:CableOccurrenceTerminal( ElementOf=@615, AssociatedTransportFeature=@
+613);
+    @622:CableOccurrenceTerminal( ElementOf=@615, AssociatedTransportFeature=@
+614);
+    @623:CableOccurrenceTerminal( ElementOf=@615, AssociatedTransportFeature=@
+615);
+  @616:CableOccurrenceTerminalLocationGroup( ElementOf=@611, Name="end
+b" );
+    @624:CableOccurrenceTerminal( ElementOf=@616, AssociatedTransportFeature=@
+613);
+    @625:CableOccurrenceTerminal( ElementOf=@616, AssociatedTransportFeature=@
+614);
+    @626:CableOccurrenceTerminal( ElementOf=@616, AssociatedTransportFeature=@
+615);
+
+# Wire
+@700:Part( PartTypes[i]=PartCategoryEnum(wire),
+    PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@701:PartVersion;
+@702:PartView;
+@703:Identifier( Id=IdentifierString("04034-22-9"),
+IdentificationContext=@52 )
+Part_with_ID_and_PartView(@700, @703, @701, @702, @4);
+@711:WireOccurrence( Id=IdentifierString("3RA59A22-4"), Definition=@602,
+Quantity=@712 );
+  @712:NumericalValue( Unit=@8, ValueComponent=3.5 );
+  @713:WireOccurrenceIdentification( ElementOf=@611, DomainType="electrical"
+... )
+  @714:WireOccurrenceTerminal( ElementOf=@711,
+AssociatedTransportFeature=@713,
+  Name="end a" );
+  @715:WireOccurrenceTerminal( ElementOf=@711,
+AssociatedTransportFeature=@713,
+  Name="end b" );
+
+# EWH-Assembly
+@9000:Part;
+@9001:PartVersion;
+@9002:WiringHarnessAssemblyDesign;
+@9003:ViewContext;
+Part_WiringHarnessAssemblyDesign( @9000,
+  "EWH Test-Case Connectivity4",@9001,@9002,@9003 );
+
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@111 ); # left/
+shield_connector
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@211 ); # left
+connector
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@311 ); # left
+backshell
+@9104:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@411 ); # right
+connector
+@9105:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@511 ); # right
+electrified_backshell
+@9106:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@611 ); # cable
+@9107:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@711 ); # wire
+
+# connections
+@9210:AssemblyShapeJoint( ElementOf=@9002 );
+  @9211:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@621 );
+# left white/end a
+  @9212:AssemblyShapeJointItemRelationship( Relating=@9210, Related=@214 );
+# left connector/A
+@9220:AssemblyShapeJoint( ElementOf=@9002 );
+  @9221:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@622 );
+# left blue/end a
+  @9222:AssemblyShapeJointItemRelationship( Relating=@9220, Related=@215 );
+# left connector/B
+@9230:AssemblyShapeJoint( ElementOf=@9002 );
+  @9231:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@623 );
+# left shield/end a
+  @9232:AssemblyShapeJointItemRelationship( Relating=@9230, Related=@112 );
+# shield_connector
+@9240:AssemblyShapeJoint( ElementOf=@9002 );
+  @9241:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@113 );
+# shield_connector
+  @9242:AssemblyShapeJointItemRelationship( Relating=@9240, Related=@216 );
+# left connector/C
+@9250:AssemblyShapeJoint( ElementOf=@9002 );
+  @9251:AssemblyShapeJointItemRelationship( Relating=@9250, Related=@714 );
+# wire/end a
+  @9252:AssemblyShapeJointItemRelationship( Relating=@9250, Related=@219 );
+# left connector/F
+@9260:AssemblyShapeJoint( ElementOf=@9002 );
+  @9251:AssemblyShapeJointItemRelationship( Relating=@9260, Related=@317 );
+# left backshell/Thread
+  @9252:AssemblyShapeJointItemRelationship( Relating=@9260, Related=@220 );
+# left connector/Thread
+@9310:AssemblyShapeJoint( ElementOf=@9002 );
+  @9311:AssemblyShapeJointItemRelationship( Relating=@9310, Related=@624 );
+# right white/end b
+  @9312:AssemblyShapeJointItemRelationship( Relating=@9310, Related=@419 );
+# right connector/6
+@9320:AssemblyShapeJoint( ElementOf=@9002 );
+  @9321:AssemblyShapeJointItemRelationship( Relating=@9320, Related=@625 );
+# right blue/end b
+  @9322:AssemblyShapeJointItemRelationship( Relating=@9320, Related=@414 );
+# right connector/1
+@9330:AssemblyShapeJoint( ElementOf=@9002 );
+  @9331:AssemblyShapeJointItemRelationship( Relating=@9330, Related=@626 );
+# right shield/end b
+  @9332:AssemblyShapeJointItemRelationship( Relating=@9330, Related=@516 );
+# right electrified_backshell
+@9340:AssemblyShapeJoint( ElementOf=@9002 );
+  @9341:AssemblyShapeJointItemRelationship( Relating=@9340, Related=@715 );
+# wire/end b
+  @9342:AssemblyShapeJointItemRelationship( Relating=@9340, Related=@415 );
+# right connector/2
+@9350:AssemblyShapeJoint( ElementOf=@9002 );
+  @9351:AssemblyShapeJointItemRelationship( Relating=@9350, Related=@517 );
+# right electrified_backshell/Thread
+  @9352:AssemblyShapeJointItemRelationship( Relating=@9350, Related=@420 );
+# right connector/Thread
+
+);
+----
+
+[[cls-4.9]]
+=== EWH-Connectivity5
+
+Purpose of this test case is to introduce a complex modular connector with several
+inserts and cavities. For this test case a connector according to the European
+standard EN4644 European standard is chosen; the Radiall's EPX (TM) connector of
+type EPXB2
+
+* https://www.radiall.com/products/multipin-aerospace-connectors/rack-and-panel-connectors/epx-trade-en-4644.html
+
+[[fig16]]
+.Example of several EWHs that are using EPXB2 connectors
+image::img16.png[]
+
+For this particular test case a much smaller example is chosen, consisting of two
+EPXB2 connectors with the same kind of inserts and connector contacts that are
+connected with each other in a 1:1 way.
+
+[[fig17]]
+.Stick Line Schematics; left side
+image::img17.png[]
+
+The right and left side of the stick line schematics is almost symmetric; however
+there are different lengths and reference designators / IDs.
+
+[[fig18]]
+.Stick Line Schematics; right side
+image::img18.png[]
+
+Each EPXB2 connector consists of two inserts, one with 3 cavities for quadrax
+connector contacts and one with 28 cavities in two sizes for normal single signal
+contacts. Each quadrax connector is independently connected by a harness segment
+that contains a single quadrax cable. The three quadrax cable for one quadrax insert
+are then combined in a harness node and in another harness node the combined 3
+quadrax cables are the combines with a bundle of wires for the other insert.
+
+[[fig19]]
+.3D Representation
+image::img19.png[]
+
+The wiring diagrams are identical for the left and right side. Here only the
+diagrams for the left side are shown; one for each insert.
+
+[[fig20]]
+.Partial Wiring Diagram for connector / insert X1A
+image::img20.png[]
+
+[[fig21]]
+.Partial Wiring Diagram for connector / insert X1B
+image::img21.png[]
+
+In the EPX part numbers several characteristics of the connector are encoded.
+
+[[fig22]]
+.Part Numbers for EPX B2 Shells
+image::img22.png[]
+
+Instead of a backshell, strain reliefs are used for the EPX B2 connectors.
+
+[[fig23]]
+.Strain Relief for EPX B2 connector
+image::img23.png[]
+
+[[fig24]]
+.EPX B Inserts
+image::img24.png[]
+
+An EPX B2 Shell has two slots for inserts, A and B. For this test case slot A is
+populated with an insert of type EPXBE3Q3SA that has 3 cavities for quadrax
+connector contacts, suitable for Ethernet connections. Slot B is populated with an
+insert of type EPXBE28PB that has 22 cavities of size 22 and 6 cavities of size 15
+or 16.
+
+[[table3]]
+.Assembly Structure of Size 8 Quadrax Socket Contact 620075050
+image::img25a.png[]
+
+A quadrax connector/contact is from the modeling point of view a hybrid object. On
+one hand it is a connector assembly in itself, consisting of a housing, a spacer, an
+insulator, a ferrule and four connector contacts. But when used inside an EPX
+insert, the whole quadrax is just a connector contact. For the purpose of this test
+case we treat the quadrax just as a connector contact with 4 pin terminals and a
+shield. It is up to the implementors to optionally present the quadrax as a
+sub-assembly where the terminals of the inner components are "reflected" to the
+assembly view, similar as it is done for test case EWH_Connectivity3 for the BNC
+connector. Further information about the quadrax connector/contact is available here:
+
+* Datasheet of 620075050 +
+https://www.mouser.com/datasheet/2/516/620075050EN-1115692.pdf
+* How to wire an quadrax connector +
+https://www.radiall.com/media/blfa_files/cabling/ai/rp57339en.pdf
+* The tool used to insert Ferrules
++
+--
+https://www.micro-semiconductor.hu/datasheet/aa-1976593-2.pdf
+
+Notice the references to Boeing standards in this document
+--
+* An overview of "High-Speed Datalink Connectors and Cables for Ethernet-Grade
+Protocols" +
+https://cdn.glenair.com/presentations/pdf/high-speed-datalink-connectors-and-cablesfor-ethernet-grade-protocols.pdf
+
+are connected by quadrax cables that consists of 4 core wires and a shield.
+
+All connector parts are from the EPX series from Radiall.
+
+[[table4]]
+[options=header,cols=5]
+.Connector part List
+|===
+| RefDes | Part Type | Part Number | Name | Vendor
+
+| 001A1P1X1 | connector_housing | EPXB2PB13N | EPXB, CONNECTOR SHELL | Radiall
+| 001A1P1XE | strain_relief_accessory | 617922007 | EPXB, STRAIN RELIEF | -- dito --
+| 001A1P1X1A | connector_insert | EPXBE3Q3SA | EPXB, 3-8 GA | -- dito --
+| 001A1P1X1B | connector_insert | EPXBE28PB | EPXB, 22-22,6-16 | -- dito --
+| 001A1P1X1AQ1 | connector_contact | 620075050 | QUADRAX CONTACT, SOCKET, 8-GA | -- dito --
+| 001A1P1X1AQ2 | connector_contact | 620075050 | QUADRAX CONTACT, SOCKET, 8-GA | -- dito --
+| 001A1P1X1AQ3 | connector_contact | 620075050 | QUADRAX CONTACT, SOCKET, 8-GA | -- dito --
+| | | | |
+| 002A1P1X1 | connector_housing | EPXB2PB13N | EPXB, CONNECTOR SHELL | -- dito --
+| 002A1P1XE | strain_relief_accessory | 61792207 | EPXB, STRAIN RELIEF | -- dito --
+| 002A1P1X1A | connector_insert | EPXBE3Q3SA | EPXB, 3-8 GA | -- dito --
+| 002A1P1X1B | connector_insert | EPXBE28PB | EPXB, 22-22,6-16 | -- dito --
+| 002A1P1X1AQ1 | connector_contact | 620075050 | QUADRAX CONTACT, SOCKET, 8-GA | -- dito --
+| 002A1P1X1AQ2 | connector_contact | 620075050 | QUADRAX CONTACT, SOCKET, 8-GA | -- dito --
+| 002A1P1X1AQ3 | connector_contact | 620075050 | QUADRAX CONTACT, SOCKET, 8-GA | -- dito --
+| | | | |
+| -- no -- (18 pieces) | connector_contact | 617200 | Pin crimp contacts/size 22 | -- dito --
+|===
+
+[[table5]]
+[options=header,cols=8]
+.Wire List
+|===
+| Cable-RefDes | Wire-RefDes | Type | Part Number | Length | Start Join | End Join | Path
+
+| 403-4S1 | | cable | GAC861AH424S | 4.573524 | | |
+| -- dito -- | 403-4S1 | wire | -- dito -- | 4.573524 | TERM104 | TERM128 | (BUN807, BUN802, BUN809, BUN811, BUN804)
+| -- dito -- | MMB167B24-4 (RED) | wire | -- dito -- | 4.573524 | TERM100 | TERM124 | -- dito --
+| -- dito -- | MMB168B24-4 (BLU) | wire | -- dito -- | 4.573524 | TERM102 | TERM126 | -- dito --
+| -- dito -- | MMB169B24-4 (YEL) | wire | -- dito -- | 4.573524 | TERM101 | TERM125 | -- dito --
+| -- dito -- | MMB170B24-4 (GRN) | wire | -- dito -- | 4.573524 | TERM103 | TERM127 | -- dito --
+| 403-4S2 | | cable | GAC861AH424S | 4.195826 | | |
+| -- dito -- | SHIELD39502 | wire | -- dito -- | 4.195826 | TERM109 | TERM133 | (BUN808, , BUN802, BUN809, BUN811, BUN803)
+| -- dito -- | MMB158B24-4 (RED) | wire | -- dito -- | 4.195826 | TERM107 | TERM131 | -- dito --
+| -- dito -- | MMB157B24-4 (RED) | wire | -- dito -- | 4.195826 | TERM105 | TERM129 | -- dito --
+| -- dito -- | MMB159B24-4 (RED) | wire | -- dito -- | 4.195826 | TERM106 | TERM130 | -- dito --
+| -- dito -- | MMB160B24-4 (RED) | wire | -- dito -- | 4.195826 | TERM108 | TERM132 | -- dito --
+| 403-4S5 | | cable | GAC861AH424S {blank}footnote:[e.g. from Thermax, https://www.thermaxglobal.com/] | 3.964686 | | |
+| -- dito -- | SHIELD39504 | wire | -- dito -- | 3.964686 | TERM114 | TERM138 | (BUN806, BUN802, BUN809, BUN811, BUN805)
+| -- dito -- | RT81B24-4 (BLU) | wire | -- dito -- | 3.964686 | TERM112 | TERM136 | -- dito --
+| -- dito -- | RT80B24-4 (RED) | wire | -- dito -- | 3.964686 | TERM110 | TERM134 | -- dito --
+| -- dito -- | RT82B24-4 (YEL) | wire | -- dito -- | 3.964686 | TERM111 | TERM135 | -- dito --
+| -- dito -- | RT83B24-4 (GRN) | wire | -- dito -- | 3.964686 | TERM113 | TERM137 | -- dito --
+| -- no -- | W194C22-4 | wire | 04034-22-9 {blank}footnote:f1[from Carlisle Interconnect Technologies] | 2.490851 | TERM116 | TERM140 | (BUN810, BUN811, BUN812)
+| -- no -- | W194D22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM117 | TERM141 | -- dito --
+| -- no -- | W194J22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM118 | TERM142 | -- dito --
+| -- no -- | W194H22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM119 | TERM143 | -- dito --
+| -- no -- | W195EA22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM121 | TERM145 | -- dito --
+| -- no -- | W195KA22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM122 | TERM146 | -- dito --
+| -- no -- | W302D22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM120 | TERM144 | -- dito --
+| -- no -- | W302H22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM115 | TERM139 | -- dito --
+| -- no -- | W304EA22-4 | wire | 04034-22-9 {blank}footnote:f1[]| 2.490851 | TERM123 | TERM147 | -- dito --
+|===
+
+[[table6]]
+[cols=6]
+.Connection list at connector X1
+|===
+| RefDes1 | RefDes2 | RefDes3 | PartNumber | Feature | Join
+| 001A1P1X1 | | | EPXB2PB13N | |
+| -- dito -- | 001A1P1X1A | | EPXBE3Q3SA | |
+| -- dito -- | -- dito -- | 001A1P1X1AQ1 | 620075050 | |
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 1 | TERM100
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 2 | TERM101
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 3 | TERM102
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 4 | TERM103
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | SC | TERM104
+| -- dito -- | -- dito -- | 001A1P1X1AQ1 | 620075050 | |
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 1 | TERM105
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 2 | TERM106
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 3 | TERM107
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 4 | TERM108
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | SC | TERM109
+| -- dito -- | -- dito -- | 001A1P1X1AQ1 | 620075050 | |
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 1 | TERM110
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 2 | TERM111
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 3 | TERM112
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | 4 | TERM113
+| -- dito -- | -- dito -- | -- dito -- | -- dito -- | SC | TERM114
+| -- dito -- | 001A1P1X1B | | EPXBE28PB | |
+| -- dito -- | -- dito -- |  -- np -- / 617200 | -- dito -- | 1 | TERM115
+| -- dito -- | -- dito -- |  -- np -- / 617200 | -- dito -- | 2 | TERM116
+| -- dito -- | -- dito -- |  -- np -- / 617200 | -- dito -- | 3 | TERM117
+| -- dito -- | -- dito -- |  -- np -- / 617200 | -- dito -- | 4 | TERM118
+| -- dito -- | -- dito -- |  -- np -- / 617200 | -- dito -- | 5 | TERM119
+| -- dito -- | -- dito -- |  -- np -- / 617200 | -- dito -- | 6 | TERM120
+| -- dito -- | -- dito -- | | -- dito -- | 7 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 8 | -- nc --
+| -- dito -- | -- dito -- | -- np -- / 617200 | -- dito -- | 9 | TERM121
+| -- dito -- | -- dito -- | | -- dito -- | 10 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 11 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 12 | -- nc --
+| -- dito -- | -- dito -- | -- np -- / 617200 | -- dito -- | 13 | TERM122
+| -- dito -- | -- dito -- | -- np -- / 617200 | -- dito -- | 14 | TERM123
+| -- dito -- | -- dito -- | | -- dito -- | 15 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 16 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 17 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 18 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 19 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 20 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 21 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | 22 | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | A | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | B | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | C | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | D | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | E | -- nc --
+| -- dito -- | -- dito -- | | -- dito -- | F | -- nc --
+|===
+
+[%key]
+"-- dito --":: same as above
+"-- nc --":: "not connected"
+"-- np --":: "not provided"
+
+[[table7]]
+[options=header,cols=4]
+.Edges of the Topological Model
+|===
+| Bundle | Start Node | End Node | Length
+| BUN802 | N1010 | N1014 | 0.381
+| BUN803 | N1011 | N1012 | 0.635
+| BUN804 | N1011 | N1006 | 1.077468
+| BUN805 | N1011 | N1008 | 1.170686
+| BUN806 | N1010 | N1013 | 0.889
+| BUN807 | N1010 | N1002 | 1.591056
+| BUN808 | N1010 | N1003 | 1.655826
+| BUN809 | N1014 | N1015 | 0.889
+| BUN810 | N1014 | N1009 | 0.635
+| BUN811 | N1011 | N1015 | 0.381
+| BUN812 | N1005 | N1015 | 0.74041
+|===
+
+[[table8]]
+.Vertices of the Topological Model resp. HarnessNodes
+[options=header,cols=4]
+|===
+| Node | Connector RefDes | Bundels | HarnessNode Type
+| N1002 | 001A1P1X1AQ1 | (BUN807) | extremity_node
+| N1003 | 001A1P1X1AQ2 | (BUN808) | extremity_node
+| N1005 | 002A1P1X1B | (BUN812) | extremity_node
+| N1006 | 002A1P1X1AQ1 | (BUN804) | extremity_node
+| N1008 | 002A1P1X1AQ3 | (BUN805) | extremity_node
+| N1009 | 001A1P1X1B | (BUN810) | extremity_node
+| N1010 | -- | (BUN802, BUN806, BUN807, BUN808) | branch_node
+| N1011 | -- | (BUN803, BUN804, BUN805, BUN811) | branch_node
+| N1012 | 002A1P1X1AQ2 | (BUN803) | extremity_node
+| N1013 | 001A1P1X1AQ3 | (BUN806) | extremity_node
+| N1014 | -- | (BUN802, BUN809, BUN810) | branch_node
+| N1015 | -- | (BUN809, BUN811, BUN812) | branch_node
+| N1016 | 001A1P1X1A | ( ) -- not used | (extremity_node)
+| N1017 | 001A1P1X1 / backshell | ( ) -- not used | (extremity_node)
+| N1020 | 002A1P1X1 / backshell | ( ) -- not used | (extremity_node)
+| N1021 | 002A1P1X1A | ( ) -- not used | (extremity_node)
+|===
+
+This test case comes together with a corresponding KBL and Capital Harness / Siemens
+XML file. It is up to implementors to either import these files into their source
+system or to create the harness anew in their source system.
+
+Formal test-case specification:
+
+[source%unnumbered]
+----
+Test EWH-Connectivity5 (
+
+@4:ViewContext;
+@5:ViewContext;
+@8:Unit( Name=ClassString("metre"), Quantity=ClassString("length") );
+
+@50:Organization( name="Radiall")
+@51:Organization( name="Thermax")
+@52:Organization( name="Carlisle Interconnect Technologies")
+
+@70:WireColourBasedIdentificationCode( Id="shield" );
+@71:WireColourBasedIdentificationCode( Id="red" );
+@72:WireColourBasedIdentificationCode( Id="blue" );
+@73:WireColourBasedIdentificationCode( Id="yellow" );
+@74:WireColourBasedIdentificationCode( Id="green" );
+
+# EPX size 8 cavities and contact profiles
+@1000:ContactFeatureDefinitionFitRelationship( Name="EPX cavity-plug-contact
+8 fit",
+  Relating=@1001, Related=@1002 );
+@1001:ContactFeatureDefinition( Name="EPX size 8 cavity",
+  ShapeFeatureType=cavity_profile );
+@1002:ContactFeatureDefinition( Name="EPX size 8 plug/contact",
+  ShapeFeatureType=cavity_plug_or_contact_profile );
+
+# EPX size 22 cavities and contact profiles
+@1010:ContactFeatureDefinitionFitRelationship( Name="EPX size 22 fit",
+  Relating=@1011, Related=@1012 );
+@1011:ContactFeatureDefinition( Name="EPX size 22 cavity",
+  ShapeFeatureType=cavity_profile );
+@1012:ContactFeatureDefinition( Name="EPX size 22 plug/contact",
+  ShapeFeatureType=cavity_plug_or_contact_profile );
+
+# EPXB slot and insert profiles
+@1020:ContactFeatureDefinitionFitRelationship( Name="EPXB slot-insert fit",
+  Relating=@1021, Related=@1022 );
+@1021:ContactFeatureDefinition( Name="EPXB slot profile",
+  ShapeFeatureType=slot_profile );
+@1022:ContactFeatureDefinition( Name="EPXB insert profile",
+  ShapeFeatureType=insert_profile );
+
+# EPXB2 housing and backshell profiles
+@1030:ContactFeatureDefinitionFitRelationship( Name="EPXB2 housing-backshell
+fit",
+  Relating=@1031, Related=@1032 );
+@1031:ContactFeatureDefinition( Name="EPXB2 housing profile" );
+@1032:ContactFeatureDefinition( Name="EPXB2 backshell profile" );
+
+# EPX size 15/16 cavities and size 15 and 16 contact profiles
+@1040:ContactFeatureDefinitionFitRelationship( Name="EPX size 15-15 fit",
+  Relating=@1042, Related=@1043 );
+@1041:ContactFeatureDefinitionFitRelationship( Name="EPX size 15-16 fit",
+  Relating=@1042, Related=@1044 );
+@1042:ContactFeatureDefinition( Name="EPX size 15/16 cavity",
+  ShapeFeatureType=cavity_profile );
+@1043:ContactFeatureDefinition( Name="EPX size 15 plug/contact",
+  ShapeFeatureType=cavity_plug_or_contact_profile );
+@1044:ContactFeatureDefinition( Name="EPX size 16 plug/contact",
+  ShapeFeatureType=cavity_plug_or_contact_profile );
+
+# connector_housing
+@1100:Part( Name="EPXB, CONNECTOR SHELL",
+  PartTypes[i]=PartCategoryEnum(connector_housing),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@1101:PartVersion;
+@1103:Identifier( Id=IdentifierString("EPXB2PB13N"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@1100, @1103, @1101, @1102, @4);
+@1102:PartView;
+  @1111:PartContactFeature( ElementOf=@1102, Id="A",
+PartDefinition=@1021 );
+  @1112:PartContactFeature( ElementOf=@1102, Id="B",
+PartDefinition=@1021 );
+  @1113:PartContactFeature( ElementOf=@1102, PartDefinition=@1031 );
+@11010:SingleOccurrence( Id=IdentifierString("001A1P1X1"), Definition=@1102
+);
+  #11011:OccurrenceContactFeature( ElementOf=@11010, Definition=@1111 );
+  #11012:OccurrenceContactFeature( ElementOf=@11010, Definition=@1112 );
+  #11013:OccurrenceContactFeature( ElementOf=@11010, Definition=@1113 );
+@11020:SingleOccurrence( Id=IdentifierString("002A1P1X1"), Definition=@1102
+);
+  #11021:OccurrenceContactFeature( ElementOf=@11020, Definition=@1111 );
+  #11022:OccurrenceContactFeature( ElementOf=@11020, Definition=@1112 );
+  #11023:OccurrenceContactFeature( ElementOf=@11020, Definition=@1113 );
+
+# strain_relief_accessory
+@1200:Part( Name="EPXB, STRAIN RELIEF",
+  PartTypes[i]=PartCategoryEnum(strain_relief_accessory),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@1201:PartVersion;
+@1203:Identifier( Id=IdentifierString("EPXB2PB13N"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@1200, @1203, @1201, @1202, @4);
+@1202:PartView;
+  @12021:PartContactFeature( ElementOf=@1102, Id="B",
+PartDefinition=@1032 );
+@12010:SingleOccurrence( Id=IdentifierString("001A1P1XE"), Definition=@1102
+);
+  #120101:OccurrenceContactFeature( ElementOf=@12010, Definition=@12021 );
+@12020:SingleOccurrence( Id=IdentifierString("002A1P1XE"), Definition=@1102
+);
+  #120201:OccurrenceContactFeature( ElementOf=@12020, Definition=@12021 );
+
+# connector_insert EPXBE3Q3SA
+@1300:Part( Name="EPXB, 3-8 GA",
+  PartTypes[i]=PartCategoryEnum(connector_insert),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@1301:PartVersion;
+@1303:Identifier( Id=IdentifierString("EPXBE3Q3SA"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@1300, @1303, @1301, @1302, @4);
+@1302:PartView;
+  @13021:PartShapeFeature( ElementOf=@1302, Id="1", PartDefinition=@1002 );
+  @13022:PartShapeFeature( ElementOf=@1302, Id="2", PartDefinition=@1002 );
+  @13023:PartShapeFeature( ElementOf=@1302, Id="3", PartDefinition=@1002 );
+  @13024:PartShapeFeature( ElementOf=@1302, PartDefinition=@1022 );
+@1311:SingleOccurrence( Id=IdentifierString("001A1P1X1A"), Definition=@1302
+);
+  @13111:OccurrenceContactFeature( ElementOf=@1311, Definition=@13021 );
+  @13112:OccurrenceContactFeature( ElementOf=@1311, Definition=@13022 );
+  @13113:OccurrenceContactFeature( ElementOf=@1311, Definition=@13023 );
+  @13114:OccurrenceContactFeature( ElementOf=@1311, Definition=@13024 );
+@1321:SingleOccurrence( Id=IdentifierString("002A1P1X1A"), Definition=@1302
+);
+  @13211:OccurrenceContactFeature( ElementOf=@1321, Definition=@13021 );
+  @13212:OccurrenceContactFeature( ElementOf=@1321, Definition=@13022 );
+  @13213:OccurrenceContactFeature( ElementOf=@1321, Definition=@13023 );
+  @13214:OccurrenceContactFeature( ElementOf=@1321, Definition=@13024 );
+
+# connector_insert EPXBE28PB
+@1400:Part( Name="EPXB, 22-22,6-16",
+  PartTypes[i]=PartCategoryEnum(connector_insert),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@1401:PartVersion;
+@1403:Identifier( Id=IdentifierString("EPXBE28PB"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@1400, @1403, @1401, @1402, @4);
+@1402:PartView;
+  # for the definition (in library) list all cavities/profiles
+  @140200:PartShapeFeature( ElementOf=@1402, PartDefinition=@1022 );
+  @140201:PartShapeFeature( ElementOf=@1402, Id="1",
+PartDefinition=@1011 );
+  @140202:PartShapeFeature( ElementOf=@1402, Id="2",
+PartDefinition=@1011 );
+  @140203:PartShapeFeature( ElementOf=@1402, Id="3",
+PartDefinition=@1011 );
+  @140204:PartShapeFeature( ElementOf=@1402, Id="4",
+PartDefinition=@1011 );
+  @140205:PartShapeFeature( ElementOf=@1402, Id="5",
+PartDefinition=@1011 );
+  @140206:PartShapeFeature( ElementOf=@1402, Id="6",
+PartDefinition=@1011 );
+  @140207:PartShapeFeature( ElementOf=@1402, Id="7",
+PartDefinition=@1011 );
+  @140208:PartShapeFeature( ElementOf=@1402, Id="8",
+PartDefinition=@1011 );
+  @140209:PartShapeFeature( ElementOf=@1402, Id="9",
+PartDefinition=@1011 );
+  @140210:PartShapeFeature( ElementOf=@1402, Id="10",
+PartDefinition=@1011 );
+  @140211:PartShapeFeature( ElementOf=@1402, Id="11",
+PartDefinition=@1011 );
+  @140212:PartShapeFeature( ElementOf=@1402, Id="12",
+PartDefinition=@1011 );
+  @140213:PartShapeFeature( ElementOf=@1402, Id="13",
+PartDefinition=@1011 );
+  @140214:PartShapeFeature( ElementOf=@1402, Id="14",
+PartDefinition=@1011 );
+  @140215:PartShapeFeature( ElementOf=@1402, Id="15",
+PartDefinition=@1011 );
+  @140216:PartShapeFeature( ElementOf=@1402, Id="16",
+PartDefinition=@1011 );
+  @140217:PartShapeFeature( ElementOf=@1402, Id="17",
+PartDefinition=@1011 );
+  @140218:PartShapeFeature( ElementOf=@1402, Id="18",
+PartDefinition=@1011 );
+  @140219:PartShapeFeature( ElementOf=@1402, Id="19",
+PartDefinition=@1011 );
+  @140220:PartShapeFeature( ElementOf=@1402, Id="20",
+PartDefinition=@1011 );
+  @140221:PartShapeFeature( ElementOf=@1402, Id="21",
+PartDefinition=@1011 );
+  @140222:PartShapeFeature( ElementOf=@1402, Id="22",
+PartDefinition=@1011 );
+  @140231:PartShapeFeature( ElementOf=@1402, Id="A",
+PartDefinition=@1011 );
+  @140232:PartShapeFeature( ElementOf=@1402, Id="B",
+PartDefinition=@1011 );
+  @140233:PartShapeFeature( ElementOf=@1402, Id="C",
+PartDefinition=@1011 );
+  @140234:PartShapeFeature( ElementOf=@1402, Id="D",
+PartDefinition=@1011 );
+  @140235:PartShapeFeature( ElementOf=@1402, Id="E",
+PartDefinition=@1011 );
+  @140236:PartShapeFeature( ElementOf=@1402, Id="F",
+PartDefinition=@1011 );
+@1411:SingleOccurrence( Id=IdentifierString("001A1P1X1B"), Definition=@1402
+);
+  # for the occurrence only used cavities/profiles are listed
+  @141100:OccurrenceContactFeature( ElementOf=@1411, Definition=@140200 );
+  @141101:OccurrenceContactFeature( ElementOf=@1411, Definition=@140201 );
+  @141102:OccurrenceContactFeature( ElementOf=@1411, Definition=@140202 );
+  @141103:OccurrenceContactFeature( ElementOf=@1411, Definition=@140203 );
+  @141104:OccurrenceContactFeature( ElementOf=@1411, Definition=@140204 );
+  @141105:OccurrenceContactFeature( ElementOf=@1411, Definition=@140205 );
+  @141106:OccurrenceContactFeature( ElementOf=@1411, Definition=@140206 );
+  @141109:OccurrenceContactFeature( ElementOf=@1411, Definition=@140209 );
+  @141113:OccurrenceContactFeature( ElementOf=@1411, Definition=@140213 );
+  @141114:OccurrenceContactFeature( ElementOf=@1411, Definition=@140214 );
+  @1421:SingleOccurrence( Id=IdentifierString("002A1P1X1B"), Definition=@1402
+);
+  # for the occurrence only used cavities/profiles are listed
+  @142100:OccurrenceContactFeature( ElementOf=@1421, Definition=@140200 );
+  @142101:OccurrenceContactFeature( ElementOf=@1421, Definition=@140201 );
+  @142102:OccurrenceContactFeature( ElementOf=@1421, Definition=@140202 );
+  @142103:OccurrenceContactFeature( ElementOf=@1421, Definition=@140203 );
+  @142104:OccurrenceContactFeature( ElementOf=@1421, Definition=@140204 );
+  @142105:OccurrenceContactFeature( ElementOf=@1421, Definition=@140205 );
+  @142106:OccurrenceContactFeature( ElementOf=@1421, Definition=@140206 );
+  @142109:OccurrenceContactFeature( ElementOf=@1421, Definition=@140209 );
+  @142113:OccurrenceContactFeature( ElementOf=@1421, Definition=@140213 );
+  @142114:OccurrenceContactFeature( ElementOf=@1421, Definition=@140214 );
+
+# connector_contact 620075050
+@1500:Part( Name="QUADRAX CONTACT, SOCKET, 8-GA",
+  PartTypes[i]=PartCategoryEnum(connector_contact),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@1501:PartVersion;
+@1503:Identifier( Id=IdentifierString("EPXB2PB13N"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@1500, @1503, @1501, @1502, @4);
+@1502:PartView;
+  @1591:PartTerminal( ElementOf=@1502, Id="1", DomainType="electrical",
+    InterfaceOrJoinTerminal="join_terminal" );
+  @1592:PartTerminal( ElementOf=@1502, Id="2", DomainType="electrical",
+    InterfaceOrJoinTerminal="join_terminal" );
+  @1593:PartTerminal( ElementOf=@1502, Id="3", DomainType="electrical",
+    InterfaceOrJoinTerminal="join_terminal" );
+  @1594:PartTerminal( ElementOf=@1502, Id="4", DomainType="electrical",
+    InterfaceOrJoinTerminal="join_terminal" );
+  @1595:PartTerminal( ElementOf=@1502, Id="SC", DomainType="electrical",
+    InterfaceOrJoinTerminal="join_terminal" );
+  @1596:PartContactFeature( ElementOf=@1502, PartDefinition=@1002 );
+  @1597:PartShapeFeature( ElementOf=@1502, Id="EPX quadrax connector_contact
+to quadrax cable opening" );
+@1510:SingleOccurrence( Id=IdentifierString("001A1P1X1AQ1"),
+Definition=@1502 );
+  @1511:OccurrenceTerminal( ElementOf=@1510, Definition=@1591 );
+  @1512:OccurrenceTerminal( ElementOf=@1510, Definition=@1592 );
+  @1513:OccurrenceTerminal( ElementOf=@1510, Definition=@1593 );
+  @1514:OccurrenceTerminal( ElementOf=@1510, Definition=@1594 );
+  @1515:OccurrenceTerminal( ElementOf=@1510, Definition=@1595 );
+  @1516:OccurrenceContactFeature( ElementOf=@1510, Definition=@1596 );
+  @1517:OccurrenceShapeFeature( ElementOf=@1510, Definition=@1597 );
+  @1520:SingleOccurrence( Id=IdentifierString("001A1P1X1AQ2"),
+Definition=@1502 );
+  @1521:OccurrenceTerminal( ElementOf=@1520, Definition=@1591 );
+  @1522:OccurrenceTerminal( ElementOf=@1520, Definition=@1592 );
+  @1523:OccurrenceTerminal( ElementOf=@1520, Definition=@1593 );
+  @1524:OccurrenceTerminal( ElementOf=@1520, Definition=@1594 );
+  @1525:OccurrenceTerminal( ElementOf=@1520, Definition=@1595 );
+  @1526:OccurrenceContactFeature( ElementOf=@1520, Definition=@1596 );
+  @1527:OccurrenceShapeFeature( ElementOf=@1520, Definition=@1597 );
+@1530:SingleOccurrence( Id=IdentifierString("001A1P1X1AQ3"),
+Definition=@1502 );
+  @1531:OccurrenceTerminal( ElementOf=@1530, Definition=@1591 );
+  @1532:OccurrenceTerminal( ElementOf=@1530, Definition=@1592 );
+  @1533:OccurrenceTerminal( ElementOf=@1530, Definition=@1593 );
+  @1534:OccurrenceTerminal( ElementOf=@1530, Definition=@1594 );
+  @1535:OccurrenceTerminal( ElementOf=@1530, Definition=@1595 );
+  @1536:OccurrenceContactFeature( ElementOf=@1530, Definition=@1596 );
+  @1537:OccurrenceShapeFeature( ElementOf=@1530, Definition=@1597 );
+@1540:SingleOccurrence( Id=IdentifierString("002A1P1X1AQ1"),
+Definition=@1502 );
+  @1541:OccurrenceTerminal( ElementOf=@1540, Definition=@1591 );
+  @1542:OccurrenceTerminal( ElementOf=@1540, Definition=@1592 );
+  @1543:OccurrenceTerminal( ElementOf=@1540, Definition=@1593 );
+  @1544:OccurrenceTerminal( ElementOf=@1540, Definition=@1594 );
+  @1545:OccurrenceTerminal( ElementOf=@1540, Definition=@1595 );
+  @1546:OccurrenceContactFeature( ElementOf=@1540, Definition=@1596 );
+  @1547:OccurrenceShapeFeature( ElementOf=@1540, Definition=@1597 );
+@1550:SingleOccurrence( Id=IdentifierString("002A1P1X1AQ2"),
+Definition=@1502 );
+  @1551:OccurrenceTerminal( ElementOf=@1550, Definition=@1591 );
+  @1552:OccurrenceTerminal( ElementOf=@1550, Definition=@1592 );
+  @1553:OccurrenceTerminal( ElementOf=@1550, Definition=@1593 );
+  @1554:OccurrenceTerminal( ElementOf=@1550, Definition=@1594 );
+  @1555:OccurrenceTerminal( ElementOf=@1550, Definition=@1595 );
+  @1556:OccurrenceContactFeature( ElementOf=@1550, Definition=@1596 );
+  @1557:OccurrenceShapeFeature( ElementOf=@1550, Definition=@1597 );
+@1560:SingleOccurrence( Id=IdentifierString("002A1P1X1AQ3"),
+Definition=@1502 );
+  @1561:OccurrenceTerminal( ElementOf=@1560, Definition=@1591 );
+  @1562:OccurrenceTerminal( ElementOf=@1560, Definition=@1592 );
+  @1563:OccurrenceTerminal( ElementOf=@1560, Definition=@1593 );
+  @1564:OccurrenceTerminal( ElementOf=@1560, Definition=@1594 );
+  @1565:OccurrenceTerminal( ElementOf=@1560, Definition=@1595 );
+  @1566:OccurrenceContactFeature( ElementOf=@1560, Definition=@1596 );
+  @1567:OccurrenceShapeFeature( ElementOf=@1560, Definition=@1597 );
+
+# connector_contact 617200
+@1600:Part( Name="Pin crimp contacts/size 22",
+  PartTypes[i]=PartCategoryEnum(connector_contact),
+  PartTypes[i]=PartCategoryEnum(discrete) );
+@1601:PartVersion;
+@1603:Identifier( Id=IdentifierString("617200"),
+IdentificationContext=@50 )
+Part_with_ID_and_PartView(@1600, @1603, @1601, @1602, @4);
+@1602:PartView;
+  @1603:PartTerminal( ElementOf=@1502, DomainType="electrical",
+    InterfaceOrJoinTerminal="join_terminal" );
+@16010:SingleOccurrence( Id=IdentifierString("617200_1"),
+Definition=@1602 );
+  @16011:OccurrenceTerminal( ElementOf=@16010, Definition=@1603 );
+@16020:SingleOccurrence( Id=IdentifierString("617200_2"),
+Definition=@1602 );
+  @16021:OccurrenceTerminal( ElementOf=@16020, Definition=@1603 );
+@16030:SingleOccurrence( Id=IdentifierString("617200_3"),
+Definition=@1602 );
+  @16031:OccurrenceTerminal( ElementOf=@16030, Definition=@1603 );
+@16040:SingleOccurrence( Id=IdentifierString("617200_4"),
+Definition=@1602 );
+  @16041:OccurrenceTerminal( ElementOf=@16040, Definition=@1603 );
+@16050:SingleOccurrence( Id=IdentifierString("617200_5"),
+Definition=@1602 );
+  @16051:OccurrenceTerminal( ElementOf=@16050, Definition=@1603 );
+@16060:SingleOccurrence( Id=IdentifierString("617200_6"),
+Definition=@1602 );
+  @16061:OccurrenceTerminal( ElementOf=@16060, Definition=@1603 );
+@16070:SingleOccurrence( Id=IdentifierString("617200_7"),
+Definition=@1602 );
+  @16071:OccurrenceTerminal( ElementOf=@16070, Definition=@1603 );
+@16080:SingleOccurrence( Id=IdentifierString("617200_8"),
+Definition=@1602 );
+  @16081:OccurrenceTerminal( ElementOf=@16080, Definition=@1603 );
+@16090:SingleOccurrence( Id=IdentifierString("617200_9"),
+Definition=@1602 );
+  @16091:OccurrenceTerminal( ElementOf=@16090, Definition=@1603 );
+@16110:SingleOccurrence( Id=IdentifierString("617200_11"), Definition=@1602
+);
+  @16111:OccurrenceTerminal( ElementOf=@16110, Definition=@1603 );
+@16120:SingleOccurrence( Id=IdentifierString("617200_12"), Definition=@1602
+);
+  @16121:OccurrenceTerminal( ElementOf=@16120, Definition=@1603 );
+@16130:SingleOccurrence( Id=IdentifierString("617200_13"), Definition=@1602
+);
+  @16131:OccurrenceTerminal( ElementOf=@16130, Definition=@1603 );
+@16140:SingleOccurrence( Id=IdentifierString("617200_14"), Definition=@1602
+);
+  @16141:OccurrenceTerminal( ElementOf=@16140, Definition=@1603 );
+@16150:SingleOccurrence( Id=IdentifierString("617200_15"), Definition=@1602
+);
+  @16151:OccurrenceTerminal( ElementOf=@16150, Definition=@1603 );
+@16160:SingleOccurrence( Id=IdentifierString("617200_16"), Definition=@1602
+);
+  @16161:OccurrenceTerminal( ElementOf=@16160, Definition=@1603 );
+@16170:SingleOccurrence( Id=IdentifierString("617200_17"), Definition=@1602
+);
+  @16171:OccurrenceTerminal( ElementOf=@16170, Definition=@1603 );
+@16180:SingleOccurrence( Id=IdentifierString("617200_18"), Definition=@1602
+);
+  @16181:OccurrenceTerminal( ElementOf=@16180, Definition=@1603 );
+@16190:SingleOccurrence( Id=IdentifierString("617200_19"), Definition=@1602
+);
+  @16191:OccurrenceTerminal( ElementOf=@16100, Definition=@1603 );
+
+# Cable
+@2100:Part( PartTypes[i]=PartCategoryEnum(cable), PartTypes[i]=PartCategoryEnum(
+raw_material_by_length) );
+@2101:PartVersion;
+@2103:Identifier( Id=IdentifierString("GAC861AH424S"), IdentificationContext=@
+51 )
+Part_with_ID_and_PartView(@2100, @2103, @2101, @2102, @4);
+@2102:PartView;
+  @21020:WirePartIdentification( ElementOf=@2102, DomainType="electrical",
+code=@70 );
+  @21021:WirePartIdentification( ElementOf=@2102, DomainType="electrical",
+code=@71 );
+  @21022:WirePartIdentification( ElementOf=@2102, DomainType="electrical",
+code=@72 );
+  @21023:WirePartIdentification( ElementOf=@2102, DomainType="electrical",
+code=@73 );
+  @21024:WirePartIdentification( ElementOf=@2102, DomainType="electrical",
+code=@74 );
+@2110:CableOccurrence( Id=IdentifierString("403-4S1"), Definition=@502,
+Quantity=@2111 );
+  @2111:NumericalValue( Unit=@8, ValueComponent=1.8 );
+  @21120:WireOccurrenceIdentification( ElementOf=@2110,
+Definition=@21020 );
+  @21121:WireOccurrenceIdentification( ElementOf=@2110,
+Definition=@21021 );
+  @21122:WireOccurrenceIdentification( ElementOf=@2110,
+Definition=@21022 );
+  @21123:WireOccurrenceIdentification( ElementOf=@2110,
+Definition=@21023 );
+  @21124:WireOccurrenceIdentification( ElementOf=@2110,
+Definition=@21024 );
+  @21125:CableOccurrenceTerminalLocationGroup( ElementOf=@2110, Name="end
+a" );
+    @211250:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21120 );
+    @211251:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21121 );
+    @211252:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21122 );
+    @211253:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21123 );
+    @211254:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21124 );
+    @21126:CableOccurrenceTerminalLocationGroup( ElementOf=@2110, Name="end
+b" );
+    @211260:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21120 );
+    @211261:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21121 );
+    @211262:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21122 );
+    @211263:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21123 );
+    @211264:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21124 );
+@2120:CableOccurrence( Id=IdentifierString("403-4S2"), Definition=@502,
+Quantity=@2111 );
+  @2121:NumericalValue( Unit=@8, ValueComponent=1.8 );
+  @21220:WireOccurrenceIdentification( ElementOf=@2120,
+Definition=@21020 );
+  @21221:WireOccurrenceIdentification( ElementOf=@2120,
+Definition=@21021 );
+  @21222:WireOccurrenceIdentification( ElementOf=@2120,
+Definition=@21022 );
+  @21223:WireOccurrenceIdentification( ElementOf=@2120,
+Definition=@21023 );
+  @21224:WireOccurrenceIdentification( ElementOf=@2120,
+Definition=@21024 );
+);
+    @211250:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21120 );
+    @211251:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21121 );
+    @211252:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21122 );
+    @211253:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21123 );
+    @211254:CableOccurrenceTerminal( ElementOf=@21125, AssociatedTransportFeature=@
+21124 );
+  @21126:CableOccurrenceTerminalLocationGroup( ElementOf=@2120, Name="end
+b" );
+    @211260:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21120 );
+    @211261:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21121 );
+    @211262:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21122 );
+    @211263:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21123 );
+    @211264:CableOccurrenceTerminal( ElementOf=@21126, AssociatedTransportFeature=@
+21124 );
+@2130:CableOccurrence( Id=IdentifierString("403-4S5"), Definition=@502,
+Quantity=@2131 );
+  @2131:NumericalValue( Unit=@8, ValueComponent=1.8 );
+  @21300:WireOccurrenceIdentification( ElementOf=@2130,
+Definition=@21020 );
+  @21301:WireOccurrenceIdentification( ElementOf=@2130,
+Definition=@21021 );
+  @21302:WireOccurrenceIdentification( ElementOf=@2130,
+Definition=@21022 );
+  @21303:WireOccurrenceIdentification( ElementOf=@2130,
+Definition=@21023 );
+  @21304:WireOccurrenceIdentification( ElementOf=@2130,
+Definition=@21024 );
+  @21305:CableOccurrenceTerminalLocationGroup( ElementOf=@2130, Name="end
+a" );
+    @213050:CableOccurrenceTerminal( ElementOf=@21305, AssociatedTransportFeature=@
+21120 );
+    @213051:CableOccurrenceTerminal( ElementOf=@21305, AssociatedTransportFeature=@
+21121 );
+    @213052:CableOccurrenceTerminal( ElementOf=@21305, AssociatedTransportFeature=@
+21122 );
+    @213053:CableOccurrenceTerminal( ElementOf=@21305, AssociatedTransportFeature=@
+21123 );
+    @213054:CableOccurrenceTerminal( ElementOf=@21305, AssociatedTransportFeature=@
+21124 );
+  @21306:CableOccurrenceTerminalLocationGroup( ElementOf=@2110, Name="end
+b" );
+    @213060:CableOccurrenceTerminal( ElementOf=@21306, AssociatedTransportFeature=@
+21120 );
+    @213061:CableOccurrenceTerminal( ElementOf=@21306, AssociatedTransportFeature=@
+21121 );
+    @213062:CableOccurrenceTerminal( ElementOf=@21306, AssociatedTransportFeature=@
+21122 );
+    @213063:CableOccurrenceTerminal( ElementOf=@21306, AssociatedTransportFeature=@
+21123 );
+    @213064:CableOccurrenceTerminal( ElementOf=@21306, AssociatedTransportFeature=@
+21124 );
+
+# Wire
+@2200:Part( PartTypes[i]=PartCategoryEnum(wire),
+  PartTypes[i]=PartCategoryEnum(raw_material_by_length) );
+@2201:PartVersion;
+@2203:Identifier( Id=IdentifierString("04034-22-9"),
+IdentificationContext=@52 )
+Part_with_ID_and_PartView(@2200, @2203, @2201, @2202, @4);
+@2202:PartView;
+  @22021:WirePartIdentification( ElementOf=@2202, DomainType="electrical");
+@2210:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22101 );
+  @22101:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22102=WireOccurrenceIdentification( ElementOf=@2210, Definition=@22021 )
+  @22103=WireOccurrenceTerminal( ElementOf=@2210, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22104=WireOccurrenceTerminal( ElementOf=@2210, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2220:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22201 );
+  @22201:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22202=WireOccurrenceIdentification( ElementOf=@2220, Definition=@22021 )
+  @22203=WireOccurrenceTerminal( ElementOf=@2220, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+@22204=WireOccurrenceTerminal( ElementOf=@2220, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2230:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22301 );
+  @22301:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22302=WireOccurrenceIdentification( ElementOf=@2310, Definition=@22021 )
+  @22303=WireOccurrenceTerminal( ElementOf=@2230, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22304=WireOccurrenceTerminal( ElementOf=@2230, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2240:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22401 );
+  @22401:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22402=WireOccurrenceIdentification( ElementOf=@2240, Definition=@22021 )
+  @22403=WireOccurrenceTerminal( ElementOf=@2240, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22404=WireOccurrenceTerminal( ElementOf=@2240, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2250:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22501 );
+  @22501:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22502=WireOccurrenceIdentification( ElementOf=@2250, Definition=@22021 )
+  @22503=WireOccurrenceTerminal( ElementOf=@2250, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22504=WireOccurrenceTerminal( ElementOf=@2250, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2260:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22601 );
+  @22601:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22602=WireOccurrenceIdentification( ElementOf=@2260, Definition=@22021 )
+  @22603=WireOccurrenceTerminal( ElementOf=@2260, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22604=WireOccurrenceTerminal( ElementOf=@2260, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2270:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22701 );
+  @22701:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22702=WireOccurrenceIdentification( ElementOf=@2270, Definition=@22021 )
+  @22703=WireOccurrenceTerminal( ElementOf=@2270, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22704=WireOccurrenceTerminal( ElementOf=@2270, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2280:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22801 );
+  @22801:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22802=WireOccurrenceIdentification( ElementOf=@2280, Definition=@22021 )
+  @22803=WireOccurrenceTerminal( ElementOf=@2280, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22804=WireOccurrenceTerminal( ElementOf=@2280, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+@2290:WireOccurrence( Id=IdentifierString("W194C22-4"), Definition=@2202,
+Quantity=@22901 );
+  @22901:NumericalValue( Unit=@8, ValueComponent=2.490851 );
+  @22902=WireOccurrenceIdentification( ElementOf=@2290, Definition=@22021 )
+  @22903=WireOccurrenceTerminal( ElementOf=@2290, AssociatedTransportFeature=@
+22102,
+    Name="end a" );
+  @22904=WireOccurrenceTerminal( ElementOf=@2290, AssociatedTransportFeature=@
+22102,
+    Name="end b" );
+
+# EWH-Assembly
+@9000:Part;
+@9001:PartVersion;
+@9003:ViewContext;
+@9004:ViewContext;
+Part_WiringHarnessAssemblyDesign_with_topology( @9000,
+  "EWH Test-Case Connectivity5",@9001,@9002,@9003,@9004 );
+@9002:WiringHarnessAssemblyDesign( Topology=@9901 );
+
+@9101:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@11010 ); #
+001A1P1X1
+@9102:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@11020 ); #
+002A1P1X1
+@9103:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@12010 ); #
+001A1P1XE
+@9104:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@12020 ); #
+002A1P1XE
+@9105:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1311 ); #
+001A1P1X1A
+@9106:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1321 ); #
+002A1P1X1A
+@9107:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1411 ); #
+001A1P1X1B
+@9108:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1421 ); #
+002A1P1X1B
+@9109:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1510 ); #
+001A1P1X1AQ1
+@9110:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1520 ); #
+001A1P1X1AQ1
+@9111:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1530 ); #
+001A1P1X1AQ1
+@9112:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1540 ); #
+002A1P1X1AQ1
+@9113:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1550 ); #
+002A1P1X1AQ1
+@9114:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@1560 ); #
+002A1P1X1AQ1
+@9115:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16010 ); #
+617200_1
+@9116:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16020 ); #
+617200_2
+@9117:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16030 ); #
+617200_3
+@9118:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16040 ); #
+617200_4
+@9119:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16050 ); #
+617200_5
+@9120:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16060 ); #
+617200_6
+@9121:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16070 ); #
+617200_7
+@9122:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16080 ); #
+617200_8
+@9123:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16090 ); #
+617200_9
+@9124:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16100 ); #
+617200_10
+@9125:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16110 ); #
+617200_11
+@9126:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16120 ); #
+617200_12
+@9127:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16130 ); #
+617200_13
+@9128:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16140 ); #
+617200_14
+@9129:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16150 ); #
+617200_15
+@9130:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16160 ); #
+617200_16
+@9131:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16170 ); #
+617200_17
+@9132:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@16180 ); #
+617200_19
+@9141:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@2110 ); # 403-
+4S1
+@9142:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@2120 ); # 403-
+4S2
+@9143:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@2130 ); # 403-
+4S5
+@9151:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W194C22-4
+@9152:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W194D22-4
+@9153:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W194J22-4
+@9154:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W194H22-4
+@9155:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W195EA22-
+4
+@9156:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W195KA22-
+4
+@9157:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W302D22-4
+@9158:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W302H22-4
+@9159:NextAssemblyOccurrenceUsage( Relating=@9002, Related=@ ); # W304EA22-
+4
+
+# electrical AssemblyShapeJoints:
+Joint2(@9002, @1511, @211250, "crimped_connection"); # TERM104
+Joint2(@9002, @1512, @211251, "crimped_connection"); # TERM100
+Joint2(@9002, @1513, @211252, "crimped_connection"); # TERM102
+Joint2(@9002, @1514, @211253, "crimped_connection"); # TERM101
+Joint2(@9002, @1515, @211254, "crimped_connection"); # TERM103
+
+Joint2(@9002, @1521, @211260, "crimped_connection"); # TERM128
+Joint2(@9002, @1522, @211261, "crimped_connection"); # TERM124
+Joint2(@9002, @1523, @211262, "crimped_connection"); # TERM126
+Joint2(@9002, @1524, @211263, "crimped_connection"); # TERM125
+Joint2(@9002, @1525, @211264, "crimped_connection"); # TERM127
+
+Joint2(@9002, @1531, @211250, "crimped_connection"); # TERM109
+Joint2(@9002, @1532, @211251, "crimped_connection"); # TERM107
+Joint2(@9002, @1533, @211252, "crimped_connection"); # TERM105
+Joint2(@9002, @1534, @211253, "crimped_connection"); # TERM106
+Joint2(@9002, @1535, @211254, "crimped_connection"); # TERM108
+
+Joint2(@9002, @1541, @211260, "crimped_connection"); # TERM133
+Joint2(@9002, @1542, @211261, "crimped_connection"); # TERM131
+Joint2(@9002, @1543, @211262, "crimped_connection"); # TERM129
+Joint2(@9002, @1544, @211263, "crimped_connection"); # TERM130
+Joint2(@9002, @1545, @211264, "crimped_connection"); # TERM132
+
+Joint2(@9002, @1551, @213050, "crimped_connection"); # TERM114
+Joint2(@9002, @1552, @213051, "crimped_connection"); # TERM112
+Joint2(@9002, @1553, @213052, "crimped_connection"); # TERM110
+Joint2(@9002, @1554, @213053, "crimped_connection"); # TERM111
+Joint2(@9002, @1555, @213054, "crimped_connection"); # TERM113
+
+Joint2(@9002, @1561, @213060, "crimped_connection"); # TERM138
+Joint2(@9002, @1562, @213061, "crimped_connection"); # TERM136
+Joint2(@9002, @1563, @213062, "crimped_connection"); # TERM134
+Joint2(@9002, @1564, @213063, "crimped_connection"); # TERM135
+Joint2(@9002, @1565, @213064, "crimped_connection"); # TERM137
+
+Joint2(@9002, @16011, @22103, "crimped_connection"); # TERM116
+Joint2(@9002, @16021, @22203, "crimped_connection"); # TERM117
+Joint2(@9002, @16031, @22303, "crimped_connection"); # TERM118
+Joint2(@9002, @16041, @22403, "crimped_connection"); # TERM119
+Joint2(@9002, @16051, @22503, "crimped_connection"); # TERM121
+Joint2(@9002, @16061, @22603, "crimped_connection"); # TERM122
+Joint2(@9002, @16071, @22703, "crimped_connection"); # TERM120
+Joint2(@9002, @16081, @22803, "crimped_connection"); # TERM115
+Joint2(@9002, @16091, @22903, "crimped_connection"); # TERM123
+
+Joint2(@9002, @16111, @22104, "crimped_connection"); # TERM140
+Joint2(@9002, @16121, @22204, "crimped_connection"); # TERM141
+Joint2(@9002, @16131, @22304, "crimped_connection"); # TERM142
+Joint2(@9002, @16141, @22404, "crimped_connection"); # TERM143
+Joint2(@9002, @16151, @22504, "crimped_connection"); # TERM145
+Joint2(@9002, @16161, @22604, "crimped_connection"); # TERM146
+Joint2(@9002, @16171, @22704, "crimped_connection"); # TERM144
+Joint2(@9002, @16181, @22804, "crimped_connection"); # TERM139
+Joint2(@9002, @16191, @22904, "crimped_connection"); # TERM147
+
+# mechanical AssemblyShapeJoints:
+Joint2(@9002, @1517, @13111, "snap_connection"); # 001A1P1X1AQ1 into
+001A1P1X1A/1
+Joint2(@9002, @1527, @13112, "snap_connection"); # 001A1P1X1AQ2 into
+001A1P1X1A/2
+Joint2(@9002, @1537, @13113, "snap_connection"); # 001A1P1X1AQ3 into
+001A1P1X1A/3
+
+Joint2(@9002, @1547, @13211, "snap_connection"); # 002A1P1X1AQ1 into
+002A1P1X1A/1
+Joint2(@9002, @1557, @13212, "snap_connection"); # 002A1P1X1AQ2 into
+002A1P1X1A/2
+Joint2(@9002, @1567, @13213, "snap_connection"); # 002A1P1X1AQ3 into
+002A1P1X1A/3
+
+Joint2(@9002, @16011, @141101, "snap_connection"); # 617200_1 into
+001A1P1X1B/1
+Joint2(@9002, @16021, @141102, "snap_connection"); # 617200_2 into
+001A1P1X1B/2
+Joint2(@9002, @16031, @141103, "snap_connection"); # 617200_3 into
+001A1P1X1B/3
+
+Joint2(@9002, @16041, @141104, "snap_connection"); # 617200_4 into
+001A1P1X1B/4
+Joint2(@9002, @16051, @141105, "snap_connection"); # 617200_5 into
+001A1P1X1B/5
+Joint2(@9002, @16061, @141106, "snap_connection"); # 617200_6 into
+001A1P1X1B/6
+Joint2(@9002, @16071, @141109, "snap_connection"); # 617200_7 into
+001A1P1X1B/9
+Joint2(@9002, @16081, @141113, "snap_connection"); # 617200_8 into
+001A1P1X1B/13
+Joint2(@9002, @16091, @141114, "snap_connection"); # 617200_9 into
+001A1P1X1B/14
+Joint2(@9002, @16101, @142101, "snap_connection"); # 617200_10 into
+002A1P1X1B/1
+
+Joint2(@9002, @16111, @142102, "snap_connection"); # 617200_11 into
+002A1P1X1B/2
+Joint2(@9002, @16121, @142103, "snap_connection"); # 617200_12into
+002A1P1X1B/3
+Joint2(@9002, @16131, @142104, "snap_connection"); # 617200_13 into
+002A1P1X1B/4
+Joint2(@9002, @16141, @142105, "snap_connection"); # 617200_14 into
+002A1P1X1B/5
+Joint2(@9002, @16151, @142106, "snap_connection"); # 617200_15 into
+002A1P1X1B/6
+Joint2(@9002, @16161, @142109, "snap_connection"); # 617200_16 into
+002A1P1X1B/9
+Joint2(@9002, @16171, @142113, "snap_connection"); # 617200_17 into
+002A1P1X1B/13
+Joint2(@9002, @16181, @142114, "snap_connection"); # 617200_19 into
+002A1P1X1B/14
+
+Joint2(@9002, @13114, @11011, "screwed_connection"); # 001A1P1X1A into
+001A1P1X1/A
+Joint2(@9002, @141100, @11012, "screwed_connection"); # 001A1P1X1B into
+001A1P1X1/B
+Joint2(@9002, @120101, @11013, "screwed_connection"); # 001A1P1XE into
+001A1P1X1/(backside)
+
+Joint2(@9002, @13214, @11021, "screwed_connection"); # 002A1P1X1A into
+002A1P1X1/A
+Joint2(@9002, @142100, @11022, "screwed_connection"); # 002A1P1X1B into
+002A1P1X1/B
+Joint2(@9002, @120201, @11023, "screwed_connection"); # 002A1P1XE into
+002A1P1X1/(backside)
+
+@9801:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99201, Attached-
+Feature=@ );
+@9802:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99202, Attached-
+Feature=@ );
+@9803:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99203, Attached-
+Feature=@ );
+@9804:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99204, Attached-
+Feature=@ );
+@9805:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99205, Attached-
+Feature=@ );
+@9806:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99206, Attached-
+Feature=@ );
+@9807:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99207, Attached-
+Feature=@ );
+@9808:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99208, Attached-
+Feature=@ );
+@9809:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99209, Attached-
+Feature=@ );
+@9810:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99210, Attached-
+Feature=@ );
+@9811:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99211, Attached-
+Feature=@ );
+@9812:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99212, Attached-
+Feature=@ );
+@9813:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99213, Attached-
+Feature=@ );
+@9814:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99214, Attached-
+Feature=@ );
+@9815:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99215, Attached-
+Feature=@ );
+@9816:HarnessNode( ElementOf=@9002, RepresentedGeometry=@99216, Attached-
+Feature=@ );
+
+@9900:GeometricCoordinateSpace( Units=@8, DimensionCount=1 );
+@9901:EdgeBasedTopologicalRepresentationWithLengthConstraint(
+  Items=(@9902), ContextOfItems=@9900 );
+@9902:ConnectedEdgeSet( ConnectedEdges=(@99301,@99302,@99303,@99304,@99305,
+@99306,
+
+@99307,@99308,@99309,@99310,@99311 ) );
+
+@99101:Point();
+@99102:Point();
+@99103:Point();
+@99104:Point();
+@99105:Point();
+@99106:Point();
+@99107:Point();
+@99108:Point();
+@99109:Point();
+@99110:Point();
+@99111:Point();
+@99112:Point();
+@99113:Point();
+@99114:Point();
+@99115:Point();
+@99116:Point();
+
+@99201:VertexPoint( name='N1002' VertexGeometry=@99101 );
+@99202:VertexPoint( name='N1003' VertexGeometry=@99102 );
+@99203:VertexPoint( name='N1005' VertexGeometry=@99103 );
+@99204:VertexPoint( name='N1006' VertexGeometry=@99104 );
+@99205:VertexPoint( name='N1008' VertexGeometry=@99105 );
+@99206:VertexPoint( name='N1009' VertexGeometry=@99106 );
+@99207:VertexPoint( name='N1010' VertexGeometry=@99107 );
+@99208:VertexPoint( name='N1011' VertexGeometry=@99108 );
+@99209:VertexPoint( name='N1012' VertexGeometry=@99109 );
+@99210:VertexPoint( name='N1013' VertexGeometry=@99110 );
+@99211:VertexPoint( name='N1014' VertexGeometry=@99111 );
+@99212:VertexPoint( name='N1015' VertexGeometry=@99112 );
+@99213:VertexPoint( name='N1016' VertexGeometry=@99113 );
+@99214:VertexPoint( name='N1017' VertexGeometry=@99114 );
+@99215:VertexPoint( name='N1020' VertexGeometry=@99115 );
+@99216:VertexPoint( name='N1021' VertexGeometry=@99116 );
+
+@99301:EdgeBoundedCurveWithLength( name='BUN802', EdgeGeometry=@99401 );
+undirected_edge(@9931, @9921, @9923)
+@99302:EdgeBoundedCurveWithLength( name='BUN803', EdgeGeometry=@99402 );
+undirected_edge(@9932, @9922, @9923)
+@99303:EdgeBoundedCurveWithLength( name='BUN804', EdgeGeometry=@99403 );
+undirected_edge(@9933, @9923, @9924);
+@99304:EdgeBoundedCurveWithLength( name='BUN805', EdgeGeometry=@99404 );
+undirected_edge(@9934, @9924, @9925);
+@99305:EdgeBoundedCurveWithLength( name='BUN806', EdgeGeometry=@99405 );
+undirected_edge(@9935,@9924,@9926);
+@99306:EdgeBoundedCurveWithLength( name='BUN807', EdgeGeometry=@99406 );
+undirected_edge(@9935,@9924,@9926);
+@99307:EdgeBoundedCurveWithLength( name='BUN808', EdgeGeometry=@99407 );
+undirected_edge(@9935,@9924,@9926);
+@99308:EdgeBoundedCurveWithLength( name='BUN809', EdgeGeometry=@99408 );
+undirected_edge(@9935,@9924,@9926);
+@99309:EdgeBoundedCurveWithLength( name='BUN810', EdgeGeometry=@99409 );
+undirected_edge(@9935,@9924,@9926);
+@99310:EdgeBoundedCurveWithLength( name='BUN811', EdgeGeometry=@99410 );
+undirected_edge(@9935,@9924,@9926);
+@99311:EdgeBoundedCurveWithLength( name='BUN812', EdgeGeometry=@99411 );
+undirected_edge(@9935,@9924,@9926);
+
+@99401:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(0.381) );
+@99402:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(0.635) );
+@99403:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(1.077468)
+);
+@99404:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(1.170686)
+);
+@99405:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(0.889) );
+@99406:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(1.591056)
+);
+@99407:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(1.655826)
+);
+@99408:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(0.889) );
+@99409:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(0.635) );
+@99410:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(0.381) );
+@99411:BoundedCurveWithLength( CurveLength=PositiveLengthMeasure(0.74041) )
+;
+
+);
+----

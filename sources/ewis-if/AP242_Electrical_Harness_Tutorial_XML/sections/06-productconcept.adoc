@@ -1,0 +1,148 @@
+[[cls-6]]
+== ProductConcept/Class and ProductConfiguration
+
+A similar concept to the combination of _Part_, _PartVersion_ and _PartView_ is
+available with the combination of _ProductClass_ and _ProductConfiguration_. The
+main difference is that a _Part_ has a part-Number (=id) by which it is identified.
+Also a _PartView_ is expected to provide all needed details for a given
+_ApplicationDomain_ (e.g. "electrical") and _LiveCycleStage_ (e.g. "design").
+_ProductConcept_ together with _ProductConfiguration_ on the other hand provides
+only a few characteristics needed for market presentation. There are no design
+details. However for variant products _Specifications_ can be used to characterize
+the high level (alternative) options that are available for a _ProductClass_.
+
+[CAUTION,type=recommendation]
+====
+Use subtype _ProductClass_ always. On the MIM/IR level this is
+required to have any property values defined for this.
+====
+
+There are two main usages for the use of _ProductClass_ & _ProductConfiguration_,
+one is for the usage of standard piece parts for which only *catalogue data* is
+available, but no further detailed information. The other use is for the
+configuration of *high end products* that may come in many different configurations.
+This usage comes together with the concept of Product _Specifications_ that are not
+covered in this tutorial.
+
+While _ProductClass_ & _ProductConfiguration_ represents a *customer view*, there
+might be one or several corresponding Part/PartVersion and PartView to represent
+detailed *design view*. A _ProductDesignAssociation_ links between the customer view
+and the design view.
+
+A single _Part/PartVersion_ and _PartView_ might be used to capture the design
+information of several similar _ProductConfigurations_ (typically of the same
+_ProductClass_). For this case the _PartView_ (typically subtype
+_AssemblyDefinition_) has to contain all the needed alternative and optional
+assembly components and _ShapeFeatures_. So the design contains more than what can
+actually be manufactured for a single individual. Such a design is called a 150%
+product structure. _ConfiguredAssemblyEffectivity_ is used to select the 100% out of
+the 150% of the product structure that applies for the associated
+_ProductConfiguration_.
+
+[[fig7]]
+.Simplified data model for Product Specification and Configuration
+image::img07.png[]
+
+Both, _ProductConfiguration_ and _PartView_ can be used as _Definition_ for
+_DefinitionBasedOccurrences_ that may show up in a WiringHarnessAssemblyDesign. To
+support this both, _ProductConfiguration_ and _PartView_ can have
+_PropertyValueAssignments_ (e.g. "open-circuit voltage" = 12V) and _PartTerminals_
+(e.g. "PLUS" and "MINUS" for the provided battery example).
+
+[[cls-6.1]]
+=== Standard piece parts
+
+In this example a standard battery of 12V and a capacity of 100Ah is defined. No
+design details are provided. For further details such as classification and
+properties see <<cls-7>>. A SingleOccurrence with id "battery1" is defined for this
+kind of battery that can then be used in an assembly (see <<cls-8>>).
+
+Example taken of HarnessExample_Hierachical.xml:
+
+[%unnumbered]
+[source,xml]
+----
+<ProductConcept xsi:type="n0:ProductClass" uid="_124000">
+  ...
+  <Id id="Battery-Std"/>
+  <Name>
+    <CharacterString>Standard Battery</CharacterString>
+  </Name>
+  <ProductConfiguration uid="_124001">
+    <Id id="Battery-Std"/>
+    <Name>
+      <CharacterString>Battery,12V,100Ah</CharacterString>
+    </Name>
+    <Occurrence xsi:type="n0:SingleOccurrence" uid="_224100">
+      <Id id="battery1"/>
+    </Occurrence>
+    ...
+  </ProductConfiguration>
+</ProductConcept>
+----
+
+[[cls-6.2]]
+=== Top level assembly with 150% product structure
+
+Example taken out of HarnessExample_Hierachical.xml:
+
+A _ProductClass_ for the harness H1 is defined that contains two alternative
+_ProductConfigurations_, one with a stereo plug and the other with 2 hookup lugs.
+Both _ProductConfigurations_ are associated to the same
+_WiringHarnessAssemblyDesign_ "_311001" (sub-subtype of __PartView__).
+
+The first _ProductConfiguration_ disables the occurrences for lug3 and lug4 as well
+as the corresponding _AssemblyShapeJoints_ for these 2 lugs. In the second
+_ProductConfiguration_ the phone1 connector is disabled together with the
+corresponding _AssemblyShapeJoints_ (subtypes of _ShapeElement_) that connects the
+phone1 terminals.
+
+[%unnumbered]
+[source,xml]
+----
+<ProductConcept xsi:type="n0:ProductClass" uid="_390000">
+  <Id id="H1 class"/>
+  <Name>
+    <CharacterString>H1 harness</CharacterString>
+  </Name>
+
+  <ProductConfiguration uid="_391000">
+    <Id id="H1 stereo plug"/>
+    <Name><CharacterString>H1 harness with stereo plug</CharacterString></Name>
+    <ProductDesignAssociation uid="_391010">
+      <AssociatedDesign uidRef="_311001"/>
+      <ConfiguredAssemblyEffectivity uid="_391011">
+        <ConfiguredElements>
+          <Occurrence uidRef="_203205"/> <!--no lug3-->
+          <PartShapeElement uidRef="_311053"/> <!--no lug3/crimp join-->
+          <Occurrence uidRef="_203305"/> <!--no lug4-->
+          <PartShapeElement uidRef="_311054"/> <!--no lug4/crimp join-->
+        </ConfiguredElements>
+      </ConfiguredAssemblyEffectivity>
+    </ProductDesignAssociation>
+</ProductConfiguration>
+
+<ProductConfiguration uid="_392000">
+  <Id id="H1 hookup lugs"/>
+  <Name><CharacterString>H1 harness with hookup lugs</CharacterString></Name>
+  <ProductDesignAssociation uid="_392010">
+    <AssociatedDesign uidRef="_311001"/>
+    <ConfiguredAssemblyEffectivity uid="_392011">
+      <ConfiguredElements>
+        <Occurrence uidRef="_217100"/> <!--no phone1-->
+        <PartShapeElement uidRef="_311020"/> <!--no phone1#Join signal-->
+        <PartShapeElement uidRef="_311021"/> <!--no phone1#Join gnd-->
+      </ConfiguredElements>
+    </ConfiguredAssemblyEffectivity>
+  </ProductDesignAssociation>
+</ProductConfiguration>
+
+</ProductConcept>
+----
+
+[[cls-6.3]]
+=== Highly configurable end product with Specifications and ProductBreakdown
+
+For a wiring harness assembly design with very many variants it might be more useful
+to use a Breakdown structure. AP242 provides this capability, however as of today no
+example has been worked out for a wiring harness.

@@ -1,0 +1,475 @@
+[[cls-8]]
+== Occurrences and Multi-level Assembly Structure
+
+AP242 allows to build up single and multi level assembly structures. Each assembly,
+either a top assembly or an intermediate sub-assembly, is represented by an
+_AssemblyDefinition_ that is a subtype of _PartView_. The "components" of an
+_AssemblyDefinition_ are subtypes of _Occurrence_ that are related into the assembly
+through _AssemblyOccurrenceRelationships_. Its supertype
+_ViewOccurrenceRelationship_ allows in a generic way to relate an _Occurrence_ to a
+_PartView_.
+
+In cases that a set of Occurrences belong together but are not physically combined
+with each other a _CollectionDefinition_ is to be used, that is also a subtype of
+PartView.
+
+An AssemblyDefinition is the relating target of an AssemblyOccurrenceRelationship
+that is a subtype of ViewOccurrenceRelationship that in a generic way establishes a
+relation between an Occurrence and a PartView. An AssemblyOccurrenceRelationship is
+either a NextAssemblyOccurrenceUsage or a PromissoryAssemblyOccurrenceUsage. A
+NextAssemblyOccurrenceUsage makes an Occurrence a direct constituent of an
+AssemblyDefinition. A PromissoryAssemblyOccurrenceUsage only indicates that an
+Occurrence may become an constituent in some way, maybe in some indirect way.
+
+An Occurrence may be defined in three different ways:
+
+. In most cases an Occurrence is a particular usage of a PartView that inherits all
+its attributes including the geometric models from the PartView unless it is said
+otherwise.
+. But an Occurrence may also be a usage of a ProductConfiguration that is a member
+of a ProductClass. This case is used especially for standard parts that are bought
+off the shelf with only limited design information.
+. A third case is when an Occurrence is defined by a lower level Occurrence in the
+context of a higher level Occurrence. The specific subtype SpecifiedOccurrence is
+used in this case, see below and clause 5.6.
+
+Occurrence itself is an abstract concept. One of the following subtype has to be used:
+
+* A DefinitionBasedOccurrence is an Occurrence that is also abstract and that has as
+its definition either a PartView or a ProductConfiguration (but not another
+Occurrence).
+** A SingleOccurrence is a DefinitionBasedOccurrence that is taken from its
+definition as a single piece.
+** A QuantifiedOccurrence is a DefinitionBasedOccurrence that is taken from its
+definition in some quantity. The quantity can be defined in the number of pieces
+(e.g. 10 rivets), or by length (e.g. 2m wire), or by surface (e.g. 3 sqm. of glass)
+or by volume (2.5 litre of oil). It the quantity can not be specified exactly an
+alternative criterion can be specified (e.g. enough glue for the whole surface). At
+least either the quantity or the criterion must be specified.
+* A SpecifiedOccurrence is an Occurrence that has as its definition another
+Occurrence. This definition is used by a NextAssemblyUsage in an AssemblyDefinition.
+In parallel the SpecifiedOccurrence calls out by the attribute UpperUsage one more
+other Occurrence, that has as its Definition (directly or indirectly) this
+AssemblyDefinition.
+
+A single or multi level assembly structure shall form a directed acyclic graph.
+_ProductConfigurations_, _PartViews_, _AssemblyDefinitions_ and _Occurrences_ are
+the nodes, while _AssemblyOccurrenceRelationships_, and the attribute
+_Occurrence.Definition_ are the links between the nodes in this graph. Other than
+that this graph shall be "directed" and "acyclic" the following constraints apply:
+
+* An Occurrence can be related at most once into an AssemblyDefinition, but an
+Occurrence can be related several times into different AssemblyDefinitions; e.g. to
+represent variants.
+* In the case that an Occurrence is defined by a PartView, this PartView must not be
+the AssemblyDefinition into which the Occurrence is related to nor any of its higher
+AssemblyDefinitions.
+* PartViews or AssemblyDefinitions at different levels of an assembly structure
+shall not share the same PartVersion nor the same Part.
+
+See the "Recommended Practices for AP242 Business Object Model XML Assembly
+Structure" for detailed information on how to implement assembly structures in
+general.
+
+Clause 5.6 provides a detailed example of a hierarchical assembly structure with
+SpecifiedOccurrence.
+
+[CAUTION,type=attention]
+====
+Do not use the types AssemblyViewRelationship, NextAssemblyViewUsage and
+PromissoryAssemblyViewUsage for electrical harness. These types had been introduced
+in AP242 for the harmonization with AP239 (PLCS), but they do in no way support the
+functionality needed for electrical harness.
+====
+
+[TODO]
+====
+[[fig8]]
+.Detailed assembly structure model
+image::img08.png[]
+====
+
+The attribute Id of Occurrences shall be unique within all Occurrences used within
+an AssemblyDefinition. It is used as reference designator. In most cases a simple
+IdentifierString is sufficient. If there is a need to call out a specific reference
+designator system (e.g. IEC, IEEE or company specific) the Identifier Object with a
+Classification can be used.
+
+See an overview of "IEC Reference Designations" at: +
+http://myelectrical.com/notes/entryid/24/iec-reference-designations
+
+The attribute Id of ViewOccurrenceRelationship and all its subtypes is optional.
+Recommendation is to not use this attribute.
+
+[[cls-8.1]]
+=== Example occurrences
+
+[TODO]
+====
+Add Example for SingleOccurrence
+
+Quantified Occurrence
+
+Use only these examples for the next 2 clauses
+====
+
+[[cls-8.2]]
+=== Flat assembly
+
+Extract from HarnessExample_flat.xml:
+
+TODO: remove wire/cabel ...
+
+H1-example
+
+[%unnumbered]
+[source,xml]
+----
+<Part uid="_311000">
+  <Id id="Part_H1"/>
+  ...
+  <Versions>
+    <PartVersion uid="_311001">
+    <Id/>
+    <Views>
+      <PartView xsi:type="n0:WiringHarnessAssemblyDesign" uid="_311002">
+      ...
+        <ViewOccurrenceRelationship uid="_315011"
+        xsi:type="n0:NextAssemblyOccurrenceUsage">
+          <Related uidRef="_201004"/> <!--WireOccurrence wire1-->
+          <RelationType><ClassString>next assembly
+occurrence</ClassString></RelationType>
+          <Placement>
+            <GeometryToTopologyModelAssociation uidRef="_321080"/>
+          </Placement>
+        </ViewOccurrenceRelationship>
+        <ViewOccurrenceRelationship uid="_315012"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="_201104"/>
+            <!--WireOccurrence wire2-->
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <GeometryToTopologyModelAssociation uidRef="_321081"/>
+            </Placement>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="_315013"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+              <Related uidRef="_201204"/>
+              <!--WireOccurrence wire3-->
+              <RelationType>
+                <ClassString>next assembly occurrence</ClassString>
+              </RelationType>
+              <Placement>
+                <GeometryToTopologyModelAssociation uidRef="_321082"/>
+              </Placement>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="_315003"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+              <Related uidRef="_202006"/>
+              <!--CableOccurrence cable1 (RG 58) -->
+              <RelationType>
+                <ClassString>next assembly occurrence</ClassString>
+              </RelationType>
+              <Placement>
+                <GeometryToTopologyModelAssociation uidRef="_321083"/>
+              </Placement>
+            </ViewOccurrenceRelationship>
+            <ViewOccurrenceRelationship uid="_315004"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                <Related uidRef="_202106"/>
+                <!--CableOccurrence cable2 (RG 58)-->
+                <RelationType>
+                  <ClassString>next assembly occurrence</ClassString>
+                </RelationType>
+                <Placement>
+                  <GeometryToTopologyModelAssociation uidRef="_321084"/>
+                </Placement>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315021"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_204006"/>
+                  <!--CableOccurrence cable3 (speaker wire)-->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+                  <Placement>
+                    <GeometryToTopologyModelAssociation uidRef="_321085"/>
+                  </Placement>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315031"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_220005"/>
+                  <!-- braid1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+                  <Placement>
+                    <GeometryToTopologyModelAssociation uidRef="_321088"/>
+                  </Placement>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315032"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_221005"/>
+                  <!-- wrap1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+                  <Placement>
+                    <GeometryToTopologyModelAssociation uidRef="_321086"/>
+                  </Placement>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315033"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_222005"/>
+                  <!-- heatshrink1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+                  <Placement>
+                    <GeometryToTopologyModelAssociation uidRef="_321087"/>
+                  </Placement>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315041"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_203005"/>
+                  <!--SingleOccurrence lug1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+                  <Placement>
+                    <GeometricRepresentationRelationship uidRef="_314210"/>
+                  </Placement>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_1"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_211010"/>
+                  <!--arinc1/A-insert -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_2"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_211020"/>
+                  <!--arinc1/B-insert -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_3"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_212010"/>
+                  <!--arinc1/C-insert -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_4"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_213100"/>
+                  <!--arinc1/C-insert/coax1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_5"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_213200"/>
+                  <!--arinc1/C-insert/coax2 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_6"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_214100"/>
+                  <!--arinc1/C-insert/power3 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_7"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_214200"/>
+                  <!--arinc1/C-insert/power4 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315042_8"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_216100"/>
+                  <!--arinc1/C-insert/signal5 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315043"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_217100"/>
+                  <!-- phone1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315044"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_218100"/>
+                  <!-- splice1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315045"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_219100"/>
+                  <!-- dsub1 -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+              <ViewOccurrenceRelationship uid="_315046"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+                  <Related uidRef="_225100"/>
+                  <!-- arinc 1 housing -->
+                  <RelationType>
+                    <ClassString>next assembly occurrence</ClassString>
+                  </RelationType>
+              </ViewOccurrenceRelationship>
+            <Topology uidRef="_321010"/>
+      </PartView>
+    </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[cls-8.3]]
+=== Hierarchical Assembly
+
+TODO: SO FAR INCOMPLETE
+
+Hierarchy of PartViews and Occurrences:
+
+* piece parts, e.g. contact
+* Insert 5W2 assembly
+* ARINC 600 assembly
+* Part_H1, type WiringHarnessAssemblyDesign
+** SingleOccurrence h1.1
+* Aircraft99x
+** no occurrence defined
+** assembly of
+* SingleOccurrence h1.1
+
+Extract from HarnessExample_hierachical.stpx:
+
+[%unnumbered]
+[source,xml]
+----
+<Part uid="_411000"> <!-- Part_H2 -->
+  <Id id="Part_H2"/>
+  <Name>
+    <CharacterString>Electrical Harness example 2</CharacterString>
+  </Name>
+  <PartTypes>
+    <PartCategoryEnum>wiring_harness</PartCategoryEnum>
+    <PartCategoryEnum>discrete</PartCategoryEnum>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="_411001">
+      <Id></Id>
+      <Views>
+        <PartView xsi:type="n0:WiringHarnessAssemblyDesign" uid="_411002">
+----
+TODO: ...
+[%unnumbered]
+[source,xml]
+----
+        <ViewOccurrenceRelationship uid="_415011"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+          <Related uidRef="_201304"/> <!--WireOccurrence wire4-->
+          <RelationType>
+            <ClassString>next assembly occurrence</ClassString>
+          </RelationType>
+        </ViewOccurrenceRelationship>
+        <ViewOccurrenceRelationship uid="_415041"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+          <Related uidRef="_203105"/> <!--SingleOccurrence lug2 -->
+          <RelationType>
+            <ClassString>next assembly occurrence</ClassString>
+          </RelationType>
+        </ViewOccurrenceRelationship>
+<!-- EXPERIMENTAL, waiting for feedback-->
+        <ViewOccurrenceRelationship uid="_415042"
+xsi:type="n0:PromissoryAssemblyOccurrenceUsage">
+          <Description>
+            <CharacterString>arinc1 will
+become available on the top assembly through the H1 harness</CharacterString>
+          </Description>
+          <Related uidRef="_210100"/> <!--
+SingleOccurrence arinc1 -->
+          <RelationType>
+            <ClassString>promissory assembly occurrence</ClassString>
+          </RelationType>
+        </ViewOccurrenceRelationship>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<Part uid="_511000"> <!-- Aircraft99x -->
+  <Id id="Aircraft99x"/>
+  <Name>
+    <CharacterString>Aircraft99x</CharacterString>
+  </Name>
+  <PartTypes>
+    <PartCategoryEnum>assembly</PartCategoryEnum>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="_511001">
+      <Id></Id>
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition"
+uid="_511002">
+----
+TODO: ...
+[%unnumbered]
+[source,xml]
+----
+          <ViewOccurrenceRelationship uid="_515021"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="_311105"/> <!--
+SingleOccurrence h1.1 -->
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+    <GeometricRepresentationRelationship uidRef="_314200"/> <!--
+TopologyToGeometryAssociationByMultipleElementPairs -->
+            </Placement>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="_515022"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="_411105"/> <!--
+SingleOccurrence h2.1 -->
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="_515023"
+xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="_224100"/> <!--
+SingleOccurrence battery1 -->
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+          </ViewOccurrenceRelationship>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----

@@ -1,0 +1,323 @@
+[[cls-3]]
+== Examples
+
+This tutorial comes together with reference examples that had been worked out by the
+electrical harness working group of the AP242 Edition 2 development team. The
+examples are hand-crafted and do not represent any complete design. The intention of
+the examples is to demonstrate how the different AP242 edition 2 extensions for
+electrical harness design play together.
+
+The examples are build up onto each other in a few variants to show the capabilities
+of the standard. Central for the examples are the topological structure of wiring
+harness H1 and a modular and configurable connector of type ARINC 600 that are widely
+used in aerospace industry.
+
+[[fig1]]
+.Topological structure and connectors of the provided example Part_H1
+image::img01.png[]
+
+[[fig2]]
+.Modular ARINC 600 connector with different kinds of inserts and contacts
+image::img02.png[]
+
+Three example XML files are provided that are in detail explained in the following
+sections.
+
+* HarnessExample_flat.xml
++
+--
+This file contains the wiring harness H1 with all components are assembled together
+in a single assembly, including the components the ARINC600 connector is build up
+--
+* HarnessExample_hierachical.xml
++
+--
+This file contains the wiring harness H1 in a hierarchical assembly to represent an
+artificial assembly structure of the ARINC600 connector. In addition this file
+contains a second wiring harness H2 that is combined with H1 in an upper level
+assembly for the whole aircraft. The H1 harness is provided in two different
+configurations for either a single connector phone1 or two terminal lugs (lug3, lug4).
+--
+* HarnessExample_DesignSplitting.xml
++
+--
+This file contains three wiring harnesses, the sub-harnesses H1a and H1b that are
+constituents of the overall harness H1.
+--
+
+[[cls-3.1]]
+=== Flexible structure of harness H1
+
+The main harness topology in this example consists of five segments S1 to S5 that
+connects six nodes N1 to N6. On the end-nodes N1, N2, N5 and N6 different kinds of
+connectors and a terminal lugs are placed.
+
+* Most wires and cables are connected to the ARINC600 connector at node N2 and go
+through segment S2. These are two coax RG 58 cables (cable1, cable2), a speaker cable
+(cable3), and a single wire (wire2).
+* On the internal node N3 a splice is placed that is realizing a T connection between
+3 wires (wire1, wire2, wire3).
+* The terminal lug at node N1 is connected by a single wire arriving from segment S1.
+As S1 contains only a single component no grouping is needed for this segment.
+* The phone connector at node N5 is connected by a single speaker wire (cable3)
+arriving through segment S4. As S4 contains only a single component no grouping is
+needed for this segment.
+* The DSUB connector at node N6 is connected by two coax cables (cable1, cable2) and
+a wire (wire3). These three wires and cables are grouped together with lacing in
+Segment S5.
+* In segment S2 wire2 and cable3 are grouped by twisting around each other. The
+result is then grouped together with cable1 and cable2 and covered by a shielding
+braid that is connected to the GND of the backshell of the ARINC600 connector.
+* Segment S3 contains the same arrangement of cables and wires as in segment S2, but
+because of the splice at node N3, it contains wire3 instead of wire1.
+* A path through the segments S2, S3 and S4 has been defined for the speaker wire
+(cable 3)
+* A path through the segments S2, S3 and S5 has been defined for the two coax cables
+(cable1, cable2) and the alternative of wire1 respectively wire3
+
+[[table1]]
+[options=header,cols=6]
+.Wire / cable list for H1
+|===
+| Occurrence | - name | Part-name | Segment / Path | Start-node | End-node
+| _201004 | wire1 .3+| WIRE,ELEC,COMP,SNGL CONDUCTOR,150 DEG C | S1 | N1 | N3
+| _201104 | wire2 | S2 | N2 | N3
+| _201204 | wire3 | S3-S5 | N3 | N6
+| _202006 | cable1 | RG 58 | S2-S3-S5 | N2 | N6
+| _202106 | cable2 | RG 58 | S2-S3-S5 | N2 | N6
+| _204006 | cable3 | Speaker wire | S2-S3-S4 | N2 | N5
+| _220005 | braid1 | Braid 1/2inch | S2-S3 | N2 | N4
+| _221005 | wrap1 | 1/2 inch Spiral Wrap - 100 foot spool - Black | C1 = S2-1 + S3-1 | X2 | X1
+| _222005 | heatshrink1 | Shrinkflex Polyolefin Heatshrink Tubing - 4/1 - 25mm 1| C2 = S2-2 + S2-2 + S3-1 | X3 | X1
+|===
+
+A more detailed sub-topology on the main topology is available through the sub-nodes
+X1 to X7 that are placed on the main segments S2, S3 and S5. These sub-nodes divide
+the main segments. Segment S2 is divided by X2 and X3 into S2-1, S2-2 and S2-3.
+Segment S3 is divided in two alternative ways, S3-1 and S3-2 by X1 and S3-a and S3-B
+by X4. No sub-segments have been defined for the sub-nodes X6 and X7 on S5 because
+there had been no need for it. These detailed topology is used as follows:
+
+* to define a path consisting of the segments S2-1 and S3-1 for a protective covering
+(wrap1)
+* to define a path consisting of the segments S2-2, S2-1 and S3-1 for a heatshrink
+(heatshrink1)
+* to split the overall harness H1 into two sub-harnesses H1.a and H1.b that different
+design groups are responsible for
+* to define fixing locations at nodes X6 and X7
+
+[[cls-3.2]]
+=== Rigid parts for harness H1
+
+NOTE: for the purpose of this document we use the term part for those things that we
+can buy or build several times, while the term component is used for an occurrence of
+a part within an assembly. An assembly may contain two components (more precisely
+occurrences) of a part "X" that might be identified as X1 and X2.
+
+Data exchange for electrical wire harness is often restricted to those rigid
+components that are electrical relevant. All the other "auxiliary" mechanical parts
+like screws are not part of the data exchange. However for a complete representation
+of the design they are of course needed. It is up to the particular use case which
+components are exchanged, and this can be indicated by the specified
+ApplicationDomains (see <<cls-5.1>>).
+
+[[fig3]]
+.Composition of ARINC600 connector for H1
+image::img03.png[]
+
+For the Harness H1, the ARINC600 connector is composed of connector housing of shell
+size 1, an electrified backshell, two dummy inserts for the A and B slot, and a 5W2
+insert for the C slot. The 5W2 insert will hold simple contacts of #5, #12 and #16
+size in the cavities 1 to 5.
+
+[[table2]]
+[options=header,cols=7]
+.Parts used in the provided examples
+|===
+| Part | Version | View | Id | Name | Category/type | Remark
+
+| _101000 | _101001 | _101002 | 04034-22-9 | WIRE,ELEC,COMP,SNGL CONDUCTOR,150 DEG C | wire, raw material by length |
+| _102000 | _102001 | _102002 | RG 58 | RG 58 | cable, raw material by length |
+| _103000 | _103001 | _103002 | MS5036-153 | TERMINAL LUG CRIMP STYLE COPPER INSULATED RING TONGUE | terminal lug |
+| _104000 | _104001 | _104002 | 16 AWG | Speaker wire | cable, raw material by length |
+| _110000 | _110001 | _110002 | SB6 4 1 M G 05 W2 P E1 01 AA | ARINC 600 set | connector kit | not in flat example
+| _111000 | _111001 | _111002 | 8660-31A-100-01A/AA | ARINC 600 shell 1 A and B
+dummy | connector insert |
+| _112000 | _112001 | _112002 | 8660-5W2 | ARINC 600 shell 1 C 5W2 insert | connector insert |
+| _113000 | _113001 | _113002 | 8660-2485 | #5 Coax contact | connector contact |
+| _114000 | _114002 | _103090 | 8660-249 | #16 Rack plug power contact | connector contact |
+| _115000 | _115001 | _115002 | 8660-5W2x1 | Insert 5W2 assembly | connector insert | not in flat example
+| _116000 | _116001 | _116002 | 8660-250 | #12 Rack plug signal contact | connector contact |
+| _117000 | _117001 | _117002 | TM2PB | Phone connector 6.35mm | connector |
+| _118000 | _118001 | _118002 | M81824 | Butt Splice Terminal | splice |
+| _119000 | _119001 | _119002 | DEP09S065TLF | D-sub 9 Pin Db9 Female Solder Type Socket Connector | connector |
+| _120000 | _120001 | _120002 | TC122 | Braid 1/2inch | overbraid |
+| _121000 | _121001 | _121002 | F6W1.50BK | Wrap | protective covering |
+| _122000 | _122001 | _122002 | H4N1.00BK | HeatShrink | protective covering |
+| _123000 | _123001 | _123002 | 8660-140 | Backshell EMI connector | electrified backshell |
+| _124000 | _124001 | _124002 | Battery-Std | Battery,12V,100Ah | piece part |
+| _125000 | _125001 | _125002 | SB6 4 1 M | ARINC 600 Shell Size 1 Rack Plug | connector_housing | flat example only
+| _311000 | _311001 | _311002 | Part_H1 | Electrical Harness team reference example | wiring harness | main H1 part
+| _411000 | _411001 | _411002 | Part_H2 | Electrical Harness example 2 (minmal) | wiring harness | not in H1
+| _511000 | _511001 | _511002 | Aircraft99x | Aircraft99x | | not in H1
+|===
+
+The elements caa data exchange for electrical harness is often limited to
+
+The electrical relevant components
+
+[[cls-3.3]]
+=== Connectivity of harness H1
+
+[[cls-3.4]]
+=== Flat assembly structure for harness H1
+
+[[cls-3.5]]
+=== Hierarchical assembly structure for Harness H1
+
+[[cls-3.6]]
+=== Harness H1 with assembly alternatives
+
+Same as Example 3.1 and <<fig2>>, but now with alternative of lug3 & 4 instead of
+phone 1.
+
+One way to exchange overlapping alternative assemblies in STEP is to use a so called
+150% structure. So the design of H1 contains all components, including phone1, lug3
+and lug4. However a single 100% structure can only contain either phone1 or otherwise
+lug3 and lug4. This is realised by the two ProductConfiguration "H1 stereo plug" and
+H1 hookup lugs" for the same ProductConcept. With ConfiguredAssemblyEffectivity the
+not used Occurrencess and PartShapeElements are excluded.
+
+No further details of this specific use case is explained here, but the example
+structures can be found in HarnessExample.xml file.
+
+[[cls-3.7]]
+=== Example Harness H1 designed by two teams as H1a and H1b
+
+Same as Example 3.1 and <<fig1>>, but now split into an H1.a and a H1.b view,
+developed by different teams.
+
+For the exchange of such a scenario three different instances of
+WiringHarnessAssemblyDesign are created, one for H1 with the
+PredefinedApplicationDomainEnum value "complete_design" and two others for H1.a and
+H1.b with the PredefinedApplicationDomainEnum value "partial_design". The partial
+design views are related with the complete design by instances of
+DefinitionalPartViewUsage. By this the complete design H1 is automatically defined
+being the merger of H1a and H1b.
+
+In the similar way there are three
+EdgeBasedTopologicalRepresentationWithLengthConstraint with the same
+RepresentationContext, one for the complete Harness H1 and two others for the partial
+harnesses H1a and H1b. They all share the same instance of Vertex X4, and so are
+explicitly linked together.
+
+No further details of this specific use case is explained here, but the example
+structures can be found in HarnessExample_DesignSplitting.xml file.
+
+[[cls-3.8]]
+=== Higher Level Assembly with harness components H1 and H2
+
+[example]
+====
+Aircraft with two harnesses
+
+[[fig4]]
+.Harnesses H1 and H2 combined in top assembly Aircraft99x
+image::img04.png[]
+
+The example also contains a second mini harness example Part_H2 and a top assembly
+Aircraft99x (<<fig4>>). The mini harness example Part_H2 consists only of a single
+wire (wire4) and a terminal lug (lug2) to which one end of the wire is connected to.
+The other end of the wire is intended to be connected to the arinc1 connector from
+the Part_H1 example above, but this connector is not part of the H2 assembly. This
+situation is in some industries called "poke-home".
+
+The top assembly Aircraft99x that contains 3 Occurrences:
+
+* h1.1 that is of type Part_H1
+* h2.1 that is of type Part_H2
+* battery1 that is connected with the interface terminals of the two terminal lugs
+
+The PLUS and MINUS terminals of the battery is connected to the interface terminals
+of the two terminal lugs (lug1 and lug2).
+
+Also the "poke-home" connection from the H2 assembly can finally be connected in that
+top assembly because arinc1 from Part_H1 and wire4 from Part_H2 are available in this
+assembly.
+
+In the following clauses this example is further detailed.
+====
+
+[[table3]]
+[options=header,cols=5]
+.AssemblyShapeJoints
+|===
+| Occurrence | Name | Occurrence-Terminal | Name | Assembly Join
+2+h| Part_H1 | | |
+
+| _201004 | wire1 | _201006 | end a | _311010-1
+| | | _201007 | end b | _311050-1
+| _201104 | wire2 | _201106 | end a | _311040-1
+| | | _201107 | end b | _311050-2
+| _201204 | wire3 | _201206 | end a | _311052-2
+| | | _201207 | end b | _311034-2
+| _204006 | cable3 | _204013 | end a A | _311045-1
+| | | _204014 | end a B | _311046-1
+| | | _204023 | end b A | _311020-1
+| | | _204024 | end b B | _311021-1
+| _202006 | cable1 | _202013 | end a signal | _311041-1
+| | | _202014 | end a shield | _311042-1
+| | | _202023 | end b signal | _311030-2
+| | | _202024 | end b shield | _311031-2
+| _202106 | cable2 | _202113 | end a signal | _311043-1
+| | | _202114 | end a shield | _311044-1
+| | | _202123 | end b signal | _311032-2
+| | | _202124 | end b shield | _311033-2
+| _203005 | lug1 | _203006 | External | no
+| | | _203008 | Internal | _311010-2
+| _217100 | phone1 | _217101 | Interface signal | no
+| | | _217102 | Join signal | _311020-2
+| | | _217103 | Interface gnd | no
+| | | _217104 | Join gnd | _311021-2
+| _218100 | splice1 | _218103 | end a | _311051-2
+| | | _218104 | end b | _311052-1
+| _219100 | dsub1 | _219113 | Interface 1 | no
+| | | _219114 | Join 1 | _311030-1
+| | | _219123 | Interface 2 | no
+| | | _219124 | Join 2 | _311031-1
+| | | _219133 | Interface 3 | no
+| | | _219134 | Join 3 | _311032-1
+| | | _219143 | Interface 4 | no
+| | | _219144 | Join 4 | _311033-1
+| | | _219153 | Interface 5 | no
+| | | _219154 | Join 5 | _311034-1
+| | | _219163 | Interface 6 | no
+| | | _219164 | Join 6 | n.c.
+| | | _219173 | Interface 7 | no
+| | | _219174 | Join 7 | n.c.
+| | | _219183 | Interface 8 | no
+| | | _219184 | Join 8 | n.c.
+| | | _219193 | Interface 9 | no
+| | | _219194 | Join 9 | n.c.
+| _213100 | arinc1/C-Assy/coax1 | _213121 | Interface signal | no
+| | | _213122 | Join signal | _311041-2
+| | | _213123 | Interface gnd | no
+| | | _213124 | Join gnd | _311042-2
+| _213210 | arinc1/C-Assy/coax2 | _213221 | Interface signal | no
+| | | _213222 | Join signal | _311043-2
+| | | _213223 | Interface gnd | no
+| | | _213224 | Join gnd | _311044-2
+| _214110 | arinc1/C-Assy/power3 | _214201 | Int term | no
+| | | _214223 | Join term | _311045-2
+| _214220 | arinc1/C-Assy/power4 | _214201 | Int term | no
+| | | _214224 | Join term | _311046-2
+| _216120 | arinc1/C-Assy/signal5 | _216101 | Int term | no
+| | | _216122 | Join term | _311040-2
+| _223200 | arinc1/backshell1 | _223201 | GND1 | _311047-1
+| _220005 | braid1 | _220007 | shield-A | _311047-2
+h| Part_H2 | | | |
+| _203005 | lug2 | _203006 | External | no
+| | | _203008 | Internal | _411010-1
+| _201204 | wire4 | _201206 | end a | (_411011-1)
+| | | _201207 | end b | _411010-2
+|===

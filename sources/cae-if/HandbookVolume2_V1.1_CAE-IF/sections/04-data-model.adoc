@@ -1,0 +1,64 @@
+[[cls-4]]
+== AP209 ed2 Data Model Organization
+
+Due to the large scope of the Standard, the AP209 ed2 schema is large and complex.
+Many views of the data model are presented in the application protocol (AP209 ed2)
+and recommended practices (RP) documents. In addition to the figures in the RP,
+<<fig3>> shown below illustrates refinements of the RP information to show how the
+data model can be considered as smaller conceptual topics and how those topics are
+related to the pilot models.
+
+[[fig3]]
+.3 AP209 ed2 Relationship Between Design and Analysis
+image::img03.png[]
+
+This view clearly illustrates how the design geometry (nominal shape) is related to
+the abstracted analysis geometry (idealized analysis shape), the finite element
+model (node shape) and analysis control and results (optional).
+
+The pilot models in this Handbook use a native solver format (NASTRAN) as the FEM
+information source and therefore no nominal design or idealized analysis geometry is
+captured. However, the tools being developed under this pilot study will eventually
+be required to include the AP209 ed2 constructs that are used to capture the full
+FEA model definition and solution results. Full FEA model definition includes
+associativity to nominal design geometry or the idealized analysis geometry used for
+mesh generation and for mesh and geometry based loads and boundary condition
+specifications.
+
+Traditionally, FEA solver models do not specify a system of units but are required
+to be internally consistent. Recent practices have begun to define explicitly a
+consistent set of units as part of the solver input for FEA model definition. The
+STEP standard can capture this information when constructing model contexts and
+associated unit entities. The pilot models do not explicitly specify a system of
+units, however, there is an implied use of the English inch-pound force-second
+system due to the existence of recognized material property values. While it may be
+possible to deduce a likely system of units for a given input file, it is
+recommended that direct user input define explicitly which system of units applies.
+How to specify this information for the conversion process is an active area of
+development and discussion.
+
+[[cls-4.1]]
+=== Analysis Product Metadata
+
+The right side of <<fig3>> represents the AP209 ed2 analysis product. The figure
+hides many entities that deal with metadata about the product for the sake of
+clarity. <<fig4>> includes more of these entities and categorizes the metadata of
+the analysis product; this figure was created from an early STEP file generated for
+the pilot study using the 1st pilot study model.
+
+[[fig4]]
+.AP209 ed2 Analysis Product Categories
+image::img04.png[]
+
+The details of the analysis product model metadata are discussed in Volume 1 of this
+handbook; the reader is encouraged to review those topics.
+
+This document expands on the lower right corner of <<fig4>>; it captures the
+definitions of the finite element pilot models and the resultant control structures
+not shown in the figure. The contents of this part of the data model are documented
+in detail in the ISO 10303-104 Integrated application resource: Finite element
+analysis document (Part 104). Part 104, the associated schema definitions and the
+Recommended Practice for AP209 ed2 are the primary sources of information needed to
+map the native solver information (NASTRAN) found in the pilot project input and
+output files, to the AP209 ed2 data models and produce the familiar Part 21 STEP
+file representation.

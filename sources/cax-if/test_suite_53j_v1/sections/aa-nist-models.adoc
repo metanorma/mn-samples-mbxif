@@ -1,0 +1,46 @@
+[[annex-A]]
+[appendix,obligation=normative]
+== NIST Model Translation Configuration Considerations
+
+Based on data translation issues identified in the NIST Phase 2 project (requiring
+multiple data set submission iterations to resolve), the following translator
+configuration considerations have been compiled for the STC test case in Round 53J:
+
+* Include annotations, coordinate systems, model properties, and PMI views.
+* Include supplemental geometry (non-solid surfaces, curves, points).
+* Preserve annotation associations with both product and supplemental geometry.
+** If the native CAD system supports entity association for annotation placement
+separate from entity association for annotation applicability, do not export the
+annotation placement associations to STEP.
+* Preserve annotation semantic PMI properties.
+** Clearly point out if these are intentionally not translated.
+* Preserve annotation text.
+** Creo should be configured to display dimension tolerances (tol_display on).
+** Do not drop leading zeros or add trailing zeros.
+* Preserve annotation units.
+** STC 06 through 09 models are defined in inches.
+** STC 10 and 11 models are defined in millimeters.
+* Preserve display names of annotations and coordinate systems.
+** If the user has configured the native CAD system display of particular annotation
+names, for example adding the identifier to the end of datum names, preserve this in
+the STEP model.
+* Preserve display colors of product geometry, supplemental geometry, and annotations.
+* Preserve view-specific visibility of annotations, coordinate systems, and
+supplemental geometry:
+** A PDF named __"nist_[ctc/ftc]_suppl_elem_visibility.pdf"__ giving a detailed
+definition of which elements shall be visible in which view, and which not, can be
+requested from the CAx-IF facilitators.
+** Note that for each test case, there is a second PDF document included in the ZIP
+files, named __"..._elem_ids.pdf"__ which contains the element ids for unambiguous
+identification of all PMI.
+* Preserve view frustum (orientation and zoom level) definition.
+* Do not export extraneous information.
+** Only CATIA Captures (not Views) should be exported to STEP Saved Views.
+** Creo sketch dimensions should only be included when visible in a Combined View.
+* Preserve the view plane and orientation of each annotation.
+** If this varies for the same annotation used in multiple saved views, export the
+correct plane and orientation for each view.
+* Convert parametric annotation parameter values to explicit values.
+** For example, a diameter defined as 2 x 2.75 mm should be represented in the STEP
+model as a numerical 5.5 value with a mm unit rather than a "2 x 2.75 mm" string
+value.
