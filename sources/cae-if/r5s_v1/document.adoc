@@ -1,0 +1,1030 @@
+= Test Suite for the CAE Implementor Forum Round 5S
+:doctype: test-suite
+:technical-committee: cax-if
+:version: 1.0
+:issued-date: 2019-09-04
+:toclevels: 2
+:copyright-holder: CAE Implementor Forum
+:mn-document-class: nist
+:fullname: Jochen Boy
+:affiliation: PROSTEP AG
+:email: jochen.boy@prostep.com
+:contact-type: CAx-IF
+:fullname_2: Phil Rosché
+:affiliation_2: ACCR, LLC.
+:email_2: phil.rosche@accr-llc.com
+:contact-type_2: CAx-IF
+:fullname_3: Jean-Marc Crepel
+:affiliation_3: AFNeT
+:email_3: jean-marc.crepel@afnet.fr
+:contact-type_3: CAx-IF
+:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
+:series:
+:language: en
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+[.preface]
+== Document History
+
+[cols="3",options="unnumbered"]
+|===
+h| Release h| Date h| Change
+
+| 0.1 | August 30, 2019 | First draft for R5S
+|===
+
+== Introduction
+
+This document describes the suite of test cases to be used for the
+test round R5S of the CAE Implementor Forum (CAE-IF). The CAE-IF is
+a workgroup in the CAx Implementor Forum (CAx-IF), a joint testing
+forum, organized and facilitated by AFNeT, PDES, Inc., and the prostep
+ivip Association. The test rounds of the CAE-IF concentrate primarily
+on testing the interoperability and compliance of STEP processors
+based on AP209ed2.
+
+The test rounds in general combine testing of synthetic and production
+models. Production models will in most cases be provided by the member
+companies of the organizations ANFeT, PDES, Inc., and prostep ivip
+Association. When production models are not available from the member
+companies, "`production-like`" models will be solicited from the various
+CAE-IF participants.
+
+This test suite includes synthetic models for testing the following
+capabilities: export /import Input FEA models for 3D Linear Static
+Structural Finite Element Analysis using simple models. More complex
+models, including production models and dynamic analysis, will be
+introduced later
+
+[[sec_1.1]]
+=== Functionality tested in this round
+
+The main objective of the R5S test round is to check the implementation
+of the Structural FEA validation properties (FEA VP) -load case level-
+during an exchange using STEP AP209ed2 translators. Some of the FEA
+VP –model level- which were not successfully tested in the R4S test
+round have been kept.
+
+The FEA validation properties are characteristic values of a finite
+element analysis and are assigned during the export process inside
+the STEP file with a specific format described in the corresponding
+"`Recommended Practices`" document. During the import process, the
+validation properties are read and compared with the re-calculated
+values from the STEP file (see <<figure1>>). They should be used to
+validate the success of the exchange process.
+
+[[figure1]]
+.FEA Validation Properties
+image::figure1.png[]
+
+[[sec_1.2]]
+=== General testing instructions for this round
+
+The general procedures for communication of models and statistics
+are outlined in a separate document, named 'General Testing Instructions'.
+The document can be retrieved from the CAx Implementor Forum web sites.
+The latest version is v1.13, dated Sept 29, 2017.
+
+Therefore, the "`native statistics`" and "`target statistics`" will
+be submitted to the CAESAR system according to the regular process
+described in the '`General Testing Instructions`'. Specific statistics
+will be used to check if the validation properties value assigned
+in the STEP file are equal to the calculated values.
+
+When reporting statistics related to validation properties in the
+CAESAR system (see <<figure2>>)
+
+* The corresponding "`native Val Prop. statistics`" value should be
+set to the value assigned in the STEP file if the validation property
+is implemented in the STEP file, or "`na`" otherwise;
+
+* The corresponding "`target Val Prop. statistics`" value should be
+the value read from the STEP file. It will be compared to the corresponding
+"`target statistics`" recalculated value.
+
+[[figure2]]
+.Statistics related to Validation Properties
+image::figure2.png[]
+
+Key issues should be reported using the BRUTUS system
+(see '`General Testing Instructions`').
+
+Native FEA Model use NASTRAN card descriptions. Documentation of NASTRAN
+input syntax is available in the "`NASTRAN quick reference guide`",
+which can be download from the MSC homepage at:
+
+* https://simcompanion.mscsoftware.com/infocenter/index?page=content&id=DOC11146&cat=MSC_NASTRAN_DOCUMENTATION_2017&actp=LIST
+
+Original FEA model of each test case is available in the xx.bdf file.
+
+NOTE: CAE models are generally "`unit consistent models`". This means
+there is no need for data conversion. Participants are requested to
+keep the original unit system unchanged and to deliver results and
+statistics using the same unit system as the native models. Nevertheless,
+*the units' definition shall be included in the STEP file*, as stated
+in the recommended practices.
+
+The validation properties shall be assigned in the native STEP file
+as described in the "`Recommended Practices for Structural FEA validation
+properties`" (v0.7 or higher).
+
+[[sec_1.3]]
+=== Testing Schedule
+
+The following schedule has been agreed on for Round 5S:
+
+[[figure3]]
+.CAE-IF Round5S Schedule
+image::figure3.png[]
+
+The CAE-IF Round 5S Kickoff meeting will be held by confcall before
+the PDES, Inc. Fall Offsite meeting and LOTAR workshop. Therefore,
+a session will be dedicated to R5S during the Fall Offsite meeting
+to discuss any feedback. Conference calls and web sessions will also
+be available for those not attending the meeting to dial in.
+
+The CAE-IF Round5S Review meeting will take place in conjunction with
+a LOTAR meeting in Darmstadt. In addition, conference calls and web
+sessions will be organized during the test round.
+
+[[sec_1.4]]
+=== Copyrights on Test Cases
+
+[[sec_1.4.1]]
+==== CAE-IF
+
+None of the production test cases which were provided by the AFNeT,
+PDES, Inc. and prostep ivip member companies may be publicly released
+for any purpose. The test cases can be freely distributed among the
+CAE-IF members, and can be used for any purposes that are related
+to CAE-IF testing (i.e. testing, documentation of testing efforts,
+etc.), as long as a reference to the originating company is made.
+
+The test cases must not be used for any purposes other than CAE-IF
+testing or outside of ANFeT, PDES, Inc. and prostep ivip. Test cases
+provided by the LOTAR project for testing of specific capabilities
+are applicable to the same restrictions and may not be used outside
+LOTAR or the CAE-IF.
+
+[[sec_2]]
+== Synthetic Test Case Specifications
+
+[[sec_2.1]]
+=== Test Case ATS1: beam FEA model using rod elements
+
+All information about this test case can also be viewed in CAESAR
+on its Information page.
+
+[[sec_2.1.1]]
+==== Motivation
+
+This test case is part of the simple ATSx series models focusing on
+elementary CAE functionalities. The ATS1 test represents a beam using
+"`rod`" elements only, with one lumped force applied.
+
+Within the CAE domain, the following functionalities are in scope
+of Round 5S:
+
+* Export/import input data of 3D FEA models with
+** 1D elements (rod elements), linear order,
+** Lumped force and fixed boundary conditions
+** Execution control statements
+
+* Assignment of Structural FEA validation properties, typically :
+** 1D size and centroid of the model,
+** total mass,
+** number of fixed DOF,
+** resultant of applied forces,
+** resultant moment of applied forces at a reference point.
+
+[[sec_2.1.2]]
+==== Approach
+
+The approach to be used is described in the latest version of the
+following documents:
+
+* "`Recommended Practices for AP 209 ed2`" (at least version 2.0,
+dated March 30, 2016)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol.1 - (at
+least version v 2.2, dated May 16, 2018)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol.2 -
+(v 1.1, dated March 25, 2019).
+* "`Recommended Practices for Structural FEA validation properties
+(v 0.7). For the test round 5S, the assignment of validation properties
+is mainly focused on “load case level validation properties`".
+
+These documents can be found either in the public area of the CAx-IF
+website under "`Joint Testing Information`" or in the member area
+of the CAx-IF website under "`Information on round 5S of testing`".
+
+The AP 209 schema to be used is an extended version of the AP 209
+ed2 schema which can be found in the member area of the CAx-IF website,
+under "`*Information on Round 5S* of Testing`".
+
+[[sec_2.1.3]]
+==== Testing Instructions
+
+The tests will be performed based on the ATS1m5 NASTRAN model described
+below. This model has been developed by the LOTAR EAS Working Group,
+and has been checked during previous pilot studies.
+
+[[sec_2.1.3.1]]
+===== Test Model Overview
+
+The ATS1m5 model represents a beam (rectangular prism) idealized using
+"`rod`" elements (axial stiffness element, no torsional stiffness),
+with the following characteristics:
+
+* Isotropic material property
+* 1000 lbf axial load in compressive (-x) direction
+* Rectangular coordinate system at origin with model at [0, -2, 1]
+
+[[figure4]]
+.ATS1 model overview
+image::figure4.png[]
+
+[[sec_2.1.3.2]]
+===== Test Model Access
+
+The original NASTRAN files can be downloaded from the member area
+of the CAx-IF homepages under "`General Information – File repository`"
+in the folder "`CAE / ATSx simple test suite`":
+
+* ATS1m5.bdf (input data)
+
+[[sec_2.1.3.3]]
+===== Test Model Configuration
+
+The following functionality shall be included in the test files provided
+for this round of testing, as far as it has been implemented by the
+CAE-IF participants and is described in the Recommended Practices:
+
+* [underline]#Validation Properties# -- All participants providing
+STEP files for this test case should include newly defined FEA validation
+properties as described in the "`Recommended Practices for Structural
+FEA validation properties`" (v 0.7).
+
+[[sec_2.1.4]]
+==== Statistics
+For each STEP file exported or imported for the ATS1 test case, participants
+must submit the corresponding statistics to CAESAR. To do so, go to
+the [ ATS1 Data Sheet ], and either fill in the web form, or upload
+a comma-delimited file (.csv) with the data as listed below.
+
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should
+expect to find. For numeric statistics, enter the respective value
+or 'na' if not supported. For other statistics, select either
+'full support' (i.e. test case and Rec. Pracs. definitions are fulfilled),
+'limited support' (meaning the implementation does not meet all criteria
+and issues may be expected on import), or 'na' if not supported.
+
+===== Target Statistics
+
+When importing a STEP file, report the results found after processing
+the file as described below. The value should be given in the unit
+implicitly defined in the native model.
+
+===== Load Case Selection
+
+Some of the statistics for this test case are load case-related
+(fixed DOF, applied force, applied moment). When statistics depend
+on the load case and/or node selection, the item(s) to be considered
+is indicated in the following table:
+
+[cols="2",options="unnumbered"]
+|===
+h| Statistic h| Case 'A'
+
+| Fixed DOF nb      | Load case #1
+| Applied force     | Load case #1
+| Applied moment    | Load case #1 +
+Reference point at origin (0,0,0)
+
+|===
+
+===== Applicable Units and Coordinate system
+
+The model is based on imperial units (in, lbf).
+
+Components of any point (such as Center of Gravity) or vector
+(such as resultant of applied loads) should be calculated in the basic
+coordinate system.
+
+===== Screenshots (optional)
+
+Note that CASEAR allows the addition of multiple screenshots per dataset.
+
+===== Data Sheet Columns
+
+[cols="2",options="unnumbered"]
+|===
+h|column name h|description
+
+s| model                    | The name of the test model, here 'ATS1'
+s| system_n                 | The system code of the CAE system creating the STEP file
+s| system_t                 | The system code of the CAE system importing the STEP file. For native stats, select 'stp'
+s| unit                     | The unit the model is designed in
+s| 1d_model_size            | Cumulated length of 1D elements
+s| validation_1d_size       | 1D Model Size as received via the validation property capability
+s| 1d_elts_centroidx        | Center point of the volume defined by all 1D elements in the file
+s| 1d_elts_centroidy        |
+s| 1d_elts_centroidz        |
+s| validation_1d_cx         | 1D elts centroid as received via the validation property capability
+s| validation_1d_cy         |
+s| validation_1d_cz         |
+s| total_mass               | Total mass of the model. The value shall be given in the unit implicitly defined in the native model.
+s| validation_total_mass    | Total Mass as received via the validation property capability
+s| fixed_dof_nb_a           | Total number of fixed Degrees of freedom (DOF) - case A
+s| validation_fixed_dof_a   | Fixed Deg. of freedom -A as received via the validation property capability
+s| applied_forcex           | Resultant of applied forces -- case 'A'
+s| applied_forcey           |
+s| applied_forcez           |
+s| validation_force_ax      | Applied Force A as received via the validation property capability
+s| validation_force_ay      |
+s| validation_force_az      |
+s| ref_pt_mom_ax            | Reference point as assigned for / as received from / the Validation Property Moment of ap-plied forces -- case 'A'
+s| ref_pt_mom_ay            |
+s| ref_pt_mom_az            |
+s| applied_momentx          | Resultant moment at a reference point of total applied forces -- case 'A'
+s| applied_momenty          |
+s| applied_momentz          |
+s| validation_moment_ax     | Applied Moment A as received via the validation property capability
+s| validation_moment_ay     |
+s| validation_moment_az     |
+s| date                     | The date when the statistics were last updated (will be filled in automatically)
+s| issues                   | A short statement on issues with the file
+
+|===
+
+[[sec_2.2]]
+=== Test Case ATS2: beam FEA model using bar elements
+
+[[sec_2.2.1]]
+==== Motivation
+
+All information about this test case can also be viewed in CAESAR
+on its Information page.
+
+This test case is part of the simple ATSx series models focusing on
+elementary CAE functionalities. The ATS2 test represents a cantilever
+beam using "`bar`" elements only, with different combinations of lumped
+forces applied.
+
+Within the CAE domain, the following functionalities are in scope
+of Round 5S:
+
+* Export/import input data of 3D FEA models with
+** 1D elements (bar elements), linear order,
+** Lumped force and fixed boundary conditions
+** Execution control statements
+
+* Assignment of Structural FEA validation properties, typically :
+** FEA bounding box,
+** total mass,
+** number of load cases,
+** number of fixed DOF,
+** resultant of applied forces,
+** resultant moment of applied forces at a reference point.
+
+[[sec_2.2.2]]
+==== Approach
+
+The approach to be used is described in the latest version of the
+following documents:
+
+* "`Recommended Practices for AP 209 ed2`" (at least version 2.0,
+dated March 30, 2016)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol.1 - (at
+least version v 2.2, dated May 16, 2018)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol. 2 -
+(v 1.1, dated March 25, 2019).
+* “Recommended Practices for Structural FEA validation properties
+(v 0.7)
++
+For the test round 5S, the assignment of validation properties is
+mainly focused on "`load case level validation properties`".
+
+These documents can be found either in the public area of the CAx-IF
+website under "`Joint Testing Information`" or in the member area
+of the CAx-IF website under "`Information on round 5S of testing`".
+
+The AP 209 schema to be used is an extended version of the AP 209
+ed2 schema, which can be found in the member area of the CAx-IF website,
+under "`Information on Round 5S of Testing`".
+
+[[sec_2.2.3]]
+==== Testing Instructions
+
+The tests will be performed based on the ATS2m5 NASTRAN model described
+below. This model has been developed by the LOTAR EAS Working Group,
+and has been checked during previous pilot studies.
+
+[[sec_2.2.3.1]]
+===== Test Model Overview
+
+The ATS2m5 model represents a beam (rectangular prism) idealized using
+"`bar`" elements (axial and bending stiffness element, no torsional
+stiffness), with the following characteristics:
+
+* Isotropic material property
+
+* 3 load cases:
++
+--
+. axial load in compressive (-x) direction
+. lateral distributed load in bending (-y) direction
+. combination of 1 + 2
+--
+
+[[figure5]]
+.ATS2 model overview
+image::figure5.png[]
+
+[[sec_2.2.3.2]]
+===== Test Model Access.
+
+The original NASTRAN files can be downloaded from the member area
+of the CAx-IF homepages under "`General Information – File repository`"
+in the folder "`CAE / ATSx simple test suite`":
+
+* ATS2m5.bdf (input data)
+
+[[sec_2.2.3.3]]
+===== Test Model Configuration
+
+* See section <<sec_2.1.3.3>> above.
+
+[[sec_2.2.4]]
+==== Statistics
+
+For each STEP file exported or imported for the ATS2 test case, participants
+must submit the corresponding statistics to CAESAR. To do so, go to
+the [ ATS2 Data Sheet ], and either fill in the web form, or upload
+a comma-delimited file (.csv) with the data as listed below.
+
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should
+expect to find. For numeric statistics, enter the respective value
+or 'na' if not supported. For other statistics, select either
+'full support' (i.e. test case and Rec. Pracs. definitions are fulfilled),
+'limited support' (meaning the implementation does not meet all criteria
+and issues may be expected on import), or 'na' if not supported.
+
+===== Target Statistics
+
+When importing a STEP file, report the results found after processing
+the file as described in the table below. The value should be given
+in the unit implicitly defined in the native model.
+
+===== Load Case Selection
+
+Some of the statistics for this test case are load case- related (fixed
+DOF, applied force, applied moment). When statistics depend on the
+load case and/or node selection, the item(s) to be considered is indicated
+in the following table:
+
+[cols="3",options="unnumbered"]
+|===
+h| Statistic h| Case 'A' h| Case 'B'
+
+| Fixed DOF nb  | Loadcase #1 | Loadcase #3
+| Applied force | Loadcase #1 | Loadcase #3
+| Applied moment
+| Loadcase #1 +
+Reference point (0,0,0)
+| Loadcase #3 +
+Reference point (16,-2,1)
+|===
+
+===== Applicable Units and Coordinate system
+
+The model is based on imperial units (in, lbf).
+
+Components of any point (such as Center of Gravity) or vector (such
+as resultant of applied loads) should be calculated in the basic coordinate
+system.
+
+===== Screenshots(optional)
+
+Note that CASEAR allows the addition of multiple screenshots per dataset.
+
+===== Data Sheet Columns
+
+[cols="2",options="unnumbered"]
+|===
+h| column name h| description
+
+s| model                    | The name of the test model, here 'ATS2'
+s| system_n                 | The system code of the CAE system creating the STEP file
+s| system_t                 | The system code of the CAE system importing the STEP file. For native stats, select 'stp' unit The unit the model is designed in
+s| fea_bbox_minx            | The (min X, min Y, min Z) corner point of the Bounding Box relative to the grid points
+s| fea_bbox_miny            |
+s| fea_bbox_minz            |
+s| validation_fea_bb_minx   | FEA BBox Min Point as received via the validation property capability
+s| validation_fea_bb_miny   |
+s| validation_fea_bb_minz   |
+s| fea_bbox_maxx            | The (max X, max Y, max Z) corner point of the Bounding Box relative to the grid points
+s| fea_bbox_maxy            |
+s| fea_bbox_maxz            |
+s| validation_fea_bb_maxx   | FEA BBox Max Point as received via the validation property capability
+s| validation_fea_bb_maxy   |
+s| validation_fea_bb_maxz   |
+s| total_mass               | Total mass of the model. The value shall be given in the unit implicitly defined in the native model.
+s| validation_total_mass    | Total Mass as received via the validation property capability loadcases_nb Number of different load cases
+s| validation_loads_nb      | Number of Load Cases as received via the validation property capability
+s| fixed_dof_nb_a           | Total number of fixed Degrees of freedom (DOF) - case A
+s| validation_fixed_dof_a   | Fixed Deg. of freedom -A as received via the validation property capability
+s| applied_forcex           | Resultant of applied forces -- case 'A'
+s| applied_forcey           |
+s| applied_forcez           |
+s| validation_force_ax      | Applied Force A as received via the validation property capability
+s| validation_force_ay      |
+s| validation_force_az      |
+s| applied_force_bx         | Resultant of applied forces -- case 'B'
+s| applied_force_by         |
+s| applied_force_bz         |
+s| validation_force_bx      | Applied Force B as received via the validation property capability
+s| validation_force_by      |
+s| validation_force_bz      |
+s| ref_pt_mom_ax            | Reference point as assigned for / as received from / the Validation Property Moment of applied forces -- case 'A'
+s| ref_pt_mom_ay            |
+s| ref_pt_mom_az            |
+s| applied_momentx          | Resultant moment at a reference point of total applied forces -- case 'A'
+s| applied_momenty          |
+s| applied_momentz          |
+s| validation_moment_ax     | Applied Moment A as received via the validation property capability
+s| validation_moment_ay     |
+s| validation_moment_az     |
+s| ref_pt_mom_bx            | Reference point as assigned for / as received from / the Validation Property Moment of applied forces -- case 'B'
+s| ref_pt_mom_by            |
+s| ref_pt_mom_bz            |
+s| applied_moment_bx        | Resultant moment at a reference point of total applied forces -- case 'B'
+s| applied_moment_by        |
+s| applied_moment_bz        |
+s| validation_moment_bx     | Applied Moment B as received via the validation property capability
+s| validation_moment_by     |
+s| validation_moment_bz     |
+s| date                     | The date when the statistics were last updated (will be filled in automatically)
+s| issues                   | A short statement on issues with the file
+|===
+
+[[sec_2.3]]
+=== Test Case ATS3: beam FEA model using shell elements
+
+All information about this test case can also be viewed in CAESAR
+on its Information page.
+
+[[sec_2.3.1]]
+==== Motivation
+
+This test case is part of the simple ATSx series models focusing on
+elementary CAE functionalities. The ATS3 test represents a cantilever
+beam using "`shell`" elements only, with additional boundary conditions
+and combinations of lumped and distributed (pressure) applied loads.
+
+Within the CAE domain, the following functionalities are in scope
+of Round 5S:
+
+* Export/import input data of 3D FEA models with
+** 2D elements (shell elements),
+** Lumped and distributed forces, with fixed boundary conditions
+** Execution control statements
+
+* Assignment of Structural FEA validation properties, typically :
+** FEA bounding box,
+** total mass,
+** number of load cases,
+** number of fixed DOF,
+** resultant of applied forces,
+** resultant moment of applied forces at a reference point.
+
+[[sec_2.3.2]]
+==== Approach
+
+The approach to be used is described in the latest version of the
+following documents:
+
+* "`Recommended Practices for AP 209 ed2`" (at least version 2.0,
+dated March 30, 2016)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol.1 - (at
+least version v 2.2, dated May 16, 2018)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol. 2 -
+(v 1.1, dated March 25, 2019).
+* “Recommended Practices for Structural FEA validation properties
+(v 0.7)
+For the test round 5S, the assignment of validation properties is
+mainly focused on "`load case level validation properties`".
+
+These documents can be found either in the public area of the CAx-IF
+website under "`Joint Testing Information`" or in the member area
+of the CAx-IF website under "`Information on round 5S of testing`".
+
+The AP 209 schema to be used is an extended version of the AP 209
+ed2 schema, which can be found in the member area of the CAx-IF website,
+under "`*Information on Round 5S* of Testing`".
+
+[[sec_2.3.3]]
+==== Testing Instructions
+
+The tests will be performed based on the ATS3m5 NASTRAN model described
+below. This model has been developed by the LOTAR EAS Working Group,
+and has been checked during previous pilot studies.
+
+[[sec_2.3.3.1]]
+===== Test Model Overview
+
+The ATS3m5 model represents a beam (rectangular prism) idealized using
+"`shell`" elements (membrane and bending stiffness element), with
+the following characteristics:
+
+* Isotropic material property
+* 4 load cases:
++
+--
+. axial distributed load in compressive (-x) direction
+. lateral distributed load in bending (-y) direction
+. combination of 1 + 2
+. normal distributed load in bending (-z) direction
+--
+
+[[figure6]]
+.ATS3 model overview
+image::figure6.png[]
+
+[[sec_2.3.3.2]]
+===== Test Model Access.
+
+The original NASTRAN files can be downloaded from the member area
+of the CAx-IF homepages under "`General Information – File repository`"
+in the folder "`CAE / ATSx simple test suite`":
+
+* ATS3m5.bdf (input data)
+
+[[sec_2.3.3.3]]
+===== Test Model Configuration
+
+* See section <<sec_2.1.3.3>> above.
+
+[[sec_2.3.4]]
+==== Statistics
+
+For each STEP file exported or imported for the ATS3 test case, participants
+must submit the corresponding statistics to CAESAR. To do so, go to
+the [ ATS3 Data Sheet ], and either fill in the web form, or upload
+a comma-delimited file (.csv) with the data as listed below.
+
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should
+expect to find. For numeric statistics, enter the respective value
+or 'na' if not supported. For other statistics, select either
+'full support' (i.e. test case and Rec. Pracs. definitions are fulfilled),
+'limited support' (meaning the implementation does not meet all criteria
+and issues may be expected on import), or 'na' if not supported.
+
+===== Target Statistics
+
+When importing a STEP file, report the results found after processing
+the file as described in the table below. The value should be given
+in the unit implicitly defined in the native model.
+
+===== Load Cases Selection
+
+Some of the statistics for this test case are load case-related (fixed
+DOF, applied force, applied moment). When statistics depend on the
+load case and/or node selection, the item(s) to be considered is indicated
+in the following table:
+
+[cols="3",options="unnumbered"]
+|===
+h| Statistic h| Case 'A' h| Case 'B'
+
+| Fixed DOF nb      | Loadcase #3 | Loadcase #4
+| Applied force     | Loadcase #3 | Loadcase #4
+| Applied moment
+| Loadcase #3 +
+Reference point (0,0,0)
+| Loadcase #4 +
+Reference point (16,-2,1)
+|===
+
+===== Applicable Units and Coordinate system
+
+The model is based on imperial units (in, lbf).
+Components of any point (such as Center of Gravity) or vector (such
+as resultant of applied loads) should be calculated in the basic coordinate
+system.
+
+===== Screenshots(optional)
+
+Note that CASEAR allows the addition of multiple screenshots per dataset.
+
+===== Data Sheet Columns
+
+[cols="2",options="unnumbered"]
+|===
+h| column name h| description
+
+s| model                    | The name of the test model, here 'ATS3'
+s| system_n                 | The system code of the CAE system creating the STEP file
+s| system_t                 | The system code of the CAE system importing the STEP file. For native stats, select 'stp'
+s| unit                     | The unit the model is designed in
+s| fea_bbox_minx            | The (min X, min Y, min Z) corner point of the Bounding Box relative to the grid points
+s| fea_bbox_miny            |
+s| fea_bbox_minz            |
+s| validation_fea_bb_minx   | FEA BBox Min Point as received via the validation property capability
+s| validation_fea_bb_miny   |
+s| validation_fea_bb_minz   |
+s| fea_bbox_maxx            | The (max X, max Y, max Z) corner point of the Bounding Box relative to the grid points
+s| fea_bbox_maxy            |
+s| fea_bbox_maxz            |
+s| validation_fea_bb_maxx   | FEA BBox Max Point as received via the validation property capability
+s| validation_fea_bb_maxy   |
+s| validation_fea_bb_maxz   |
+s| total_mass               | Total mass of the model. The value shall be given in the unit implicitly defined in the native model.
+s| validation_total_mass    | Total Mass as received via the validation property capability
+s| loadcases_nb             | Number of different load cases
+s| validation_loads_nb      | Number of Load Cases as received via the validation property capability
+s| fixed_dof_nb_a           | Total number of fixed Degrees of freedom (DOF) - case A
+s| validation_fixed_dof_a   | Fixed Deg. of freedom -A as received via the validation property capability
+s| fixed_dof_nb_b           | Total number of fixed Degrees of freedom (DOF) - case B
+s| validation_fixed_dof_b   | Fixed Deg. of freedom -B as received via the validation property capability
+s| applied_forcex           | Resultant of applied forces -- case 'A'
+s| applied_forcey           |
+s| applied_forcez           |
+s| validation_force_ax      | Applied Force A as received via the validation property capability
+s| validation_force_ay      |
+s| validation_force_az      |
+s| applied_force_bx         | Resultant of applied forces -- case 'B'
+s| applied_force_by         |
+s| applied_force_bz         |
+s| validation_force_bx      | Applied Force B as received via the validation property capability
+s| validation_force_by      |
+s| validation_force_bz      |
+s| ref_pt_mom_ax            | Reference point as assigned for / as received from / the Validation Property Moment of ap-plied forces -- case 'A'
+s| ref_pt_mom_ay            |
+s| ref_pt_mom_az            |
+s| applied_momentx          | Resultant moment at a reference point of total applied forces -- case 'A'
+s| applied_momenty          |
+s| applied_momentz          |
+s| validation_moment_ax     | Applied Moment A as received via the validation property capability
+s| validation_moment_ay     |
+s| validation_moment_az     |
+s| ref_pt_mom_bx            | Reference point as assigned for / as received from / the Validation Property Moment of applied forces -- case 'B'
+s| ref_pt_mom_by            |
+s| ref_pt_mom_bz            |
+s| applied_moment_bx        | Resultant moment at a reference point of total applied forces -- case 'B'
+s| applied_moment_by        |
+s| applied_moment_bz        |
+s| validation_moment_bx     | Applied Moment B as received via the validation property capability
+s| validation_moment_by     |
+s| validation_moment_bz     |
+s| date                     | The date when the statistics were last updated (will be filled in automatically)
+s| issues                   | A short statement on issues with the file
+|===
+
+[[sec_2.4]]
+=== Test Case ATS4: beam FEA model using solid elements
+
+All information about this test case can also be viewed in CAESAR
+on its Information page.
+
+[[sec_2.4.1]]
+==== Motivation
+
+This test case is part of the simple ATSx series models focusing on
+elementary CAE functionalities. The ATS4 test represents a cantilever
+beam using different "`solid`" elements, with combinations of lumped
+applied forces.
+
+Within the CAE domain, the following functionalities are in scope
+of Round 5S:
+
+* Export/import input data of 3D FEA models with
+** 3D elements (solid elements), linear order,
+** Combination of lumped forces and fixed boundary conditions
+** Execution control statements
+
+* Assignment of Structural FEA validation properties, typically:
+** FEA bounding box,
+** total mass,
+** number of load cases,
+** number of fixed DOF,
+** resultant of applied forces,
+** resultant moment of applied forces at a reference point.
+
+[[sec_2.4.2]]
+==== Approach
+
+The approach to be used is described in the latest version of the
+following documents:
+
+* "`Recommended Practices for AP 209 ed2`" (at least version 2.0,
+dated March 30, 2016)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol.1 - (at
+least version v 2.2, dated May 16, 2018)
+* "`AP 209 ed2 Linear Static Structural FEA Handbook`" vol. 2 -
+(v 1.1, dated March 25, 2019).
+* “Recommended Practices for Structural FEA validation properties
+(v 0.7)
+
+For the test round 5S, the assignment of validation properties is
+mainly focused on "`load case level validation properties`".
+These documents can be found either in the public area of the CAx-IF
+website under "`Joint Testing Information`" or in the member area
+of the CAx-IF website under "`Information on round 5S of testing`".
+
+The AP 209 schema to be used is a corrected version of the AP 209
+ed2 schema, which can be found in the member area of the CAx-IF website,
+under "`Information on Round 5S of Testing`".
+
+[[sec_2.4.3]]
+==== Testing Instructions
+
+The tests will be performed based on the ATS4m5 NASTRAN model described
+below. This model has been developed by the LOTAR EAS Working Group,
+and has been checked during previous pilot studies.
+
+[[sec_2.4.3.1]]
+===== Test Model Overview
+
+The ATS4m5 model represents a beam (rectangular prism) idealized using
+"`solid`" elements (mix of 4-noded tetrahedral, 6-noded pentahedral
+and 8-noded hexahedral elements), with the following characteristics:
+
+* Isotropic material property
+* 3 load cases:
++
+--
+. axial distributed load in compressive (-x) direction
+. lateral distributed load in bending (-y) direction
+. combination of 1 + 2
+--
+
+[[figure7]]
+.ATS4 model overview
+image::figure7.png[]
+
+[[sec_2.4.3.2]]
+===== Test Model Access.
+
+The original NASTRAN files can be downloaded from the member area
+of the CAx-IF homepages under "`General Information – File repository`"
+in the folder "`CAE / ATSx simple test suite`":
+
+* ATS4m5.bdf (input data)
+
+[[sec_2.4.3.3]]
+===== Test Model Configuration
+
+* See section <<sec_2.1.3.3>> above.
+
+[[sec_2.4.4]]
+==== Statistics
+
+For each STEP file exported or imported for the ATS4 test case, participants
+must submit the corresponding statistics. To do so, go to the [ ATS4
+Data Sheet ], and either fill in the web form, or upload a comma-delimited
+file (.csv) with the data as listed below.
+
+===== Native Statistics
+
+When exporting a STEP file, report what data importing systems should
+expect to find. For numeric statistics, enter the respective value
+or 'na' if not supported. For other statistics, select either
+'full support' (i.e. test case and Rec. Pracs. definitions are fulfilled),
+'limited support' (meaning the implementation does not meet all criteria
+and issues may be expected on import), or 'na' if not supported.
+
+===== Target Statistics
+
+When importing a file, report the results found after processing the
+file as described in the table below. The value should be given in
+the unit implicitly defined in the native model.
+
+===== Load Cases Selection
+
+Some of the statistics for this test case are load case-related (fixed
+DOF, applied force, applied moment). When statistics depend on the
+load case and/or node selection, the item(s) to be considered is indicated
+in the following table:
+
+[cols="3",options="unnumbered"]
+|===
+h| Statistic h| Case 'A' h| Case 'B'
+
+| Fixed DOF nb | Loadcase #1 | Loadcase #3
+| Applied force | Loadcase #1 | Loadcase #3
+| Applied moment
+| Loadcase #1 +
+Reference point : free (*)
+| Loadcase #3 +
+Reference point : free (*)
+|===
+
+(*) As stated in the "`Recommended practices for FEA VP`" document:
+
+____
+The position of this reference point is free, but should be specified
+in order to keep the resultant value in a reasonable range. This is
+why this reference point is not chosen necessarily as the origin of
+the basic coordinate system. One of the centroid points or the corner
+points of the FEA bounding box could be a good position for evaluating
+the resultant moment.
+____
+
+During the export process, each participant will choose freely the
+reference point for computing the resultant moment of the applied
+forces, this point as well as the resultant will be assigned in the
+validation property, and in the CAESAR system as native statistics.
+
+During the import process, each participant should recover the reference
+point from the validation property capability, assign it as
+_target statistics_ in CAESAR, then recalculate the resultant moment
+(relatively to this reference point) and assign it in the corresponding
+_target statistic_ in CAESAR. The resultant moment values recovered
+from the validation property capability should be assigned in the
+corresponding _target validation statistic_. This value will be compared
+to the recalculated value of the resultant moment to assess the success
+of the exchange.
+
+===== Applicable Units and Coordinate system
+
+The model is based on imperial units (in, lbf).
+
+Components of any point (such as Center of Gravity) or vector (such
+as resultant of applied loads) should be calculated in the basic coordinate
+system.
+
+===== Screenshots(optional)
+
+Note that CASEAR allows the addition of multiple screenshots per dataset.
+
+===== Data Sheet Columns
+
+[cols="2",options="unnumbered"]
+|===
+h| column name h| description
+
+s| model                    | The name of the test model, here 'ATS4'
+s| system_n                 | The system code of the CAE system creating the STEP file
+s| system_t                 | The system code of the CAE system importing the STEP file. For native stats, select 'stp'
+s| unit                     | The unit the model is designed in
+s| fea_bbox_minx            | The (min X, min Y, min Z) corner point of the Bounding Box relative to the grid points
+s| fea_bbox_miny            |
+s| fea_bbox_minz            |
+s| validation_fea_bb_minx   | FEA BBox Min Point as received via the validation property capability
+s| validation_fea_bb_miny   |
+s| validation_fea_bb_minz   |
+s| fea_bbox_maxx            | The (max X, max Y, max Z) corner point of the Bounding Box relative to the grid points
+s| fea_bbox_maxy            |
+s| fea_bbox_maxz            |
+s| validation_fea_bb_maxx   | FEA BBox Max Point as received via the validation property capability
+s| validation_fea_bb_maxy   |
+s| validation_fea_bb_maxz   |
+s| total_mass               | Total mass of the model. The value shall be given in the unit implicitly defined in the native model.
+s| validation_total_mass    | Total Mass as received via the validation property capability
+s| loadcases_nb             | Number of different load cases
+s| validation_loads_nb      | Number of Load Cases as received via the validation property capability
+s| fixed_dof_nb_a           | Total number of fixed Degrees of freedom (DOF) - case A
+s| validation_fixed_dof_a   | Fixed Deg. of freedom -A as received via the validation property capability
+s| fixed_dof_nb_b           | Total number of fixed Degrees of freedom (DOF) - case B
+s| validation_fixed_dof_b   | Fixed Deg. of freedom -B as received via the validation property capability
+s| applied_forcex           | Resultant of applied forces -- case 'A'
+s| applied_forcey           |
+s| applied_forcez           |
+s| validation_force_ax      | Applied Force A as received via the validation property capability
+s| validation_force_ay      |
+s| validation_force_az      |
+s| applied_force_bx         | Resultant of applied forces -- case 'B'
+s| applied_force_by         |
+s| applied_force_bz         |
+s| validation_force_bx      | Applied Force B as received via the validation property capability
+s| validation_force_by      |
+s| validation_force_bz      |
+s| ref_pt_mom_ax            | Reference point as assigned for / as received from / the Validation Property Moment of applied forces -- case 'A'
+s| ref_pt_mom_ay            |
+s| ref_pt_mom_az            |
+s| applied_momentx          | Resultant moment at a reference point of total applied forces -- case 'A'
+s| applied_momenty          |
+s| applied_momentz          |
+s| validation_moment_ax     | Applied Moment A as received via the validation property capability
+s| validation_moment_ay     |
+s| validation_moment_az     |
+s| ref_pt_mom_bx            | Reference point as assigned for / as received from / the Validation Property Moment of applied forces -- case 'B'
+s| ref_pt_mom_by            |
+s| ref_pt_mom_bz            |
+s| applied_moment_bx        | Resultant moment at a reference point of total applied forces -- case 'B'
+s| applied_moment_by        |
+s| applied_moment_bz        |
+s| validation_moment_bx     | Applied Moment B as received via the validation property capability
+s| validation_moment_by     |
+s| validation_moment_bz     |
+s| date                     | The date when the statistics were last updated (will be filled in automatically)
+s| issues                   | A short statement on issues with the file
+|===
+
