@@ -13,11 +13,11 @@
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :email: jochen.boy@prostep.com
-:contact-type: CAx-IF
+:role-description: CAx-IF
 :fullname_2: Phil Rosché
 :affiliation_2: ACCR, LLC.
 :email_2: phil.rosche@accr-llc.com
-:contact-type_2: CAx-IF
+:role-description_2: CAx-IF
 :language: en
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl

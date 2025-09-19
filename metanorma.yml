@@ -12,5 +12,5 @@ metanorma:
       - sources/mbx-if/gg-v2.0/document.adoc
 
   collection:
-    name: MBx-IF documents in Metanorma
-    organization: MBx-IF (prostep ivip Association / AFNeT / PDES, Inc.)
+    name: MBx-IF sample documents
+    organization: "MBx Interoperability Forum: AFNeT, PDES, Inc. and prostep ivip"

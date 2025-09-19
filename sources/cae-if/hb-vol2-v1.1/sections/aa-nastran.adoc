@@ -1,6 +1,6 @@
 [[annexA]]
 [appendix,obligation=informative]
-== Appendix A -- NASTRAN Input File Full Listing
+== NASTRAN Input File Full Listing
 
 The NASTRAN input files for the four pilot models, as listed in the following four
 subsections, were used for this pilot study. They are not expected to be changed or
