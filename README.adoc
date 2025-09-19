@@ -1,9 +1,9 @@
-= MBx-IF sample documents for Metanorma
+= MBx-IF sample documents
 
 == Purpose
 
 This repository contains MBx-IF published documents as reference for
-implementation of the MBx-IF structure and layout in Metanorma.
+implementation of the MBx-IF structure and layout.
 
 The MBx-IF (MBx Interoperability Forum) is an organization focused on
 interoperability standards across various domains of manufacturing and
