@@ -1,8 +1,8 @@
 = Test Suite for the CAE Implementor Forum Round 5S
 :doctype: test-suite
 :docnumber: 5S
-:docidentifier: CAx-IF TS R5S (v1.0)
-:committee: CAx-IF
+:docidentifier: CAE-IF TS R5S (v1.0)
+:committee: CAE-IF
 :committee-type: technical
 :version: 1.0
 :issued-date: 2019-09-04
