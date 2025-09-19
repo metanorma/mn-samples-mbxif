@@ -6,6 +6,8 @@
 :doctype: general-guidelines
 :committee: CAE-IF
 :committee-type: technical
+:committee_2: LOTAR
+:committee-type_2: technical
 :volume: 2
 :edition: 1.1
 :issued-date: 2019-03-25
