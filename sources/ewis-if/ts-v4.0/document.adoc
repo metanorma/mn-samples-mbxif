@@ -1,11 +1,12 @@
 = EWIS Interoperability Forum Test Suite v4.0
-:customize: ewisif_metanorma.yml
 :doctype: test-suite
-:technical-committee: ewis
-:version: 4.0
+:docnumber: 1
+:docidentifier: EWIS-IF TS Version v4.0 (1.0)
+:committee: EWIS-IF
+:committee-type: technical
+:edition: 1.0
 :issued-date: 2021-12-09
-:toclevels: 2
-:mn-document-class: nist
+:mn-document-class: mbxif
 :fullname: Lothar Klein
 :address: Steinweg 1
 :postcode: 36093
@@ -20,10 +21,13 @@
 :region_2: Savannah, GA
 :country_2: U.S.A.
 :email_2: dan.ganser@gulfstream.com
-:series:
-:language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl
+// :customize: ewisif_metanorma.yml
+// :series:
 
 include::sections/00-preface.adoc[]
 

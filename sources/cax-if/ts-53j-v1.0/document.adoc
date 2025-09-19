@@ -1,16 +1,15 @@
 = Test Suite for the CAx Interoperability Forum Round 53J
-:customize: caxif_metanorma.yml
 :doctype: test-suite
-:technical-committee: cax-if
-:round: 53J
+:docnumber: 53J
+:docidentifier: CAx-IF TS R53J (v1.0)
+:committee: CAx-IF
+:committee-type: technical
 :version: 1.0
 :issued-date: 2024-01-16
 :date: 2023-09-01
 :date_2: 2024-03-01
-:toclevels: 2
-:toc-figures:
 :copyright-holder: CAx Interoperability Forum
-:mn-document-class: nist
+:mn-document-class: mbxif
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :email: jochen.boy@prostep.com
@@ -23,11 +22,16 @@
 :fullname_4: Robert Lipman
 :affiliation_4: NIST
 :email_4: robert.lipman@nist.gov
-:pub-uri: www.mbx-if.org
-:series:
 :language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl
+// :round: 53J
+// :pub-uri: www.mbx-if.org
+// :series:
+// :customize: caxif_metanorma.yml
 
 
 [.preface,beforeclauses=true]

@@ -1,15 +1,18 @@
-= STEP AP 242 Electrical Harness XML Tutorial & Recommended Practises
-:customize: ewisif_metanorma.yml
+= STEP AP 242 Electrical Harness XML Tutorial & Recommended Practices
+:title-intro-en: STEP AP 242 Electrical Harness XML Tutorial & Recommended Practices
+:title-main-en: Updated for AP242 IS Second Edition 2020 & upcoming Amendment 2020/2021
 :doctype: recommended-practices
-:technical-committee: ewis
+:docnumber: 1
+:docidentifier: EWIS-IF RP AP242 EHXML (v2.0)
+:draft:
+:committee: EWIS-IF
+:committee-type: technical
 :version: 2.0
 :status: draft
 :iteration: 2
 :issued-date: 2020-11-16
-:status-note: Updated for AP242 IS Second Edition 2020 & upcoming Amendment 2020/2021
-:toclevels: 3
 :copyright-holder: LOTAR International 2020
-:mn-document-class: nist
+:mn-document-class: mbxif
 :fullname: Lothar Klein
 :address: Steinweg 1
 :postcode: 36093
@@ -38,12 +41,14 @@
 :link_3: http://www.ap242.org/
 :link_4: https://en.wikipedia.org/wiki/ISO_10303
 :link_5: http://www.iso.org
-:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
-:series:
 :language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl
-:draft:
+// :customize: ewisif_metanorma.yml
+// :series:
 
 include::sections/01-overview.adoc[]
 

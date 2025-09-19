@@ -1,11 +1,13 @@
 = Test Suite for the CAE Implementor Forum Round 5S
 :doctype: test-suite
-:technical-committee: cax-if
+:docnumber: 5S
+:docidentifier: CAx-IF TS R5S (v1.0)
+:committee: CAx-IF
+:committee-type: technical
 :version: 1.0
 :issued-date: 2019-09-04
-:toclevels: 2
 :copyright-holder: CAE Implementor Forum
-:mn-document-class: nist
+:mn-document-class: mbxif
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :email: jochen.boy@prostep.com
@@ -18,11 +20,13 @@
 :affiliation_3: AFNeT
 :email_3: jean-marc.crepel@afnet.fr
 :contact-type_3: CAx-IF
-:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
-:series:
 :language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl
+// :series:
 
 [.preface]
 == Document History
