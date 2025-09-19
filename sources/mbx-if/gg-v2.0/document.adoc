@@ -1,11 +1,13 @@
 = General Guidelines for the MBx Interoperability Forum
 :doctype: general-guidelines
-:technical-committee: mbx-if
+:docnumber: 1
+:docidentifier: MBx-IF GG (v2.0)
+:committee: MBx-IF
+:committee-type: technical
 :version: 2.0
 :revdate: 2023-06-23
-:toclevels: 2
 :copyright-holder: MBx Interoperability Forum
-:mn-document-class: nist
+:mn-document-class: mbxif
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :email: jochen.boy@prostep.com
@@ -18,11 +20,14 @@
 :fullname_4: Robert Lipman
 :affiliation_4: NIST
 :email_4: robert.lipman@nist.gov
-:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
-:series:
 :language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl
+// :series:
+
 
 [.preface,beforeclauses=true]
 == Document History

@@ -1,14 +1,15 @@
 = STEP AP209 ed2
-:title-main: Linear Static Structural FEA Handbook
-:title-sub: FEA Steps, Loads and Boundary Conditions for LOTAR EAS Pilot Study
-:customize: caeif_metanorma.yml
+:title-intro: Linear Static Structural FEA Handbook
+:title-main: FEA Steps, Loads and Boundary Conditions for LOTAR EAS Pilot Study
+:docnumber: 1
+:docidentifier: CAE-IF HB Vol 2 (v1.1)
 :doctype: general-guidelines
-:technical-committee: cae-if
+:committee: CAE-IF
+:committee-type: technical
 :volume: 2
 :edition: 1.1
 :issued-date: 2019-03-25
-:toclevels: 3
-:mn-document-class: nist
+:mn-document-class: mbxif
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :address: Dolivostraße 11
@@ -51,11 +52,14 @@
 :affiliation_subdiv_6: CIMPA on behalf of Airbus
 :email_6: albert.levy.external@airbus.com
 :contact-type_6: LOTAR EAS
-:toc-figures:
-:series:
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
 :language: en
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl
+// :customize: caeif_metanorma.yml
+// :series:
 
 include::sections/00-preface.adoc[]
 
@@ -64,8 +68,6 @@ include::sections/01-intro.adoc[]
 include::sections/02-pilot-study.adoc[]
 
 include::sections/03-overview.adoc[]
-
-include::sections/04-test-case.adoc[]
 
 include::sections/04-data-model.adoc[]
 

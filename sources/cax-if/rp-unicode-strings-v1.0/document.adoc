@@ -1,12 +1,13 @@
 = CAx-IF Recommended Practices for PMI Unicode String Specifications
-:customize: caxif_metanorma.yml
 :doctype: recommended-practices
-:technical-committee: cax-if
+:docnumber: 1
+:docidentifier: CAx-IF RP Unicode Strings (v1.0)
+:committee: CAx-IF
+:committee-type: technical
 :version: 1.0
 :issued-date: 2023-04-25
-:toclevels: 2
 :copyright-holder: CAx Interoperability Forum
-:mn-document-class: nist
+:mn-document-class: mbxif
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :email: jochen.boy@prostep.com
@@ -27,11 +28,14 @@
 :affiliation_5: NIST
 :email_5: robert.lipman@nist.gov
 :contact-type_5: Technical
-:pub-uri: www.mbx-if.de -- www.mbx-if.eu -- www.mbx-if.org
-:series:
 :language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl
+// :series:
+// :customize: caxif_metanorma.yml
 
 
 include::sections/01-intro.adoc[]

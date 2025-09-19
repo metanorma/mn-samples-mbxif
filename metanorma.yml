@@ -1,0 +1,16 @@
+---
+metanorma:
+  source:
+    files:
+      - sources/cae-if/hb-vol2-v1.1/document.adoc
+      - sources/cae-if/r5s-v1.0/document.adoc
+      - sources/cax-if-pdm-if/rp-ext-ref-v2.1/document.adoc
+      - sources/cax-if/rp-unicode-strings-v1.0/document.adoc
+      - sources/cax-if/ts-53j-v1.0/document.adoc
+      - sources/ewis-if/rp-ap242-ehxml-v2.0/document.adoc
+      - sources/ewis-if/ts-v4.0/document.adoc
+      - sources/mbx-if/gg-v2.0/document.adoc
+
+  collection:
+    name: MBx-IF documents in Metanorma
+    organization: MBx-IF (prostep ivip Association / AFNeT / PDES, Inc.)
