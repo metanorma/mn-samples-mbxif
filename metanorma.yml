@@ -3,7 +3,7 @@ metanorma:
   source:
     files:
       - sources/cae-if/hb-vol2-v1.1/document.adoc
-      - sources/cae-if/r5s-v1.0/document.adoc
+      - sources/cae-if/ts-r5s-v1.0/document.adoc
       - sources/cax-if-pdm-if/rp-ext-ref-v2.1/document.adoc
       - sources/cax-if/rp-unicode-strings-v1.0/document.adoc
       - sources/cax-if/ts-53j-v1.0/document.adoc
