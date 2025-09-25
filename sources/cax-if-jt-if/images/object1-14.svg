@@ -1,0 +1,8 @@
+<svg width="250" height="200" viewBox="0 0 250 200" xmlns="http://www.w3.org/2000/svg">
+  <line x1="125" y1="25" x2="125" y2="100" style="stroke:black;stroke-width:1"/>
+  <text x="140" y="70" font-family="Arial" font-size="16" text-anchor="middle" fill="black">Att1</text>
+  <circle cx="125" cy="96" r="3" style="fill:white;stroke:black;stroke-width:1"/>
+
+  <rect x="40" y="100" width="175" height="50" style="fill:white;stroke:#00539F;stroke-width:3"/>
+  <text x="125" y="125" font-family="Arial" font-size="20" text-anchor="middle" alignment-baseline="middle" fill="#00539F">Template1</text>
+</svg>
