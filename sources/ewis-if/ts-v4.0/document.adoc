@@ -1,7 +1,7 @@
 = EWIS Interoperability Forum Test Suite v4.0
 :doctype: test-suite
 :docnumber: 1
-:docidentifier: EWIS-IF TS Version v4.0 (1.0)
+:docidentifier: EWIS-IF TS Version v4.0 (v1.0)
 :committee: EWIS-IF
 :committee-type: technical
 :edition: 1.0

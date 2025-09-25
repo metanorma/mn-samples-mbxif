@@ -26,7 +26,7 @@
 :postcode_2: 31700
 :region_2: Blagnac
 :country_2: France
-:role_2: Subcontractor for AIRBUS; Operations SAS -- IZMA
+:affiliation_2: Subcontractor for AIRBUS; Operations SAS -- IZMA
 :email_2: sophie.herail.external@airbus.com
 :fullname_3: Daniel Ganser
 :affiliation_3: Gulfstream Aerospace Corporation
