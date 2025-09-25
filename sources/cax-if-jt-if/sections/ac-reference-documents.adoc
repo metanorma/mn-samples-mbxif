@@ -1,0 +1,14 @@
+
+[[annex-c]]
+[appendix]
+== Reference Documents
+
+This recommended practices document is based on and derived from various other documents,
+schemas, and technical presentations. Those resources are listed below:
+
+* Recommended Practices for AP242 Ed.3 Domain Model XML Product & Assembly Structure
+** Version 3.2; dated 11 January 2024
+
+* AP242 Ed.3 Domain Model XML / EXPRESS Schema
+
+** Dated 11 May 2021 (version N10590)

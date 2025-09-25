@@ -1,0 +1,27 @@
+
+[[annex-b]]
+[appendix]
+== Known Issues
+
+This section lists known issues with the AP242 Domain Model, both related to the
+assembly structure and to other domains within the Domain Model. These issues concern
+errors in the XSD, mismatches between the EXPRESS and XML schemas, deficiencies in
+the documentation and other issues that have already been communicated to the AP242
+maintenance / development team for resolution. Many of these have been resolved by
+the Technical Corrigendum 1 (TC1) of AP242, which was published in 2016, by the Ed.2
+(2019) and by the Ed.3 (2022). The table below lists only Kinematicrelevant issues
+which are yet unresolved. For issues against the AP242 Domain Model in general, please
+refer to [242-PAS, Annex B].
+
+Since 2022, the Bugzilla list hosted by PDES Inc. has been transferred to ISO JIRA
+with new issue numbers. The old Bugzilla issue numbers are still mentioned in the
+short description.
+
+[cols="2",options="header,unnumbered"]
+|===
+| ISO Jira Issue | Summary | Target Milestone | Status
+| https://sd.iso.org/jira-pilot/browse/TCSC410303-817[TCSC410303-817]   | Constraints on KinematicLinkToOccurrenceAssociation (Bugzilla #6271) | 10303:4442 (Ed4) | Done
+| https://sd.iso.org/jira-pilot/browse/TCSC410303-1395[TCSC410303-1395]  | Add new capabilities to LowOrderKinemat-icPairWithMotionCoupling (Bugzilla #7908) | 10303:4442 (Ed4) | In Progress
+| https://sd.iso.org/jira-pilot/browse/TCSC410303-1396[TCSC410303-1396]  | Add attribute SubStructure to Kinemati-cLinkToOccurrenceAssociation (Bugzilla #8578) | 10303:4442 (Ed4) | In Progress
+| https://sd.iso.org/jira-pilot/browse/TCSC410303-836[TCSC410303-836]   | Add ProductStructureKinematicPathAssociation and ProductStructureLinkMotionAssociation to PropertyAssignmentSelect (Bugzilla #9073) | 10303:4442 (Ed4) | Done
+|===
