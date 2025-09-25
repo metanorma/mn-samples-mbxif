@@ -208,9 +208,10 @@ A legend for the diagram notation is shown below:
 
 [[table-1]]
 .Instance Diagram Notation
-[cols="a,a",options="header"]
+[cols="a,a"]
 |===
 |
+
 [%unnumbered]
 image::object1-1.svg[]
 
@@ -219,6 +220,7 @@ image::object1-1.svg[]
 After the #, an instance number is given
 
 |
+
 [%unnumbered]
 image::object1-2.svg[]
 
@@ -227,8 +229,10 @@ image::object1-2.svg[]
 Att2: optional attribute
 
 |
+
 [%unnumbered]
 image::object1-3.svg[]
+
 | Aggregate type for the definition of the cardinality constraint:
 
 B: Bag (non-ordered and my contain duplicates)
@@ -245,6 +249,7 @@ A: Array (indexed)
 [x : y]: lower index : upper index
 
 |
+
 [%unnumbered]
 image::object1-4.svg[]
 
@@ -254,34 +259,44 @@ contain unique values.
 Currently not used in this document
 
 |
+
 [%unnumbered]
 image::object1-5.svg[]
+
 | Derived Information from another object or attribute
 
 Currently not used in this document
 
 |
+
 [%unnumbered]
 image::object1-6.svg[]
+
 | Simple data types
 
 |
+
 [%unnumbered]
 image::object1-7.svg[]
+
 | User-defined data type
 
 Currently not used in this document
 
 |
+
 [%unnumbered]
 image::object1-8.svg[]
+
 | Enumeration Type
 
 (consists of a limited list of possible values defined for this type)
 
 |
+
 [%unnumbered]
 image::object1-9.svg[]
+
 | Select Type
 
 (is used if a relationship from an object may apply either to Object1 or Object2)
@@ -293,8 +308,10 @@ as a select type.
 Currently not used in this document
 
 |
+
 [%unnumbered]
 image::object1-10.svg[]
+
 | Attribute as relationship between two Objects (mandatory or optional),
 
 The circle at the end of the line gives the direction.
@@ -304,16 +321,20 @@ Rel1: mandatory relationship
 Rel2: optional relationship
 
 |
+
 [%unnumbered]
 image::object1-11.svg[]
+
 | Rel2: inverse attribute (i.e. in the converse direction to Rel1) with cardinality
 constraint
 
 Currently not used in this document
 
 |
+
 [%unnumbered]
 image::object1-12.svg[]
+
 | Inheritance from a Supertype to its Subtypes
 
 An Abstract Supertype (ABS) cannot be instanced without one of its non-abstract Subtypes
@@ -327,28 +348,36 @@ length, value range, cardinality, mandatory instead of optional or DERIVED
 Currently not used in this document
 
 |
+
 [%unnumbered]
 image::object1-13.svg[]
+
 | Objects shown under each other within a blue colored square are embedded into each
 other in XML: here Object2 #2-1 is embedded into Object1 #1-1 as its XML element
 Rel1
 
 |
+
 [%unnumbered]
 image::object1-14.svg[]
+
 | The templates defined in this document are re-used in other sections. This is the
 simple way to refer to a template (if the object referenced within the template is
 implicit, for example the object 'Classification' for the template 'Classification'
 
 |
+
 [%unnumbered]
 image::object1-15.svg[]
+
 | If the template is more complex and the object referenced within the template is
 shown explicitly, portions of the reused template are displayed within a blue frame.
 
 |
+
 [%unnumbered]
 image::object1-16.svg[]
+
 | Alternatively, a template may be re-used through adding new XML containments to
 it
 |===

@@ -10,6 +10,7 @@ metanorma:
       - sources/ewis-if/rp-ap242-ehxml-v2.0/document.adoc
       - sources/ewis-if/ts-v4.0/document.adoc
       - sources/mbx-if/gg-v2.0/document.adoc
+      - sources/cax-if-jt-if/document.adoc
 
   collection:
     name: MBx-IF sample documents
