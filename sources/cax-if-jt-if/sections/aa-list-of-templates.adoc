@@ -1,0 +1,43 @@
+
+[[annex-a]]
+[appendix]
+== List of Templates
+
+This chapter gives a summary of the templates described in [242-PAS]:
+
+[cols="2",options="header,unnumbered"]
+|===
+| Name | Paragraph
+| Template "ExchangeContext"                           | 4.6.1
+| Template "Organization"                              | 4.6.2
+| Template "Unit"                                      | 4.6.3
+| Template "Class"                                     | 4.6.4
+| Template "Classification"                            | 4.6.5
+| Template "Identifier"                                | 4.6.6
+| Template "Description"                               | 4.6.7
+| Template "ViewContext"                               | 4.6.8
+| Template "NumericalValue"                            | 4.6.9
+| Template "StringValue"                               | 4.6.10
+| Template "DateTime"                                  | 4.6.11
+| Template "Approval"                                  | 4.6.12
+| Template "Person"                                    | 4.6.13
+| Template "PersonInOrganization"                      | 4.6.14
+| Template "Part"                                      | 5.1
+| Template "Assembly"                                  | 5.1
+| Template "GeometricModel"                            | 6.1
+| Template "PartProperty"                              | 6.2
+| Template "ShapeDependentProperty"                    | 6.3
+| Template "SingleOccurrence"                          | 7.1
+| Template "SpecifiedOccurrence"                       | 7.2
+| Template "Simplified Positioning Representation"     | 7.3.1
+| Template "Document"                                  | 8.1
+| Template "DigitalFile"                               | 9.1
+| Template "FormatProperty"                            | 10.1
+| Template "ContentProperty"                           | 10.2
+| Template "CreationProperty"                          | 10.3
+| Template "SizeProperty"                              | 10.4
+| Template "DocumentFileProperty"                      | 10.5
+| Template "CAx Representation for DocumentAssignment" | 11.1
+| Template "PDM Representation for DocumentAssignment" | 11.2
+| Template "GeneralProperty"                           | 12.2
+|===

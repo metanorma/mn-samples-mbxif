@@ -1,0 +1,26 @@
+
+[[sec_2]]
+== Scope
+
+The following are within the scope of this document
+
+* Kinematic Mechanism
+* Kinematic Motion
+
+The following are out of scope for this document because they are or will be covered
+in other documents:
+
+* Basic PDM Capabilities for Product Identification and Assembly Structure [242-PAS]
+
+* Geometric and Assembly Validation Properties [242-PAS]
+
+* External Element References (into Part 21 files or between Domain Model XML files)
+
+* Implementations based on any edition of the AP242 Domain Model (<<ISO_10303_3001>>)
+other than Edition 3 (2022).
+
+The following are out of scope for this document:
+
+* Hierarchies of Mechanisms (GeometricRepresentationRelationship)
+* Flexible Parts within Kinematics
+* Composites

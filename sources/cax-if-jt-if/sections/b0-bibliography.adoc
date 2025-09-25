@@ -1,0 +1,7 @@
+
+[bibliography]
+== Bibliography
+
+* [[[ISO_10303_4442_2022,hidden(ISO/TS 10303-4442:2022)]]]
+
+* [[[ISO_10303_3001_2022,hidden(ISO/TS 10303-3001)]]]
