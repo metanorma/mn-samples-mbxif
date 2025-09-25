@@ -1,0 +1,13 @@
+<svg width="450" height="150" viewBox="0 0 450 150" xmlns="http://www.w3.org/2000/svg">
+  <rect x="20" y="40" width="150" height="70" style="fill:white;stroke:black;stroke-width:1"/>
+  <text x="95" y="75" font-family="Arial" font-size="18" text-anchor="middle" alignment-baseline="middle" fill="black">Object1 #1-1</text>
+
+  <rect x="280" y="40" width="150" height="70" style="fill:white;stroke:black;stroke-width:1"/>
+  <text x="355" y="75" font-family="Arial" font-size="18" text-anchor="middle" alignment-baseline="middle" fill="black">Object2 #2-1</text>
+
+  <line x1="170" y1="65" x2="280" y2="65" style="stroke:black;stroke-width:1"/>
+  <circle cx="280" cy="65" r="3" style="fill:white;stroke:black;stroke-width:1"/>
+  <text x="225" y="55" font-family="Arial" font-size="16" text-anchor="middle" fill="black">Rel1</text>
+  
+  <text x="225" y="85" font-family="Arial" font-size="16" text-anchor="middle" fill="black">(INV) Rel2 S[1:?]</text>
+</svg>
