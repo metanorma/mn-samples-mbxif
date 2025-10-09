@@ -1,0 +1,74 @@
+= Usage Guide for the STEP PDM Schema V1.2
+:doctype: general-guidelines
+:docnumber: 1
+:docidentifier: PDM-IF (v4.3)
+:committee: PDM-IF
+:committee-type: technical
+:version: 1.2
+:revdate: 2002-01-23
+:copyright-holder: PDM Implementor Forum
+:fullname: Max Ungerer
+:affiliation: PROSTEP AG
+:address: Dolivostr. 11
+:postcode: 64293
+:city: Darmstadt
+:country: Germany
+:email: max.ungerer@prostep.com
+:fullname_2: Phil Rosché
+:affiliation_2: ACCR, LLC.
+:address_2: 5300 International Blvd.
+:postcode_2: 29418
+:city_2: North Charleston SC
+:country_2: USA
+:email_2: rosche@scra.org
+:language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
+:imagesdir: images
+:mn-document-class: mbxif
+:mn-output-extensions: xml,html,pdf,rxl
+
+include::sections/00-preface.adoc[]
+
+include::sections/01-part-id.adoc[]
+
+include::sections/02-part-type-classification.adoc[]
+
+include::sections/03-part-properties.adoc[]
+
+include::sections/04-part-structure.adoc[]
+
+include::sections/05-document-id.adoc[]
+
+include::sections/06-specific-doc-type-classification.adoc[]
+
+include::sections/07-external-files.adoc[]
+
+include::sections/08-relationship-doc-file.adoc[]
+
+include::sections/09-doc-file-properties.adoc[]
+
+include::sections/10-doc-file-association.adoc[]
+
+include::sections/11-doc-file-relationships.adoc[]
+
+include::sections/12-alias-id.adoc[]
+
+include::sections/13-authorization.adoc[]
+
+include::sections/14-conf-effectivity-info.adoc[]
+
+include::sections/15-eng-change-work-management.adoc[]
+
+include::sections/16-measure-and-units.adoc[]
+
+include::sections/aa-express-listing.adoc[]
+
+include::sections/ab-express-g-diagrams.adoc[]
+
+include::sections/ac-issues-log.adoc[]
+
+include::sections/ad-doc-change-log.adoc[]
+
+include::sections/b0-bibliography.adoc[]

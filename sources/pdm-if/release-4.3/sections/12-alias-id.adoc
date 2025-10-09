@@ -1,0 +1,217 @@
+
+[[sec-12]]
+== ((Alias Identification))
+
+An alias identification is a mechanism to associate an object with an additional
+identifier that is used to identify the object of interest in a different context,
+either in another organization, or in some other context. The alias identification
+mechanism shall not be used to alias supplied parts. See Supplied Part Identification
+<<sec-4.5.4>>.
+
+The scope of the alias identification shall be specified either by the description
+of the associated identification_role or -- if the scope is defined by an organization
+-- with help of an applied_organization_assignment. The scope of an alias defines
+the context in which the id specified via applied_identification_assignment.assigned_id
+overrides the original id. A scenario might be that an object has an id in the context
+of the organization assigned in the role 'id owner' as a primary id and other ids
+defined via aliases that are valid in the context of some other organizations.
+
+=== The Instance Model: EXPRESS entities and attributes
+
+The structure of the alias assignment is illustrated in <<diam-52>>. The applied_identification_assignment #1 implements the alias via pointing to the to be aliased objects via applied_identification_assignment.items. The alias is represented in the attribute applied_identification_assignment.assigned_id. To mark the applied_identification_assignment as an alias, an instance of identification_role with name = 'alias' is attached to it.
+
+[[diam-52]]
+.Alias Identification Instance Diagram
+image::diam-52.svg[]
+
+The following table list the objects to which aliases can be assigned in the PDM
+Schema:
+
+[cols=2]
+|===
+| Entity type | purpose of usage as aliased item (applied_identification_assignment.items)
+
+| approval_status    | allows an alias for the name for the status of acceptance, i.e., approval_status.name
+| document_file      | allows an alias for the id of a digital or physical file,i.e., document_file.id
+| organization       | allows an alias for organization.id
+| product_definition | allows an alias identification for product_definition.id.
+This capability can be used for instances of product_definition that model document
+representations as well as for production_definitions that represent views on parts
+| product_definition_formation | allows an alias identification for product_definition_formation.id.
+This capability can be used for instances of product_definition_formation that model
+document versions as well as for production_definition_formations that represent
+versions of parts
+| product | allows an alias identification for product.id. This
+capability can be used for instances of product that model documents as well as for
+instances of the entity product that represent parts. See Supplied Part Identification
+<<sec-4.5.4>>
+| shape_aspect_relationship | allows an alias identification for shape_aspect_relationship.id.
+This capability can be used for instances of shape_aspects that model portions of
+a part as well as for instances of the entity shape_aspect_relationship that represent
+complete parts.
+|===
+
+==== ((applied_identification_assignment))
+
+This entity is a subtype of the entity identification_assignment. It allows the actual
+assignment of an identification_assignment entity to product data, in this case to
+a document_file entity representing an external file.
+
+*_Attributes_*
+
+* the *_assigned_id_* provides the identification string that is assigned to the
+objects listed in the items attribute.
+
+* the *_role_* references an instance of identification_role that defines the role
+of the assignment. In the context here this role has the name 'alias'.
+
+* The *_items_* attribute is used to reference the associated external file.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_identification_assignment | Attribute Population | Remarks
+
+| assigned_id | type: identifier = string          |
+| role        | type: entity = identification_role |
+| items       | type: entity =                     |
+|===
+
+*_Preprocessor Recommendations:_* For each applied_identification_assignment used
+as an alias identification an identification_role with name, 'alias' must be used.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* If the scope of an alias is an organization, this scope can
+be specified by using an applied_organization_assignment that points to the applied_identification_assignment, which represents the alias.
+
+===== ((identification_role))
+
+This entity defines a role for an identification_assignment and a description of
+that role. In the scope of the alias concept the identification_role has to be labeled
+'alias'.
+
+*_Attributes_*
+
+* The *_name_* is the label by which the identification_role is known.
+
+* The *_description_* is an optional text that characterizes the identification_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY identification_role | Attribute Population | Remarks
+
+| name        | type: label = string 'version' | must be instantiated as 'alias'
+| description | type: text = string            | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* The description attribute can be used to specify
+the applicability of an alias -- if not specified by an organizational scope. An
+example for such would be a alias that is used internally in one specific system.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* The entity identification_role describes the role of an
+applied_identification_assignment. In the context of alias definition this role has
+to be named 'alias'.
+
+===== ((applied_organization_assignment))
+
+This entity is a subtype of organization_assignment, allowing the representation
+of the assignment of an organization to some product data.
+
+*_Attributes_*
+
+* The *_assigned_organization_* is the organization which is to be associated with
+the product data.
+
+* The *_role_* attribute specifies the purpose of the association of the organization_assignment
+with product data. In the context of using this entity for alias identification the
+role is 'alias scope.
+
+* The *_items_* attribute is a reference to the product data to which the organization
+is being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_organization_assignment | Attribute Population | Remarks
+
+| assigned_organization | type: entity = organization                        |
+| role                  | type: entity = organization_role                   | must be 'alias scope' in the given scope
+| items                 | type: entity (defined by organization_item_select) | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* For defining an organizational scope of an alias
+assignment the applied_organization_assignment shall have a role 'alias scope'.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_*
+
+* applied_date_assignment and applied_date_time_assignment to specify the assignment
+of an organization together with a date.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-51]]
+.exchange file for alias identification
+[source]
+--
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION((''),'2;1');
+FILE_NAME('', '20.08.1999, 13:19:42', (''), (''), '', '', '');
+FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC;
+DATA;
+
+/* The entities in the following section describe product data and */
+/* organizational data as described in other chapters of the PDM*/
+/* usage guide*/
+#10 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #20, #30);
+#20 = PRODUCT_RELATED_PRODUCT_CATEGORY('Part', '', (#40));
+#30 = PRODUCT_RELATED_PRODUCT_CATEGORY('Detail', $, (#40));
+#40 = PRODUCT('p1', 'part 1', '', (#60));
+#50 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#40));
+#60 = PRODUCT_CONTEXT('', #70, '');
+#70 = APPLICATION_CONTEXT('');
+#80 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema', 2000, #70);
+#90 = PRODUCT_DEFINITION_FORMATION('1', '', #40);
+#100 = PRODUCT_DEFINITION('v1', 'view_on_part_1', #90, #110);
+#110 = PRODUCT_DEFINITION_CONTEXT('part definition', #70, '');
+#120 = PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#100, $, #130);
+#130 = PRODUCT_DEFINITION_CONTEXT_ROLE('', $);
+#140 = ORGANIZATION('org1', 'My organization', 'company');
+#190 = ORGANIZATIONAL_ADDRESS('', '', '', '', 'ducktown', '', '', '', '' , '', '', '', (#140), 'postal address');
+#200 = APPLIED_ORGANIZATION_ASSIGNMENT(#140, #210, (#40));
+#210 = ORGANIZATION_ROLE('id owner');
+
+/*entities #150 to #185 express that the id of organization #140 */
+
+/* is 'xyz_org' inside organization #185 */
+#150 = APPLIED_IDENTIFICATION_ASSIGNMENT('xyz_org', #180, (#140));
+#160 = APPLIED_ORGANIZATION_ASSIGNMENT(#185, #170, (#150));
+#170 = ORGANIZATION_ROLE('alias scope');
+#180 = IDENTIFICATION_ROLE('alias', 'alias for org1');
+#185 = ORGANIZATION('org2', 'My second organization', 'company');
+
+/* Entities #220 to #240 define that the id 'v1' of the part view #100 */
+/* is aliased with the id 'v_external_1' inside the organization #140 */
+#220 = APPLIED_IDENTIFICATION_ASSIGNMENT('v_external_1', #240, (#100));
+#230 = APPLIED_ORGANIZATION_ASSIGNMENT(#140, #235, (#220));
+#235 = ORGANIZATION_ROLE('alias scope');
+#240 = IDENTIFICATION_ROLE('alias', 'alias for view id');
+
+/* Entities #250 to ##270 define that the information related to the */
+/* part view #100 has the status 'approved' */
+#250 = APPROVAL(#270, '');
+#260 = APPLIED_APPROVAL_ASSIGNMENT(#250, (#100));
+#270 = APPROVAL_STATUS('approved');
+
+/* Entities #280, #290 define 'accepted' as an alias for the approval */
+/* status 'approved'*/
+#280 = APPLIED_IDENTIFICATION_ASSIGNMENT('accepted', #290, (#270));
+#290 = IDENTIFICATION_ROLE('alias', 'alias for approval status - approved -');
+
+ENDSEC;
+END-ISO-10303-21;
+--

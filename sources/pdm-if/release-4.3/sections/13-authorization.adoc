@@ -1,0 +1,1908 @@
+
+[[sec-13]]
+== ((Authorization))
+
+[[sec-13.1]]
+=== ((Organization and Person))
+
+The PDM Schema represents organizations and people in organizations as they perform
+functions related to other product data and data relationships. A person in the PDM
+Schema must exist in the context of some organization. An organization or a person
+in an organization is then associated with the data or data relationship in some
+role indicating the function being performed. Both people and organizations may have
+addresses associated with them. The address is entirely optional; it is done through
+the address entity being related to the person (through personal_address) or organization
+(through organizational_address).
+
+==== ((Organization))
+
+The PDM Schema represents groups of people (e.g., companies, countries, etc.) through
+the organization entity. The identification or id data is optional. However, because
+this information is very important in providing unique identification to the organization
+or company, it is recommended that this field always be populated with unique data.
+If appropriate, a URL-like convention for the organization identifier may be useful,
+e.g., prostep.de. The name attribute should contain the common nomenclature of the
+organization. The description attribute may contain a characterization of the type
+of the organization, or a textual explanation of its reason for existence.
+
+The organization entity is related to certain constructs to identify the organizations
+responsible for them and how they are responsible. This relationship is defined through
+the applied_organization_assignment entity (which relates an organization in some
+role) to an entity. The role is established in the organization_role entity name
+attribute. The sections, which describe the use of the entity to which the organization
+is assigned, will identify the allowed values for the name attribute of the organization_role
+entity. The organization_role entity may have a description associated with it through
+the entity description_attribute and its attribute_value attribute.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements for organization
+are illustrated in <<diam-53>>.
+
+[[diam-53]]
+.Organization Instance Diagram
+image::diam-53.svg[]
+
+===== ((organization))
+
+Entity represents the identification of an identified group of people gathered and
+structured for a purpose.
+
+*_Attributes_*
+
+* The *_id_* attribute is the identifier that distinguishes the organization.
+
+* The *_name_* attribute is the label by which the organization is known.
+
+* The *_description_* attribute characterizes the type of organization, or an explanation
+of its reason for existence.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY organization | Attribute Population | Remarks
+
+| id          | type: identifier = string | OPTIONAL it is recommended to instantiate this attribute
+| name        | type: label = string      |
+| description | type: text = string       | OPTIONAL if available the type of organization shall be mapped into this attribute
+|===
+
+*_Preprocessor Recommendations:_* All preprocessors should provide a unique organization
+id to eliminate ambiguities where organizations may have the same names. If the intended
+domain for the data is large, the reader is referred to ISO/IEC 8824-1, which can
+provide some guidance on creating unique identifiers. If appropriate, a URL-like
+convention for the organization identifier may be used, e.g., prostep.de. A unique
+string obtained under ISO/IEC 8824-1 can be used as, or prefixed to, the organization
+identifier. For example, if the organization typically used an identifier of "93699"
+and the unique string were "USA", the unique value of the organization id would be
+"USA93699". If available and appropriate, the following values should be used to
+describe the organization type: 'company' to indicate a business entity; 'department'
+to indicate an organizational group within a company.
+
+*_Postprocessor Recommendations:_* All postprocessors should make use of any provided
+information in the id attribute to eliminate ambiguities where organizations may
+have the same name.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_organization_assignment))
+
+This entity is a subtype of organization_assignment, allowing the representation
+of the assignment of an organization to some product data.
+
+*_Attributes_*
+
+* The *_assigned_organization_* is the organization which is to be associated with
+the product data.
+
+* The *_role_* attribute specifies the purpose of the association of the organization_assignment
+with product data.
+
+* The *_items_* attribute is a reference to the product data to which the organization
+is being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_organization_assignment | Attribute Population | Remarks
+
+| assigned_organization | type: entity = organization                        |
+| role                  | type: entity = organization_role                   |
+| items                 | type: entity (defined by organization_item_select) | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* For applied_organization_assignments the potential
+organization_roles 'id owner' and 'creator' are recommended.
+
+*_Postprocessor Recommendations:_* Postprocessors should support the assignment of
+the above roles to products, product_definition_formations and product_definitions
+(either related to parts or managed documents).
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((organization_role))
+
+Entity represents the role for the assignment of a person_and_organization to product
+data.
+
+*_Attributes_*
+
+* The *_name_* attribute is the label by which the organization_role is known.
+
+* The *_description_* attribute characterizes the role with further descriptive text.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY organization_ role | Attribute Population | Remarks
+
+| name        | type: label = string |
+| description | type: text = string  | DERIVED
+|===
+
+*_Preprocessor Recommendations:_* Role.name should be 'creator' or 'id owner' where
+applicable.
+
+*_Postprocessor Recommendations:_* Postprocessors should at least support the above
+role names. Postprocessors should expect that some existing implementations might
+export files that use other role names such as 'design supplier' or 'designer'.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-52]]
+.exchange file segment for organization
+[source]
+--
+#310=APPLIED_ORGANIZATION_ASSIGNMENT(#320,#330,(#270));
+#320=ORGANIZATION('ord_id_34','Doc Writers Com',$);
+--
+
+==== ((Person and Organization))
+
+The PDM Schema specifies information about people through the person entity. A person
+is identified by an id with other data representing their name and optionally titles
+which may apply to them. In populating the data, the id must be unique. This is typically
+not a problem when the person is taken in the context of some specific group such
+as a company or even country. In these instances, there are typically identifying
+numbers assigned to people. If the data being assembled is for worldwide consumption,
+the id must be unique in that domain.
+
+In the PDM Schema, a person always exists in the context of some organization.
+The connection of people to organizations is accomplished through the person_and_organization
+entity. This entity is related to certain constructs to identify the people in organizations
+responsible for them and how they are responsible. This is specified through the
+applied_person_and_organization_assignment, which relates a person and organization
+in some role to an entity. The role is established in the name attribute of the
+person_and_organization_role entity. The person_and_organization_role and person_and_organization
+entity may have a description associated with it through the entity description_attribute
+and its attribute_value attribute. The person_and_organization entity may have a
+name associated with it through the entity name_attribute and its attribute_value
+attribute. This name describes the relationship of the person to the organization.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements for person and
+organization are illustrated in <<diam-54>>.
+
+[[diam-54]]
+.Person and Organization Instance Diagram
+image::diam-54.svg[]
+
+===== ((person))
+
+Entity represents the identification of an individual. In the PDM Schema, a person
+always exists in the context of some organization.
+
+*_Attributes_*
+
+* The *_id_* attribute distinguishes the person.
+
+* The *_last_name_* attribute has the last name of the person.
+
+* The *_first_name_* attribute has the first name of the person.
+
+* The *_middle_names_* attribute is a list of strings representing the middle names.
+
+* The *_prefix_titles_* attribute is a list of text which specify the person's social
+and/or professional standing and appear before his or her names.
+
+* The *_suffix_titles_* attribute is a list of text, which specifies the person's
+social and/or professional standing and appear after his or her names.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY person | Attribute Population | Remarks
+
+| id            | type: identifier = string | must be unique in the scope of the associated organization(s)
+| last_name     | type: label = string      | OPTIONAL it is recommended to instantiate this attribute
+| first_name    | type: label = string      | OPTIONAL
+| middle_names  | type: label = string      | OPTIONAL SET
+| prefix_titles | type: label = string      | OPTIONAL SET
+| suffix_titles | type: label = string      | OPTIONAL SET
+|===
+
+*_Preprocessor Recommendations:_* All preprocessors should provide values for at
+least the last_name and first_name attributes for the person entity in order to provide
+a sense of meaning to the id attribute. In cases where uniqueness of the id attribute
+may be a problem, preprocessors should prefix the id attribute with the organization
+id (as described in the following section) followed by a comma. For example, if the
+organization id value were "USA,93699" and the person id were "111111", the actual
+value of the person id would be "USA,93699,111111".
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((person_and_organization))
+
+This entity represents the identification of a person within an organization.
+In the PDM Schema, a person always exists in the context of some organization.
+The connection of people to organizations is accomplished through the person_and_organization
+entity.
+
+*_Attributes_*
+
+* The *_name_* attribute is a label, which describes the role of the person in person_and_organization, i.e., the relationship between the person and the organization.
+
+* The *_description_* attribute characterizes the person_and_organization.
+
+* The *_the_person_* attribute is the person who is related to the organization.
+
+* The *_the_organization_* attribute is the organization to which the person is related.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY person_and_organization | Attribute Population | Remarks
+
+| name             | type label = string
+| DERIVE the name is established via the entity name_attribute that has a label for
+the name as first attribute and references the person_and_organization in the second
+attribute
+| description      | type: text = string         | OPTIONAL
+| the_person       | type: entity = person       |
+| the_organization | type: entity = organization |
+|===
+
+*_Preprocessor Recommendations:_* Description (i.e., the structure for the derived
+attribute) shall not be instantiated.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((person_and_organization_role))
+
+This entity describes the assignment role for the assignment of a person_and_organization
+to product data.
+
+*_Attributes_*
+
+* The *_name_* attribute indicates the nature of the assignment.
+
+* The *_description_* attribute characterizes the person_and_organization_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY person_and_organization_role | Attribute Population | Remarks
+
+| name        | type: label = string |
+| description | type: text = string  | DERIVED
+|===
+
+*_Preprocessor Recommendations:_* See recommendations for organization_role.
+
+*_Postprocessor Recommendations:_* See recommendations for organization_role.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_person_and_organization_assignment))
+
+This entity is a subtype of person_and_organization_assignment, and represents the
+assignment of a person_and_organization to product data.
+
+NOTE: In the scope of this usage guide, applied_person_and_organization_assignment
+is used to associate information about responsibility, not to represent an electronic
+signature.
+
+*_Attributes_*
+
+* The *_assigned_person_and_organization_* attribute references the person_and_organization.
+
+* The *_role_* attribute describes the nature of the assignment.
+
+* The *_items_* attribute is a reference to the product data having the person_and_organization
+assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_person_and_organization_assignment | Attribute Population | Remarks
+
+| assigned_person_and_organization | type: entity = person_and_organization             |
+| role                             | type: entity = person_and_organization_role        |
+| items                            | type: entity = person_and_organization_item select | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* This entity shall be used when the assignment involves
+an organization as well as a person related to that organization.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_*
+
+* applied_date_assignment and applied_date_time_assignment to specify the assignment
+of a person_and_organization together with a date.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-53]]
+.exchange file segment for person and organization
+[source]
+--
+#120=APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT(#130,#170,(#70));
+#130=PERSON_AND_ORGANIZATION(#150,#140);
+#140=ORGANIZATION('org_id','Miller Company',$);
+#150=PERSON('p_id','Miller',$,$,$,$);
+#155=NAME_ATTRIBUTE('employee',#130) #310=APPLIED_ORGANIZATION_ASSIGNMENT(#320,#330,(#270));
+#320=ORGANIZATION('ord_id_34','Doc Writers Com',$);
+--
+
+==== ((Address Assignment))
+
+The STEP PDM Schema provides for optional assignment of an address to both organizations
+and people.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements for organizational
+address assignment are illustrated in <<diam-55>>. The mechanism for personal address
+assignment is similar.
+
+[[diam-55]]
+.Address Assignment Instance Diagram (for organization, similar for person)
+image::diam-55.svg[]
+
+===== ((organizational_address))
+
+This entity is a subtype of address, which represents the identification of address
+information relevant for an organization.
+
+*_Attributes_*
+
+* The *_internal_location_* attribute is an organization-defined address for internal
+mail delivery.
+
+* The *_street_number_* attribute the number of a location on a street.
+
+* The *_street_* attribute is the name of the street.
+
+* The *_postal_box_* attribute is the number of a postal box.
+
+* The *_town_* attribute is the name of a town.
+
+* The *_region_* attribute is the name of a region.
+
+* The *_postal_code_* attribute is the code the is used by the country's postal service.
+
+* The *_country_* attribute is the name of the country.
+
+* The *_facsimile_number_* attribute is the number where facsimilies may be received.
+
+* The *_electronic_mail_address_* attribute is the address where electronic mail
+messages may be received.
+
+* The *_telephone_number_* is the number at which telephone calls may be received.
+
+* The *_telex_number_* attribute.is the number at which telex messages may be received.
+
+* The *_description_* attribute characterizes the type address to distinguish between
+delivery, postal and visitor address.
+
+* The *_organizations_* attribute is a reference to the organization at this address.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY organizational_address | Attribute Population | Remarks
+
+| internal_location       | | OPTIONAL
+| street_number           | | OPTIONAL
+| street                  | | OPTIONAL
+| postal_box              | | OPTIONAL
+| town                    | | OPTIONAL
+| region                  | | OPTIONAL
+| postal_code             | | OPTIONAL
+| country                 | | OPTIONAL
+| facsimile_number        | | OPTIONAL
+| telephone_number        | | OPTIONAL
+| electronic_mail_address | | OPTIONAL
+| telex_number            | | OPTIONAL
+| description             | | OPTIONAL
+| organizations           | | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* The description attribute shall be instantiated
+with either 'delivery address', 'postal address' or 'visitor address'. For each of
+these categories, at most one address should be instantiated related to organization.
+The delivery_address specifies the address where goods are delivered. The postal
+address specifies the address where letter mail is delivered. A visitor address specifies
+the address where the organization receives visitors.
+
+*_Preprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((personal_address))
+
+Entity a subtype of address, represents the identification of address information
+to be applied to a person.
+
+*_Attributes_*
+
+* The *_internal_location_* attribute is an organization-defined address for internal
+mail delivery.
+
+* The *_street_number_* attribute the number of a location on a street.
+
+* The *_street_* attribute is the name of the street.
+
+* The *_postal_box_* attribute is the number of a postal box.
+
+* The *_town_* attribute is the name of a town.
+
+* The *_region_* attribute is the name of a region.
+
+* The *_postal_code_* attribute is the code the is used by the country's postal service.
+
+* The *_country_* attribute is the name of the country.
+
+* The *_facsimile_number_* attribute is the number where facsimilies may be received.
+
+* The *_electronic_mail_address_* attribute is the address where electronic mail
+messages may be received.
+
+* The *_telephone_number_* is the number at which telephone calls may be received.
+
+* The *_telex_number_* attribute.is the number at which telex messages may be received.
+
+* The *_description_* attribute.characterises the type of address.
+
+* The *_people_* attribute lists the people at this location.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY personal_address | Attribute Population | Remarks
+
+| internal_location       | | OPTIONAL
+| street_number           | | OPTIONAL
+| street                  | | OPTIONAL
+| postal_box              | | OPTIONAL
+| town                    | | OPTIONAL
+| region                  | | OPTIONAL
+| postal_code             | | OPTIONAL
+| country                 | | OPTIONAL
+| facsimile_number        | | OPTIONAL
+| telephone_number        | | OPTIONAL
+| electronic_mail_address | | OPTIONAL
+| telex_number            | | OPTIONAL
+| description             | | OPTIONAL
+| people                  | | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* At least one of the optional attributes shall be
+instantiated.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-54]]
+.exchange file segment for address assignment
+[source]
+--
+#150=PERSON('p_id','Miller',$,$,$,$);
+#155=NAME_ATTRIBUTE('employee',#130) #160=PERSONAL_ADDRESS('office 321',$,$,$,$,$,$,$,'423 -21','423-
+33','miller@my-com.com',$,$,'coordinates of Mr Miller');
+#320=ORGANIZATION('ord_id_34','Doc Writers Com',$);
+#340=ORGANIZATIONAL_ADDRESS($,'14a','E street','P.O 321','My
+Town','Nice Region','postal code','My Country','345 - 21','345 - 31','info@company',$,$,$);
+--
+
+==== ((Recommendations for the assignment of person and organization))
+
+Person and organization data considered in this section is information about the
+responsibilities of persons and organizations in respect to product data. The entities
+for the assignments are person_and_organization_assignment and organization_assignment.
+The assignment entity has a role attribute that contains information about the meaning
+of the assignment. Of the variety of possible items to which the assignments of person
+and organizational data can be made, <<table-2>> gives the recommendations for scenarios
+and roles that should be supported.
+
+[[table-2]]
+.Recommended Assignment of Person/Organization to Product Data
+[cols="6"options="header"]
+|===
+| person_organization_assignment | product(as part) | product_definition_formation (as part version) | product_definition (as view on part version) | product (as document) | product_definition_formation (as document version)
+
+| creator  |     | *x* | *x* |     | *x*
+| id owner | *x* |     |     | *x* |
+|===
+
+The interpretations of the roles are:
+
+* the role 'creator' indicates that the referenced object has been created (i.e.,
+originally defined) by the organization (or person_and_organization),
+
+* the role 'id owner' describes the person or organization in which the id of the
+referenced object is valid.
+
+In a given application scenario additional roles might be negotiated. Where applicable
+the following values may be used:
+
+* 'custodian': The assigned Person or Organization is responsible for the continued
+existence and integrity of the referenced object;
+
+* 'customer': The assigned Person or Organization acts as a purchaser or consumer
+of the referenced object;
+
+* 'design supplier': The assigned Person or Organization is the one who is responsible
+for delivery or the data describing the referenced object;
+
+* 'editor': The assigned Person or Organization is responsible for making any changes
+to any attribute of the referenced object;
+
+* 'location': The assigned Organization is the place where the referenced object
+can be found or where it takes place;
+
+* 'manufacturer': The assigned Person or Organization is the one who produces the
+actual (physical) object;
+
+* 'owner': The assigned Person or Organization owns the referenced object, and has
+final say over its disposition and any changes to it;
+
+* 'supplier': The assigned Person or Organization is the one who delivers the actual
+(physical) object (e.g., a dealer);
+
+* 'wholesaler': The assigned Person or Organization is the one who is in the sales
+chain between the manufacturer and the supplier.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+A complete instantiation example for person and organization assignments is given
+in <<ex-55>>.
+
+[[ex-55]]
+.exchange file for complete person and organization.
+[source]
+--
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('pdm_schema data', 'pdm_schema'), '2;1'); FILE_NAME('C:\document_xample.stp', '1999-5-20 T12:39:1', (''), (), '',
+'', ''); FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC;
+DATA;
+
+/* Entities #10 - #20 define part master data*/
+/* To the product_definition #90 is a life cycle specific view on */
+/* that part to which organization and person are assigned in the */
+/* role of the id owner*/
+
+#10=APPLICATION_CONTEXT('');
+#20=APPLICATION_PROTOCOL_DEFINITION('version 1.2','pdm_schema',20002000,#10);
+#30=PRODUCT_DEFINITION_CONTEXT_ROLE('',$);
+#40=APPLICATION_CONTEXT('mechanical design');
+#50=PRODUCT_DEFINITION_CONTEXT('part definition',#40,'design');
+#60=PRODUCT_CONTEXT('',#10,'');
+#70=PRODUCT('MP-03-2','my part',$,(#60));
+#80=PRODUCT_DEFINITION_FORMATION('03','3rd modification',#70);
+#90=PRODUCT_DEFINITION('/NULL',$,#80,#50);
+#100=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#90,#50,#30);
+#110=PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#70));
+
+/* Entities #120 to #170 model the assignment of a person within an */
+/* organization to the part. The role of this person/organization */
+/* is that of 'id owner'*/
+
+#120=APPLIED_PERSON_AND_ORGANIZATION_ASSIGNMENT(#130,#170,(#70));
+#130=PERSON_AND_ORGANIZATION(#150,#140);
+#140=ORGANIZATION('org_id','Miller Company',$);
+#150=PERSON('p_id','Miller',$,$,$,$);
+#155=NAME_ATTRIBUTE('employee',#130) #160=PERSONAL_ADDRESS('office 321',$,$,$,$,$,$,$,'423 -21','423-
+33','miller@my-com.com',$,$,'coordinates of Mr Miller');
+#170=PERSON_AND_ORGANIZATION_ROLE('id owner');
+
+/* Entities #240 to #300 model a managed document (document as product) */
+/* The document gets an assigned organization in the role of 'creation' */
+
+#240=APPLICATION_CONTEXT('');
+#250=PRODUCT_DEFINITION_CONTEXT('digital document definition',#240,'');
+#260=PRODUCT_CONTEXT('',#240,'');
+#270=PRODUCT('doc_4711','packaging guide','packaging guideline for part',(#260));
+#280=PRODUCT_DEFINITION_FORMATION('ver3.1','version 3.1',#270);
+#290=PRODUCT_DEFINITION('id of digital document','digital document for representing guideline ver3.1',#280,#250);
+#300=PRODUCT_RELATED_PRODUCT_CATEGORY('document',$,(#270));
+
+/* Entities #310 to #340 model the assignment of an organization*/
+/* to the document defined via #270. The info transferred with the */
+/* assignment is that the organization has created the document */
+#310=APPLIED_ORGANIZATION_ASSIGNMENT(#320,#330,(#270));
+#320=ORGANIZATION('ord_id_34','Doc Writers Com',$);
+#330=ORGANIZATION_ROLE('creation');
+#340=ORGANIZATIONAL_ADDRESS($,'14a','E street','P.O 321','My Town','Nice Region','postal code','My Country','345 - 21','345 - 31','info@company',$,$,$);
+
+ENDSEC;
+END-ISO-10303-21;
+--
+
+[[sec-13.2]]
+=== ((Approval))
+
+Approving in the PDM Schema is accomplished by establishing an approval entity and
+relating it to some construct through an applied_approval_assignment.
+The applied_approval_assignment entity may have a role associated with it through
+the entity role_association and its related object_role entity to indicate the reason/role
+of this approval related to the particular element of product data.
+
+Approval may be represented as a simple basic approval (see <<sec-13.2.1>>), or it
+may represent a more complex approval cycle involving multiple approvers, on different
+dates/times, and possibly with different status values (see <<sec-13.2.2>>).
+
+In the case of a single approval instance with multiple people signing off on the
+approval, approval_person_organization can be applied to the date_and_time_item select
+type.
+
+In the case where an approval is made up of multiple approval instances, and these
+approvals involve hierarchical relationships, applying date to an approval_person_organization
+should not be used, because in Multiple approvals with Hierarchical relationships
+an applied_data_and_time applied to approval_person_organization is not needed.
+In these kinds of approvals, there should be an approval_person_organization and
+approval_date_time for each approval instance. Date and time are already available
+by instantiating an approval_date_time construct for each approval in a multiple
+approval hierarchical relationship structure.
+
+Approval is part of the select type organization_item, and it provides the capability
+to assign an organization to an approval in the role of "scope" of the approval.
+
+In a number of STEP APs, constructs that require an approval are allowed only one
+approval assignment. This might lead to the misconception that only one person at
+one date/time can approve something. This is not the case. The approval constructs
+actually support an approval cycle (see <<sec-13.2.2>>). However, an approval may
+only need one signature corresponding to the simple basic approval scenario.
+
+The level of an approval is understood to represent the aspect for which the approved
+object is endorsed. This level represents a "state" for which the approved object
+requires approval. The approval status indicates the level of acceptance given the
+object for the specified state.
+
+NOTE: The entity product_definition exists to represent different views on a part
+version. Each view is characterized by a type and a life-cycle stage. Various part
+view "types" correspond to different states that a part assumes throughout its life
+cycle. The decision to represent the "state" of a part as a level of approval on
+a view definition or an entirely different view definition is dependent upon individual
+business processes. In the STEP PDM schema, different view definitions are typically
+characterized by different life-cycle stages such as 'design' and 'manufacturing'.
+Approval levels are various "states" defined within a given life-cycle stage view,
+and are typically dependent upon the approval cycles within an individual business
+process. The "gates" associated with each defined "state" are described by the approval
+status values leading towards the status 'approved' indicating achievement of the
+particular level, or "state".
+
+[[sec-13.2.1]]
+==== ((Basic Approval))
+
+For basic approval, an approval needs only one signature and does not represent an
+approval cycle. There is only one approval_person_organization, one approval_status,
+and one approval_date_time.
+
+It is recommended that the approval entity have associated approval_person_organization
+to specify the approver of the approval. The approval_person_organization entity
+has a role associated with it by the entity approval_role. If no more specific information
+is available, the role 'approver' is recommended.
+
+It is recommended that the approval entity have associated an approval_date_time
+construct to specify the date when the current approval status was assigned.
+The approval_date_time may reference either a date or a date_and_time to indicate
+that the referenced element of product data was approved on the specified date/time.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements for basic approval
+are illustrated in <<diam-56>>.
+
+[[diam-56]]
+.Basic Approval Instance Diagram
+image::diam-56.svg[]
+
+===== ((approval))
+
+This entity describes the state of acceptance of some product data.
+
+*_Attributes_*
+
+* The *_status_* attribute specifies the judgement made about the product data that
+is the subject of the approval.
+
+* The *_level_* attribute describes the type or the level of approval in terms of
+its usage.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY approval | Attribute Population | Remarks
+
+| status | type: entity = approval_status |
+| level  | type: label                    |
+|===
+
+*_Preprocessor Recommendations:_* The approval level attribute is generally agreed
+to represent the type of approval in terms of its usage. The approved object is understood
+to be approved for the given purpose described by the value of the attribute level.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((approval_status))
+
+This entity represents a statement made by technical personnel or management personnel
+whether certain requirements are met.
+
+*_Attributes_*
+
+* The *_name_* attribute describes the terms characterizing the approval_status.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY approval_status | Attribute Population | Remarks
+
+| name | type: label |
+|===
+
+*_Preprocessor Recommendations:_* The approval_status name attribute is recommended
+to only be "approved", "not yet approved", "disapproved" or "withdrawn".
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_approval_assignment))
+
+This entity is a subtype of approval_assignment, allowing the representation of the
+assignment of an approval to some product data.
+
+*_Attributes_*
+
+* The *_assigned_approval_* attribute references the approval that is being assigned.
+
+* The *_role_* attribute describes the nature of the assignment.
+
+* The *_items_* attribute is a reference to the product data to which the approval
+is being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_approval_assignment | Attribute Population | Remarks
+
+| assigned_approval | type: entity = approval    |
+| role              | type: entity = object_role | DERIVE
+| items             |                            | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* All preprocessors should use non-defaulted data
+or user-input data for the values assigned for the approvers and approval date for
+product_definition_formation entities. The approvers and approval dates can be extrapolated
+from the version creator and approval data if other appropriate data is unavailable.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((approval_person_organization))
+
+This entity specifies who is responsible for the approval.
+
+*_Attributes_*
+
+* The *_person_organization_* attribute is a reference to the person or person_and_organization
+who made the approval.
+
+* The *_authorized_approval_* attribute is a reference to the approval effected by
+the person and/or organization.
+
+* The *_role_* attribute describes the nature of the association.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY approval_person_organization | Attribute Population | Remarks
+
+| person_organization | type: SELECT                 |
+| authorized_approval | type: entity = approval      |
+| role                | type: entity = approval_role |
+|===
+
+*_Preprocessor Recommendations:_* For AP214 compatibility, preprocessors may generate
+an applied_date_and_time_assignment entity associated to approval_person_organization.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((approval_role))
+
+This entity represents the identification of the assignment role for an approval_person_organization.
+
+*_Attributes_*
+
+* The *_role_* attribute describes the terms characterizing the approval_role.
+
+* The *_description_* attribute specifies the word or group of words used to refer
+to the approval_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY approval_role | Attribute Population | Remarks
+
+| role        | type: label |
+| description | type: text  | DERIVE
+|===
+
+The approval_role entity may have a description associated with it through the entity
+description_attribute and its attribute_value attribute.
+
+*_Preprocessor Recommendations:_* If no appropriate data for the approval_role role
+attribute (why this person and organization is approving) is available it is recommended
+that this attribute contain the value "approver".
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((approval_date_time))
+
+This entity specifies when the approval was given. Year values for dates should always
+be expressed with four digits, e.g., 1999.
+
+*_Attributes_*
+
+* The *_date_time_* attribute is a reference to the date and/or time when the approval
+was made.
+
+* The *_dated_approval_* attribute is a reference to the approval effected by the
+date and/or time.
+
+* The *_role_* attribute describes the nature of the association.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY approval_date_time | Attribute Population | Remarks
+
+| date_time      | type: SELECT               |
+| dated_approval | type: entity = approval    |
+| role           | type: entity = object_role | DERIVE
+|===
+
+*_Preprocessor Recommendations:_* The approval_date_time.role attribute may contain
+the value 'actual' to indicate this date/time is the actual (not planned) date that
+the approval_status related to the dated_approval was assigned.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-56]]
+.exchange file segment for basic approval
+[source]
+--
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('pdm_schema data', 'pdm_schema'), '2;1'); FILE_NAME('C:\approval_example.stp', '1999-5-20 T12:39:1', (''), (), '',
+'', ''); FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC;
+DATA;
+
+/* part version to which an approval is applied */
+
+#10 = PRODUCT_DEFINITION_FORMATION('02', 'lever modified', #20);
+#20 = PRODUCT('K01-42051', 'Bicycle Bell RX25B', '', (#30));
+#30 = PRODUCT_CONTEXT('', #40, '');
+#40 = APPLICATION_CONTEXT('mechanical design');
+#50 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#20));
+#60=APPLICATION_PROTOCOL_DEFINITION('version1.1','pdm_schema',20002000, #40;
+
+/* approval definition / association to product_definition_formation */
+#880 = APPROVAL(#870, 'preliminary design');
+#870 = APPROVAL_STATUS('not yet approved');
+#890 = APPLIED_APPROVAL_ASSIGNMENT(#880, (#10));
+
+/* identification of approver */
+#900 = APPROVAL_PERSON_ORGANIZATION(#330, #880, #910);
+#910 = APPROVAL_ROLE('approver');
+#280 = ORGANIZATION('O-0709', 'Logus GmbH', 'company');
+#330 = PERSON_AND_ORGANIZATION(#340, #280);
+#340 = PERSON('P-0661', 'Rose', 'Peter', $, $, $);
+#350 = NAME_ATTRIBUTE('employee', #330);
+
+/* definition of actual approval date (when status was set) */
+#940 = APPROVAL_DATE_TIME(#970,#880);
+#950 = ROLE_ASSOCIATION(#960, #940);
+#960 = OBJECT_ROLE('actual', $);
+#970 = DATE_AND_TIME(#980, #990);
+#980 = CALENDAR_DATE(1999, 14, 5);
+#990 = LOCAL_TIME(0, 0, 0.0E+000, #1000);
+#1000 = COORDINATED_UNIVERSAL_TIME_OFFSET(0, $, .EXACT.);
+
+ENDSEC;
+END-ISO-10303-21;
+--
+
+[[sec-13.2.2]]
+==== ((Approval Cycles and Multiple Sign-off Scenarios))
+
+A number of STEP APs have constructs that require an approval, but are allowed only
+one approval assignment. This might lead to the misconception that only one person
+at one date/time can approve something. This is not the case. The approval constructs
+actually support an approval cycle. An approval cycle typically requires multiple
+signatures to achieve a given status for the overall approval.
+
+Representation of an approval cycle may be done in one of two ways in the PDM Schema,
+depending upon the specific requirements of the use scenario:
+
+* Single approval with multiple person/organizations,
+
+* Multiple approvals with hierarchical relationships.
+
+If multiple people/organizations are required to sign off in an approval cycle, but
+only a single status value is maintained for the overall approval, then the single
+approval with multiple person organization approach is recommended. If individual,
+possibly different, status values are necessary for each of the multiple sign-offs
+required in an approval cycle, then the multiple approval with hierarchical relationship
+structure is recommended.
+
+In all scenarios the approval_date_time records the date/time that the status of
+an approval was last changed. Year values for dates should always be expressed with
+four digits, e.g., 1999. The approval_date_time entity may have a role associated
+it through the entity role_association and its related object_role entity.
+
+The single approval with multiple person/organization type of approval cycle requires
+multiple signatures but maintains a single approval status. This explains the need
+for the approval_status of 'not yet approved' - until all signatures are available
+to switch this status to 'approved'. Each individual sign off should have an associated
+date/time, through the use of a date_assignment (or date_and_time_assignment) applied
+directly to the approval_person_organization, to represent the sign off date with
+the date_time_role of 'sign off'. As always, the approval_date_time indicates when
+the status of the overall approval was last changed.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements for a cycle
+involving a single approval with multiple sign-offs are illustrated in <<diam-57>>.
+Although a date_time_assignment is used in this example to illustrate a date_and_time,
+a date_assignment can also be used if only a date without a time specification is
+required.
+
+[[diam-57]]
+.Single Approval Cycle Instance Diagram
+image::diam-57.svg[]
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-57]]
+.exchange file segment for single approval cycle
+[source]
+--
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('pdm_schema data', 'pdm_schema'), '2;1'); FILE_NAME('C:\approval_example.stp', '1999-5-20 T12:39:1', (''), (), '',
+'', ''); FILE_SCHEMA(('PDM_SCHEMA {1.2}')); ENDSEC;
+DATA;
+
+/* part version to which an approval is applied */
+#10 = PRODUCT_DEFINITION_FORMATION('02', 'lever modified', #20);
+#20 = PRODUCT('K01-42051', 'Bicycle Bell RX25B', '', (#30));
+#30 = PRODUCT_CONTEXT('', #40, '');
+#40 = APPLICATION_CONTEXT('mechanical design');
+#50 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#20));
+#60=APPLICATION_PROTOCOL_DEFINITION('version
+1.2','pdm_schema',20002000,#40;
+
+/* approval definition / association to product_definition_formation */
+#880 = APPROVAL(#870, '');
+#870 = APPROVAL_STATUS('not yet approved');
+#890 = APPLIED_APPROVAL_ASSIGNMENT(#880, (#10));
+
+/* definition of overall approval date (when status was set) */
+#940 = APPROVAL_DATE_TIME(#970,#880);
+#950 = ROLE_ASSOCIATION(#960, #940);
+#960 = OBJECT_ROLE('actual', $);
+#970 = DATE_AND_TIME(#980, #990);
+#980 = CALENDAR_DATE(1999, 14, 5);
+#990 = LOCAL_TIME(0, 0, 0.0E+000, #1000);
+#1000 = COORDINATED_UNIVERSAL_TIME_OFFSET(0, $, .EXACT.);
+
+/* identification of an approver (one of possibly many) */
+#900 = APPROVAL_PERSON_ORGANIZATION(#330, #880, #910);
+#910 = APPROVAL_ROLE('approver');
+#330 = PERSON_AND_ORGANIZATION(#340, #280);
+#280 = ORGANIZATION('O-0709', 'Logus GmbH', 'company');
+#340 = PERSON('P-0661', 'Rose', 'Peter', $, $, $);
+#350 = NAME_ATTRIBUTE('employee', #330);
+
+/* individual approver sign-off date */
+#920 = APPLIED_DATE_AND_TIME_ASSIGNMENT(#1070, #930, (#900));
+#930 = DATE_TIME_ROLE('sign off');
+#1070 = DATE_AND_TIME(#1080, #1090);
+#1080 = CALENDAR_DATE(1999, 12, 5);
+#1090 = LOCAL_TIME(0, 0, 0.0E+000, #1000);
+
+ENDSEC;
+END-ISO-10303-21;
+--
+
+The multiple approval with hierarchical relationship type of approval cycle requires
+multiple signatures, each with individual status values, to achieve a given status
+value of the overall approval. In this case, each sign-off is itself an
+approval -- a sub-approval of the overall approval. Thus the overall approval is
+hierarchically broken down into component sub-approvals, each with an individual
+status, date/time, and person/organization.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements for a cycle
+involving a multiple approvals with hierarchical approval relationships are illustrated
+in <<diam-58>>.
+
+[[diam-58]]
+.Multiple Approval Cycle Instance Diagram
+image::diam-58.svg[]
+
+===== ((approval_relationship))
+
+An approval_relationship is a relationship between two approvals, i.e., approval
+objects. The meaning of the approval relationship is given by its _name_ attribute.
+An approval_relationship may be used to define an approval as part of some higher
+level approval, or to express some dependency such as sequential relationship in
+time, between two approval objects.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the meaning of the relationship.
+
+* The *_description_* attribute specifies additional information text that characterizes
+the approval_relationship.
+
+* The *_relating_approval_* specifies the first approval, which is related by the
+approval_relationship. The relating_approval usually identifies the approval on which
+the definition of the related_approval is based, e.g., from which it is derived or
+on which it is dependent. The semantics of this attribute should be defined by the
+name attribute.
+
+* The *_related_approval_* specifies the second approval related by the approval_relationship.
+The related_approval usually identifies the approval which is based on the definition
+of the relating_approval. The semantics of this attribute should be defined by the
+name attribute.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY approval_relationship | Attribute Population | Remarks
+
+| name              | type: label = string    |
+| description       | type: text = string     | OPTIONAL
+| relating_approval | type: entity = approval |
+| related_approval  | type: entity = approval |
+|===
+
+*_Preprocessor Recommendations:_* The name attribute is used to specify the type
+of the approval_relationship and therefore should be populated with predefined values
+that both sides of the exchange have a common understanding of. The value 'decomposition'
+for the name attribute should be used to indicate that the related_approval is one
+of potentially more components into which the relating_approval is broken down.
+The value 'precedence' for the name attribute should be used to indicate that the
+related_approval has higher priority than the relating_approval. The value 'sequence'
+for the name attribute should be used to indicate that the relating_approval shall
+be completed before the related_approval is given. There are no further standard
+mappings specified for the name attribute. Additional values must be mutually agreed
+upon.
+
+There is no standard mapping for the description attribute. The description attribute
+is optional, but may contain any appropriate/mutually-agreed-upon string.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-58]]
+.exchange file segment for multiple approval cycle
+[source]
+--
+ISO-10303-21; HEADER;
+FILE_DESCRIPTION((''), '2;1');
+FILE_NAME('', '14.10.1999, 11:35:31', ('N.N.'), (''), '', '', ''); FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC;
+DATA;
+
+/* part master data for product g1 (#4 */
+#10 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #20, #30);
+#20 = PRODUCT_RELATED_PRODUCT_CATEGORY('Part', '', (#40));
+#30 = PRODUCT_RELATED_PRODUCT_CATEGORY('Detail', $, (#40));
+#40 = PRODUCT('g1', 'gear box v1', '', (#60));
+#50 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#40));
+#60 = PRODUCT_CONTEXT('', #70, '');
+#70 = APPLICATION_CONTEXT('');
+#80 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema',20002000, #70);
+#90 = PRODUCT_DEFINITION_FORMATION('1', '', #40);
+
+/* #100 is the top-level approval in the c*/
+/* It is via the relationships #235 and #375 decomposed in two */
+/* approval parts. The status in #120 reflects the overall status */
+#100 = APPROVAL(#120, '');
+#110 = APPLIED_APPROVAL_ASSIGNMENT(#100, (#90));
+#120 = APPROVAL_STATUS('not yet approved');
+#130 = ORGANIZATION('dep1', 'department 1', '');
+#160 = APPROVAL_PERSON_ORGANIZATION(#130, #100, #170);
+#170 = APPROVAL_ROLE('approver');
+#180 = APPLIED_DATE_AND_TIME_ASSIGNMENT(#200, #190, (#160));
+#190 = DATE_TIME_ROLE('sign off');
+#200 = DATE_AND_TIME(#210, #220);
+#210 = CALENDAR_DATE(2000, 1, 1);
+#220 = LOCAL_TIME(0, 0, 0.0000E+000, #230);
+#230 = COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+
+/* #240 is a decomposed part of the top-level approval #10 */
+/* This approval has two signing organizations (#270, #32 */
+/*attached to it*/
+/* The status is reflected in #240 */
+#235 = APPROVAL_RELATIONSHIP('decomposition',$,#100,#250);
+#240 = APPROVAL_STATUS('approved');
+#250 = APPROVAL(#240, '');
+#260 = APPLIED_APPROVAL_ASSIGNMENT(#250, (#90));
+
+/* #270 is the 1st organization given the approval #240 */
+#270 = ORGANIZATION('g1', 'group 1', '');
+#280 = APPROVAL_PERSON_ORGANIZATION(#270, #250, #285);
+#285 = APPROVAL_ROLE('approver');
+#290 = APPLIED_DATE_AND_TIME_ASSIGNMENT(#300, #295, (#280));
+#295 = DATE_TIME_ROLE('sign off');
+#300 = DATE_AND_TIME(#310, #320);
+#310 = CALENDAR_DATE(2000, 1, 1);
+#320 = LOCAL_TIME(0, 0, 0.0000E+000, #230);
+
+/* #325 is the 2nd organization given the approval #240 */
+#325 = ORGANIZATION('g3', 'group 3', '');
+#330 = APPROVAL_PERSON_ORGANIZATION(#325, #250, #335);
+#335 = APPROVAL_ROLE('approver');
+#340 = APPLIED_DATE_AND_TIME_ASSIGNMENT(#350, #345, (#330));
+#345 = DATE_TIME_ROLE('sign off');
+#350 = DATE_AND_TIME(#360, #370);
+#360 = CALENDAR_DATE(2000, 1, 2);
+#370 = LOCAL_TIME(0, 0, 0.0000E+000, #230);
+
+/* #380 is a decomposed approval part of the top-level approval #100*/
+/* The status is reflected in #400 */
+#375 = APPROVAL_RELATIONSHIP('decomposition',$,#100,#380);
+#380 = APPROVAL(#400, '');
+#390 = APPLIED_APPROVAL_ASSIGNMENT(#380, (#90));
+#400 = APPROVAL_STATUS('withdrawn');
+#405 = ORGANIZATION('g2', 'group 2', '');
+#410 = APPROVAL_PERSON_ORGANIZATION(#405, #380, #415);
+#415 = APPROVAL_ROLE('approver');
+#420 = APPLIED_DATE_AND_TIME_ASSIGNMENT(#430, #425, (#410));
+#425 = DATE_TIME_ROLE('sign off');
+#430 = DATE_AND_TIME(#440, #450);
+#440 = CALENDAR_DATE(2000, 1, 2);
+#450 = LOCAL_TIME(0, 0, 0.0000E+000, #230);
+
+ENDSEC;
+END-ISO-10303-21;
+--
+
+=== ((Dates, Times, and Event References))
+
+[[sec-13.3.1]]
+==== ((Date and Time))
+
+The PDM Schema provides mechanisms for assignment of date and time to product data
+aiming at characterizing when some event or fact occurred. The specification of time
+is optional, i.e., in many cases only date is required. The applied_date_assignment
+entity allows for association of date with product data. The purpose of this association
+is specified by an instance of the entity date_role. As described later in this section,
+the PDM Schema supports a similar structure for concurrent assignment of date and
+time.
+
+Dates are represented using the calendar_date entity, i.e., by specifying year, month
+and day. Time is unambiguously represented using the local_time entity, as it enforces
+the specification of the time zone, i.e., the offset to the coordinated universal
+time.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements for date
+and time are illustrated in <<diam-59>>.
+
+[[diam-59]]
+.Assignment of date and time to product data
+image::diam-59.svg[]
+
+===== ((calendar_date))
+
+This entity is a subtype of date, which defines it as a day in a month of a year.
+
+*_Attributes_*
+
+* The *_year_component_* attribute specifies the year in which the calendar_date
+occurs.
+
+* The *_day_component_* attribute specifies the day element of the calendar_date.
+
+* The *_month_component_* attribute specifies the month element of the calendar_date.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY calendar_date | Attribute Population | Remarks
+
+| year_component  | type: year_number          | Year is expressed as a four digits integer
+| day_component   | type: day_in_month_number  | Integer between 1 and 31, inclusive
+| month_component | type: month_in_year_number | Integer between 1 and 12, inclusive
+|===
+
+*_Preprocessor Recommendations:_* The instance shall define a valid calendar date,
+i.e., it must take into account constraints related to the number of days in a month
+(e.g., in June the day_component must be an integer between 1 and 30, inclusive).
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((local_time))
+
+This entity represents an instance of time by expressing hour, minute and second
+in the local time zone and also specifying the offset to the coordinated universal
+time.
+
+*_Attributes_*
+
+* The *_hour_component_* attribute specifies the number of hours.
+
+* The *_minute_component_* attribute specifies the number of minutes.
+
+* The *_second_component_* attribute specifies the number of seconds.
+
+* The *_zone_* attributes specifies the offset of the local time zone to the coordinated
+universal time.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY local_time | Attribute Population | Remarks
+
+| hour_component | type: hour_in_day
+| Integer between 0 and 23, inclusive, where midnight shall be represented by the value 0.
+| minute_component | type: minute_in_hour                            | Integer between 0 and 59,inclusive. This attribute is optional.
+| second_component | type: second_in_minute                          | Real between 0 and 59, inclusive.This attribute is optional.
+| zone             | type: entity= coordinated_universal_time_offset |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((coordinated_universal_time_offset))
+
+This entity specifies allows for relating a time to coordinated universal time by
+an offset. Coordinated Universal Time (UTC) is the international time standard, which
+was previously known as Greenwich Meridian Time (GMT).
+
+*_Attributes_*
+
+* The *_hour_offset_* attribute specifies the number of hours by which a time is
+offset from coordinated universal time.
+
+* The *_minute_offset_* attribute specifies the number of minutes by which a time
+is offset from coordinated universal time.
+
+* The *_sense_* attribute specifies the direction of the offset.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY coordinated_universal_time_offset | Attribute Population | Remarks
+
+| hour_offset   | type: Integer                      | Value must be between 0 and 12
+| minute_offset | type: Integer                      | Value must be between 0 and 59. This attribute is optional
+| sense         | type:ahead_or_behind = ENUMERATION | May assume values ahead, behind or exact
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((date_and_time))
+
+This entity specifies time on a particular day.
+
+*_Attributes_*
+
+* The *_date_component_* attribute specifies the date element.
+
+* The *_time_component_* attribute specifies the time element.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY date_and_time | Attribute Population | Remarks
+
+| date_component | type: entity = date       | In the PDM Schema, it points to an instance of calendar_date.
+| time_component | type: entity = local_time |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_date_assignment))
+
+This entity allows for association of date with product data.
+
+*_Attributes_*
+
+* The *_assigned_date_* attribute specifies the date to be assigned to product data.
+
+* The *_role_* attribute specifies the purpose of the assignment of the date to product
+data.
+
+* The *_items_* attribute is a reference to the product data to which the date is
+being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_date_assignment | Attribute Population | Remarks
+
+| assigned_date | type: entity = date      | In the PDM Schema, it points to an instance of calendar_date.
+| role          | type: entity = date_role |
+| items         | type: date_item = SELECT | SET [1:?]
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((date_role))
+
+This entity specifies a role for an applied_date_assignment.
+
+*_Attributes_*
+
+* The *_name_* attribute defines a label by which the date_role is known.
+
+* The *_description_* attribute specifies text that characterizes the date_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY date_role | Attribute Population | Remarks
+
+| name        | type: label | a string value
+| description | type: text  | DERIVED
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_date_and_time_assignment))
+
+This entity allows for association of date and time with product data.
+
+*_Attributes_*
+
+* The *_assigned_date_and_time_* attribute specifies the date_and_time to be assigned
+to product data.
+
+* The *_role_* attribute specifies the purpose of the assignment of the date_and_time
+to product data.
+
+* The *_items_* attribute is a reference to the product data to which the date_and_time
+is being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_date_assignment | Attribute Population | Remarks
+
+| assigned_date_and_time | type: entity = date_and_time
+| In the PDM Schema,the date_component attribute points to an instance of calendar_date.
+| role                   | type: entity = date_time_role |
+| items                  | type: date_item = SELECT      | SET [1:?]
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((date_time_role))
+
+This entity specifies a role for an applied_date_and_time_assignment.
+
+*_Attributes_*
+
+* The *_name_* attribute defines a label by which the date_role is known.
+
+* The *_description_* attribute specifies text that characterizes the date_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY date_role | Attribute Population | Remarks
+
+| name        | type: label | a string value
+| description | type: text  | DERIVED
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-59]]
+.exchange file segment for date and time assignment
+[source]
+--
+#10 = PRODUCT_DEFINITION_FORMATION('02', 'lever modified', #20);
+#20 = PRODUCT('K01-42051', 'Bicycle Bell RX25B', '', (#30));
+#30 = PRODUCT_CONTEXT('', #40, '');
+#40 = APPLICATION_CONTEXT('mechanical design');
+#50 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#20));
+.
+.
+.
+#920 = APPLIED_DATE_AND_TIME_ASSIGNMENT(#970, #930, (#10));
+#930 = DATE_TIME_ROLE('creation date');
+
+/* definition of date and time */
+#970 = DATE_AND_TIME(#980, #990);
+#980 = CALENDAR_DATE(1999, 14, 5);
+#990 = LOCAL_TIME(0, 0, 0.0E+000, #1000);
+#1000 = COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+--
+
+[[sec-13.3.2]]
+==== ((Event Reference))
+
+In the PDM Schema, events are characterized by instances of the event_occurrence
+entity or its subtype relative_event_occurrence.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes required to support the requirements for event
+occurrence assignment are illustrated in <<diam-60>>. A Part 21 file segment using
+event reference is shown in <<ex-60>>.
+
+[[diam-60]]
+.Event Occurrence Instance Diagram
+image::diam-60.svg[]
+
+===== ((event_occurrence))
+
+This entity describes aspects relevant to characterizing a state transition.
+
+*_Attributes_*
+
+* The *_id_* attribute identifies the event_occurrence.
+
+* The *_name_* attribute provides the word or group of words by which the event_occurrence
+is referred.
+
+* The *_description_* attribute provides additional descriptive information about
+the event_occurrence.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY event_occurrence | Attribute Population | Remarks
+
+| id          | type: identifier |
+|             |                  |
+| name        | type: label      |
+| description | type: text       | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* Event_occurrence may be used to specify the limits in dated_effectivity
+(see <<sec-14.2.1.4>>).
+
+===== ((relative_event_occurrence))
+
+This entity is a subtype of event_occurrence that is characterized by an offset to
+another event_occurrence.
+
+*_Attributes_*
+
+* The *_base_event_* attribute identifies the event_occurrence providing the basis
+for definition of the relative_event_occurrence.
+
+* The *_offset_* attribute specifies the amount of time between the base_event and
+the relative_event_occurrence.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY relative_event_occurrence | Attribute Population | Remarks
+
+| base_event | type: entity = event_occurrence       |
+| offset     | type: entity = time_measure_with_unit |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_event_occurrence_assignment))
+
+This entity allows for association of events with product data.
+
+*_Attributes_*
+
+* The *_assigned_event_occurrence_* attribute specifies the event_occurrence to be
+assigned to product data.
+
+* The *_role_* attribute specifies the purpose of the assignment of the event_occurrence
+to product data.
+
+* The *_items_* attribute is a reference to the product data to which the event_occurrence
+is being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_event_occurrence_assignment | Attribute Population | Remarks
+
+| assigned_event_occurrence | type: entity = event_occurrence      |
+| role                      | type: entity = event_occurrence_role |
+| items                     | type: date_item = SELECT
+| SET [1:?] -- In the PDM Schema the select type is constrained to the entity organizational_project.
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((event_occurrence_role))
+
+This entity specifies a role for an event_occurrence_assignment.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or group of words by which the event_occurrence_role
+is referred.
+
+* The *_description_* attribute specifies additional descriptive information about
+the event_occurrence_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY event_occurrence_role | Attribute Population | Remarks
+
+| name        | type: label |
+| description | type: text  | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-60]]
+.exchange file segment for event reference
+[source]
+--
+#1=APPLICATION_CONTEXT('mechanical design');
+#220=PRODUCT_CONTEXT('', #1, '');
+#230=PRODUCT_DEFINITION_CONTEXT('part definition', #1, 'design');
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#2));
+#2=PRODUCT('11000', 'solid cube', 'description for part 11000', (#220));
+#3=PRODUCT_DEFINITION_FORMATION('A', 'version A for solid cube', #2);
+#4=PRODUCT_DEFINITION('D1', 'detailed drawing as planned for STEP conformance testing', #3, #230);
+
+/* start and end events for effectivity */
+#910=EVENT_OCCURRENCE('ev1', 'start production', 'lot for customer A');
+#910=EVENT_OCCURRENCE('ev2', 'end production', 'lot for customer A');
+
+/* effectivity definition and assignment */
+#1040=DATED_EFFECTIVITY('', #910, #970);
+#1042=APPLIED_EFFECTIVITY_ASSIGNMENT(#1040, (#3));
+#1044=OBJECT_ROLE('actual', $);
+#1045=ROLE_ASSOCIATION(#1044, #1042);
+--
+
+=== ((Security classification))
+
+A security classification is the level of confidentiality that is required in order
+to protect product data against unauthorized usage.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+[[diam-61]]
+.Part Master with Context Information Instance Diagram
+image::diam-61.svg[]
+
+===== ((security_classification))
+
+This entity defines the level of confidentiality that is required for the purpose
+of product data protection.
+
+*_Attributes_*
+
+* The *_name_* attribute is the label by which the security_classification is known.
+
+* The *_purpose_* gives an informal description of the intent of the security_classification.
+
+* The *_security_level_* defines the security_classification_level that specifies
+the required degree of security.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY security_classification | Attribute Population | Remarks
+
+| name           | type: label = string                         |
+| purpose        | type: text = string                          |
+| security_level | type: entity = security_classification_level |
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* Date/time and person/organization can be associated with a
+security_classification by using the entities applied_date_assignment, applied_date_and_time_assignment, applied_organization_assignment and applied_person_and_organization_assignment.
+
+===== ((security_classification_level))
+
+This entity defines a category of security required for product data protection.
+
+*_Attributes_*
+
+* The *_name_* is the label by which the security_classification_level is known.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY security_classification_level | Attribute Population | Remarks
+
+| name | type: label = string |
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_*.
+
+===== ((applied_security_classification_assignment))
+
+This entity is a type of security_classification_assignment that assigns a security_classification
+to a security_classification_item.
+
+*_Attributes_*
+
+* The *_assigned_security_classification_* gives the security_classification which
+is to be associated with product data.
+
+* *_Items_* is the set of items to which the security_classification is assigned.
+A security classification can be assigned to multiple items with one instance of
+assigned_security_classification.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_security_classification_assignment | Attribute Population | Remarks
+
+| assigned_security_classification | type: entity = security_classification      |
+| items                            | type: entity = security_classification_item | SET [1:?]
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* an assigned_security_classification relates a security_classification
+to a set to be classified items. The PDM Schema supports the assignment of security
+classifications to instances of assembly_component_usage, document_file, product_definition
+and product_definition_formation.
+
+The table below shows the entity types that can be used in the set of items of security
+classification assignment and the associated semantics.
+
+[[table-3]]
+.security classification assignment
+[cols=2]
+|===
+| entity type | semantics of using applied_security_classification with instances of this entity.
+
+| assembly_component_usage | classifies the component inclusion in an assembly.
+| document_file | classifies a document file
+| product_definition | classifies the information related to a product_definition, where a product_definition can either model a document representation or a part view.
+| product_definition_formation | classifies the information related to a product_definition_formation, where a product_definition_formation can either model a document version or apart version.
+|===
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-61]]
+.exchange file for security classification
+[source]
+--
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION((''),'2;1');
+FILE_NAME('', '20.08.1999, 13:19:42', (''), (''), '', '', '');
+FILE_SCHEMA(('PDM_SCHEMA {1.2}')); ENDSEC;
+DATA;
+
+#10 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #20, #30);
+#20 = PRODUCT_RELATED_PRODUCT_CATEGORY('Part', '', (#40));
+#30 = PRODUCT_RELATED_PRODUCT_CATEGORY('Assembly', $, (#40));
+#40 = PRODUCT('as', 'assembly', '', (#60));
+#50 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#40, #170));
+#60 = PRODUCT_CONTEXT('', #70, '');
+#70 = APPLICATION_CONTEXT('');
+#80 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema', 2000, #70);
+#90 = PRODUCT_DEFINITION_FORMATION('1', '', #40);
+#100 = PRODUCT_DEFINITION('vas', 'design view assembly', #90, #110);
+#110 = PRODUCT_DEFINITION_CONTEXT('part definition', #70, 'design');
+#140 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #150, #160);
+#150 = PRODUCT_RELATED_PRODUCT_CATEGORY('Part', '', (#170));
+#160 = PRODUCT_RELATED_PRODUCT_CATEGORY('Detail', $, (#170));
+#170 = PRODUCT('p', 'part', '', (#60));
+#180 = PRODUCT_DEFINITION_FORMATION('1', '', #170);
+#190 = PRODUCT_DEFINITION('vp', 'design view part', #180, #110);
+#210 = PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#100, #230, #220);
+#220 = PRODUCT_DEFINITION_CONTEXT_ROLE('part definition type', $);
+#230 = PRODUCT_DEFINITION_CONTEXT('assembly definition', #70, '');
+#240 = NEXT_ASSEMBLY_USAGE_OCCURRENCE('p_usage_1','single instance usage', '', #100, #190, $);
+#250 = SECURITY_CLASSIFICATION('confidentiality', 'classify as confidental',#260);
+#260 = SECURITY_CLASSIFICATION_LEVEL('confidential');
+#270 = APPLIED_SECURITY_CLASSIFICATION_ASSIGNMENT(#250,(#180,#190,#240)); ENDSEC;
+
+END-ISO-10303-21;
+--
+
+=== ((Certification))
+
+The PDM Schema supports the assignment of certification information to parts, component
+usages and relationships between part versions. The key entity used for this purpose
+is certification. In the PDM Schema primarily the certification of supplied parts
+is seen as a use case for certification. Thus the assignment of certification information
+is restricted to instances of product_definition_formation_relationship that model
+a 'supplied part'-relationship.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+[[diam-62]]
+.Certification Instance Diagram
+image::diam-62.svg[]
+
+==== ((certification))
+
+This entity is a documentation that asserts facts. Such certification information
+might for example use ISO 9000 categories.
+
+*_Attributes_*
+
+* The *_name_* attribute defines the label by which a certification is known.
+
+* The *_purpose_* attribute provides an informal description why the certification
+is applied.
+
+* The *_kind_* attribute defines the class of certification that is applied via an
+instance of certification_type.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY certification | Attribute Population | Remarks
+
+| name    | type: label = string              |
+| purpose | type: text = string               |
+| kind    | type: entity = certification_type |
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* A certification is related to product data information via
+instances of applied_certification_assignment.
+
+==== ((applied_certification_assignment))
+
+This entity is a type of certification_assignment that assigns a certification to
+a certification_item.
+
+*_Attributes_*
+
+* The *_assigned_certification_* references the relevant instance of the certification
+entity.
+
+* The *_items_* attribute defines the set of items to which the certification is
+assigned. Currently the PDM Schema exclusively supports to use production_definition_formation_relationship as item to be certified.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_certification_assignment | Attribute Population | Remarks
+
+| assigned_certification | type: entity = certification      |
+| items                  | type: entity = certification_item
+| SET[1:?]. In the scope of the PDM Schema this is a set of product_definition_formation_relationship instances
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* Instances of the applied_certification_assignment model establish
+a relationship between a certification instances and a set of product_definition_formation_relationship
+instances to which this certification applies.
+
+==== ((certification_type))
+
+This entity gives the kind of certification granted. Such a kind may for example
+be defined via labels as 'supplier certification' or 'ISO 9000'.
+
+*_Attributes_*
+
+* The *_description_* is a text that characterizes the certification_type.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY certification_type | Attribute Population | Remarks
+
+| description | type: label = string |
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* Each instances of certification references an instance of certification_type.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-62]]
+.exchange file for certification of supplied parts
+[source]
+--
+/* primary application context for design assembly life cycle */
+#10 = APPLICATION_CONTEXT('mechanical design');
+#220 = PRODUCT_CONTEXT('', #10, '');
+#230 = PRODUCT_DEFINITION_CONTEXT('part definition', #10, 'design');
+
+/* part type discrimination */
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#2, #9));
+
+/* solid cube - supplied part */
+#2=PRODUCT('11000','solid 'cube','description for part 11000',(#220));
+#3=PRODUCT_DEFINITION_FORMATION('A', 'description of version A for solid cube,#2);
+#4=PRODUCT_DEFINITION('D1',' ',#3,#230);
+
+/* solid box - internal part */
+#9=PRODUCT('11111','Solid Box','part 11111 made from raw material 11000',(#220));
+#10=PRODUCT_DEFINITION_FORMATION('A', 'description of version A for part 11111',#9);
+#11=PRODUCT_DEFINITION('D2','',#10,#230);
+#16=PRODUCT_DEFINITION_FORMATION_RELATIONSHIP('supplied_item_rel_id','s upplied item',$,#10,#3);
+#17=APPLIED_CERTIFICATION_ASSIGNMENT(#18,#16);
+#18=CERTIFICATION('Category A supplied part','purpose is to certify allowed replacements',#19);
+#19=CERTIFICATION_TYPE('supplier certification');
+--

@@ -1,0 +1,1581 @@
+
+[[sec-15]]
+== ((Engineering Change and Work Management))
+
+The PDM Schema provides data structures for representation of the data used to manage
+the work being done during the engineering (release and change) process. The work
+management area contains the constructs to describe initial part design requirements
+and the change requirements and issues for revising part designs, as well as the
+proposed work and the directive for work to proceed in the development of these initial
+or modified part designs. The structures are based on three fundamental concepts:
+work request, work proposal, and work order.
+
+Work request documents the need for a potential action such as creation of new functionality
+(release) or change of existing functionality, which may or may not ever be incorporated.
+If the request is incorporated, it is done through some action being taken on the
+request, which may result in the release of new functionality or a change to some
+existing functionality (or portions thereof). This action identifying the work to
+be done to address the request is formally directed by a work order.
+
+All release and change proposals such as Engineering Change Proposals, Requests for
+Engineering Action, etc., are represented by the request for work portion of the
+work management data structure, i.e., the versioned_action_request and its related
+entity types. For a release or change proposal to be incorporated, there must be
+a definition of the actual work to be done. The work definition area includes the
+definition of work orders together with the activities that are directed by the work
+order.
+
+In addition to the request for work and work definition structures, the PDM Schema
+provides the capability to represent project and contract related information, and
+to associate the work being done as part of the engineering process to the projects
+and contracts that control it.
+
+=== ((Request for Work))
+
+The work done as part of an engineering process may be triggered or initiated by
+official requests that identify the need for a potential release or change of functionality.
+These requests may or may not ever actually be incorporated, depending upon the level
+of authorization granted to the request and its associated work order.
+
+The STEP PDM Schema supports the representation of these work requests including
+their level of completion, the reason for the suggested work to be done, and the
+desired outcome. The items that are planned as the possible subject of this work
+may be identified as in scope and attached to the work request. If the request is
+in fact incorporated, these planned affected items of the work request may or may
+not actually be the items affected by the associated work order. One or more potential
+alternative solutions for addressing the work request may also be specified.
+
+Additional administrative information such as persons, organizations, and date and
+time related information as well as approval authorization information can also be
+attached to a work request.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements to represent
+request for work information are illustrated in <<diam-67>> below. The corresponding
+STEP exchange file encoding is given in <<ex-67>>.
+
+[[diam-67]]
+.Request for Work Instance Diagram
+image::diam-67.svg[]
+
+[[sec-15.1.1.1]]
+===== ((versioned_action_request))
+(((versioned_action_request)))
+
+The versioned_action_request entity represents a request for some work which may
+be an initial release or a change. A versioned_action_request also specifies the
+reason for this work.
+
+Possible ways to achieve the purpose of the request, i.e., potential alternative
+solutions, may be identified as one or more action_method instances that are attached
+to the versioned_action_request using the entity action_request_solution (see <<sec-15.1.1.4>>).
+Status information describing the level of completion of the versioned_action_request
+must be represented through an associated action_request_status (see <<sec-15.1.1.2>>).
+
+The items that are planned as the subject of the work request are associated to the
+work request using applied_action_request_assignment (see <<sec-15.1.1.3>>).
+For example, if a versioned_action_request represents a request for change the items
+to be changed are identified through an applied_action_request_assignment. Such items
+may be part or document versions, view definitions, or part properties. For additional
+information, see applied_document_reference <<sec-10.1.4>> .
+
+*_Attributes_*
+
+* The *_id_* attribute specifies an identifier that distinguishes the versioned_action_request.
+
+* The *_version_* attribute specifies the identification of the version of the versioned_action_request.
+
+* The *_purpose_* attribute specifies a descriptive label providing an informal description
+of the reason for the versioned_action_request.
+
+* The *_description_* attribute specifies additional information about the versioned_action_request.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY versioned_action_request | Attribute Population | Remarks
+
+| id          | type: identifier = string | must be unique in conjunction with the version attribute
+| version     | type: label = text        |
+| purpose     | type: text = string       |
+| description | type: text = string       | OPTIONAL
+|             |                           |
+|===
+
+*_Preprocessor Recommendations:_* There is no standard mapping for the id attribute
+of versioned_action_request; however the value should be unique in conjunction with
+the version attribute.
+
+The purpose attribute is mandatory, and may contain any appropriate/mutually-agreed-upon
+string. Where applicable, the following values for the purpose attribute may be used:
+'technical improvement', 'government regulation', 'durability improvement',
+'tool improvement', 'production relief', 'production requirement', 'quality improvement',
+'security reason', 'standardization', 'cost reduction', 'customer rejection',
+'change of standard', 'production alignment', and 'procurement alignment'.
+
+A versioned_action_request shall have an associated status, represented by exactly
+one action_request_status, which references the versioned_action_request as the assigned_request
+(see <<sec-15.1.1.2>>).
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A versioned_action_request may be referenced by the following
+entities:
+
+* action_request_solution to identify potential solutions to address the versioned_action_request.
+
+* applied_action_request_assignment to identify the items that are planned as the
+subject of the assigned work request.
+
+NOTE: If a versioned_action_request is referenced as the assigned_request by an applied_action_request_assignment specifying one or more product_definition_formations, product_definitions, or product_definition_relationships as the affected items, it is assumed that the versioned_action_request represents a request for change of the referenced objects, otherwise it represents a request for an initial design.
+
+* action_directive to identify the definition of related engineering action(s) that
+provide the work definition proposed to incorporate the purpose of the versioned_action_request.
+
+* applied_approval_assignment to associate approval information related to a versioned_action_request. See <<sec-13.2>> for guidance in creating the approval constructs.
+
+* applied_date_assignment (or applied_date_and_time_assignment) to associate date
+information to a versioned_action_request. See <<sec-13.3.1>> for guidance in creating
+the date and time constructs. A recommended value for the name attribute of the date_role
+is 'request date'.
+
+* applied_organization_assignment (or applied_person_and_organization_assignment)
+to associate organization (and person) information to a versioned_action_request.
+See <<sec-13.1>> for guidance in creating the organization and person constructs.
+A recommended value for the name attribute of the organization_role (or person_and_organization_role) is 'requestor'.
+
+* applied_document_reference to associate a document with the versioned_action_request.
+
+[[sec-15.1.1.2]]
+===== ((action_request_status))
+(((action_request_status)))
+
+The action_request_status entity represents the status describing the level of completion
+of the associated versioned_action_request.
+
+*_Attributes_*
+
+* The *_status_* attribute specifies a label that provides a user-interpretable designation
+for the level of completion of the versioned_action_request.
+
+* The *_assigned_request_* attribute specifies the versioned_action_request for which
+the status is specified.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY action_request_status | Attribute Population | Remarks
+
+| status           | type: label = text                      |
+| assigned_request | type: entity = versioned_action_request |
+|===
+
+*_Preprocessor Recommendations:_* The _status_ attribute characterizes the level
+of completion of the versioned_action_request and therefore should be populated with
+predefined values that are commonly understood by both sides of the exchange. Recommended
+values to be used are "proposed", "in-work", "issued", and "hold".
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-15.1.1.3]]
+===== ((applied_action_request_assignment))
+(((applied_action_request_assignment)))
+
+A work request may be raised against different types of product data that might be
+subject to the requested work. The applied_action_request_assignment entity defines
+a mechanism to associate a work request with the items that are thought or planned
+to be affected by the work request.
+
+The types of items to which a work request may be assigned are defined in the action_request_item
+select type. The STEP PDM Schema allows versions, views, and structure relationships
+of parts and documents (i.e., product_definition_formation, product_definition, and
+product_definition_relationship instances) to be subject of a work request. The action_request_item
+select type as well supports part properties to be subject of a work request.
+
+*_Attributes_*
+
+* The *_assigned_action_request_* specifies the versioned_action_request, which is
+assigned to the affected product data.
+
+* The *_items_* attribute specifies the set of items that are subject of the work
+request represented by the associated versioned_action_request.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_action_request_assignment | Attribute Population | Remarks
+
+| assigned_action_request | type: entity = versioned_action_request      |
+| role                    | DERIVEd attribute type: entity = object_role | OPTIONAL
+| items                   | type: entity = action_request_item select    | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* The applied_action_request_assignment entity may
+have a role associated with it through the entity object_role. Where applicable,
+the value 'scope' should be used to indicate that the referenced items are planned
+in scope of the assigned work request. If there is no role specified for an
+applied_action_request_assignment, it is assumed that the versioned_action_request
+represents a change request for the referenced objects.
+
+*_Postprocessor Recommendations:_* If no object_role is specified for the applied_action_request_assignment,
+the assigned versioned_action_request shall be interpreted as a change request requesting
+a change of the associated items ('scope').
+
+*_Related Entities:_* An action_request_assignment may be referenced by the following
+entities:
+
+* role_association to specify an object_role defining the role of the assignment,
+i.e., purpose of the association of the applied_action_request_assignment with product
+data.
+
+* property_definition to specify properties of a work_request
+
+[[sec-15.1.1.4]]
+===== ((action_request_solution))
+(((action_request_solution)))
+
+The action_request_solution entity represents an association between a work and an
+action_method that describes a potential solution for the request. Identified solutions
+of a versioned_action_request may be explicitly recommended or explicitly excluded
+from a recommendation.
+
+*_Attributes_*
+
+* The *_method_* attribute specifies an action_method that is a potential solution
+for the request.
+
+* The *_request_* attribute specifies the versioned_action_request for which the
+(potential) solution is specified.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY action_request_solution | Attribute Population | Remarks
+
+| method      | type: entity = action_method            |
+| request     | type: entity = versioned_action_request |
+| description | DERIVEd attribute type: text = string
+| at most one description can be associated via the entity description_attribute
+| name        | DERIVEd attribute type: label = string  | at most one name can be
+associated via the entity name_attribute
+|===
+
+*_Preprocessor Recommendations:_* If a potential solution identified by an action_request_solution
+is explicitly recommended to address the issue raised by the versioned_action_request,
+the value 'recommended method' may be used for the name attribute. If a potential
+solution is identified as such, but not recommended to solve the work request, the
+value 'non-recommended method' may be used for the name attribute.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-15.1.1.5]]
+===== ((action_method))
+(((action_method)))
+
+The action_method entity defines relevant information about the process for executing
+an activity. This definition includes the activity's objectives and effects and describes
+how the activity is to be carried out. Within the work management area, action_methods
+may be used to describe procedures for how to carry out activities and to represent
+the potential solutions to address a work request. Document files representing action_method
+can be associated by using applied_document_reference. For additional information,
+see applied_document_reference <<sec-10.1.4>>.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or common name used to refer to the action_method.
+
+* The *_description_* attribute specifies additional information about the action_method.
+
+* The *_consequence_* attribute contains an informal description of the effects of
+the action_method.
+
+* The *_purpose_* attribute specifies a descriptive label characterizing the objectives
+of the action_method.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY action_method | Attribute Population | Remarks
+
+| name        | type: label = text  |
+| description | type: text = string | OPTIONAL
+| consequence | type: text = string |
+| purpose     | type: label = text  |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An action_method may be referenced by the following entities:
+
+* executed_action and directed_action to indicate the activities for which the action_method
+describes the procedure.
+
+* action_request_solution to specify the versioned_action_request(s) for which the
+action_method defines a potential solution.
+
+* applied_document_reference to associate a document with the action_method.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-67]]
+.exchange file segment for request for work
+[source]
+--
+#1=VERSIONED_ACTION_REQUEST('var id1', '0001', 'create new part design', '$');
+#2=VERSIONED_ACTION_REQUEST('var id2', '0001', 'technical improvement', 'description of var id2, 0001');
+#3=VERSIONED_ACTION_REQUEST('var id3', '0002', 'production requirement', 'description of var id3, 0002');
+#4=ACTION_REQUEST_STATUS('proposed', #1);
+#5=ACTION_REQUEST_STATUS('issued', #2);
+#6=ACTION_REQUEST_STATUS('in-work', #3);
+#8=ACTION_METHOD('activity method 1', $, 'effects of activity method 1', 'objectives of activity method 1');
+#9=ACTION_METHOD('technical improvement method 1', $, 'effects of technical improvement method 1', '$');
+#10=ACTION_METHOD('technical improvement method 2', $, 'effects of technical improvement method 2', '$');
+#13=ACTION_REQUEST_SOLUTION(#8, #1);
+#14=ACTION_REQUEST_SOLUTION(#9, #2);
+#15=ACTION_REQUEST_SOLUTION(#10, #2);
+#16=APPLICATION_CONTEXT('mechanical design');
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#380, #440));
+#220=PRODUCT_CONTEXT('', #16, '');
+#230=PRODUCT_DEFINITION_CONTEXT('part definition', #16, 'design');
+#340=PRODUCT_DEFINITION_CONTEXT_ROLE('part definition type', $);
+#350=PRODUCT_DEFINITION_CONTEXT('assembly definition', #16, '');
+#380=PRODUCT('g1', 'gasket', $, (#220));
+#390=PRODUCT_DEFINITION_FORMATION('A', '', #380);
+#400=PRODUCT_DEFINITION('gv1', 'design view on gasket', #390, #230);
+#440=PRODUCT('s1', 'sleeve assembly', $, (#220));
+#450=PRODUCT_DEFINITION_FORMATION('A', '', #440);
+#460=PRODUCT_DEFINITION('sv1', 'design view on sleeve assembly', #450, #230);
+#520=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#460, #350, #340);
+#530=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu1', 'single instance usage', 'gasket usage 1', #460, #400, $);
+#531=APPLIED_ACTION_REQUEST_ASSIGNMENT(#2, (#450));
+#532=APPLIED_ACTION_REQUEST_ASSIGNMENT(#3, (#400));
+--
+
+=== ((Work Order and Work Definition))
+
+Requests for work are typically followed by a definition of the engineering activities
+required to address the issues raised by the work requests. The engineering activity
+that defines a work order is formally directed in response to a work request.
+
+Every work order consists of a work directive (in response to a work request) and
+a directed activity that defines the work to be done. This work definition represents
+the main activity that is directed by, and has to be carried out as part of, a work
+order.
+
+The main activity describing the work definition related to a work order may be further
+refined by decomposition into sub-activities. This is described in the section on
+activity decomposition (see <<sec-15.2.2>>).
+
+==== ((Work Order))
+
+Requests for work are processed and result in work orders that direct engineering
+activities to solve the issues raised by the work request. A work order may address
+one or multiple work requests.
+
+The work order describes how a particular request for work is addressed and, if authorized,
+incorporated through appropriate activities during the engineering release or change
+process. Every work order consists of a work directive (directed in response to a
+specific work request) and a definition of the work to be done. This work definition
+represents the main activity defining the work to be completed under a work order,
+together with a reference to the activity method that identifies the procedure describing
+how it is to be carried out.
+
+An activity may be associated with status information describing its level of completion.
+The identification of the items that are the input or the result of an engineering
+activity that is controlled by a work order is also supported by the STEP PDM Schema.
+
+In addition, person, organization and date and time related information as well as
+approval information can be attached to an activity.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements to represent
+work order information are illustrated in <<diam-68>> below. The corresponding STEP
+exchange file encoding is given in <<ex-68>>.
+
+[[diam-68]]
+.Work order Instance Diagram
+image::diam-68.svg[]
+
+===== ((action_directive))
+(((action_directive)))
+
+The action_directive entity specifies an authoritative instrument that provides directions
+to achieve the desired results as specified in some work_request(s). An action_directive
+is the result of processing one or more versioned_action_requests. It represents
+the directive for work that must be performed to satisfy the requirements stated
+by the assessed versioned_action_requests. The work directed by an action_directive
+is represented by an associated directed_action (see <<sec-15.2.1.2>>). The action_directive
+together with the directed activity defining the work to be completed represents
+a work order.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the identifier used to refer to the action_directive.
+
+* The *_description_* attribute specifies additional information about the action_directive.
+
+* The *_analysis_* attribute specifies an informal description of the results of
+the analysis that was carried out on the 
+elements of the versioned_action_requests that are addressed by the action_directive.
+
+* The *_comment_* attribute specifies a descriptive label providing some textual
+commentary.
+
+* The *_requests_* attribute specifies the work requests that are addressed by the
+action_directive.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY action_directive | Attribute Population | Remarks
+
+| name        | type: label = text                      |
+| description | type: text = string                     | OPTIONAL
+| analysis    | type: text = string                     |
+| comment     | type: label = text                      |
+| requests    | type: entity = versioned_action_request | S[1:?]
+|===
+
+*_Preprocessor Recommendations:_* In the context of the work management area, an
+action_directive shall be referenced by exactly one directed_action that defines
+the work that is directed by the action_directive.
+
+The name attribute shall contain a string that, in conjunction with the associated
+versioned_action_requests, uniquely identifies the action_directive. If an action_directive
+addresses one particular versioned_action_request, the value of the id attribute
+of the versioned_action_request may be used to populate the name attribute.
+
+Some types of (release or change) processes in organizations may not involve submission
+of official work requests. In this case, it is recommended to use the default values
+for the entities and attributes not supported by the preprocessor as described in
+the 'General information' section of this usage guide to instantiate the required
+versioned_action_request.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An action_directive may be referenced by the following entities:
+
+* directed_action to specify the work that is being directed by the action_directive,
+and that addresses the requirements specified in the associated versioned_action_requests.
+It is strongly recommended that an action_directive has exactly one associated directed_action
+with name 'work definition'.
+
+[[sec-15.2.1.2]]
+===== ((directed_action))
+(((directed_action)))
+
+The directed_action entity represents the work that is controlled by an action_directive,
+and defined as part of a work order. This is a definition of work that has either
+taken place, is taking place, or is expected to take place in the future. The work
+requests that are addressed and incorporated by the directed_action are specified
+through association to an action_directive.
+
+A directed_action identifies the action_method that describes the method or procedure
+chosen to carry out the activity. Reference to an action_method that has been identified
+as a potential solution to a work request (see <<sec-15.1.1.4>>) indicates which
+procedure or potential solution for a work request has been selected by the work
+order.
+
+A directed_action may have an associated status representing the level of completion
+of the work. In addition, it may carry additional information needed to characterize
+the work defined by the work order, e.g., start or end dates, person and organization
+related information, and approval authorization information.
+
+A directed_action is related via an applied_action_assignment (see <<sec-15.2.1.3>>)
+to the items that are subject of the work represented by the 'work definition' of
+a work order. This is used to describe the items (e.g., part or document versions,
+views, or structural relationships between these), which are either input or result
+from the release or change defined by the directed_action.
+
+It is recommended that exactly one directed_action be used to represent the work
+being governed by an action_directive. This directed_action may be identified by
+the name 'work definition', and may be further decomposed into sub-activities represented
+by executed_actions (see <<sec-15.2.2>>). These sub-activities are related to the
+work definition (directed_action) through an action_relationship (or a chain of such
+action_relationships) with name 'decomposition' (see <<sec-15.2.2.3>>). Each sub-activity
+may have additional information, e.g., start or end dates, person and organization
+related information, or approvals specifically assigned to it. When many requests
+are incorporated by one work order using different proposed solutions, the directed_action
+representing the complete work definition should be decomposed in sub-activities
+for which the appropriate method is indicated.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or common name used to refer to the action.
+
+* The *_description_* attribute specifies additional information about the action.
+
+* The *_chosen_method_* attribute specifies the action_method that defines the procedure
+selected to carry out the *action* and a description of the results of the action.
+
+* The *_directive_* attribute specifies the action_directive that authorizes and
+controls the directed_action.
+
+* The *_id_* attribute is derived, and may store the unique identifier for a directed_action.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY directed_action | Attribute Population | Remarks
+
+| name          | type: label = text                          | may be 'work definition'
+| description   | type: text = string                         | OPTIONAL
+| chosen_method | type: entity = action_method                |
+| directive     | type: entity = action_directive             |
+| id            | DERIVEd attribute type: identifier = string | exactly one id may
+be associated via the entity id_attribute
+|===
+
+*_Preprocessor Recommendations:_* It is recommended that a directed_action always
+be related to an action_directive. The name attribute shall be unique in conjunction
+with the associated action_directive.
+
+If the directed_action representing the 'work definition' is broken down in separate
+sub-activities (see <<sec-15.2.2>>), it is recommended that this top-level work definition
+be associated through applied_action_assignment to all input and output items that
+are defined for the sub-activities.
+
+It is recommended that a directed_action have an associated status, represented by
+exactly one action_status, which references the directed_action as the assigned_action
+(see <<sec-15.2.2.2>>).
+
+The directed_action entity may have an identifier associated with it through the
+entity id_attribute and its attribute_value attribute.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A directed_action may be referenced by the following entities:
+
+* action_relationship to associate two directed_actions or a directed_action and
+an executed_action, e.g., to define their decomposition relationship, i.e., one action
+as part of the other, or to describe their dependencies.
+
+* applied_action_assignment to identify the items that are affected by the directed_action.
+
+* applied_approval_assignment to associate authorization information related to a
+directed_action. See <<sec-13.2>> for guidance in creating the approval constructs.
+
+* applied_date_assignment (or applied_date_and_time_assignment) to associate date
+(and time) information to a directed_action. See <<sec-13.3.1>> for guidance in creating
+the date and time constructs.
+
+* applied_organization_assignment (or applied_person_and_organization_assignment)
+to associate organization (and person) information to a directed_action. See <<sec-13.1>>
+for guidance in creating the organization and person constructs. A recommended value
+for the name attribute of the person_and_organization_role is 'requestor'.
+
+* applied_contract_assignment to identify that the directed_action is subject of
+the assigned contract.
+
+[[sec-15.2.1.3]]
+===== ((applied_action_assignment))
+(((applied_action_assignment)))
+
+The applied_action_assignment entity relates an action to the elements of product
+data that is affected by the action. The applied_action_assignment entity defines
+a general mechanism to associate an activity that is part of a work order to the
+items that are affected by the activity.
+
+The types of items to which an activity may be assigned are defined in the action_item
+select type. Within the scope of the PDM Schema, items that may be affected by an
+engineering activity are part and document versions (i.e., product_definition_formations),
+views on these versions (i.e., product_definitions), or structural relationships
+between these (i.e., product_definition_relationships). The action_item select type
+as well supports different views of a version of the product and may also include
+different product configuration_effectivities. For example, a manufacturing configuration
+represented by the entity configuration_effectivity supports the manufacturing part
+view requirement for a relationship between an action (Activity) and a manufactured
+part.
+
+The applied_action_assignment may have a role associated with it through the entity
+object_role via a role_association. The role specifies the function that is performed
+by the affected item in the context of the assigned action. Role information may
+be used to distinguish between items that are used as input or the ones that are
+the results from the release or change process.
+
+*_Attributes_*
+
+* The *_assigned_action_* specifies the action that is assigned to the affected items.
+
+* The *_items_* attribute specifies the set of items to which the associated action
+is assigned, i.e., that are affected by the assigned action.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_action _assignment | Attribute Population | Remarks
+
+| assigned_action | type: entity = action                        |
+| role            | DERIVEd attribute type: entity = object_role | OPTIONAL
+| items           | type: entity = action_item select            | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* If the applied_action_assignment has a role associated
+with it through the entity object_role, the name attribute of the object role should
+use the following values where applicable: 'input' should be used to indicate that
+the referenced item serves as initial data for the assigned action; 'output' should
+be used to indicate that the referenced item is a result of the assigned action.
+If no role is given, it is assumed that the applied_action_assignment identifies
+items that are the result of carrying out the assigned action (e.g., 'output').
+
+If a directed_action defining the complete work under a work order is further decomposed
+in sub-activities, then all affected items identified as input or output of the sub-activities
+should be explicitly associated to the top-level directed_action.
+
+*_Postprocessor Recommendations:_* If the applied_action_assignment has no role associated
+with it, it shall be assumed that the items referenced by the applied_action_assignment
+are the result of carrying out the assigned action.
+
+*_Related Entities:_* An applied_action_assignment may be referenced by the following
+entities:
+
+* role_association to specify an object_role defining the role of the assignment.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-68]]
+.exchange file segment for work order
+[source]
+--
+#1=VERSIONED_ACTION_REQUEST('var id1', '0001', 'create new part design', '$');
+#2=VERSIONED_ACTION_REQUEST('var id2', '0001', 'technical improvement', 'description of var id2, 0001');
+#4=ACTION_REQUEST_STATUS('in-work', #1);
+#5=ACTION_REQUEST_STATUS('issued', #2);
+#8=ACTION_METHOD('activity method 1', $, 'effects of activity method 1', 'objectives of activity method 1');
+#9=ACTION_METHOD('technical improvement method 1', $, 'effects of technical improvement method 1', '$');
+#10=ACTION_METHOD('technical improvement method 2', $, 'effects of technical improvement method 2', '$');
+#13=ACTION_REQUEST_SOLUTION(#8, #1);
+#14=ACTION_REQUEST_SOLUTION(#9, #2);
+#15=ACTION_REQUEST_SOLUTION(#10, #2);
+#16=APPLICATION_CONTEXT('mechanical design');
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#380, #440, #542));
+#220=PRODUCT_CONTEXT('', #16, '');
+#230=PRODUCT_DEFINITION_CONTEXT('part definition', #16, 'design');
+#340=PRODUCT_DEFINITION_CONTEXT_ROLE('part definition type', $);
+#350=PRODUCT_DEFINITION_CONTEXT('assembly definition', #16, '');
+#380=PRODUCT('g1', 'gasket', $, (#220));
+#390=PRODUCT_DEFINITION_FORMATION('A', '', #380);
+#400=PRODUCT_DEFINITION('gv1', 'design view on gasket', #390, #230);
+#440=PRODUCT('s1', 'sleeve assembly', $, (#220));
+#450=PRODUCT_DEFINITION_FORMATION('A', '', #440);
+#460=PRODUCT_DEFINITION('sv1', 'design view on sleeve assembly', #450, #230);
+#520=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#460, #350, #340);
+#530=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu1', 'single instance usage', 'gasket usage 1', #460, #400, $);
+#531=APPLIED_ACTION_REQUEST_ASSIGNMENT(#2, (#450));
+#532=APPLIED_ACTION_REQUEST_ASSIGNMENT(#547, (#400));
+#547=VERSIONED_ACTION_REQUEST('var id3', '0002', 'production requirement', 'description of var id3, 0002');
+#533=ACTION_DIRECTIVE('wo id1', 'design release', 'results of analysis of var id1', 'comment 1', (#1));
+#534=ACTION_DIRECTIVE('wo id2', 'design change', 'results of analysis of var id2', 'comment 2', (#2));
+#535=DIRECTED_ACTION('design', $, #537, #533);
+#536=DIRECTED_ACTION('work definition', $, #10, #534);
+#537=ACTION_METHOD('activity method 2', $, 'effects of activity method 2', 'objectives of activity method 2');
+#538=PRODUCT_DEFINITION_FORMATION('B', '', #440);
+#539=PRODUCT_DEFINITION('new_part_v1', 'design view on new part', #543, #230);
+#540=APPLIED_ACTION_ASSIGNMENT(#535, (#539));
+#541=APPLIED_ACTION_ASSIGNMENT(#536, (#538));
+#542=PRODUCT('new_part_id', 'new part name', $, (#220));
+#543=PRODUCT_DEFINITION_FORMATION('A', '', #542);
+#544=PRODUCT_DEFINITION('sv2', 'design view on sleeve assembly', #538, #230);
+#545=OBJECT_ROLE('output', $);
+#546=ROLE_ASSOCIATION(#545, #540);
+--
+
+[[sec-15.2.2]]
+==== ((Activity decomposition))
+
+The work being directed as part of a work order (the 'work definition') may be further
+decomposed into sub-activities. These sub-activities are related to the directed_action
+through an action_relationship (or a chain of such action_relationships) with name
+'decomposition'.
+
+When many requests using different solutions are incorporated by a single work order,
+the directed_action representing the complete work definition should be decomposed
+in sub-activities for which each appropriate method is indicated.
+
+The items that are affected by a specific sub-activity, e.g., as input or output,
+may be identified. If the directed_action representing the 'work definition' is broken
+down in separate sub-activities, it is recommended that this top level work definition
+be associated through applied_action_assignment to all input and output items that
+are affected by the sub-activities.
+
+Status information specifying the level of completion of each activity may be specified.
+Additional administrative information such as persons, organizations, and date and
+time related information as well as approval information can also be attached to
+these activities.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements to represent
+activity decomposition information are illustrated in <<diam-69>> below. The corresponding
+STEP exchange file encoding is given in <<ex-69>>.
+
+[[diam-69]]
+.Activity Decomposition Instance Diagram
+image::diam-69.svg[]
+
+[[sec-15.2.2.1]]
+===== ((executed_action))
+(((executed_action)))
+
+The executed_action entity represents a type of action that has been identified as
+a task that has to be carried out. The activity may be simply identified, partially
+completed, or completed. An executed_action may have status information associated
+with it through *action_status* to indicate the level of completeness.
+
+An executed_action refers to an associated action_method that describes the procedure
+selected to carry out the activity and a description of the results. An executed_action
+is related to the items that it affects through the applied_action_assignment entity.
+This is used to identify the inputs and outputs (i.e., results) of the executed_action.
+
+An executed_action may be related directly to a work order as a decomposition of
+the work definition (directed_action). When work order decomposition is a requirement,
+the executed_action is then indirectly related (via the directed_action reference
+from an action_directive) to the work requests that are addressed by the described
+activity. By reference to an action_method that is identified as a potential solution
+to the addressed work_request(s), the executed_action indicates which specific procedure
+or potential solution for a work_request it has adopted.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or common name used to refer to the action.
+
+* The *_description_* attribute specifies additional information about the action.
+
+* The *_chosen_method_* attribute specifies the action_method that defines the procedure
+selected to carry out the *action* and a description of the results of the action.
+
+* The *_id_* attribute is derived, and may store the unique identifier for an executed_action.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY executed_action | Attribute Population | Remarks
+
+| name          | type: label = text                          |
+| description   | type: text = string                         | OPTIONAL
+| chosen_method | type: entity = action_method                |
+| id            | DERIVEd attribute type: identifier = string | exactly one id may
+be associated via the entity id_attribute
+|===
+
+*_Preprocessor Recommendations:_* Preprocessor Recommendations: An executed_action
+that is not of its subtype directed_action may be identified as sub-activity in the
+activity decomposition structure of a directed_action that represents the 'work definition'
+for a work order. In other words, an executed_action may be referenced as the related_action
+in an action_relationship with name 'decomposition' that has a relating_action (potentially
+through a chain of intermediate action_relationships), which is a directed_action.
+
+It is recommended that an executed_action have an associated status to describe its
+level of completion, represented by exactly one action_status which references the
+executed_action as the assigned_action (see <<sec-15.2.2.2>>).
+
+The executed_action entity may have an identifier associated with it through the
+entity id_attribute and its attribute_value attribute.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An executed_action may be referenced by the following entities:
+
+* action_relationship to associate a directed_action and an executed_action or two
+executed_actions, e.g., to define their decomposition relationship, i.e., one action
+as part of the other, or to describe their dependencies.
+
+* applied_action_assignment to identify the items that are affected by the executed_action.
+
+* applied_approval_assignment to associate approval information related to an executed_action.
+See <<sec-13.2>> for guidance in creating the approval constructs.
+
+* applied_date_assignment (or applied_date_and_time_assignment) to associate date
+(and time) information to an executed_action. See <<sec-13.3.1>> for guidance in
+creating the date and time constructs.
+
+* applied_organization_assignment (or applied_person_and_organization_assignment)
+to associate organization (and person) information to an executed_action. See <<sec-13.1>>
+for guidance in creating the organization and person constructs. A recommended value
+for the name attribute of the person_and_organization_role is 'requestor'.
+
+* applied_contract_assignment to identify that an executed_action is subject of the
+assigned contract.
+
+* applied_document_reference to associate a document with the action_method.
+
+[[sec-15.2.2.2]]
+===== ((action_status))
+(((action_status)))
+
+The action_status entity represents the association of a status with an executed_action
+(or its subtype directed_action) to specify its level of completion.
+
+*_Attributes_*
+
+* The *_status_* attribute specifies the level of completion of the associated executed_action
+or directed_action.
+
+* The *_assigned_action_* attribute specifies the *executed_action* the status is
+specified for.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY action_status | Attribute Population | Remarks
+
+| status          | type: label = text             |
+| assigned_action | type: entity = executed_action |
+|===
+
+*_Preprocessor Recommendations:_* An executed_action shall have at most one associated
+action_status, which references the executed_action as the assigned_action.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-15.2.2.3]]
+===== ((action_relationship))
+(((action_relationship)))
+
+An action_relationship establishes a relationship between two activities represented
+by directed_action or executed_action instances. The meaning of the action_relationship
+is given by its name attribute. An action_relationship is used to define an activity
+as sub-activity, i.e., as part of the decomposition of some higher-level activity.
+The action_relationship may also be used to express some dependency such as sequential
+relationship in time, between two activity objects.
+
+In the context of work management, all defined activities are related either directly
+or indirectly to a work order. Definition of the complete work to be done, represented
+by a directed_action, is directly related to a work order. An executed_action defining
+a sub-activity of the complete work definition is indirectly related to the work
+order, i.e., related to that directed_action through the action_relationship.
+
+If a directed_action or an executed_action is further decomposed into sub-activities,
+this shall be a complete decomposition of the higher level activity, i.e., all sub-activities
+belonging to the same decomposition level together shall completely define the activity
+on the next higher level.
+
+If the executed_actions defined as sub-activities of a directed_action contain references
+to items that are either input or output, then these items shall also be explicitly
+related to the top-level directed_action.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the meaning of the relationship.
+
+* The *_description_* attribute specifies additional information text that characterizes
+the action_relationship.
+
+* The *_relating_action_* specifies the first action, which is related by the action_relationship.
+The _relating_action_ usually identifies the activity the definition of the related_action
+is based on, e.g., derived from or dependent on. The semantics of this attribute
+should be defined by the name attribute.
+
+* The *_related_action_* specifies the second action related by the action_relationship.
+The related_action usually identifies the action, which is based on the definition
+of the relating_action. The semantics of this attribute should be defined by the
+name attribute.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY action_relationship | Attribute Population | Remarks
+
+| name            | type: label = string  |
+| description     | type: text = string   | OPTIONAL
+| relating_action | type: entity = action |
+| related_action  | type: entity = action |
+|===
+
+*_Preprocessor Recommendations:_* The name attribute is used to specify the type
+of the action_relationship. The value 'decomposition' for the name attribute should
+be used to indicate that the related_action is one of potentially more components
+into which the relating_action is broken down. Where applicable, the following additional
+values may be used: 'derivation' to indicate that the related_action is derived from
+the relating_action; 'precedence' to indicate that the related_action has higher
+priority than the relating_action; 'sequence' to indicate that the relating_action
+shall be completed before the related_action starts.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-69]]
+.exchange file segment for activity decomposition
+[source]
+--
+#2=VERSIONED_ACTION_REQUEST('var id2', '0001', 'technical improvement', 'description of var id2, 0001');
+#5=ACTION_REQUEST_STATUS('issued', #2);
+#9=ACTION_METHOD('technical improvement method 1', $, 'effects of technical improvement method 1', '$');
+#10=ACTION_METHOD('technical improvement method 2', $, 'effects of technical improvement method 2', '$');
+#14=ACTION_REQUEST_SOLUTION(#9, #2);
+#15=ACTION_REQUEST_SOLUTION(#10, #2);
+#16=APPLICATION_CONTEXT('mechanical design');
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#440));
+#220=PRODUCT_CONTEXT('', #16, '');
+#230=PRODUCT_DEFINITION_CONTEXT('part definition', #16, 'design');
+#340=PRODUCT_DEFINITION_CONTEXT_ROLE('part definition type', $);
+#350=PRODUCT_DEFINITION_CONTEXT('assembly definition', #16, '');
+#440=PRODUCT('s1', 'sleeve assembly', $, (#220));
+#450=PRODUCT_DEFINITION_FORMATION('A', '', #440);
+#460=PRODUCT_DEFINITION('sv1', 'design view on sleeve assembly', #450, #230);
+#520=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#460, #350, #340);
+#531=APPLIED_ACTION_REQUEST_ASSIGNMENT(#2, (#450));
+#534=ACTION_DIRECTIVE('wo id2', 'design change', 'results of analysis of var id2', 'comment 2', (#2));
+#536=DIRECTED_ACTION('design change', $, #10, #534);
+#537=ACTION_METHOD('activity method 1', $, 'effects of activity method 1', 'objectives of activity method 1');
+#538=PRODUCT_DEFINITION_FORMATION('B', '', #440);
+#539=PRODUCT_DEFINITION('sv3', 'analysis view on sleeve assembly', #538, #230);
+#541=APPLIED_ACTION_ASSIGNMENT(#536, (#538, #539, #561));
+#548=EXECUTED_ACTION('define requirements', $, #537);
+#549=EXECUTED_ACTION('detailed design', $, #551);
+#550=EXECUTED_ACTION('analysis and simulation', $, #552);
+#551=ACTION_METHOD('activity method 2', $, 'effects of activity method 2', 'objectives of activity method 2');
+#552=ACTION_METHOD('activity method 3', $, 'effects of activity method 3', 'objectives of activity method 3');
+#553=ACTION_RELATIONSHIP('decomposition', $, #536, #548);
+#554=ACTION_RELATIONSHIP('decomposition', $, #536, #549);
+#555=ACTION_RELATIONSHIP('decomposition', $, #536, #550);
+#556=ACTION_RELATIONSHIP('sequence', $, #548, #549);
+#557=ACTION_RELATIONSHIP('sequence', $, #549, #550);
+#558=ACTION_STATUS('completed', #548);
+#559=ACTION_STATUS('completed', #549);
+#560=ACTION_STATUS('in-work', #536);
+#561=PRODUCT_DEFINITION('sv2', 'design view on sleeve assembly', #538, #230);
+#562=APPLIED_ACTION_ASSIGNMENT(#549, (#561));
+#563=APPLIED_ACTION_ASSIGNMENT(#550, (#539));
+#564=ACTION_STATUS('in-work', #550);
+--
+
+=== ((Project Identification))
+
+The project identification area contains the constructs to represent projects, i.e.,
+programs of work for which one or more organizations are responsible, and relationships
+between projects. Events may be defined to specify when a project is planned to or
+actually starts and/or ends. Projects may be related to the product concept(s) that
+are affected by the work carried out within the project
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements to represent
+project identification information are illustrated in <<diam-70>> below. The corresponding
+STEP exchange file encoding is given in <<ex-70>>.
+
+[[diam-70]]
+.Project Identification Instance Diagram
+image::diam-70.svg[]
+
+===== ((organizational_project))
+(((organizational_project)))
+
+An organizational_project is an identified program of work for which one or more
+organizations are responsible.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or common name used to refer to the organizational_project.
+
+* The *_description_* attribute specifies additional information about the organizational_project.
+
+* The *_responsible_organization_* attribute specifies the organizations that are
+responsible for the project.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY organizational_project | Attribute Population | Remarks
+
+| name                     | type: label = text                          |
+| description              | type: text = string                         | OPTIONAL
+| responsible_organization | type: entity = organization                 | S[1:?]
+| id                       | DERIVEd attribute type: identifier = string
+| exactly one id may be associated via the entity id_attribute
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An organizational_project may be referenced by the following
+entities:
+
+* organizational_project_relationship to associate two organizational_projects, e.g.,
+to define their hierarchical relationships or to describe their dependencies.
+
+* applied_organizational_project_assignment to associate the assigned organizational_project
+to the product concepts that are affected by the work carried out within the project.
+
+* applied_event_occurrence_assignment to attach event information to organizational_projects.
+See <<sec-13.3.2>> for guidance in creating the event_occurrence constructs. Where
+applicable, the following values for the name attribute of the event_occurrence_role
+are recommended: 'planned start', 'planned end'.
+
+[[sec-15.3.1.2]]
+===== ((applied_organizational_project_assignment))
+(((applied_organizational_project_assignment)))
+
+The applied_organizational_project_assignment entity defines a mechanism to associate
+an organizational_project to some product data. In the PDM Schema, an organizational_project
+may be assigned to a product_concept, indicating the product_concept is affected
+by the work carried out within the assigned organizational_project.
+
+*_Attributes_*
+
+* The *_assigned_organizational_project_* specifies the organizational_project, which
+is assigned to some product data.
+
+* The *_role_* identifies the organizational_project_role that specifies the purpose
+of the association of the *organizational_project_assignment* with product data.
+
+* The *_items_* attribute specifies the product data to which the organizational_project
+is assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_organizational_project_assignment | Attribute Population | Remarks
+
+| assigned_organizational_project | type: entity = organizational_project             |
+| role                            | type: entity = organizational_project_role        |
+| items                           | type: entity = organizational_project_item select | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* The organizational_project may only be assigned
+to the product_concepts that are affected by the work carried out within the project.
+The name attribute of the associated organizational_project_role is therefore recommended
+to be 'affecting project'.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((organizational_project_role))
+(((organizational_project_role)))
+
+An organizational_project_role defines a role for an organizational_project_assignment
+and a description of that role to characterize the nature of the assignment.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or common name used to refer to the organizational_project_role.
+
+* The *_description_* attribute specifies additional information about the organizational_project_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY organizational_project_role | Attribute Population | Remarks
+
+| name        | type: label = text  |
+| description | type: text = string | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* An organizational_project may only be assigned
+to product_concepts that are affected by the work carried out within the project.
+The name attribute of the associated organizational_project_role is therefore recommended
+to be 'affecting project'.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An organizational_project_role may be referenced by the following
+entities:
+
+* applied_organizational_project_assignment to specify the assignment for which the
+organizational_project_role defines a role. The organizational_project_role shall
+be referenced by at least one applied_organizational_project_assignment.
+
+===== ((organizational_project_relationship))
+(((organizational_project_relationship)))
+
+An organizational_project_relationship is a relationship between two organizational_projects.
+The meaning of the organizational_project_relationship is given by its name attribute.
+An organizational_project_relationship may be used to define an organizational_project
+as part of some higher-level organizational_project, or to express some dependency
+such as sequential relationship between two organizational_project objects.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the meaning of the relationship.
+
+* The *_description_* attribute specifies additional information text that characterizes
+the organizational_project_relationship.
+
+* The *_relating_organizational_project_* specifies the first organizational_project,
+which is related by the organizational_project_relationship. The relating_organizational_project
+usually identifies the project the definition of the related_organizational_project
+is based on, e.g., derived from or dependent on. The semantics of this attribute
+should be defined by the name attribute.
+
+* The *_related_organizational_project_* specifies the second organizational_project
+related by the organizational_project_relationship. The related_organizational_project
+usually identifies the organizational_project, which is based on the definition of
+the relating_organizational_project. The semantics of this attribute should be defined
+by the name attribute.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY organizational_project_relationship | Attribute Population | Remarks
+
+| name                            | type: label = string                  |
+| description                     | type: text = string                   | OPTIONAL
+| relating_organizational_project | type: entity = organizational_project |
+| related_organizational_project  | type: entity = organizational_project |
+|===
+
+*_Preprocessor Recommendations:_* The name attribute is used to specify the type
+of the organizational_project_relationship. Where applicable, the following values
+should be used:
+
+* 'decomposition' to indicate that the related_organizational_project is a sub-project
+in a hierarchical breakdown of the relating_organizational_project;
+
+* 'dependency' to indicate that the related_organizational_project is dependent upon
+the relating_organizational_project; 'sequence' to indicate that the relating_organizational_project
+must be completed before the related_organizational_project starts;
+
+* 'succession' to indicate that the relating_organizational_project is the successor
+of the relating_organizational_project.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-70]]
+.exchange file segment for project identification
+[source]
+--
+#1=ORGANIZATION('organization_id', 'organization_name', $);
+#2=ORGANIZATIONAL_PROJECT('project_name', 'project_description', (#1));
+#4=ORGANIZATIONAL_PROJECT_ROLE('affecting project', $);
+#5=PRODUCT_CONCEPT('product_concept_id', 'product_concept_name', $, #7);
+#6=APPLIED_ORGANIZATIONAL_PROJECT_ASSIGNMENT(#2, #4, (#5));
+#7=PRODUCT_CONCEPT_CONTEXT('pcc_name1', #8, '');
+#8=APPLICATION_CONTEXT('');
+--
+
+==== ((Assignment of activities to projects))
+
+To specify the activities which are carried out within a project, the PDM schema
+uses an instance of applied_organizational_project_assignment that relates an organizational_project
+with a set of instances of executed_action which each represent activities of the
+project.
+
+===== ((applied_organizational_project_assignment))
+(((applied_organizational_project_assignment)))
+
+The applied_organizational_project_assignment entity defines a mechanism to associate
+activities to an organizational_project.
+
+*_Attributes_*
+
+* The *_assigned_organizational_project_* specifies the organizational_project, to
+which the activities are assigned
+
+* The *_role_* identifies the organizational_project_role that specifies the purpose
+of the association of the organizational_project_assignment. In the given context
+the role attribute should reference an instance of organizational_project_role named
+'work program'.
+
+* The *_items_* attribute specifies the activity objects which are assigned to the
+organizational_project.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_organizational_project_assignment | Attribute Population | Remarks
+
+| assigned_organizational_project | type: entity = organizational_project      |
+| role                            | type: entity = organizational_project_role |
+| items                           | type: entity = organizational_project_item select
+| SET[1:?] of executed action in the given context
+|===
+
+*_Preprocessor Recommendations:_* The name attribute of the associated organizational_project_role
+is therefore recommended to be 'work program'.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* In the PDM Schema an organizational_project may also be assigned
+to product_concepts that are affected by the work carried out within the project.
+The name attribute of the associated organizational_project_role is then recommended
+to be 'affecting project'.
+
+Applied_organizational_project_assignment can associate a set of activities to an
+instance of organizational_project. If it is requirement to define an order in such
+a set, e.g., a sequence of activities, it is recommended to use the entity action_relationship
+with a corresponding value for its name attribute to indicate the nature of the ordering.
+Typically, 'sequence' will be used.
+
+===== ((organizational_project_role))
+(((organizational_project_role)))
+
+An organizational_project_role defines a role for an organizational_project_assignment
+and a description of that role to characterize the nature of the assignment.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or common name used to refer to the organizational_project_role. In the context of assigning activities to projects the name is recommended to be 'work program'.
+
+* The *_description_* attribute specifies additional information about the organizational_project_role. The population of this attribute is optional.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY organizational_project_role | Attribute Population | Remarks
+
+| name        | type: label = text  | Should be 'workprogram' in given context.
+| description | type: text = string | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An organizational_project_role may be referenced by the following
+entities:
+
+* applied_organizational_project_assignment to specify the assignment the organizational_project_role defines a role for. The organizational_project_role shall be referenced by at least one applied_organizational_project_assignment.
+
+[[diam-71]]
+.Activities of a Project Instance Diagram
+image::diam-71.svg[]
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[source%unnumbered]
+--
+#10=ORGANIZATION('org1','my organization',$);
+#20=ORGANIZATIONAL_PROJECT('project_name',$,(#10));
+#30=ORGANIZATIONAL_PROJECT_ROLE('work program',$);
+#40=EXECUTED_ACTION('activity #1',$,#70);
+#50=EXECUTED_ACTION('activity #2','another activity',#80);
+#60=APPLIED_ORGANIZATIONAL_PROJECT_ASSIGNMENT(#20,#30,(#40,#50));
+#70=ACTION_METHOD('method
+#1',$,'consequence_of_this_method','purpose_of_this_method');
+#80=ACTION_METHOD('action_method #2', 'an_optional_description','consequence_of_this_method', 'purpose_of_this_method');
+--
+
+==== ((Start and end date and time of projects))
+
+Projects may be further characterized by start and end dates. Start and end dates
+may be either planned dates or actual dates. The PDM schema supports this requirement.
+
+===== ((date_and_time))
+(((date_and_time)))
+
+This entity specifies time on a particular day.
+
+*_Attributes_*
+
+* The *_date_component_* attribute specifies the date element.
+
+* The *_time_component_* attribute specifies the time element.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY date_and_time | Attribute Population | Remarks
+
+| date_component | type: entity = date       | In the PDM Schema, it points to an instance of calendar_date.
+| time_component | type: entity = local_time |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_date_assignment))
+(((applied_date_assignment)))
+
+This entity allows for association of a date with an organizational_project. An instance
+of date_role specifies the role in which the date is associated to the project. Possible
+roles are 'actual start', 'actual end', 'planned start', and 'planned end'.
+
+*_Attributes_*
+
+* The *_assigned_date_* attribute specifies the date to be assigned to the project.
+
+* The *_role_* attribute specifies the purpose of the assignment, i.e., the project
+characteristic that is defined by the date.
+
+* The *_items_* attribute references the projects to which the date is being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_date_assignment | Attribute Population | Remarks
+
+| assigned_date | type: entity = date      | In the PDM Schema, it points to an instance of calendar_date.
+| role          | type: entity = date_role |
+| items         | type: date_item = SELECT | SET [1:?]
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities_:* There are no specific related entities.
+
+===== ((date_role))
+(((date_role)))
+
+This entity specifies a role for an applied_date_assignment. Roles in the context
+of an assignment of a date to a project are: 'actual start', 'actual end',
+'planned start', and 'planned end'.
+
+*_Attributes_*
+
+* The *_name_* attribute defines a label by which the date_role is known. This label
+characterizes the associated date in respect to the project.
+
+* The *_description_* attribute specifies text that characterizes the date_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY date_role | Attribute Population | Remarks
+
+| name        | type: label
+| a string value, in the given context should be one of 'actual start', 'actual end',
+'planned start', and 'planned end'
+| description | type: text  | DERIVED
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_date_and_time_assignment))
+(((applied_date_and_time_assignment)))
+
+This entity allows for association of date and time with a project. An instance of
+date_time_role specifies the role in which the date_and_time is associated to the
+project. Possible roles are 'actual start', 'actual end', 'planned start', and
+'planned end'.
+
+*_Attributes_*
+
+* The *_assigned_date_and_time_* attribute specifies the date_and_time to be assigned
+the project.
+
+* The *_role_* attribute specifies the purpose of the assignment of the date_and_time
+to the project.
+
+* The *_items_* attribute is a reference to the set of projects to which the date_and_time
+is being assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_date_assignment | Attribute Population | Remarks
+
+| assigned_date_and_time | type: entity = date_and_time  | Points to an instance of date_and_time.
+| role                   | type: entity = date_time_role |
+| items                  | type: date_item = SELECT      | SET [1:?]
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((date_time_role))
+(((date_time_role)))
+
+This entity specifies a role for an applied_date_and_time_assignment.
+
+*_Attributes_*
+
+* The *_name_* attribute defines a label by which the date_role is known.
+
+* The *_description_* attribute specifies text that characterizes the date_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY date_role | Attribute Population | Remarks
+
+| name | type: label | a string value
+| description | type: text | DERIVED
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[diam-72]]
+.Approval Scope Instance Diagram
+image::diam-72.svg[]
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[source%unnumbered]
+--
+#10=ORGANIZATION('org1','organisation 1',$);
+#20=ORGANIZATIONAL_PROJECT('project_name',$,(#10));
+#30=CALENDAR_DATE(2001,15,9);
+#40=DATE_ROLE('planned start');
+#50=APPLIED_DATE_ASSIGNMENT(#30,#40,(#20));
+#60=COORDINATED_UNIVERSAL_TIME_OFFSET(1,$,.AHEAD.);
+#70=LOCAL_TIME(12,$,$,#60);
+#90=DATE_TIME_ROLE('actual start');
+#100=DATE_AND_TIME(#30,#70);
+#110=APPLIED_DATE_AND_TIME_ASSIGNMENT(#100,#90,(#20));
+--
+
+=== ((Contract Identification))
+
+In the STEP PDM Schema, a contract is a binding agreement concerning the design of
+part versions or the execution of engineering activities. Relationships between contracts
+may be specified, and the items that are subject of that contract may be associated
+to it. Additional administrative information such as organization and approval information
+may also be attached to contracts.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements to represent
+contract identification information are illustrated in <<diam-73>> below. The corresponding
+STEP exchange file encoding is given in <<ex-71>>.
+
+[[diam-73]]
+.Contract Identification Instance Diagram
+image::diam-73.svg[]
+
+===== ((contract))
+
+The contract entity represents a binding agreement concerning the design of part
+version, or the execution of engineering activities.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the word or common name used to identify or refer
+to the contract.
+
+* The *_purpose_* attribute is an informal description of the reason for the contract.
+
+* The *_kind_* attribute specifies the kind of information that a contract conveys.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY contract | Attribute Population | Remarks
+
+| name    | type: label = text           |
+| purpose | type: label = text           |
+| kind    | type: entity = contract_type |
+|===
+
+*_Preprocessor Recommendations:_* The mandatory name attribute should contain a string
+that, in conjunction with the associated contract_type, uniquely identifies the contract.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A contract may be referenced by the following entities:
+
+* applied_contract_assignment to identify the items that are subject of the contract.
+
+* applied_approval_assignment to associate approval information related to a contract.
+See <<sec-13.2>> for guidance in creating the approval constructs.
+
+* applied_organization_assignment to associate organization information to a contract.
+When assigning organizational info to a contract, the role name of corresponding
+applied_organization_assignment should be 'organization in contract'. See <<sec-13.1>>
+for guidance in creating the organization constructs.
+
+===== ((contract_type))
+(((contract_type)))
+
+A contract_type is the kind of information that an instance of contract conveys.
+
+*_Attributes_*
+
+* The *_description_* attribute specifies a descriptive label characterizing the
+type of contract.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY contract_type | Attribute Population | Remarks
+
+| description | type: label = string |
+|===
+
+*_Preprocessor Recommendations:_* In AP214 the description attribute id used to transfer
+information on the ordered price of the contracted items.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A contract_type may be referenced by the following entities:
+
+* contract to identify the contracts that are of that type. A contract_type shall
+be referenced by at least one contract.
+
+===== ((applied_contract_assignment))
+(((applied_contract_assignment)))
+
+The entity applied_contract_assignment defines a mechanism to associate a contract
+to the items that are subject of that contract. In the STEP PDM Schema, the binding
+agreement represented by a contract may be assigned to the design of a part version
+or to engineering activities that represent the complete work definition of a work
+order.
+
+The applied_contract_assignment entity may have a role associated with it through
+the entity object_role. If a role is associated, the action_contract_assignment is
+referenced as the item_with_role by a role_association where the role is stored in
+the name attribute of the object_role associated as role.
+
+*_Attributes_*
+
+* The *_assigned_contract_* specifies the contract, which defines a binding agreement
+with respect to some product data.
+
+* The *_items_* attribute specifies the items that are subject of the assigned contract.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_contract_assignment | Attribute Population | Remarks
+
+| assigned_contract | type: entity = contract                      |
+| role              | DERIVEd attribute type: entity = object_role | OPTIONAL
+| items             | type: entity = contract_item select          | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* A contract may only be assigned to the part versions
+(product_definition_formation entities) and engineering activities (directed_action
+entities) that are subject to the contract. It is recommended to instantiate one
+object_role associated with the applied_contract_assignment with a name attribute
+that has the value 'contracted element'.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An applied_contract_assignment may be referenced by the following
+entities:
+
+* role_association to specify a object_role defining the purpose of the association
+of the contract with product data.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-71]]
+.exchange file segment for contract identification
+[source]
+--
+#2=VERSIONED_ACTION_REQUEST('var id2', '0001', 'technical improvement', 'description of var id2, 0001');
+#5=ACTION_REQUEST_STATUS('issued', #2);
+#9=ACTION_METHOD('technical improvement method 1', $, 'effects of technical improvement method 1', '$');
+#10=ACTION_METHOD('technical improvement method 2', $, 'effects of technical improvement method 2', '$');
+#14=ACTION_REQUEST_SOLUTION(#9, #2);
+#15=ACTION_REQUEST_SOLUTION(#10, #2);
+#16=APPLICATION_CONTEXT('mechanical design');
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#440));
+#220=PRODUCT_CONTEXT('', #16, '');
+#230=PRODUCT_DEFINITION_CONTEXT('part definition', #16, 'design');
+#340=PRODUCT_DEFINITION_CONTEXT_ROLE('part definition type', $);
+#350=PRODUCT_DEFINITION_CONTEXT('assembly definition', #16, '');
+#440=PRODUCT('s1', 'sleeve assembly', $, (#220));
+#450=PRODUCT_DEFINITION_FORMATION('A', '', #440);
+#460=PRODUCT_DEFINITION('sv1', 'design view on sleeve assembly', #450, #230);
+#520=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#460, #350, #340);
+#531=APPLIED_ACTION_REQUEST_ASSIGNMENT(#2, (#450));
+#534=ACTION_DIRECTIVE('wo id2', 'design change', 'results of analysis of var id2', 'comment 2', (#2));
+#536=DIRECTED_ACTION('design change', $, #10, #534);
+#538=PRODUCT_DEFINITION_FORMATION('B', '', #440);
+#541=APPLIED_ACTION_ASSIGNMENT(#536, (#538));
+#544=CONTRACT('contract_name', 'purpose of contract', #545);
+#545=CONTRACT_TYPE('description of contract type');
+#546=APPLIED_CONTRACT_ASSIGNMENT(#544, (#536, #538));
+#547=OBJECT_ROLE('contracted element', $);
+#548=ROLE_ASSOCIATION(#547, #546);
+--

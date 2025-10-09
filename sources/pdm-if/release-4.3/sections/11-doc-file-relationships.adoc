@@ -1,0 +1,357 @@
+
+[[sec-11]]
+== ((Document and File Relationships))
+
+This section discusses relationships between files, document representation and sequence
+structure relationships between versions of managed documents.
+
+The PDM Schema supports the definition of document structure by defining relationships
+of the representations of the documents using the entity product_definition_relationship.
+The PDM Schema supports the definition of corresponding relationships between document_file
+instances via the entity document_relationship. In addition, the PDM Schema supports
+the definition of relations between versions of a managed document to model document
+history.
+
+=== (('Sequence' relationships between document versions))
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of part version
+sequence history are illustrated in <<diam-32>>.
+
+[[diam-49]]
+.Document Version (sequence) History Instance Diagram
+image::diam-49.svg[]
+
+==== ((product_definition_formation_relationship))
+
+In this context the entity product_definition_formation_relationship is used to establish
+sequence relationships between product_definition_formations instances that represent
+document versions. In consequence, the interpretation of the 'document as product'
+approach the entity structure is exactly the same as used in the approach for part
+version history.
+
+*_Attributes_*
+
+* The *_id_* attribute provides an identifier of the relationship.
+
+* The *_name_* attribute specifies this relationship represents a version 'sequence'
+history.
+
+* The *_relating_product_definition_formation_* attribute references the preceding
+part version .
+
+* The *_related_product_definition_formation_* attribute references the subsequent
+part version.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_formation_Relationship | Attribute Population | Remarks
+
+| id                                    | type: identifier = string                   |
+| name                                  | type: label = string                        | shall be 'sequence'
+| description                           | type: text = string                         | OPTIONAL
+| related_product_definition_formation  | type: entity = product_definition_formation | subsequent document version
+| relating_product_definition_formation | type: entity = product_definition_formation | preceding document version
+|===
+
+*_Preprocessor Recommendations:_* The value 'sequence' for the name attribute identifies
+this as the version sequence history relationship. There is no standard mapping for
+the description attribute in a product_definition_formation_relationship. The id
+attribute must be unique with respect to the relationship, but there is no standard
+mapping for the value.
+
+*_Postprocessor Recommendations:_* Since there are no standard mapping for the description
+attributes for a product_definition_formation_relationship, it is recommended that
+postprocessors not assign any processing significance to this value.
+
+*_Related Entities:_* None specified.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-48]]
+.exchange file for document version history
+[source]
+--
+/* primary application context for design assembly life cycle */
+#1000 = APPLICATION_CONTEXT('mechanical design');
+#220 = PRODUCT_CONTEXT('', #1000, '');
+#230 = PRODUCT_DEFINITION_CONTEXT('document definition', #1000, 'design');
+
+/* product type discrimination */
+/* #100 identifies the instance #2 as representing a document */
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('document',$,(#2));
+
+/* version A - preceding version */
+#2=PRODUCT('11000','a document','description for doc 11000',(#220));
+#3=PRODUCT_DEFINITION_FORMATION('A', 'version A for the document',#2);
+#4=PRODUCT_DEFINITION('D1','detailed drawing',#3,#230);
+
+/* version B - subsequent version */
+#10=PRODUCT_DEFINITION_FORMATION('B', 'version B for the document 11000',#2);
+#11=PRODUCT_DEFINITION('D2','detailed drawing',#10,#230);
+#16=PRODUCT_DEFINITION_FORMATION_RELATIONSHIP('id','sequence',$,#3,#10);
+--
+
+=== ((Relationships between document representations))
+
+Product_definition_relationship associates, in the given context, two instances of
+product_definition that model a representation of a document. The semantics of the
+relationship are defined by the attributes name and description of the entity
+product_definition_relationship. The name attribute of product_definition_relationship
+defines the relation type.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The figure below shows the general structure to link two product_definitions that
+model document representations. The semantics of the relation is defined by the string
+provided in product_definition_relationship.name.
+
+[[diam-50]]
+.document representation relationship Instance Diagram
+image::diam-50.svg[]
+
+==== ((product_definition_relationship))
+
+*_Attributes_*
+
+* The *_id_* is an identifier that distinguishes the product_definition_relationship.
+
+* The *_name_* is the label by which the product_definition_relationship is known.
+
+* The *_description_* is an optional text that characterizes the product_definition_relationship.
+
+* The *_relating_product_definition_* contains one of the product_definition entity
+types, which is a part of the relationship.
+
+* The *_related_product_definition_* is the other product_definition, which is part
+of the relationship. If one attribute is dependent upon the other, this attribute
+shall be the dependent one.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_relationship | Attribute Population | Remarks
+
+| Id                          | type: identifier = string  | should be instantiated as ''
+| Name                        | type: label = string       | defines the semantics of the relation (see table below)
+| Description                 | type: text = string        | OPTIONAL
+| Relating_product_definition | entity: product_definition |
+| Related_product_definition  | entity: product_definition |
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* the usage of product_definition_relationship described here
+relates two product_definitions that define document representations.
+
+Where applicable the following values shall be used for product_definition_relationship.name:
+
+* 'addition': specifies that the related document provides supplementary or collateral
+information with regard to the information provided by the relating document;
+
+* 'copy': defines a relationship where the related document representation is a copy
+of the relating document representation;
+
+* 'derivation': defines a relationship where the related document representation
+is derived from the relating document representation (e.g., a raster image may be
+derived from a 3D CAD model);
+
+* 'decomposition': defines a relationship where the related document representation
+is one of potentially more sub documents of the relating document representation
+(e.g., a decomposition of a document into clauses or into several CAD models);
+
+* 'peer': specifies that the related document provides required information with
+regard to that provided by the relating document. The peer document is essential
+for a complete understanding;
+
+* 'reference': defines a relationship where the related document is referenced from
+the relating, e.g., a text processor representation referencing a CGM representation
+for inclusion as a graphical object in the text document;
+
+* 'sequence': defines a logical sequence where the related document representation
+comes after the relating document representation (e.g., a sequence of clauses);
+
+* 'substitution': defines a relationship where the related document representation
+replaces the relating document representation;
+
+* 'translation': specifies that the related product_definition (document) was generated
+from the relating product_definition (document) with the intent to convey exactly
+the same information.
+
+[example]
+a 'translation' can geometry data from one system and presenting in an another systems,
+such as using Unigraphics geometry data and 'translating' in into another format,
+such as CATIA geometry data. The intent would be to make the geometry shape as close
+to the same as possible. A 'translation' can apply to other types of data as well.
+A standards document can be produced in WordPerfect and 'translated' to a pdf format.
+The intent is to keep the printable or viewable image of the document exactly the
+same in both file formats.
+
+The relation types 'decomposition' and 'substitution' can be used to model 'assembly'-type
+structures of document representations. This approach does not mirror the approach
+taken with assembly_component_usage for the product structure. This reflects the
+understanding that there is no common requirement to manage document representation
+structures in the same way as product structure.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-49]]
+.document representation relationship instantiation
+[source]
+--
+ISO-10303-21; HEADER;
+FILE_DESCRIPTION(('example for document rep structures'), '2;1');
+FILE_NAME('', '20.08.1999, 10:16:08', ('n.n.'), (''), '', '', '');
+FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC;
+DATA;
+/* Entities #10 to #60 define the meta data for a managed document */
+#10 = PRODUCT_DEFINITION_FORMATION('1', '', #20);
+#20 = PRODUCT('d1', 'doc1', 'document nr 1', (#40));
+#30 = PRODUCT_RELATED_PRODUCT_CATEGORY('document', '', (#20));
+#40 = PRODUCT_CONTEXT('', #50, '');
+#50 = APPLICATION_CONTEXT('');
+#60 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema', 2000, #50);
+
+/* Entities #70 to #90 defines two digital files. The digital file #70 */
+/* represents a text processor file with included graphics. The digital */
+/* file #90 represents an image file to be included in #70 */
+#70 = PRODUCT_DEFINITION('doc1_master', 'text file including graphics for doc1', #10, #80);
+#80 = PRODUCT_DEFINITION_CONTEXT('digital document definition', #50, '');
+#90 = PRODUCT_DEFINITION('doc1_image', 'image to be included in doc1', #10, #80);
+
+/* Entity #100 defines that the file #90 (image) is referenced by the */
+/* file #70 (text master file) */
+#100 = PRODUCT_DEFINITION_RELATIONSHIP('','reference',$,#70,#90);
+
+/* other product data follows */
+
+ENDSEC;
+END-ISO-10303-21;
+--
+
+=== ((Relationships between external files))
+
+Document_relationship associates, in the given context, two instances of document
+files. The semantics of the relationship are defined by the attributes name and description
+of the entity document_relationship. The name attribute of document_relationship
+defines the relation type. The semantics of the relation types mirror the capability
+as defined for the relationships between document representations.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The generic structure to establish a relationship between document_files is illustrated
+in <<diam-51>>. The semantics of such a relation is identified via document_relationship.name.
+
+[[diam-51]]
+.relation between document files
+image::diam-51.svg[]
+
+==== ((document_relationship))
+
+*_Attributes_*
+
+* The *_name_* defines the semantics of the document_relationship.
+
+* The *_description_* is an optional text that characterizes the document_relationship.
+
+* The *_relating_document_* contains one of the document file entity types, which
+is a part of the relationship.
+
+* The *_related_document_* is the other document file, which is part of the relationship.
+If one attribute is dependent upon the other, this attribute shall be the dependent
+one.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_relationship | Attribute Population | Remarks
+
+| Name              | type: label = string | defines the semantics of the relation (see table below)
+| Description       | type: text = string  | OPTIONAL
+| relating_document | entity: document     | in this context the subtype document_file of document is used
+| related_document  | entity: document     | in this context the subtype document_file of document is used
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* A document_relationship entity relates two document_file instances.
+Where applicable the following values shall be used:
+
+* 'addition': specifies that the related document provides supplementary or collateral
+information with regard to the information provided by the relating document;
+
+* 'copy': defines a relationship where the related document file is a copy of the
+relating document file;
+
+* 'derivation': defines a relationship where the related document file is derived
+from the relating document file (e.g., a raster image may be derived from a 3D CAD
+model);
+
+* 'decomposition': defines a relationship where the related document file is one
+of potentially more sub documents of the relating document file (e.g., a decomposition
+of a document into clauses or into several CAD models);
+
+* 'peer': specifies that the related document provides required information with
+regard to that provided by the relating document. The peer document is essential
+for a complete understanding;
+
+* 'reference': defines a relationship where the related document is referenced from
+the relating, e.g., a text processor file referencing a CGM file for inclusion as
+a graphical object in the text document;
+
+* 'sequence': defines a logical sequence where the related document file comes after
+the relating document file (e.g., a sequence of clauses);
+
+* 'substitution': defines a relationship where the related document file replaces
+the relating document file;
+
+* 'translation': specifies that the related document_file (file) was generated from
+the relating document_file (file) with the intent to convey exactly the same information.
++
+--
+[example]
+a 'translation' can geometry data from one system and presenting in an another systems,
+such as using Unigraphics geometry data and 'translating' in into another format,
+such as CATIA geometry data. The intent would be to make the geometry shape as close
+to the same as possible. A 'translation' can apply to other types of data as well.
+A standards document can be produced in WordPerfect and 'translated' to a pdf format.
+The intent is to keep the printable or viewable image of the document exactly the
+same in both file formats.
+--
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-50]]
+.exchange file for document file relationship
+[source]
+--
+ISO-10303-21; HEADER;
+FILE_DESCRIPTION((''),'2;1');
+FILE_NAME('', '20.08.1999, 13:19:42', (''), (''), '', '', '');
+FILE_SCHEMA(('PDM_SCHEMA {1.2}')); ENDSEC;
+DATA;
+
+#10 = PRODUCT_DEFINITION_FORMATION('1', '', #20);
+#20 = PRODUCT('doc', 'versioned_doc', 'a managed document', (#40));
+#30 = PRODUCT_RELATED_PRODUCT_CATEGORY('document', '', (#20));
+#40 = PRODUCT_CONTEXT('', #50, '');
+#50 = APPLICATION_CONTEXT('');
+#60 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema', 2000, #50);
+#80 = PRODUCT_DEFINITION_CONTEXT('digital document definition', #50, '');
+#90 = DOCUMENT_FILE('file_1', '', '', #110, '', $);
+#100 = DOCUMENT_REPRESENTATION_TYPE('digital', #90);
+#110 = DOCUMENT_TYPE('');
+#120 = PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS('dig_doc', 'digital document for doc', #10, #80, (#90, #130));
+#130 = DOCUMENT_FILE('file_2', '', '', #110, '', $);
+#140 = DOCUMENT_REPRESENTATION_TYPE('digital', #130);
+#150 = DOCUMENT_RELATIONSHIP('sequence','defines a sequence relation', #90,#130);
+
+/* other product data follows */
+
+ENDSEC;
+END-ISO-10303-21;
+--

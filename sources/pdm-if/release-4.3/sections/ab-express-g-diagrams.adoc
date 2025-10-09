@@ -1,0 +1,5 @@
+
+[appendix,obligation="informative"]
+== PDM Schema EXPRESS-G Diagrams
+
+http://www.pdm-if.org/pdm_schema/pdm11-exg.pdf

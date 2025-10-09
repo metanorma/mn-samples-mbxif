@@ -1,0 +1,264 @@
+
+[[sec-7]]
+== ((External Files))
+
+External files in the PDM Schema represent a simple external reference to a named
+file. The external file may identify a digital file or a physical, 'hardcopy' file.
+As opposed to a managed 'Document as Product', an external file is not managed by
+the system - there is no capability for managed revision control or any document
+representation definitions for an external file.
+
+An external file is simply an external reference that may be associated with other
+product data. Document/file properties may be associated with an external file as
+with an identified managed document. In the case where properties differ with different
+versions, the managed 'Document as Product' approach is recommended.
+
+If a file is under configuration control, it should be represented as a constituent
+of a document definition view/representation according to 'Document as Product'.
+In this case, it is actually the managed document that is under direct configuration
+control; the file is, in this way, indirectly under configuration control. A change
+to the file results in a change to the managed document (i.e., a new version) - the
+changed file would be mapped as a constituent of a view/representation definition
+of the new document version. A simple external reference alone is not configuration
+controlled, it is just an external file reference to product data.
+
+While managed revision control representing multiple versions and version history
+is not available for external files, external files may have an optional version
+identification providing a string labeling the version of the file.
+
+[[sec-7.1]]
+=== ((External File Identification))
+
+Identification of an external file is done using the entity document_file. The document_file
+entity is a defined subtype of the entity document. It is also a subtype of the entity
+characterized_object, which allows association of properties to the identification
+of an external file.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of external
+file identification are illustrated in <<diam-37>> below.
+
+[[diam-37]]
+.External File Identification Instance Diagram
+image::diam-37.svg[]
+
+==== ((document_file))
+
+This entity is a subtype of the document entity, and thus works together with the
+applied_document_reference to support the assignment of external files to product
+data. Document_file is also a subtype of the entity characterized_object, which has
+local attributes name and description.
+
+Since both super types of this entity define local attributes 'name' and 'description',
+the subtype document_file has a double inheritance of these attributes. Local constraints
+defined on the entity document_file specify that the additional attributes inherited
+from the supertype characterized_object should not be used for valid user data. These
+constraints specify that the value of the name attribute be an empty string: ' '
+and the OPTIONAL description attribute should not be populated.
+
+*_Attributes_*
+
+* The *_id_* attribute indicates the unique identifier of the external file.
+
+* The *_name_* attribute is double inherited. Only the one derived from the document
+supertype is valid for user data, the nomenclature of the external file. The name
+attribute inherited from characterized_object should be assigned the empty string.
+
+* The *_description_* attribute is double inherited. Only the one derived from the
+supertype document is valid for user data. The description attribute inherited from
+characterized_object should be assigned the empty string.
+
+* The *_kind_* attribute is a reference to the file "type" classification information.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_file | Attribute Population | Remarks
+
+| id                                    | type: identifier = string            |
+| SELF\document.name                    | type: label = string                 | valid user data for file id
+| SELF\document.description             | type: text = string                  | OPTIONAL
+| kind                                  | type: entity = document_type         |
+| SELF\characterized_object.name        | type: label = string empty string '' | not to be used for valid user data
+| SELF\characterized_object.description | type: text = string$                 | not to be used for valid user data
+|===
+
+*_Preprocessor Recommendations:_* Preprocessors must carefully encode the exchange
+syntax for an instance of document_file to properly handle the multiple inheritance
+of the attributes name and description. An example instance of document_file is illustrated
+in <<ex-33>>.
+
+The document_file entity requires an associated instance of the entity document_representation_type.
+The document_file entity constrains the possible values of the attribute document_representation_type.name,
+as described in <<sec-7.1.2>>.
+
+The id attribute is a unique identifier for the external file. Access path information
+for a file should be represented as a file "source" property.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-7.1.2]]
+==== ((document_representation_type))
+
+This entity provides the capability to identify the type of the representation of
+a particular external file, either digital or physical.
+
+*_Attributes_*
+
+* The *_name_* attribute is used to identify the particular representation type
+(either digital or physical) of the associated external file.
+
+* The *_represented_document_* attribute is a reference to the associated external file.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_representation_type | Attribute Population | Remarks
+
+| name                 | type: text = string 'digital' or 'physical' |
+| represented_document | type: entity = document
+| for file identification, this attribute will reference the subtype document_file
+|===
+
+*_Preprocessor Recommendations:_* For file_identification, the possible values for
+the name attribute are 'digital' and 'physical'. A digital file represents an electronic
+file on a computer system. A physical file is the actual paper hardcopy or other
+physical realization of a file.
+
+*_Postprocessor Recommendations:_* A value for the name attribute of 'digital' should
+be interpreted to mean the associated document_file represents an external reference
+to an electronic digital file. The value 'physical' should be interpreted to mean
+the associated document_file represents an external reference to a hardcopy file.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((document_type))
+
+This entity provides the capability to identify the type of an external file for
+the general requirement of file type classification.
+
+*_Attributes_*
+
+* The *_product_data_type_* attribute is used to identify the kind of product data
+in the associated file.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_type | Attribute Population | Remarks
+
+| product_data_type | type: identifier = string |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-33]]
+.exchange file segment for external file identification
+[source]
+--
+#510=DOCUMENT_FILE('doc_id','',$,#520,'',$);
+#520=DOCUMENT_TYPE('unspecified type');
+#540=DOCUMENT_REPRESENTATION_TYPE('digital',#510);
+--
+
+Although managed revision control representing multiple versions and version history
+is not available for external files, they may have an optional version identification
+that provides a string labeling the version of the external file. If multiple versions
+are represented, the 'Document as Product' approach is recommended.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements of external
+files with optional version identification are illustrated in <<diam-38>>.
+
+[[diam-38]]
+.External File with Version Identification Instance Diagram
+image::diam-38.svg[]
+
+==== ((applied_identification_assignment))
+
+This entity is a subtype of the entity identification_assignment. It allows the actual
+assignment of an identification_assignment entity to product data, in this case to
+a document_file entity representing an external file.
+
+*_Attributes_*
+
+* The *_items_* attribute is used to reference the associated external file.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_identification_assignment | Attribute Population | Remarks
+
+| assigned_id | type: identifier = string
+| contains the string identifying the version of the external file.
+| role        | type: entity = identification_role
+| for file version identification, this entity should have name attribute value = 'version'
+| items       | type: entity = document_file
+| reference to the associated external file to which the version identification is assigned.
+|===
+
+*_Preprocessor Recommendations:_* The use of this entity is optional. When applied
+to a document_file, it represents simple version identification for the external
+file. It is not to be used for managed revision control. If managed revision control
+is the requirement, then the 'Document as Product' approach must be used. The value
+of the attribute assigned_id contains the version identification. This should not
+be used for managed version control, but rather for an optional label providing additional
+information about the version of the document that is identified. The value of the
+role attribute is an instance of the entity identification_role with its name attribute
+assigned the string 'version'.
+
+*_Postprocessor Recommendations:_* Postprocessors should recognize this entity as
+providing version identification label for the associated external file.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((identification_role))
+
+This entity in this use case indicates the role of a version identification for an
+external file.
+
+*_Attributes_*
+
+* The *_name_* attribute is used to indicate that the related identification_assignment
+represents a version identification for the associated external file.
+
+* The *_description_* attribute is optional additional text.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY identification_role | Attribute Population | Remarks
+
+| name        | type: identifier = string 'version'
+| Contains the string indicating that the related identification_assignment represents
+a version identification for an external file.
+| description | type: text = string                 | OPTIONAL
+
+|===
+
+*_Preprocessor Recommendations:_* The attribute name should be assigned a value of
+'version' in this usage.
+
+*_Postprocessor Recommendations:_* The name attribute value 'version' should be interpreted
+as an indication that the associated applied_identification_assignment represents
+simple version identification for the file.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-34]]
+.exchange file for external file with version identification
+[source]
+--
+#500=IDENTIFICATION_ROLE('version',$);
+#510=DOCUMENT_FILE('doc id','',$,#520,'',$);
+#520=DOCUMENT_TYPE('unspecified type');
+#530=APPLIED_IDENTIFICATION_ASSIGNMENT('THE VERSION ID',#500,(#510));
+#540=DOCUMENT_REPRESENTATION_TYPE('digital',#510);
+--

@@ -1,0 +1,320 @@
+
+[[sec-5]]
+== ((Document Identification))
+
+The PDM Schema deals with documents as products, according to a basic STEP interpretation
+of 'Document as Product'. As with 'Part as Product', there are three basic concepts
+central to document identification in the PDM Schema:
+
+* product master identification,
+
+* context information,
+
+* type classification.
+
+These fundamental concepts are described for 'Part as Product' in this document.
+The following provides specifics on the distinction and additions for the
+'Document as Product' approach.
+
+'Document as Product' identifies a managed document object in a PDM system. A managed
+document is under revision control, and may distinguish various representation definitions
+of a document version. The document_version represents the minimum identification
+of a managed document under revision control. A document representation definition
+may optionally be associated with one or more constituent external files that make
+it up.
+
+[example]
+a configuration controlled managed paper document such as a drawing would generally
+map to a usage of the entity 'product', with version identification and a (physical)
+representation/view definition according to the 'document as product' approach.
+
+External files in the PDM Schema represent a simple external reference to a named
+file. An external file is not managed independently by the system - there is usually
+no revision control or any representation definitions of external files. Version
+identification may optionally be associated with an external file, but this is for
+information only and is not used for managed revision control.
+
+If a file is under configuration control, it should be represented as a constituent
+of a document definition view/representation. In this case it is actually the managed
+document that is under direct configuration control, the file is in this way indirectly
+under configuration control. A change to the file results in a change to the managed
+document (i.e., a new version) - the changed file would be mapped as a constituent
+of a view/representation definition of the new document version. A simple external
+reference alone is not configuration controlled; it is just an external file reference
+to product data.
+
+Documents may be associated with product data in a specified role, to represent some
+relationship between a document and other elements of product data. Constraints may
+also be specified on this association, in order to distinguish an applicable portion
+of an entire document or file in the association. With 'Document as Product', additional
+entities are required to relate a managed document to other product data (see <<sec-10.1>>).
+Included among these is the entity document. The document.id should not be used as
+valid user data - the document entity does not always need to be instantiated using
+'Document as Product', it is done only to assign the document to other product data
+via applied_document_reference.
+
+[[sec-5.1]]
+=== ((Document as Product))
+
+The interpretation of 'Document as Product' uses basic product master identification
+for the fundamental requirements of document identification, versioning, and representation
+definition. 'Document as Product' is distinguished from 'Part as Product' in each
+of the three basic elements of product identification:
+
+* product master identification - document identification has specific requirements
+to assign documents to other product data, and to optionally associate with the constituent
+external file(s) that make up a specific document representation view definition;
+
+* context information - document identification has different context information
+than part identification;
+
+* type classification - document identification has a different type classification
+than part identification.
+
+==== ((Document Master Identification))
+
+As with 'Part as Product', the concepts of base identification, version identification,
+and view definition are structurally distinct in 'Document as Product'. The general
+recommendations given for part master identification apply to the document master
+identification, except where differences are noted.
+
+Base document identification is always associated with at least one document version.
+Multiple document versions of a base document identification may be related together
+to represent document version history.
+
+With 'Document as Product' the product view definition is used to define a view of
+a particular representation of a document version. A document version does not have
+to have an associated document representation definition.
+
+The representation view definition of a document version is used for association
+of document properties, to build document structures, or to associate a document
+with the set of constituent external files that make it up.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support identification of a document
+version are illustrated in <<diam-33>>. Document version identification without an
+associated document view representation definition represents the minimum requirements
+for document master identification.
+
+[[diam-33]]
+.Minimum Document Identification Instance Diagram
+image::diam-33.svg[]
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-29]]
+.exchange file segment for minimum document identification
+[source]
+--
+#270=PRODUCT('doc_4711','packaging guide','packaging guideline for part',(#260));
+#280=PRODUCT_DEFINITION_FORMATION('ver3.1','version 3.1',#270);
+--
+
+[[sec-5.1.2]]
+==== ((Context Information))
+
+Context information provides a scope and necessary circumstance for product identification
+information. It consists of two separate and related areas:
+
+* Application Protocol Identification,
+
+* Application Context Information.
+
+Application protocol identification and general context information are handled structurally
+the same for 'Document as Product', 'Part as Product', and product concept identification.
+A single instance of the entity application_context should be referenced by all product_context
+and product_concept_context entities, for parts, documents and product concepts.
+This application_context should be referenced by the single instance of the entity
+application_protocol_definition. The general context information identifies the usage
+of the information within the scope of the PDM Schema and the application domain
+which provides a basis for the interpretation of all information represented in the
+product data exchange.
+
+The application context information is managed differently to distinguish documents
+from parts:
+
+* Life-cycle information does not have to be maintained for 'Document as Product',
+as it is for 'Part as Product' to identify the development life-cycle stages.
+When a managed document is assigned to a part master, the life-cycle stage of the
+part master identification may be extrapolated as relevant to the document;
+
+* To distinguish a document representation view definition, the names 'digital document
+definition' or 'physical document definition' are used, as differentiated from the
+value 'part definition' used in 'Part as Product'. A digital document definition
+represents an electronic document, while a physical document definition stands for
+a 'hardcopy', typically paper, document.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of document
+identification with context information are illustrated in <<diam-34>>.
+
+[[diam-34]]
+.Document Master with Context Information Instance Diagram
+image::diam-34.svg[]
+
+===== ((product_definition))
+
+The product_definition entity denotes the definition of a particular view of a representation
+of a document version. There may be more than one document representation definition
+associated with a single document version. The representation view definition of
+a document version is used for association of document properties, to build document
+structures, or to associate a document with the set of constituent external files
+that make it up. The entity product_definition supports property association and
+document structure. The subtype product_definition_with_associated_documents is used
+to associate a representation of a document version with the set of constituent files
+that make it up.
+
+*_Attributes_*
+
+* The *_id_* attribute indicates the unique identifier of the document representation
+definition.
+
+* The *_description_* attribute provides optional additional words describing the
+representation definition.
+
+* The *_formation_* attribute references the document version of which this is a
+representation definition.
+
+* The *_frame_of_reference_* attribute references the context information related
+to this definition.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition | Attribute Population | Remarks
+
+| id | type: identifier = string | Must be unique in relation with a specific product_version
+| description | type: text | OPTIONAL
+| formation | type: entity = product_definition_formation | Document version of which this is a particular document representation definition
+| frame_of_reference | type: entity = product_definition_context | Context information for this definition.
+|===
+
+*_Preprocessor Recommendations:_* The value for the id attribute of product_definition
+should be unique relative to other product_definition entities related to the same
+product_definition_formation.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((product_definition_context))
+
+All STEP product_definitions must be defined in a product_definition_context. With
+'Document as Product', the context information is used to distinguish digital from
+physical 'hardcopy' documents.
+
+*_Attributes_*
+
+* The *_name_* attribute indicates the type of the document representation definition.
+
+* The *_frame_of_reference_* attribute references application domain information.
+
+* The *_life_cycle_stage_* attribute has no standard mapping for documents in this
+usage guide.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_context | Attribute Population | Remarks
+
+| name               | type: label = string'digital document definition' or 'physical document definition'
+| Distinguishes the associated product_definition as that of a document
+| frame_of_reference | type: entity = application_context |
+| life_cycle_stage   | type: label = text                 |
+|===
+
+*_Preprocessor Recommendations:_* The name attribute distinguishes the representation
+definition of a document version as either digital ('digital document definition')
+or physical, i.e., hardcopy ('physical document definition').
+
+*_Postprocessor Recommendations:_* Postprocessors should interpret the value of the
+name attribute as a distinction between part and document definitions, and further
+between digital and physical document definitions.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-30]]
+.exchange file segment for document master with context information
+[source]
+--
+#240=APPLICATION_CONTEXT('');
+#245=APPLICATION_PROTOCOL_DEFINITION('version 1.2','pdm_schema',2000,#240);
+#250=PRODUCT_DEFINITION_CONTEXT('digital document definition',#240,'');
+#260=PRODUCT_CONTEXT('',#240,'');
+#270=PRODUCT('doc_4711','packaging guide','packaging guideline for part',(#260));
+#280=PRODUCT_DEFINITION_FORMATION('ver3.1','version 3.1',#270);
+#290=PRODUCT_DEFINITION('id of digital document','digital document for representing guideline ver3.1',#280,#250);
+--
+
+[[sec-5.1.3]]
+==== ((Type Classification))
+
+Type classification information provides the basic capability to distinguish products
+interpreted to represent documents from those interpreted as parts.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the complete requirements of
+document identification with context information and type classification are illustrated
+in <<diam-35>>.
+
+[[diam-35]]
+.Complete Document Master with Context and Type Classification Instance Diagram
+image::diam-35.svg[]
+
+===== ((product_related_product_category))
+
+The product_related_product_category represents the identification of a specific
+classification applied to a product. The name and description attributes are inherited
+from the supertype product_category. This subtype adds the attribute products that
+allow it to be associated (related) directly to a product instance. In the usage
+scenario of 'Document as Product', these product instances are used to represent
+managed documents.
+
+*_Attributes_*
+
+* The *_products_* attribute associates the category with the document as product
+to which it applies.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_related_product_category | Attribute Population | Remarks
+
+| name | type: label = string 'document' |
+|===
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_related_product_category | Attribute Population | Remarks
+
+| description | type: text = string    |
+| products    | type: entity = product
+| SET[1:?] of product entity instance(s) distinguished as representing documents.
+|===
+
+*_Preprocessor Recommendations:_* The name attribute should have the value 'document'
+to discriminate 'Document as Product' from 'Part as Product'.
+
+*_Postprocessor Recommendations:_* When the value of the attribute name is 'document',
+postprocessors should recognize that the value(s) of the attribute products are the
+representation of managed documents as opposed to parts.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-31]]
+.exchange file for complete document master with context and type classification
+[source]
+--
+#240=APPLICATION_CONTEXT('');
+#245=APPLICATION_PROTOCOL_DEFINITION('version 1.2','pdm_schema',2000,#240);
+#250=PRODUCT_DEFINITION_CONTEXT('digital document definition',#240,'');
+#260=PRODUCT_CONTEXT('',#240,'');
+#270=PRODUCT('doc_4711','packaging guide','packaging guideline for part',(#260));
+#280=PRODUCT_DEFINITION_FORMATION('ver3.1','version 3.1',#270);
+#290=PRODUCT_DEFINITION('id of digital document','digital document for representing guideline ver3.1',#280,#250);
+#300=PRODUCT_RELATED_PRODUCT_CATEGORY('document',$,(#270));
+--

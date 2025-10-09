@@ -1,0 +1,165 @@
+
+[[sec-2]]
+== ((Specific Part Type Classification))
+
+A simple basic type of classification of products in STEP works by assigning categories
+to product data items. These categories are identified by name labels that define
+the related classification. This type of classification is referred to as specific
+classification.
+
+NOTE: As an advanced requirement there might be the need to classify product data
+items according to a classification system with explicit reference to the classification
+criteria and related properties of the product data items. This classification mechanism
+is called general classification. The PDM Schema currently only supports the specific
+classification of product data items via assigned categories, which are defined by
+labeling them with a name.
+
+=== ((Classification of parts and managed documents))
+
+The PDM Schema supports the specific classification of parts and managed documents.
+The specific part type classification can be used in addition to the basic part vs.
+document type classification mechanism.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of specific
+part type classification are illustrated in <<diam-5>>.
+
+[[diam-5]]
+.Specific Part Type Classification Instance Diagram
+image::diam-5.svg[]
+
+==== ((product_related_product_category))
+(((product_related_product_category)))
+
+The product_related_product_category entity is a subtype of product_category.
+
+*_Attributes_*
+
+* The *_name_* attribute identifies the category via a label.
+
+* The *_description_* provides additional characterization for the product category.
+
+* The *_products_* attribute associates the category with the product entity instances
+to which it applies.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_related_Product_category | Attribute Population | Remarks
+
+| name        | type: label = text     |
+| description | type: text = string    | OPTIONAL
+| products    | type: entity = product | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* For reasons of robustness (see postprocessor recommendations
+below) preprocessors should list all products in the attribute product_related_product_category.items
+that are either direct members of that category or which belong to sub-categories
+of this category. A given product category shall only be instantiated once in an
+exchange file.
+
+It is recommended that all product_related_product_category instances used for the
+purposes of classification be interrelated in a single taxonomy. The root node of
+this taxonomy relates to the basic classification used to distinguish parts from
+documents. More specific categorizations are related to this basic category as sub-categories.
+
+Since the specific classification capability relies exclusively on the name labels
+for the interpretation of the category semantics, exchanges of such information are
+only meaningful when the category names are agreed upon between the exchange partners.
+For the PDM Schema a basic hierarchy of categories for specific part classification
+is recommended (see <<table-1>>). Exchange partners might extend that list based
+on bilateral agreements.
+
+[[table-1]]
+.Basic Part Classification Hierarchy
+[cols="4",options="header"]
+|===
+| 1^st^ level category | 2^nd^ level category | 3^rd^ level category | ...
+
+| Part | Detail   | spare part     |
+|      | Assembly | prototype part |
+|      | Standard |                |
+|===
+
+*_Postprocessor Recommendations:_* Postprocessors should also tolerate instances
+of product_category as opposed to product_related_product_category in the intermediate
+levels of a product category hierarchy definition. Processors should at least be
+robust enough to ignore the product_category instances. If these instances are ignored
+then the detailed information of the product category hierarchy is not completely
+transferred, nevertheless the assignment of products to basic categories is still
+maintained since these assignments always use product_related_product_categories.
+
+*_Related Entities:_* The entity product_category is a supertype of product_related_product_category
+that does not have the attribute products. Thus a product_category can only be used
+as an intermediate node in a classification hierarchy to which no products are directly
+assigned.
+
+==== ((product_category_relationship))
+(((product_category_relationship)))
+
+The product_category_relationship entity establishes a category-subcategory relationship
+between two product_category entities.
+
+*_Attributes_*
+
+* The *_name_* attribute gives the word or group of words by which the relationship
+is referred.
+
+* The *_description_* attribute provides additional descriptive information related
+about the relationship.
+
+* The *_category_* attribute identifies the _super_ category (more general) in the
+relationship.
+
+* The *_sub_category_* attribute identifies the _sub_ category (more specific) in
+the relationship.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_category_relationship | Attribute Population | Remarks
+
+| name         | type: label = string                            |
+| description  | type: text = string                             |
+| category     | type: entity = product_related_product_category |
+| sub_category | type: entity = product_related_product_category |
+|===
+
+*_Preprocessor Recommendations:_* The PDM Schema does not have restrictions on potential
+nestings of category hierarchies besides that it is strongly recommended that the
+structure is a cyclic. Nevertheless preprocessing systems should be aware that not
+all post processing systems might support an arbitrarily deep structuring of hierarchy
+levels.
+
+*_Postprocessor Recommendations:_* Postprocessors should at least support a two-level
+category hierarchy. This is in alignment with the requirement to process the basic
+product instance type classification, which is to be done on two levels for product
+entity instances that model parts being assemblies or details.
+
+*_Related Entities:_* Instances of product_category_relationship relate instances
+of product_category and product_related_product_category.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-6]]
+.exchange file segment for specific part type classification
+[source]
+--
+ISO-10303-21; HEADER;
+FILE_DESCRIPTION((''), '2;1');
+FILE_NAME('', '10.09.1999 14:18:28', ('n.n.'), (''), '', '', ''); FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC; DATA;
+#10 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #20, #30);
+#20 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#40));
+#30 = PRODUCT_RELATED_PRODUCT_CATEGORY('detail', $, (#40));
+#40 = PRODUCT('comp_part', 'a_part', '', (#60));
+#50 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #30, #100);
+#60 = PRODUCT_CONTEXT('', #70, '');
+#70 = APPLICATION_CONTEXT('');
+#80 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema', 2000, #70);
+#90 = PRODUCT_DEFINITION_FORMATION('1', '', #40);
+#100 = PRODUCT_RELATED_PRODUCT_CATEGORY('spare part', $, (#40));
+#110 = PRODUCT_CATEGORY_RELATIONSHIP('',$, #100, #120);
+#120 = PRODUCT_RELATED_PRODUCT_CATEGORY('independent product', $, (#40));
+ENDSEC;
+END-ISO-10303-21;
+--

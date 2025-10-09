@@ -1,0 +1,1087 @@
+
+[[sec-14]]
+== ((Configuration and Effectivity Information))
+
+The PDM Schema supports the definition of product concepts, which define products
+from a market or customer oriented viewpoint. As they are offered to the customers,
+these product concepts often define conceptual 'product models' which are available
+or delivered to the customer in different configurations or variations.
+
+NOTE: If the number of possible variations of a product concept is too large, it
+might not be suitable to explicitly specify and manage all existing configurations
+of that product concept. The members of a product concept might therefore be defined
+implicitly by identifying the product features that characterize it or are available
+for it as options. Conditions among those features may be specified to manage dependencies
+and define the valid product variations for a particular product concept. This implicit
+definition of the configurations available for a certain product concept is suitable
+for customer option and variant specification: once all options are specified a single
+configuration is determined that may be represented explicitly for downstream application.
+Implicit definition of configurations is not contained in this version of the PDM
+Schema.
+
+Configuration identification in the PDM Schema is the identification of product concepts
+and their associated configurations, the composition of which is to be managed.
+If a configuration of a product concept is implemented by a certain design, i.e.,
+a particular part version, this version can be associated with the configuration
+and managed using configuration effectivity.
+
+NOTE: Explicit representation of the configurations of a product concept is suitable
+for management of design as-planned manufacturing configurations, the traditional
+BOM inputs to manufacturing resource planning. These explicit configurations may
+also be suitable for management of other activities 'downstream' from the design
+phase, such as as-built and as-maintained configurations.
+
+Configuration effectivity in the PDM Schema allows attachment of effectivity information
+to occurrences of component parts in the context of a particular configuration item.
+This enables specification of the valid use of a part occurrence in the context of
+a lot, serial number range or time period of a particular product configuration.
+This controls the constituent parts that are planned to be used for manufacturing
+end items of a particular product configuration within a dated time period or for
+a certain lot or serial number range of the end items.
+
+While configuration effectivity is used to define the planned usage of components
+in the context of a particular product configuration, the PDM Schema also allows
+assignment of general validity periods to product data that control the usage of
+these product data independent of any particular life cycle or context.
+
+=== ((Configuration Identification))
+
+The configuration identification supports two important concepts to describe the
+products that are sold by an organization to its customers:
+
+* Product Concept Identification,
+
+* Product Concept Configuration Identification.
+
+Product concept identification supports the representation of an organization's products
+as they are conceived or offered to the customers. A product as offered to the market
+can directly correspond to a manufacturable object, or it can be available to the
+customer in different configurations where each of these configurations defines a
+manufacturable object. The product concept configuration identification supports
+the specification of these product configurations and their associated part designs.
+
+==== ((Product Concept Identification))
+
+The products that are sold by an organization to its customers are often defined
+as variations or configurations of a common product model, referred to as product
+concept. This product concept is defined in a market context and can be seen as a
+logical container for all of its variations. In the PDM Schema, product concept identification
+is the representation of these product concepts with their related market context.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements to represent
+product concept identification information are illustrated in <<diam-63>> below.
+
+[[diam-63]]
+.Product concept identification Instance Diagram
+image::diam-63.svg[]
+
+===== ((product_concept))
+
+A product_concept describes a class of similar products that an organization provides
+to its customers. It represents the idea of a product as identified by potential
+or actual customer requirements. Therefore, a product_concept may exist before the
+parts have been defined that implement it.
+
+Depending on the kind of industry and products, a product_concept might be offered
+to the customers in one or many different configurations. If exactly one configuration
+is defined, the product_concept corresponds to a particular part design. If the product
+concept is offered in different configurations, each of these configurations is a
+member of the class of products defined by this product_concept.
+
+*_Attributes_*
+
+* The *_id_* attribute specifies the identifier of the product_concept. It is usually
+assigned by the organization that provides the product belonging to that product_concept
+to its customers. This identifier must be unique within the given scope.
+
+* The *_name_* attribute specifies the nomenclature, or common name, by which the
+product_concept is referred.
+
+* The *_description_* attribute specifies additional information about the product_concept.
+
+* The market for the products belonging to a product_concept is further described
+in the *_market_context_* attribute. All product_concepts must have a related product_concept_context, which specifies their market context.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_concept | Attribute Population | Remarks
+
+| Id             | type: identifier = string              | must be unique
+| Name           | type: label = string                   |
+| Description    | type: text = string                    | OPTIONAL
+| market_context | type: entity = product_concept_context
+| reference to the associated product_concept_context (see <<sec-14.1.1.2>>)
+|===
+
+*_Preprocessor Recommendations_:* There might be several levels of product concepts
+defined in a company. The description of product concept structures and relationships
+is not supported by the current PDM Schema version. It is therefore recommended to
+instantiate the lowest level product_concept that is offered to the customer.
+
+*_Preprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A product_concept represents a conceptual idea of a class of
+similar products that are offered to a market. No design or manufacturing related
+product data can be attached to the product_concept directly. The members of that
+product class are the different configurations that are available for the product_concept.
+Within the PDM Schema, these configurations are defined explicitly as configuration_items
+(see <<sec-14.1.2.1>>), each of them being potentially related to the parts that
+implement the particular configuration. A product_concept will usually be referenced
+by at least one associated configuration_item specifying a particular product configuration.
+
+In addition, a product_concept may be referenced by the following entity:
+
+* applied_organizational_project_assignment to represent projects associated to the
+product_concept (see <<sec-15.3.1.2>>).
+
+[[sec-14.1.1.2]]
+===== ((product_concept_context))
+
+The product_concept_context entity is a subtype of application_context_element.
+It defines the market context in which a product_concept is defined and may include
+information characterizing the potential customers of the products of the associated
+product_concept. The application domain is identified by the associated application_context
+entity.
+
+*_Attributes_*
+
+* The *_market_segment_type_* is a label that identifies the kind of consumer preferences
+associated with a product_concept.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_concept_context | Attribute Population | Remarks
+
+| Name                | type: label = text                 | Specifies a label by which the product_concept_context is known.
+| frame_of_reference  | type: entity = application_context | see <<sec-1.1.2.2>>
+| market_segment_type | type: label = text                 |
+|===
+
+*_Preprocessor Recommendations_:* It is recommended to instantiate this entity exactly
+once in the data set. There is no standard mapping for the name and market_segment_type
+attributes of a product_concept_context. Neither AP203 nor AP214 define requirements
+for a product_concept_context. It is therefore recommended to use the default values
+for the entities and attributes not supported by the preprocessor as described in
+the 'General information' section of this usage guide.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((Product Concept Configuration Identification))
+
+Product configuration identification is the explicit identification of the configurations
+that exist for a given product concept and the representation of their composition.
+A product configuration is specified as a configuration_item. Product configurations
+can be related to appropriate part versions to specify the designs that implement
+the product configurations through the configuration_design. Configuration items
+relate to part versions that implement the product configuration through the configuration
+design.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the identification of customer
+oriented product configurations are illustrated in <<diam-64>> below. The corresponding
+STEP exchange file encoding is given in <<ex-63>>.
+
+[[diam-64]]
+.Product Concept Configuration Identification Instance Diagram
+image::diam-64.svg[]
+
+[[sec-14.1.2.1]]
+===== ((configuration_item))
+
+The configuration_item entity is a key concept to support explicit configuration
+management. It represents the identification of a particular configuration, i.e.,
+variation of a product_concept. A configuration_item is defined with respect to the
+product concept, i.e., the class of similar products of which it is a member.
+
+The configuration_item defines a manufacturable end item, or something that is conceived
+and expected as such. The association between a configuration_item and a corresponding
+part design is established using a configuration_design. The valid use of component
+parts for planned units of manufacturing of a particular configuration_item may be
+specified using configuration effectivity (see <<sec-14.2>>).
+
+NOTE: Depending on the type of products, and the organization that defines and sells
+the products, a product_concept may directly correspond to a particular part design,
+which means that only one variation, i.e., one configuration_item exists for that
+particular product_concept.
+
+NOTE: ISO 10303-44 allows the configuration_item to be a variation of a product concept,
+or of any of its discrete portions that is treated as a single unit in the configuration
+management process. According to this definition, it is possible to associate a configuration_item
+describing a particular configuration of, for example, an engine to a product concept
+describing a class of cars. This usage is not recommended.
+
+*_Attributes_*
+
+* The *_id_* attribute specifies an identifier that distinguishes the configuration_item.
+
+* The *_name_* attribute specifies the word or common name used to refer to the configuration_item.
+
+* The *_description_* attribute specifies additional information about the configuration_item.
+
+* The *_item_concept_* attribute specifies the product_concept of which the configuration_item
+is a member, i.e., of which it is a configuration.
+
+* The *_purpose_* attribute specifies a descriptive label providing a reason to create
+the item_concept.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY configuration_item | Attribute Population | Remarks
+
+| id | type: identifier = string identification of view owner | must be unique in relation with a specific product_concept
+| name | type: label = text | may be 'product identification'
+| description | type: text = string | OPTIONAL
+| item_concept | type: entity = product_definition_formation | reference to the product_concept the configuration_item is a configuration of.
+| purpose | type: label = text | OPTIONAL
+
+|===
+
+*_Preprocessor Recommendations:_* There is no standard mapping for the id attribute
+of configuration_item; however the value should be unique in conjunction with the
+id attribute of the associated product_concept.
+
+The description attribute is optional, but may contain any appropriate/mutually-agreed-upon
+string. If this attribute is not used, it should be assigned the value '$'.
+
+The purpose attribute is optional, but may contain any appropriate/mutually-agreed-upon
+string. In AP203 it is used to convey the stage in the life cycle of the product
+(e.g., Technology and Concept Development, Development and Refinement, Manufacturing
+and Assembly Validation, and Production) in which a particular version of the design
+of a configuration_item is being exchanged. If this attribute is not used, it should
+be assigned the value '$'.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A configuration_item may be referenced by the following entities:
+
+* configuration_design to associate the configuration_item to a corresponding part
+design. A configuration_item can be established prior to the existence of a corresponding
+part design, i.e., a configuration_design does not need to exist for a configuration_item.
+
+===== ((configuration_design))
+
+The configuration design entity represents an association between a configuration_item
+identifying a particular product configuration and a product design intended to implement
+that item. Thus, a configuration_design entity represents the association of a configuration_item
+with a product_definition or product_definition_formation to specify that the corresponding
+design is a solution for a given configuration_item. A given design may be the design
+for different configuration_items belonging to the same or even different product_concepts.
+
+The configuration_design entity may have, at most, one name associated with it through
+the entity name_attribute. If a name is associated, the configuration_design is referenced
+as the named_item by a name_attribute where the name is stored in the attribute attribute_value.
+It is not recommended to instantiate this additional value.
+
+The configuration_design entity may have a description associated with it through
+the entity description_attribute. If a description is associated, the configuration_design
+is referenced as the described_item by a description_attribute where the description
+is stored in the attribute attribute_value. It is not recommended to instantiate
+this additional value.
+
+*_Attributes_*
+
+* The *_configuration_* attribute specifies the configuration_item, i.e., the product
+configuration that the associated design implements.
+
+* The *_design_* attribute specifies the product_definition or product_definition_formation
+that is a candidate for use in manufacturing actual units of a configuration_item.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY configuration_design | Attribute Population | Remarks
+
+| configuration | type: entity = configuration_item 
+| reference to the configuration_item for which a design is specified
+| design        | type: entity = configuration_design_item select
+| reference to the product_definition_formation that is a design for the associated
+configuration_item
+| name          | DERIVEd attribute type: label = string
+| at most one name can be associated via the entity name_attribute
+| description   | DERIVEd attribute type: text = string
+| at most one description can be associated via the entity description_attribute
+|===
+
+*_Preprocessor Recommendations:_* The design attribute allows specifying a product_definition
+or product_definition_formation as the design for the associated configuration_item.
+Both AP203 and AP214 do not foresee product_definitions to be specified as the design
+in a configuration_design. It is therefore recommended to only reference product_definition_formations
+from the configuration_design.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A configuration_design may be referenced by the following entities:
+
+* configuration_effectivity to specify which component parts are planned to be used
+for building actual units of manufacturing of the associated configuration_item.
+(See <<sec-14.2>>)
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-63]]
+.exchange file segment for configuration identification
+[source]
+--
+#100=PRODUCT_CONCEPT_CONTEXT('pcc_name1', #1, '');
+#1=APPLICATION_CONTEXT('');
+#2=PRODUCT_CONCEPT('PC-M01', 'PC model name1', 'PC system', #100);
+#5=CONFIGURATION_ITEM('PC-Conf1', 'Base Config Europe', 'PC system standard configuration for Europe', #2, $);
+#6=CONFIGURATION_ITEM('PC-Conf2', 'Base Config US', 'PC system standard configuration for US', #2, $);
+#7=CONFIGURATION_ITEM('PC-Conf3', 'High End Config US', 'High end PC system for US', #2, $);
+#8=APPLICATION_CONTEXT('');
+#9=PRODUCT_CONTEXT('', #8, '');
+#10=PRODUCT('PC-0023', 'PC system', $, (#9));
+#11=PRODUCT_DEFINITION_FORMATION('D', 'housing redesigned', #10);
+#12=PRODUCT_DEFINITION_CONTEXT('part definition', #8, 'design');
+#13=PRODUCT_DEFINITION('pc_v1', 'design view on base PC', #11, #12);
+#14=PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#10));
+#15=CONFIGURATION_DESIGN(#5, #11);
+#16=CONFIGURATION_DESIGN(#6, #11);
+#17=CONFIGURATION_DESIGN(#7, #11);
+--
+
+[[sec-14.2]]
+=== ((Configuration Composition Management))
+
+Configuration composition management is concerned with the specification of the different
+product configurations that exist for a given product concept, and the association
+with product data that is necessary
+
+to build those configurations. This includes the identification of the actual constituents
+that are to be included in a planned unit of production of a product configuration.
+
+Effectivity is a key concept to control the valid use of product data. The PDM Schema
+supports the association of effectivity information to different types of product
+data. Two different effectivity concepts are available:
+
+* configuration effectivity, describing the planned use of part occurrences (i.e.,
+occurrences of parts as sub-assemblies or component parts in some higher level assembly)
+in the context of a configuration_item defined for a product_concept.
+
+* a more generic effectivity, describing the validity period in which the associated
+product data may be used independent from any additional context (e.g., life-cycle
+or organization related) that further restricts the applicability of that effectivity
+(see <<sec-14.3>>).
+
+==== ((Configuration effectivity))
+
+Configuration effectivity allows control of the constituent parts that should be
+used to build the physical instances of a product configuration. The composition
+of the product configurations for planned units of manufacture may be controlled
+for a given time period, lot, or serial number range. This is managed using dated_effectivity,
+lot_effectivity, or serial_numbered_effectivity.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements of configuration
+effectivity are illustrated in <<diam-65>> below. The corresponding STEP exchange
+file encoding is given in <<ex-64>>.
+
+[[diam-65]]
+.Configuration Effectivity Instance Diagram
+image::diam-65.svg[]
+
+[[sec-14.2.1.1]]
+===== ((effectivity))
+
+The effectivity entity supports the specification of a domain of applicability for
+product data. Effectivity is a generic concept defining the valid use of the product
+data to which the effectivity is assigned.
+
+NOTE: The assignment of effectivities is often done during the approval process,
+i.e, when releasing product data for the next stage of the development process, it
+gets effectivity information assigned to define when and in which context these product
+data may be used.
+
+Within the PDM Schema, there are two areas identified for the usage of the effectivity
+concept: configuration effectivity and general validity period effectivity. These
+two areas are reflected by two orthogonal subtype structures defined for the effectivity
+entity.
+
+One subtype structure contains the effectivity subtypes dated_effectivity, lot_effectivity,
+serial_numbered_effectivity, and time_interval_based_effectivity, restricting the
+domain of applicability of the associated product data to a date range, a particular
+lot or serial number range, or to a time interval respectively. There is a ONEOF
+constraint between these subtypes, i.e., an effectivity can be, at most, one of dated_effectivity,
+lot_effectivity, serial_numbered_effectivity, and time_interval_based_effectivity.
+
+The other subtype structure contains product_definition_effectivity as subtype of
+effectivity, and configuration_effectivity as subtype of product_definition_effectivity.
+The subtypes in the second structure are restricted to apply to a particular usage
+occurrence of a constituent part in some higher-level assembly.
+
+*_Attributes_*
+
+* The *_id_* attribute specifies the identifier that distinguishes the effectivity.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY effectivity | Attribute Population | Remarks
+
+| id          | type: identifier = string | identifier _of the effectivity_
+| name        | DERIVEd attribute type: label = string
+| at most one name can be associated via the entity name_attribute
+| description | DERIVEd attribute type: text = string
+| at most one description can be associated via the entity description_attribute
+|===
+
+*_Preprocessor Recommendations:_* It is recommended to not instantiate the effectivity
+instance as standalone instance, i.e., an effectivity should always be assigned to
+some product data either by using the applied_effectivity_assignment or by using
+the subtype configuration_effectivity, or the effectivity should have a relationship
+to some other effectivity that is assigned to some product data through effectivity_relationship
+(see <<sec-14.3.1.2>>). Furthermore, it is always recommended to instantiate an effectivity
+as one of its subtypes, unless the definition of the effectivity is based on some
+other effectivity using effectivity_relationship (see <<sec-14.3.1.2>>).
+
+An identifier need not to be specified for a particular effectivity. If used, the
+id value should be unique in conjunction with the product data the effectivity is
+assigned to, and if present, the context restricting the applicability of the effectivity
+to a certain usage.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An effectivity may be referenced by the following entities:
+
+* applied_effectivity_assignment to assign the effectivity to the product data to
+which it applies. Applied_effectivity_assignment is only used in general validity
+period assignment (see <<sec-14.3>>); it may not be used to assign product_definition_effectivity.
+
+* effectivity_relationship to associate two effectivities, e.g., to base the definition
+of one effectivity on the definition of the other, or to describe their dependencies.
+
+===== ((product_definition_effectivity))
+
+The product_definition_effectivity entity is a subtype of effectivity.It applies
+to a particular occurrence of a component or sub-assembly part as used within an
+assembly. It is the identification of a valid use of a particular product_definition
+in the context of its participation in a given product_definition_usage. The effectivity
+applies to a product_definition that is referenced as the related_product_definition
+by the product_definition_relationship associated to the product_definition_effectivity
+through the _usage_ attribute.
+
+*_Attributes_*
+
+* The *_usage_* attribute specifies the product_definition_relationship defining
+the product_definition to which the effectivity applies as the related_product_definition,
+and identifying the usage context for which the effectivity applies.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_effectivity | Attribute Population | Remarks
+
+| id          | see supertype |
+| name        | see supertype | DERIVEd attribute
+| description | see supertype | DERIVEd attribute
+| usage       | type: entity = product_definition_relationship
+| reference to the associated product_definition_relationship
+|===
+
+*_Preprocessor Recommendations:_* In the context of the PDM Schema, product_definition_effectivity
+is only used as configuration_effectivity, i.e., product_definition_effectivity should
+always be instantiated as its subtype configuration_effectivity.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((configuration_effectivity))
+
+The entity configuration_effectivity is a subtype of product_definition_effectivity
+that contains information about the planned usage of components in a product configuration.
+It defines the valid use of a particular product_definition occurrence at a certain
+position in the assembly structure for a specified product configuration.
+
+The configuration_effectivity entity allows the association of the appropriate versions
+of constituent parts intended to be used at the defined position in the assembly
+structure to build a configuration_item. In the context of the PDM Schema, the
+configuration_effectivity always relates to a particular unit of manufacture of the
+end items of the given configuration_item. The three ways to instantiate configuration_effectivity
+are:
+
+* *_serial_numbered_effectivity_*, where the configuration_effectivity defines the
+valid use of constituent part occurrences for a serial number range of instances
+of a product configuration to be manufactured;
+
+* *_dated_effectivity_*, where the configuration_effectivity defines the valid use
+of constituent part occurrences for a time range based on dates when instances of
+the product configuration are manufactured;
+
+* *_lot_effectivity_*, where the configuration_effectivity defines the valid use
+of constituent part occurrences for a given lot of instances of a product configuration
+to be manufactured.
+
+*_Attributes_*
+
+* The *_configuration_* attribute identifies the configuration_design that specifies
+the associated configuration_item for which the configuration_effectivity applies,
+and the corresponding product_definition_formation which defines the design that
+implements the configuration_item and thus specifies the upper most node
+('entry point') in its product structure.
+
+The particular usage of the constituent part the effectivity applies to is defined
+as product_definition_usage referenced by the _usage_ attribute. The product_definition_usage
+should be instantiated as an assembly_component_usage or one of its subtypes
+(see <<sec-4.1.1.1>>). The attribute related_product_definition specifies the definition
+of a constituent part, and the attribute relating_ product_definition specifies the
+definition of the assembly (or sub-assembly) in which the constituent may be used.
+This assembly definition is part of the design that implements the configuration_item
+for which the configuration_effectivity applies, i.e., it either is a part definition
+of the product_definition_formation defining the ('complete') design for the configuration_item,
+or it is an occurrence in the product structure of that complete design, i.e., is
+related to that in a tree of assembly_component_usage instances.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY configuration_effectivity | Attribute Population | Remarks
+
+| id            | see supertype
+| The combination of the id attribute, the associated product_definition_usage and
+configuration_design has to uniquely identify the configuration_effectivity.
+| name          | see supertype | DERIVEd attribute
+| description   | see supertype | DERIVEd attribute
+| usage         | see supertype | type is restricted to be a product_definition_usage <= product_definition_relationship
+| configuration | type: entity = configuration_design
+| reference to the configuration_design specifying the configuration_item which identifies
+the context in which the effectivity applies.
+|===
+
+*_Preprocessor Recommendations:_* A configuration_effectivity should always be instantiated
+in conjunction, i.e., as complex instance with either dated_effectivity, lot_effectivity,
+or serial_numbered_effectivity to specify the dated time period, or the lot or serial
+number range for the manufacturing units of the associated configuration_item, for
+which the effectivity applies.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* A configuration_effectivity may be referenced by the following
+entity:
+
+* applied_approval_assignment to assign approval information to the configuration_effectivity.
+
+[[sec-14.2.1.4]]
+===== ((dated_effectivity))
+
+The dated_effectivity entity is a subtype of effectivity that applies onwards from
+a point in time, or between two points in time which define the start and end of
+the dated_effectivity. These points in time may be specified as date or a date and
+time, or by an event occurrence.
+
+*_Attributes_*
+
+* The *_effectivity_start_date_* specifies the date_and_time or the event when the
+effectivity of the associated product data begins to apply. It defines the lower
+bound of the interval of applicability.
+
+* The *_effectivity_end_date_* specifies the date_and_time or the event when the
+effectivity of the associated product data ends. It defines the upper bound of the
+interval of applicability. If a value for this attribute is not defined, the interval
+of applicability has no upper limit.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY dated_effectivity | Attribute Population | Remarks
+
+| id                     | see supertype                                |
+| name                   | see supertype                                | DERIVEd attribute
+| description            | see supertype                                | DERIVEd attribute
+| effectivity_start_date | type: entity = date_time_or_event_occurrence |
+| effectivity_end_date   | type: entity = date_time_or_event_occurrence | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* In the context of the PDM Schema, dated_effectivity
+is used to specify configuration_effectivities, as well as general validity periods
+of product data. If used to specify the valid use of a part occurrence in the context
+of a date range for end items of an identified product configuration, dated_effectivity
+has to be instantiated in conjunction, i.e., as complex instance with configuration_effectivity.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((lot_effectivity))
+
+The entity lot_effectivity is a subtype of effectivity. It defines the domain of
+applicability as a given batch of end items.
+
+*_Attributes_*
+
+* The *_effectivity_lot_id_* attribute specifies a production batch of end items
+for the manufacturing of which the effectivity applies.
+
+* The *_effectivity_lot_size_* attribute specifies the size of the batch of end items
+for the manufacturing of which the effectivity applies.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY lot_effectivity | Attribute Population | Remarks
+
+| id                   | see supertype                    |
+| name                 | see supertype                    | DERIVEd attribute
+| description          | see supertype                    | DERIVEd attribute
+| effectivity_lot_id   | type: identifier = string        |
+| effectivity_lot_size | type: entity = measure_with_unit
+| reference to the measure with unit specifying the size of the lot to be manufactured
+|===
+
+*_Preprocessor Recommendations:_* In the context of the PDM Schema, lot_effectivity
+is only used to specify the valid use of a part occurrence in the context of a unit
+of manufacture of the identified product configuration, i.e., configuration_item.
+Therefore, it is recommended to only instantiate a lot_effectivity in conjunction,
+i.e., as complex instance with configuration_effectivity.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((serial_numbered_effectivity))
+
+A serial_numbered_effectivity is a type of effectivity for which the domain of applicability
+is defined as a possibly open-ended interval of serial numbers.
+
+*_Attributes_*
+
+* The *_effectivity_start_id_* attribute identifies the first valid serial number
+for which the effectivity applies.
+
+* The *_effectivity_end_id_* attribute the last valid serial number for which the
+effectivity applies. If a value for this attribute is not defined, the interval of
+applicability has no serial number defined as upper bound, i.e., the effectivity
+is expected to apply to all serial numbers greater than the effectivity_start_id.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY serial_numbered_effectivity | Attribute Population | Remarks
+
+| id                   | see supertype             |
+| name                 | see supertype             | DERIVEd attribute
+| description          | see supertype             | DERIVEd attribute
+| effectivity_start_id | type: identifier = string |
+| effectivity_end_id   | type: identifier = string | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* In the context of the PDM Schema, serial_numbered_effectivity
+is only used to specify the valid use of a part occurrence in the context of a serial
+number range for end items of the identified product configuration, i.e., configuration_item.
+Therefore, it is recommended to only instantiate a serial_numbered_effectivity in
+conjunction, i.e., as complex instance with configuration_effectivity.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-64]]
+.exchange file segment for configuration effectivity
+[source]
+--
+#100=PRODUCT_CONCEPT_CONTEXT('pcc_name1', #1, '');
+#1=APPLICATION_CONTEXT('');
+#2=PRODUCT_CONCEPT('PC-M01', 'PC model name1', 'PC system', #100);
+#5=CONFIGURATION_ITEM('PC-Conf1', 'Base Config Europe', 'PC system standard configuration for Europe', #2, $);
+#6=CONFIGURATION_ITEM('PC-Conf2', 'Base Config US', 'PC system standard configuration for US', #2, $);
+#8=APPLICATION_CONTEXT('');
+#9=PRODUCT_CONTEXT('', #8, '');
+#10=PRODUCT('PC-0023', 'PC system', $, (#9));
+#11=PRODUCT_DEFINITION_FORMATION('D', 'description of PC-0023,D', #10);
+#12=PRODUCT_DEFINITION_CONTEXT('part definition', #8, 'design');
+#14=PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#10, #18, #20, #21, #22, #23));
+#15=CONFIGURATION_DESIGN(#5, #11);
+#16=CONFIGURATION_DESIGN(#6, #11);
+#18=PRODUCT('MB-0013', 'Mainboard', $, (#9));
+#19=PRODUCT_DEFINITION_FORMATION('F', 'description of MB-0013,F', #18);
+#20=PRODUCT('PSU-0009', 'Power supply unit', 'Power supply unit 220V', (#9));
+#21=PRODUCT('PSU-0011', 'Power supply unit', 'Power supply unit 110V', (#9));
+#22=PRODUCT('PR-0133', 'CPU', 'Pentium II 233', (#9));
+#23=PRODUCT('PR-0146', 'CPU', 'Pentium II 266', (#9));
+#24=PRODUCT_DEFINITION_FORMATION('A', 'description of PSU-0009,A', #20);
+#25=PRODUCT_DEFINITION_FORMATION('B', 'description of PSU-0009,B', #20);
+#26=PRODUCT_DEFINITION_FORMATION('B', 'description of PSU-0011,B', #21);
+#27=PRODUCT_DEFINITION_FORMATION('A', 'description of PR-0133,A', #22);
+#28=PRODUCT_DEFINITION_FORMATION('C', 'description of PR-0146,C', #23);
+#29=PRODUCT_DEFINITION('pc_v1', 'design view on PC-0023,D', #11, #12);
+#30=PRODUCT_DEFINITION('mb_v1', 'design view on MB-0013,F', #19, #12);
+#31=PRODUCT_DEFINITION('psu1A_v1', 'design view on PSU-0009,A', #24, #12);
+#33=PRODUCT_DEFINITION('psu1B_v1', 'design view on PSU-0009,B', #25, #12);
+#34=PRODUCT_DEFINITION('psua_v1', 'design view on PSU-0011,B', #26, #12);
+#35=PRODUCT_DEFINITION('pr1_v1', 'design view on PR-0133,A', #27, #12);
+#36=PRODUCT_DEFINITION('pr2_v1', 'design view on PR-0146,C', #28, #12);
+#37=NEXT_ASSEMBLY_USAGE_OCCURRENCE('mb-u1', 'single instance usage', $, #29, #30, $);
+#38=NEXT_ASSEMBLY_USAGE_OCCURRENCE('psu-u1', 'single instance usage', $, #29, #31, $);
+#39=NEXT_ASSEMBLY_USAGE_OCCURRENCE('psu-u2', 'single instance usage', $, #29, #33, $);
+#40=NEXT_ASSEMBLY_USAGE_OCCURRENCE('psu-u3', 'single instance usage', $, #29, #34, $);
+#41=NEXT_ASSEMBLY_USAGE_OCCURRENCE('cpu-u1', 'single instance usage', $, #30, #35, $);
+#42=NEXT_ASSEMBLY_USAGE_OCCURRENCE('cpu-u2', 'single instance usage', $, #30, #36, $);
+#43=(CONFIGURATION_EFFECTIVITY(#15)
+DATED_EFFECTIVITY(#970, #910) EFFECTIVITY('') PRODUCT_DEFINITION_EFFECTIVITY(#38)
+);
+#45=(CONFIGURATION_EFFECTIVITY(#15)
+DATED_EFFECTIVITY($, #1010) EFFECTIVITY('') PRODUCT_DEFINITION_EFFECTIVITY(#39)
+);
+#46=(CONFIGURATION_EFFECTIVITY(#16)
+EFFECTIVITY('') PRODUCT_DEFINITION_EFFECTIVITY(#40) SERIAL_NUMBERED_EFFECTIVITY('PS253-000567', $)
+);
+#47=(CONFIGURATION_EFFECTIVITY(#15)
+DATED_EFFECTIVITY($, #1160) EFFECTIVITY('') PRODUCT_DEFINITION_EFFECTIVITY(#41)
+);
+#48=(CONFIGURATION_EFFECTIVITY(#16)
+EFFECTIVITY('') PRODUCT_DEFINITION_EFFECTIVITY(#41)
+SERIAL_NUMBERED_EFFECTIVITY('PS253-000345', 'PS253-000976')
+);
+#49=(CONFIGURATION_EFFECTIVITY(#16)
+EFFECTIVITY('') PRODUCT_DEFINITION_EFFECTIVITY(#42) SERIAL_NUMBERED_EFFECTIVITY('PS253-000977', $)
+);
+#910=DATE_AND_TIME(#920, #930);
+#920=CALENDAR_DATE(2000, 1, 7);
+#930=LOCAL_TIME(0, 0, 0., #940);
+#940=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#970=DATE_AND_TIME(#980, #990);
+#980=CALENDAR_DATE(1999, 31, 3);
+#990=LOCAL_TIME(0, 0, 0., #1000);
+#1000=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#1010=DATE_AND_TIME(#1020, #1030);
+#1020=CALENDAR_DATE(1999, 1, 4);
+#1030=LOCAL_TIME(0, 0, 0., #1031);
+#1031=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#1110=DATE_AND_TIME(#1120, #1130);
+#1120=CALENDAR_DATE(2000, 15, 7);
+#1130=LOCAL_TIME(0, 0, 0., #1140);
+#1140=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#1160=DATE_AND_TIME(#1170, #1180);
+#1170=CALENDAR_DATE(2000, 1, 10);
+#1180=LOCAL_TIME(0, 0, 0., #1190);
+#1190=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+--
+
+[[sec-14.3]]
+=== ((General Validity Period))
+
+The PDM Schema allows assignment of general validity periods to product data that
+control the usage of these product data independent of any particular usage. The
+object to which the general validity period effectivity is assigned is considered
+valid within the identified period of time for any usage and within all contexts.
+
+Configuration effectivity is used to define the planned usage of components in the
+context of a particular product configuration. If both general validity period and
+configuration effectivity is assigned to a particular component, the more restrictive
+of the assigned effectivities should be considered as in effect.
+
+==== ((General validity period effectivity))
+
+The general validity period effectivity is used to describe effectivities with respect
+to a certain time period in which the associated product data may be used. The object
+to which the general validity period effectivity is assigned is considered valid
+within the identified period of time.
+
+The general validity effectivity may be applied in two ways:
+
+* usage independent general validity period,
+
+* usage dependent general validity period.
+
+Usage independent general validity period effectivity can be applied to 'stand-alone'
+elements independent from their usage by some other element, such as part (or document)
+versions or particular views on these. If a general validity period effectivity is
+assigned to a product_definition_formation, it is assumed that this effectivity also
+applies to all associated product_definitions that do not carry their own effectivity
+information.
+
+Usage dependent general validity period effectivity can be applied to product_definition_relationship
+instances representing a usage of the related_product_definition in the context of
+the relating_product_definition. It should be used to define the validity period
+in which the related_product_definition may be used/is to be used in the context
+of the relating_product_definition.
+
+Usage dependent and usage independent effectivity concepts are referred to as structure
+related and version related effectivity. Either one can be used to describe a valid
+product data structure for a certain time range The two concepts can also be used
+in combination, but restrictions should apply for the defined validity periods. If
+different effectivities apply to a product_definition and a product_definition_relationship
+where the product_definition is the related_product_definition, then the effectivity
+period of the product_definition_relationship should be within the effectivity period
+defined for the related_product_definition.
+
+The general validity period effectivity is based on the definition of the effectivity
+entity as defined in <<sec-14.2.1.1>>. Two types of effectivity may be used to describe
+general validity period effectivity:
+
+* dated_effectivity, i.e., the validity period can be defined by the points in time
+when the period of applicability of the associated object starts and ends (see <<sec-14.2.1.4>>),
+
+* time_interval_based_effectivity, i.e.the validity period is defined as an intervening
+time.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements of general
+validity period effectivity are illustrated in <<diam-66>> below. The corresponding
+STEP exchange file encoding is given in <<ex-65>> and <<ex-66>>.
+
+[[diam-66]]
+.General validity period effectivity Instance Diagram
+image::diam-66.svg[]
+
+===== ((time_interval_based_effectivity))
+
+The entity time_interval_based_effectivity is a subtype of effectivity for which
+the domain of applicability is defined as a possibly open time_interval. This type
+of effectivity enables the specification of an interval of time through one boundary
+and the duration of the interval.
+
+*_Attributes_*
+
+* The *_effectivity_period_* attribute identifies the time_interval in which the
+associated product data is effective.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY time_interval_based_effectivity | Attribute Population | Remarks
+
+| id                 | see supertype                |
+| name               | see supertype                | DERIVEd attribute
+| description        | see supertype                | DERIVEd attribute
+| effectivity_period | type: entity = time_interval |
+|===
+
+*_Preprocessor Recommendations:_* In the context of the PDM Schema, time_interval_based_effectivity
+is only used to general validity periods for the associated product data. Therefore,
+it should not be instantiated in conjunction, i.e., as complex instance with configuration_effectivity.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-14.3.1.2]]
+===== ((effectivity_relationship))
+
+An effectivity relationship is a relationship between two effectivity objects.
+The meaning of the effectivity relationship is given by its _name_ attribute.
+An effectivity_relationship may be used to define an effectivity with respect to
+some other effectivity or to express some dependency between two effectivity objects.
+
+*_Attributes_*
+
+* The *_name_* attribute specifies the meaning of the relationship.
+
+* The *_description_* attribute specifies additional information text that characterizes
+the effectivity_relationship.
+
+* The *_relating_effectivity_* specifies the first effectivity that is related by
+the effectivity_relationship. The relating_effectivity usually identifies the effectivity
+the definition of the related_effectivity is based on, e.g., derived from or dependent
+on. The semantics of this attribute should be defined by the name attribute.
+
+* The *_related_effectivity_* specifies the second effectivity related by the effectivity_relationship. The related_effectivity usually identifies the effectivity which is based on the definition of the relating_effectivity. The semantics of this attribute should be defined by the name attribute.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY effectivity_relationship | Attribute Population | Remarks
+
+| name                 | type: label = string       |
+| description          | type: text = string        | OPTIONAL
+| relating_effectivity | type: entity = effectivity |
+| related_effectivity  | type: entity = effectivity |
+|===
+
+*_Preprocessor Recommendations:_* The name attribute is used to specify the type
+of the effectivity_relationship and therefore should be populated with predefined
+values of which both sides of the exchange have a common understanding. The value
+'constraint' for the name attribute should be used to indicate that the validity
+period defined by the related_effectivity should be within the time period of the
+relating_effectivity. The value 'inheritance' for the name attribute should be used
+to indicate that the related_effectivity shall not define its own validity period,
+but inherits the validity period from the relating_effectivity (this inheritance
+might occur over a chain of interrelated effectivity_relationship instances).
+There are no further standard mappings specified for the name attribute.
+Additional values must be agreed upon mutually.
+
+There is no standard mapping for the description attribute. The description attribute
+is optional, but may contain any appropriate/mutually-agreed-upon string. If this
+attribute is not needed/used, it should be assigned the value '$'.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((applied_effectivity_assignment))
+
+The general validity period effectivity may be applied to different types of product
+data, potentially specifying an additional role in which the effectivity is assigned.
+The effectivity_assignment entity defines a general mechanism to associate general
+validity period to some product data.
+
+The entity applied_effectivity_assignment is a subtype of effectivity assignment.
+It adds the attribute items, which refers to the instances of product data to which
+the validity period is assigned. The types of product data to which general validity
+period effectivity may be assigned are defined in the effectivity_item select type.
+
+The applied_effectivity_assignment entity should have a role associated with it through
+the entity object_role. If a role is associated, the applied_effectivity_assignment
+is referenced as the item_with_role by a role_association where the role is stored
+in the name attribute of the object_role associated as role. Role information may
+be used to distinguish between, e.g., required, planned, or actual, effectivities
+of an object.
+
+*_Attributes_*
+
+* The *_assigned_effectivity_* specifies the effectivity which is assigned.
+
+* The *_items_* attribute specifies the set of items to which the associated effectivity
+is assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_effectivity_assignment | Attribute Population | Remarks
+
+| assigned_effectivity | type: entity = effectivity             |
+| role                 | type: entity = object_role             | DERIVEd attribute
+| items                | type: entity = effectivity_item select | SET[1:?]
+|===
+
+*_Preprocessor Recommendations:_* applied_effectivity_assignment shall only be used
+to assign general validity period effectivities, i.e., the assigned effectivity shall
+not be of type lot_effectivity or serial_numbered_effectivity.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* An applied_effectivity_assignment may be referenced by the
+following entities:
+
+* role_association to specify a object_role defining the role of the assignment.
+Where applicable the following role values shall be used:
+
+* 'actual period': The actual period during which the Effectivity lasted;
+
+* 'actual start': The actual date in the past when the Effectivity became effective;
+
+* 'actual stop': The actual date in the past when the Effectivity ceased to be effective;
+
+* 'planned period': The period associated with the Effectivity defines a planned
+period of time during which the associated object is or was supposed to be effective;
+
+* 'planned start': The date or event associated with the Effectivity defines the
+date or event when the Effectivity is or was supposed to start;
+
+* 'planned stop': The date or event associated with the Effectivity defines the date
+or event when the Effectivity is or was supposed to stop;
+
+* 'required period': The associated object must be kept effective for this period;
+
+* 'required start': The date or event associated with the Effectivity is a due start
+date. Conformance to this bound is expected;
+
+* 'required stop': The date or event associated with the Effectivity is a due stop
+date. Conformance to this bound is expected.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-65]]
+.exchange file segment for view independent general validity period effectivity
+[source]
+--
+#1=APPLICATION_CONTEXT('mechanical design');
+#220=PRODUCT_CONTEXT('', #1, '');
+#230=PRODUCT_DEFINITION_CONTEXT('part definition', #1, 'design');
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#2));
+
+/* part master definition with two succeeding versions*/
+#2=PRODUCT('11000', 'solid cube', 'description for part 11000', (#220));
+#3=PRODUCT_DEFINITION_FORMATION('A', 'version A for solid cube', #2);
+#4=PRODUCT_DEFINITION('D1', 'detailed drawing as planned for STEP conformance testing', #3, #230);
+#10=PRODUCT_DEFINITION_FORMATION('B', 'version B for part 11000', #2);
+#11=PRODUCT_DEFINITION('D2', 'detailed drawing', #10, #230);
+#16=PRODUCT_DEFINITION_FORMATION_RELATIONSHIP('id', 'sequence', $, #3, #10);
+
+/* start and end dates for effectivity */
+#910=DATE_AND_TIME(#920, #930);
+#920=CALENDAR_DATE(2000, 1, 7);
+#930=LOCAL_TIME(0, 0, 0., #940);
+#940=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#970=DATE_AND_TIME(#980, #990);
+#980=CALENDAR_DATE(1999, 31, 3);
+#990=LOCAL_TIME(0, 0, 0., #1000);
+#1000=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#1010=DATE_AND_TIME(#1020, #1030);
+#1020=CALENDAR_DATE(1999, 1, 4);
+#1030=LOCAL_TIME(0, 0, 0., #1031);
+#1031=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+
+/* effectivity definition and assignment */
+#1040=DATED_EFFECTIVITY('', #970, #910);
+#1041=DATED_EFFECTIVITY('', $, #1010);
+#1042=APPLIED_EFFECTIVITY_ASSIGNMENT(#1040, (#3));
+#1043=APPLIED_EFFECTIVITY_ASSIGNMENT(#1041, (#10));
+#1044=OBJECT_ROLE('actual', $);
+#1045=ROLE_ASSOCIATION(#1044, #1042);
+#1046=ROLE_ASSOCIATION(#1044, #1043);
+--
+
+[[ex-66]]
+.exchange file segment for general validity period effectivity applied to views
+[source]
+--
+#10=APPLICATION_CONTEXT('mechanical design');
+#100=PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#380, #440));
+#220=PRODUCT_CONTEXT('', #10, '');
+#230=PRODUCT_DEFINITION_CONTEXT('part definition', #10, 'design');
+#340=PRODUCT_DEFINITION_CONTEXT_ROLE('part definition type', $);
+#350=PRODUCT_DEFINITION_CONTEXT('assembly definition', #10, '');
+#360=PRODUCT_RELATED_PRODUCT_CATEGORY('detail', $, (#380));
+#380=PRODUCT('g1', 'gasket', $, (#220));
+#390=PRODUCT_DEFINITION_FORMATION('A', '', #380);
+#400=PRODUCT_DEFINITION('gv1', 'design view on gasket A', #390, #230);
+#420=PRODUCT_RELATED_PRODUCT_CATEGORY('assembly', $, (#440));
+#440=PRODUCT('s1', 'sleeve assembly', $, (#220));
+#450=PRODUCT_DEFINITION_FORMATION('A', '', #440);
+#460=PRODUCT_DEFINITION('sv1', 'design view on sleeve assembly', #450, #230);
+#530=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu-1', 'single instance usage', 'gasket usage left', #460, #400, $);
+#540=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu-2 ', 'single instance usage', 'gasket usage right', #460, #400, $);
+#800=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#460, #350, #340);
+#810=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#815, #350, #340);
+#811=PRODUCT_DEFINITION_FORMATION('B', 'gasket modified', #380);
+#812=PRODUCT_DEFINITION_FORMATION_RELATIONSHIP('', 'sequence', $, #390, #811);
+#813=PRODUCT_DEFINITION_CONTEXT('part definition', #10, 'manufacturing');
+#814=PRODUCT_DEFINITION('gv3', 'manufacturing view on gasket A', #390, #813);
+#815=PRODUCT_DEFINITION('sv2', 'manufacturing view on sleeve assembly', #450, #813);
+#816=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu3', 'single instance usage', 'gasket usage left', #815, #814, $);
+#817=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu4', 'single instance usage', 'gasket usage right', #815, #814, $);
+#818=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu5', 'single instance usage', 'gasket usage left', #460, #821, $);
+#819=NEXT_ASSEMBLY_USAGE_OCCURRENCE('gu6', 'single instance usage', 'gasket usage right', #460, #821, $);
+#821=PRODUCT_DEFINITION('gv2', 'design view on gasket B', #811, #230);
+#910=DATE_AND_TIME(#920, #930);
+#920=CALENDAR_DATE(2000, 1, 7);
+#930=LOCAL_TIME(0, 0, 0., #940);
+#940=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#970=DATE_AND_TIME(#980, #990);
+#980=CALENDAR_DATE(1999, 31, 3);
+#990=LOCAL_TIME(0, 0, 0., #1000);
+#1000=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#1010=DATE_AND_TIME(#1020, #1030);
+#1020=CALENDAR_DATE(1999, 1, 4);
+#1030=LOCAL_TIME(0, 0, 0., #1031);
+#1031=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#1040=DATED_EFFECTIVITY('', #970, #910);
+#1041=DATED_EFFECTIVITY('', $, #1010);
+#1042=APPLIED_EFFECTIVITY_ASSIGNMENT(#1040, (#400));
+#1043=APPLIED_EFFECTIVITY_ASSIGNMENT(#1041, (#821));
+#1044=OBJECT_ROLE('actual', $);
+#1045=ROLE_ASSOCIATION(#1044, #1042);
+#1046=ROLE_ASSOCIATION(#1044, #1043);
+#1050=DATED_EFFECTIVITY('', $, #1110);
+#1051=DATED_EFFECTIVITY('', $, #1160);
+#1052=APPLIED_EFFECTIVITY_ASSIGNMENT(#1050, (#460));
+#1053=APPLIED_EFFECTIVITY_ASSIGNMENT(#1051, (#815, #814));
+#1110=DATE_AND_TIME(#1120, #1130);
+#1120=CALENDAR_DATE(2000, 15, 7);
+#1130=LOCAL_TIME(0, 0, 0., #1140);
+#1140=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+#1160=DATE_AND_TIME(#1170, #1180);
+#1170=CALENDAR_DATE(2000, 1, 10);
+#1180=LOCAL_TIME(0, 0, 0., #1190);
+#1190=COORDINATED_UNIVERSAL_TIME_OFFSET(1, $, .AHEAD.);
+--

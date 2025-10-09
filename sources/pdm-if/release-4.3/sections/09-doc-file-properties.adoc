@@ -1,0 +1,825 @@
+
+[[sec-9]]
+== ((Document and File Properties))
+
+PDM Schema document properties can be associated to representations of documents
+as well as to individual files. If document properties are assigned to representations
+of documents, the characteristics apply as well to all the constituent files of the
+document representation in most cases. Some properties with numeric values, such
+as 'file size' and 'page count', applied to the document representation will not
+correspond to an individual file in a multiple file document representation, but
+to the sum of all the files that make up the particular document representation definition.
+To avoid redundancy it is recommended that properties that are shared by all constituents
+of a given document representation are directly associated with that document representation
+rather than replicated with the individual files.
+
+=== ((Product Definition or Document Representation))
+
+The AIM entity product_definition or document_file is used with the identification
+of document properties and apply to the associated files.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The general schema for the assignment of properties to document representation
+(i.e., product_definition) or document files (i.e., document_file) is to instantiate
+a property definition tree with property_definition, property_definition_representation,
+representation and eventually multiple instantiations of descriptive_representation_item
+(or measure_representation_item) that provide the representation of a specific aspect
+of the represented property.
+
+[[diam-40]]
+.General pattern for the association of document properties
+image::diam-40.svg[]
+
+==== ((property_definition))
+
+A property_definition is, in the given context, a property that characterizes a document
+representation or document file. It applies either to a product_definition
+(for the document representation) or a document_file.
+
+*_Attributes_*
+
+* The *_name_* attribute indicates via 'document property' that the property is related
+to a document representation or a document file.
+
+* The *_description_* attribute provides additional description of the property.
+
+* The *_definition_* attribute references the document object, which is characterized
+by the property_definition.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY property_definition | Attribute Population | Remarks
+
+| name | Type: identifier = string | should be instantiated as 'document property' in the given context
+| description | Type: text = string | optional, shall not be instantiated
+| definition | Type: entity = product_definition or product_definition_with_associated_documents or document_file | References associated document
+|===
+
+*_Preprocessor Recommendations_:* It is recommended to instantiate not more than
+one property_definition with the value of the name attribute equal to 'document property'
+for each document representation definition (product_definition or product_definition_with_associated_documents)
+or document_file. One property_definition per document object shall be used to collect
+all document object properties via associated property_definition_representations.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+==== ((property_definition_representation))
+
+A property_definition_representation is, in the given context, an association between
+a document property and its representation.
+
+*_Attributes_*
+
+* The *_definition_* attribute references the property_definition that is defined
+by the associated representation.
+
+* The *_used_representation_* attribute points to a representation that collects
+the representations items that together describe the property.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY property_definition_representation | Attribute Population | Remarks
+
+| definition          | Type: entity = property_definition | References associated property_definition
+| used_representation | Type: entity = representation      | References associated representation
+|===
+
+*_Preprocessor Recommendations_:* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+==== ((representation))
+
+A representation is, in the context of document properties, a collection of one or
+more descriptive_representations_items that are related in a representation_context
+with type 'document parameters'. Herein a representation represents a document property.
+
+*_Attributes_*
+
+* The *_name_* attribute characterizes the type of the document related property
+via a string.
+
+* The *_items_* attribute collect items that represent the values for a given property
+instantiation.
+
+* The *_context_of_items_* attribute points to a representation_context. The representation_context
+has the type 'document parameters'.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY representation | Attribute Population | Remarks
+
+| name | Type: label = STRING | the name attribute characterizes the document related property
+| items | Type: entity = descriptive_representation_item or measure_representation_item | the items that constitute the representation of the document property
+| context_of_items | Type: entity = representation_context | is required to point to a representation_context with representation_context.typeset to 'document parameters'
+| id | Derived | should not be instantiated
+| description | Derived | should not be instantiated
+|===
+
+*_Preprocessor Recommendations:_* The name characterizes the document related property.
+The representation is required to have a context with representation_context.type = 'document parameters'
+
+*_Postprocessor Recommendations:_* A postprocessor shall, in the given context, support
+the following values for representation.name 'document content', 'document creation',
+'document format', 'document size'.
+
+*_Related Entities:_* None specified.
+
+==== ((representation_context))
+
+A representation_context is identifies the context (of type 'document parameters')
+of interpretation for the value of items in a representation.
+
+*_Attributes_*
+
+* The *_context_identifier_* attribute identifies the context.
+
+* The *_context_type_* attribute specifies the type of the context.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY representation_context | Attribute Population | Remarks
+
+| context_identifier | Type: label = STRING |
+| context_type       | Type: text = STRING  | should be instantiated with value 'document parameters'.
+|===
+
+*_Preprocessor Recommendations:_* In order to distinguish the use of a representation
+for document properties, the context_type attribute of the representation_context
+entity has the value 'document parameters'.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+==== ((descriptive_representation_item))
+
+A descriptive_representation_item is, in the document property context, a textual
+element that participates in one or more representations to define the respective
+properties.
+
+*_Attributes_*
+
+* The *_name_* attribute characterizes the information modeled with the
+descriptive_representation_item via a string.
+
+* The *_description_* attribute defines a textual value as an instantiation of the
+modeled property.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY descriptive_representation_item | Attribute Population | Remarks
+
+| name        | Type: label = STRING | the name attribute indicates the name of the represented property
+| description | Type: text = STRING  | the description is the value associated with the representation item in textual form
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* In the given context the following instantiations
+of descriptive_representation_item.name shall be expected: 'detail level', 'geometry',
+'language', 'real world scale', 'creating interface', 'creating system',
+'operating system', 'data format', 'character code', 'size format', 'size format
+standard'.
+
+*_Related Entities:_* The descriptive_representation_items for a given document property
+are collected in a representation. The representation characterizes the property
+via the attribute representation.name.
+
+[[sec-9.2]]
+=== ((Document content property))
+
+The content related properties of documents are represented accordingly to the general
+scheme outlined above. To indicate that the property is content related the used
+representation must be instantiated with:
+
+[source%unnumbered]
+--
+representation.name = 'document content'
+--
+
+This document content capability specifies characteristics detailing the content
+of a given document object. Aspects of the content property can be modeled via the
+following instantiations of descriptive_representation_items collected in the above
+representation.
+
+[cols="a,a,a",options="header,unnumbered"]
+|===
+| requirement | Descriptive_representation_item.name | Descriptive_representation_item.description
+
+| The level of detail that the document file or the document representation provides.
+| 'detail level'
+| Where applicable the following values shall be used:
+
+* 'rough 3d shape': 3D shape model without edge rounds and fillets;
+
+* 'rounded edges': 3D shape model with edge rounds and fillets.
+
+| The kind or kinds of geometry that an object contains
+| 'geometry'
+| Where applicable the following values shall be used:
+
+* '3D wireframe model': The document contains a 3D shape model in
+wireframe representation;
+
+* '2D shape': The document contains a 2D shape model or contours
+only;
+
+* 'surface model': The document contains a 3D shape model in surface representation;
+
+* 'closed volume': The document contains a 3D shape model in closed body topological
+surface representation;
+
+* 'solid model': The document contains a 3D shape model in advanced boundary representation;
+
+* 'solid and surface model': The document contains a 3D shape model in surface and
+advanced boundary representation;
+
+* 'assembly': The document contains an assembly structure with reference to the assembled
+components and their transformation matrices;
+
+* 'assembly with mating elements': The document contains an assembly structure including
+the mating components only, such as screws or rivets, with exact positioning information.
+This assembly representation is intended to be overlaid with the assembly structure
+for the main components;
+
+* '2D drawing': The document contains a technical drawing without 3D shape representation;
+
+* 'drawing derived from 3D data': The document contains a technical drawing that
+has been derived from a 3D shape model;
+
+* 'drawing related to 3D data': The document contains a technical drawing that visualizes
+a 3D shape model and possibly establishes associative links to the 3D shape model.
+
+| Language or languages are used in the characterized objects.  | 'language' | e.g., 'English''
+| the scale that is used | 'real world scale' | e.g., '1:50'
+|===
+
+==== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-36]]
+.exchange file segment for content property representation
+[source]
+--
+/* Entities #210 to #250 assign document content parameters to 'file1' (#80)
+#210 = PROPERTY_DEFINITION('document property', '', #80);
+#220 = PROPERTY_DEFINITION_REPRESENTATION(#210, #230);
+#230 = REPRESENTATION('document content', (#240, #250), #200);
+#240 = DESCRIPTIVE_REPRESENTATION_ITEM('detail level', 'rough 3D shape');
+#250 = DESCRIPTIVE_REPRESENTATION_ITEM('geometry type', 'solid model');
+--
+
+[[sec-9.3]]
+=== ((Document creation property))
+
+The content related properties of documents are represented accordingly to the general
+scheme outlined above. To indicate that the property is related to document creation
+the used representation must be instantiated with:
+
+[source%unnumbered]
+--
+representation.name = 'document creation'
+--
+
+Aspects of the content property can be modeled via the following instantiations of
+descriptive_representation_items collected in the above representation. It is recommended
+that when document creation property information is represented in a corresponding
+representation then at least a descriptive_representation_item with name
+'creating system' shall be instantiated.
+
+[cols="a,a,a",options="header,unnumbered"]
+|===
+| requirement | Descriptive_representation_item.name | Descriptive_representation_item.description
+
+| The level of detail that the document file or the document representation provides.
+| 'detail level'
+| Where applicable the following values shall be used:
+
+* 'rough 3d shape': 3D shape model without edge rounds and fillets;
+
+* 'rounded edges': 3D shape model with edge rounds and fillets.
+
+| The kind or kinds of geometry that an object contains
+| 'geometry'
+| Where applicable the following values shall be used:
+
+* '3D wireframe model': The document contains a 3D shape model in wireframe representation;
+
+* '2D shape': The document contains a 2D shape model or contours only;
+
+* 'surface model': The document contains a 3D shape model in surface representation;
+
+* 'closed volume': The document contains a 3D shape model in closed body topological
+surface representation;
+
+* 'solid model': The document contains a 3D shape model in advanced boundary representation;
+
+* 'solid and surface model': The document contains a 3D shape model in surface and
+advanced boundary representation;
+
+* 'assembly': The document contains an assembly structure with reference to the assembled
+components and their transformation matrices;
+
+* 'assembly with mating elements': The document contains an assembly structure including
+the mating components only, such as screws or rivets, with exact positioning information.
+This assembly representation is intended to be overlaid with the assembly structure
+for the main components;
+
+* '2D drawing': The document contains a technical drawing without 3D shape representation;
+
+* 'drawing derived from 3D data': The document contains a technical drawing that
+has been derived from a 3D shape model;
+
+* 'drawing related to 3D data': The document contains a technical drawing that visualizes
+a 3D shape model and possibly establishes associative links to the 3D shape model.
+
+| Language or languages are used in the characterized objects.
+| 'language'
+| e.g., 'English''
+
+| the scale that is used | 'real world scale' | e.g., '1:50'
+|===
+
+==== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-37]]
+.exchange file segment for creation property representation
+[source]
+--
+/* Entities #210 to #250 assign document creation parameters to 'file1' (#80)*/
+#260 = PROPERTY_DEFINITION('document property', '', #80);
+#270 = PROPERTY_DEFINITION_REPRESENTATION(#260, #280);
+#280 = REPRESENTATION('document creation', (#290, #300, #310), #200);
+#290 = DESCRIPTIVE_REPRESENTATION_ITEM('creating system', 'My CAD');
+#300 = DESCRIPTIVE_REPRESENTATION_ITEM('operating system', 'Linux 2.1');
+#310 = DESCRIPTIVE_REPRESENTATION_ITEM('creating interface', 'export driver');
+--
+
+=== ((Document format property))
+
+The format related properties of documents are represented accordingly to the general
+scheme outlined above. To indicate that the property is related to document format
+the used representation must be instantiated with:
+
+[source%unnumbered]
+--
+representation.name = 'document format'
+--
+
+This capability specifies the format of a document object. At least one of the items
+shall be specified for each instance of this property representation. Aspects of
+the format property can be modeled via the following instantiations of
+descriptive_representation_items collected in the above representation.
+
+[cols="a,a,a",options="header,unnumbered"]
+|===
+| requirement | descriptive_representation_item.name | Descriptive_representation_item.description
+
+| the convention that was used to structure the information in the characterized
+object
+| 'data format'
+| Where applicable the following values shall be used:
+
+'DXF', 'IGES', 'STEP AP203', 'STEP AP214', 'TIFF CCITT GR4', 'VDAFS', 'VOXEL'
+
+| the character code that is used for the stored data
+| 'character code'
+| Where applicable the following values shall be used:
+
+'US ASCII 7bit', 'ISO LATIN-1', 'EBCDIC', 'binary'
+
+| the dimensions of a physical presentation
+| 'size format' or 'size format standard' where applicable
+| e.g., 'ISO A0', '0.2 x 0.4 x 0.4 meters'
+|===
+
+
+
+==== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-38]]
+.exchange file segment for format property representation
+[source]
+--
+/* Entities #140 to #200 assign document format parameters to 'file1' (#80)
+#140 = PROPERTY_DEFINITION('document property', '', #80);
+#150 = PROPERTY_DEFINITION_REPRESENTATION(#140, #160);
+#160 = REPRESENTATION('document format', (#170, #190), #200);
+#170 = DESCRIPTIVE_REPRESENTATION_ITEM('data format', 'VOXEL');
+#190 = DESCRIPTIVE_REPRESENTATION_ITEM('character code', 'binary');
+#200 = REPRESENTATION_CONTEXT('', 'document parameters');
+--
+
+=== ((Document size property))
+
+The document size related properties of documents are represented accordingly to
+the general scheme outlined above. To indicate that the property is content related
+the used representation must be instantiated with:
+
+[source%unnumbered]
+--
+representation.name = 'document size'
+--
+
+This capability specifies the size of document object. At least one of the items
+shall be specified for each instance of this property representation. The size property
+capability differs from the general scheme in the fact that measure_representation_items
+are instantiated instead of descriptive_representation_items. Aspects of the size
+property can be modeled via the following instantiations of measure_representation_items
+collected in the representation.
+
+==== ((measure_representation_item))
+
+A measure_representation_item is, in the document property context, an element that
+participates in one or more representations to define the respective properties by
+defining measure values with associated units.
+
+*_Attributes_*
+
+* The *_name_* attribute characterizes the information modeled with the measure_representation_item
+via a string.
+
+* The *_value_component_* attribute defines a value as an instantiation of the modeled
+property.
+
+* The *_unit_component_* attribute provides the unit for the size or page counts
+measure.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY measure_representation_item | Attribute Population | Remarks
+
+| name            | type: label = STRING | must be 'file size' or 'page count' in the given context
+| value_component | type: select measure_value = REAL \| -NUMBER
+| to indicate the select type it is recommended to instantiate COUNT_MEASURE(nr) for page numbers and CONTEXT_DEPENDENT_MEASURE(size) for 'file size'
+| unit_component | type: select unit = NAMED_UNIT \| DERIVED_UNIT
+| It is recommended to use a context_dependent_unit as unit component
+|===
+
+*_Preprocessor Recommendations:_* For 'page count' it is recommended to instantiate
+an INTEGER as value_component. For 'file size' it is recommended to instantiate a
+REAL. The related dimensional_exponents should all be set to 0.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-39]]
+.exchange file segment for size property representation
+[source]
+--
+#90 = DOCUMENT_TYPE('');
+#100 = DOCUMENT_FILE('hardcopy', '', $, #90, '', $);
+#110 = DOCUMENT_REPRESENTATION_TYPE('physical', #100);
+#120 = PROPERTY_DEFINITION('document property', '', #100);
+#130 = PROPERTY_DEFINITION_REPRESENTATION(#120, #140);
+#140 = REPRESENTATION('document size', (#150), #200);
+#150 = MEASURE_REPRESENTATION_ITEM('page count', COUNT_MEASURE(1), #170);
+#160 = DIMENSIONAL_EXPONENTS(0.0E+000, 0.0E+000, 0.0E+000, 0.0E+000, 0.0E+000, 0.0E+000, 0.0E+000);
+#170 = CONTEXT_DEPENDENT_UNIT('pages',#160);
+--
+
+=== ((Document source property))
+
+This capability allows the specification of location of a document object in a digital
+or physical data storage system. This capability differs in its instantiation from
+the general document property pattern.
+
+A central idea in capturing this requirement is that the document location comprises
+two components: storage node identification and path information. For digital files,
+for example, the storage item identification is equivalent to the file name, whereas
+the path information might describe the Internet node and directory in which the
+file can be found. The storage item identification is captured in
+applied_external_identification_assignment.assigned_id and the path information is
+mapped onto external_source.source_id.
+
+The attribute identification_role.name is used to specify the mechanism being applied
+to identify the storage item and path information. Typical values for this attribute
+are 'URL' or 'ISBN' in the case of physical documents.
+
+While applied_external_identification_assignment.assigned_id captures the file name,
+the attributes of the entity document_file allow for the specification of a unique
+identifier (attribute id) and nomenclature associated with the document or file (attribute
+name). The identifier is not necessarily the file name.
+
+However, if no document source property is assigned to a document_file, the following
+semantics may apply, depending on business process agreements:
+
+* Document_file.id may specify the file name;
+
+* In this case, document_file.id would suffice to unambiguously identify the document_file.
+In particular, it means that file names are defined in the context of a local directory.
+
+The attribute identification_role.description specifies whether the location is associated
+with a source system, destination system or with some node form which the file or
+document can be retrieved. For example, the name of a given file used in a technical
+data package assembled for exchange purposes may differ from the name for the equivalent
+file in the source system.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The instantiation diagram is shown below in <<diam-41>>.
+
+[[diam-41]]
+.Document source property instance diagram
+image::diam-41.svg[]
+
+==== ((identification_role))
+
+Identification role provides a name and a description for an identification assignment.
+In the context of this capability this entity specifies that the assignment structure
+be used to represent the document source property.
+
+*_Attributes_*
+
+* The *_name_* attribute characterizes the mechanism used to identify the storage
+item and the path information associated with the file or the representation of a
+document. Recommended values are:
+** 'URL',
+** 'FTP',
+** 'ISBN' -- for physical documents,
+** 'Technical Data Package' -- meaning that the location is associated with a technical
+data package being used for data exchange purposes,
+** 'tracking' -- for physical models.
+
+* The *_description_* attribute identifies the context associated with the location
+of the file or document.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY identification_role | Attribute Population | Remarks
+
+| name        | type: label = STRING |
+| description | type: text = STRING  | Must be 'source system','destination system' or 'access context'
+|===
+
+
+
+*_Preprocessor Recommendations:_* Identification_role.description shall be instantiated
+as 'source system', 'destination system' or 'access context'' in the given context.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+==== ((applied_external_identification_assignment))
+
+Applied_external_identification_assignment is used to assign an external source and
+identifier to a set of items.
+
+*_Attributes_*
+
+* The *_assigned_id_* attribute captures the storage node identification.
+
+* The *_role_* attribute specifies the identification_role instance, which captures
+the location context and the mechanism used to express the location.
+
+* The *_items_* attribute is a set of document representations or document files
+for which the document source information is valid.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_external_identification_assignment | Attribute Population | Remarks
+
+| assigned_id | type: label = STRING               |
+| role        | type: entity = IDENTIFICATION_ROLE |
+| items       | type: set of entity = product_definition (for document representations) or document_file
+| document objects for which the document source property applies
+|===
+
+*_Preprocessor Recommendations:_* Applied_external_identification_assignment.assigned_id
+shall be instantiated with meaningful storage node location information of the file,
+document representation or physical module, even if this information is duplicated
+in the document_file attributes id or name.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+==== ((external_source))
+
+An external_source is the identification of a source of product related data. In
+the context of the document source property the external source provides the name
+of the source by which it can be accessed in a storage system.
+
+*_Attributes_*
+
+* The *_source_id_* attribute defines the path information associated with the file
+or document location.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY external_source | Attribute Population | Remarks
+
+| source_id   | type source_item: STRING | specifies the path information
+| description | type text: STRING        | DERIVED: Instantiation of this attribute is not required.
+
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+NOTE: Additional document properties can be defined on an individual basis.
+
+=== Additional Document Properties
+
+Several implementations and pilot projects have identified the requirement to exchange
+additional properties beyond the pre-defined values given above. One example of such
+an additional defined property is that of notation related to a document, originating
+in the AP232.
+
+==== ((Document Notation))
+
+General notation associated with documents are represented accordingly to the general
+scheme outlined above. To indicate that the property is related to document notation
+the used representation must be instantiated with:
+
+[source%unnumbered]
+--
+representation.name = 'notation'
+--
+
+This capability specifies explanatory remarks or notations related to a document
+object that may be useful or informative to a human. An identifier may be associated
+with each note using the attribute descriptive_representation_item.name.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-40]]
+.exchange file segment for document notation property
+[source]
+--
+/* Entities #140 to #200 assign document format parameters to 'file1' (#80)
+
+#140 = PROPERTY_DEFINITION('document property', '', #80);
+#150 = PROPERTY_DEFINITION_REPRESENTATION(#140, #160);
+#160 = REPRESENTATION('notation', (#170), #200);
+#170 = DESCRIPTIVE_REPRESENTATION_ITEM('rc1', 'actual notation text identified by the reference code rc1');
+#200 = REPRESENTATION_CONTEXT('', 'document parameters');
+--
+
+=== ((Document type classification))
+
+The PDM Schema supports the assignment of document type information to documents
+and document files. Type classification of documents is discussed in <<sec-5.1.3;and!sec-6>>.
+The other approach is outlined in the following subsections. In the case of an assignment
+to a document file, the type characteristics apply on an individual basis. The PDM
+Schema does not support the assignment of a classification system relative to which
+the classification has been done.
+
+==== ((Document type classification for document files))
+
+A document_file provides in its attribute _kind_ a pointer to the entity document_type.
+Document_type.product_data_type can be used for the classification of the type of
+the document_file.
+
+===== ((document_type))
+
+*_Attributes_*
+
+* The *_product_data_type_* attribute describes the type of product data represented
+by the document entity.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_type | Attribute Population | Remarks
+
+| product_data_type | type: identifier = string |
+|===
+
+*_Preprocessor Recommendations:_* Where applicable the following values shall be
+used:
+
+* 'geometry': The document file represents a shape model;
+
+* 'NC data': The document file represents numerical control data;
+
+* 'FE data': The document file represents finite element data;
+
+* 'sample data': The document file represents measured data;
+
+* 'process plan': The document file represents process planning data;
+
+* 'check plan': The document file represents quality control planning data;
+
+* 'drawing': The document file represents a technical drawing.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* This entity is required for each instance of the entity document.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-41]]
+.exchange file segment for document type classification related to files
+[source]
+--
+#80 = DOCUMENT_FILE('file1', '', $, #90, '', $);
+#90 = DOCUMENT_TYPE('geometry');
+#100 = DOCUMENT_REPRESENTATION_TYPE('digital', #80);
+--
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-42]]
+.exchange file segment for document type classification for document representations
+[source]
+--
+#50 = APPLICATION_CONTEXT('');
+#70 = PRODUCT_DEFINITION_CONTEXT('digital document definition', #50, '');
+#75 = DESCRIPTION_ATTRIBUTE('geometry',#75);
+#110 = PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS('dig1', 'digital document 1', #10, #70, (#80));
+--
+
+[[ex-43]]
+.complete instantiation example for document properties
+[source]
+--
+ISO-10303-21; HEADER;
+FILE_DESCRIPTION(('Xample file for document properties'), '2;1'); FILE_NAME('', '15.06.1999, 10:39:20', ('N.N.'), (''), '', '', ''); FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC; DATA;
+
+/* entities #10 to #70 represent a managed document with its context
+**/
+#10 = PRODUCT_DEFINITION_FORMATION('1', 'version 1', #20);
+#20 = PRODUCT('doc1', 'cad-model', 'managed document representing a CAD model', (#30));
+#30 = PRODUCT_CONTEXT('', #50, '');
+#40 = PRODUCT_RELATED_PRODUCT_CATEGORY('document', '', (#20));
+#50 = APPLICATION_CONTEXT('');
+#60 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema', 2000, #50);
+#70 = PRODUCT_DEFINITION_CONTEXT('digital document definition', #50, '');
+
+/* Entities #75 to #110 represent the digital document with id 'file1'
+*/
+/* that is associated to the document #20 via #110 */
+#75 = DESCRIPTION_ATTRIBUTE('geometry',#230);
+#80 = DOCUMENT_FILE('file1', '', $, #90, '', $);
+#90 = DOCUMENT_TYPE('geometry');
+#100 = DOCUMENT_REPRESENTATION_TYPE('digital', #80);
+#110 = PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS('dig1', 'digital document 1', #10, #70, (#80));
+
+/* Entities #120 to #130 represent an external hardcopy that is associated */
+/* via the reference #125 to the part view defined by #550 */
+#120 = DOCUMENT_FILE('hardcopy', '', $, #90, '', $);
+#125 = APPLIED_DOCUMENT_REFERENCE(#120,'',(#550));
+#130 = DOCUMENT_REPRESENTATION_TYPE('physical', #120);
+
+/* Entities #140 to #200 assign document format parameters to 'file1' (#80) */
+#140 = PROPERTY_DEFINITION('document property', '', #80);
+#150 = PROPERTY_DEFINITION_REPRESENTATION(#140, #160);
+#160 = REPRESENTATION('document format', (#170, #180, #190), #200);
+#170 = DESCRIPTIVE_REPRESENTATION_ITEM('document format', 'VOXEL');
+#180 = DESCRIPTIVE_REPRESENTATION_ITEM('size format', '5MB');
+#190 = DESCRIPTIVE_REPRESENTATION_ITEM('character code', 'binary');
+#200 = REPRESENTATION_CONTEXT('', 'document parameters');
+
+/* Entities #210 to #250 assign document content parameters to 'file1' (#80) */
+#210 = PROPERTY_DEFINITION('document property', '', #80);
+#220 = PROPERTY_DEFINITION_REPRESENTATION(#210, #230);
+#230 = REPRESENTATION('document content', (#240, #250), #200);
+#240 = DESCRIPTIVE_REPRESENTATION_ITEM('detail level', 'rough 3D shape');
+#250 = DESCRIPTIVE_REPRESENTATION_ITEM('geometry type', 'solid model');
+
+/* Entities #210 to #250 assign document creation parameters to 'file1' (#80)*/
+#260 = PROPERTY_DEFINITION('document property', '', #80);
+#270 = PROPERTY_DEFINITION_REPRESENTATION(#260, #280);
+#280 = REPRESENTATION('document creation', (#290, #300, #310), #200);
+#290 = DESCRIPTIVE_REPRESENTATION_ITEM('creating system', 'My CAD');
+#300 = DESCRIPTIVE_REPRESENTATION_ITEM('operating system', 'Linux 2.1');
+#310 = DESCRIPTIVE_REPRESENTATION_ITEM('creating interface', 'export driver');
+
+/* Entities #210 to #250 assign document format parameters to */
+/* the hardcopy document defined by #120 */
+#320 = PROPERTY_DEFINITION('document property', '', #120);
+#330 = PROPERTY_DEFINITION_REPRESENTATION(#320, #340);
+#340 = REPRESENTATION('document format', (#360), #200);
+#360 = DESCRIPTIVE_REPRESENTATION_ITEM('size format', 'A0');
+
+/* Entities #490 to #640 define the part master data and the association */
+/* of the documents to the part */
+#490 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #500, #510);
+#500 = PRODUCT_RELATED_PRODUCT_CATEGORY('Part', '', (#520));
+#510 = PRODUCT_RELATED_PRODUCT_CATEGORY('Detail', $, (#520));
+#520 = PRODUCT('mp1', 'my_part', '', (#30));
+#530 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', '', (#520));
+#540 = PRODUCT_DEFINITION_FORMATION('1', '', #520);
+#550 = PRODUCT_DEFINITION('ddid', 'design view on my_part', #540, #560);
+#560 = PRODUCT_DEFINITION_CONTEXT('part definition', #50, '');
+#590 = APPLIED_DOCUMENT_REFERENCE(#600, 'equivalence', (#550));
+#600 = DOCUMENT('', '', '', #610);
+#610 = DOCUMENT_TYPE('configuration controlled document version');
+#620 = ROLE_ASSOCIATION(#630, #590);
+#630 = OBJECT_ROLE('obligatory', '');
+#640 = DOCUMENT_PRODUCT_EQUIVALENCE('equivalence', '', #600, #10); ENDSEC;
+END-ISO-10303-21;
+--

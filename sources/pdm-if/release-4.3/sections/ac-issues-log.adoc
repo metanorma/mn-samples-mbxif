@@ -1,0 +1,5 @@
+
+[appendix,obligation="informative"]
+== PDM Schema Issues Log
+
+http://www.pdm-if.org/pdm_schema/pdm12-issues_log.pdf
