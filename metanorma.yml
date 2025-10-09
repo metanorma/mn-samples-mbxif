@@ -11,6 +11,7 @@ metanorma:
       - sources/ewis-if/ts-v4.0/document.adoc
       - sources/mbx-if/gg-v2.0/document.adoc
       - sources/cax-if-jt-if/rp-ap242e3-kinematics-v1.2/document.adoc
+      - sources/pdm-if/release-4.3/document.adoc
 
   collection:
     name: MBx-IF sample documents
