@@ -68,7 +68,6 @@ image::diam-20.svg[]
 
 [[sec-4.1.1.1]]
 ===== ((assembly_component_usage))
-(((assembly_component_usage)))
 
 This entity represents the general relationship between two part master identifications,
 one a definition of a component and the other a definition of the parent assembly.
@@ -129,7 +128,6 @@ relationship.
 
 [[sec-4.1.1.2]]
 ===== ((next_assembly_usage_occurrence))
-(((next_assembly_usage_occurrence)))
 
 This entity is a subtype of assembly_component_usage. It represents a single individual
 occurrence of a component definition as used in an immediate next higher parent assembly.
@@ -248,7 +246,6 @@ assembly structure are shown in <<diam-21>>.
 image::diam-21.svg[]
 
 ===== ((quantified_assembly_component_usage))
-(((quantified_assembly_component_usage)))
 
 This entity is a subtype of assembly_component_usage. When the quantified_assembly_component_usage
 is required, it should be created as an AND instantiation with the next_assembly_usage_occurrence.
@@ -500,7 +497,6 @@ assembly are illustrated in <<diam-23>>.
 image::diam-23.svg[]
 
 ===== ((promissory_usage_occurrence))
-(((promissory_usage_occurrence)))
 
 This entity is a subtype of assembly_component_usage. It represents the usage occurrence
 of a component within a higher-level assembly that is not the immediate parent, in
@@ -605,7 +601,6 @@ multi-level assemblies and digital mockup are illustrated in <<diam-24>>.
 image::diam-24.svg[]
 
 ===== ((specified_higher_usage_occurrence))
-(((specified_higher_usage_occurrence)))
 
 This entity is a subtype of assembly_component_usage. This entity represents the
 specific use occurrence within a higher-level assembly of an individual occurrence
@@ -923,7 +918,6 @@ are illustrated in <<diam-25>>.
 image::diam-25.svg[]
 
 ===== ((mapped_item))
-(((mapped_item)))
 
 The mapped_item allows the use of a representation as a representation_item, e.g.,
 it allows for the definition of representation using other representations.
@@ -955,7 +949,6 @@ specifies the to be mapped representation.
 *_Related Entities:_* None specified.
 
 ===== ((representation_map))
-(((representation_map)))
 
 *_Attributes_*
 
@@ -1066,7 +1059,6 @@ in <<diam-27>>.
 image::diam-27.svg[]
 
 ===== ((context_dependent_shape_representation))
-(((context_dependent_shape_representation)))
 
 A context_dependent_shape_representation associates a shape_representation_relationship
 with a product_definition_shape. In the given context this allows the explicit specification
@@ -1336,7 +1328,6 @@ part identification are illustrated in <<diam-28>>.
 image::diam-28.svg[]
 
 ===== ((alternate_product_relationship))
-(((alternate_product_relationship)))
 
 This entity represents the alternate part relationship. The alternate part is interchangeable
 with the base part in any/all uses - it is a context independent alternate that is
@@ -1418,7 +1409,6 @@ part identification are illustrated in <<diam-29>>.
 image::diam-29.svg[]
 
 ===== ((assembly_component_usage_substitute))
-(((assembly_component_usage_substitute)))
 
 This entity represents the substitute component relationship. The substitute part
 is interchangeable with the base part only in the particular, specified usage - it
@@ -1485,7 +1475,6 @@ part identification are illustrated in <<diam-30>>.
 image::diam-30.svg[]
 
 ===== ((make_from_usage_option))
-(((make_from_usage_option)))
 
 This entity is a subtype of product_definition_usage. The related_product_definition
 represents the raw or semi-finished material, and the relating_product_definition
@@ -1589,7 +1578,6 @@ part identification are illustrated in <<diam-31>>.
 image::diam-31.svg[]
 
 ===== ((product_definition_formation_relationship))
-(((product_definition_formation_relationship)))
 
 This entity generally relates two product_definition_formation instances in a specified
 relationship type - the identification of the relationship type is given in the name
@@ -1689,7 +1677,6 @@ sequence history are illustrated in <<diam-32>>.
 image::diam-32.svg[]
 
 ===== ((product_definition_formation_relationship))
-(((product_definition_formation_relationship)))
 
 Entity generally relates two product_definition_formation instances in a specified
 relationship type - the identification of the relationship type is given in the name
@@ -2014,7 +2001,6 @@ END-ISO-10303-21;
 === ((Known issues))
 
 ==== Item Find Number
-(((Known issues,Item Find Number)))
 
 Legacy AP203 implementations have used the name attribute of the next_assembly_usage_occurrence
 entity to represent the find_number (or position_number) of a part as it appears
@@ -2022,7 +2008,6 @@ on a physical drawing. This conflicts with the AP214 usage of this attribute to 
 single instances from selected instances.
 
 ==== Mirroring of components
-(((Known issues,Mirroring of components)))
 
 Scaling and mirroring shall not be applied in the context of assemblies. However,
 it is common practice in CAD systems to use mirror parts. The PDM-IF is planning
