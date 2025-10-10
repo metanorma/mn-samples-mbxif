@@ -163,7 +163,6 @@ criteria. One product_related_product_category is required to represent product 
 (see <<sec-1.1.3>>).
 
 ===== ((product_definition_formation))
-(((product_definition_formation)))
 
 The product_definition_formation entity represents the identification of a specific
 version of the base product identification. A particular product_definition_formation
@@ -244,7 +243,6 @@ dates related to a product version;
 for a product version.
 
 ===== ((product_definition_formation_with_specified_source))
-(((product_definition_formation_with_specified_source)))
 
 The product_definition_formation_with_specified_source entity is a subtype of the
 entity product_definition_formation. This entity adds the attribute make_or_buy to
@@ -282,7 +280,6 @@ should at a minimum process the information from the supertype entity product_de
 *_Related Entities:_* There are no specific related entities.
 
 ===== ((product_definition))
-(((product_definition)))
 
 The product_definition entity represents the identification of a particular view
 on a version of the product base identification relevant for the requirements of
@@ -430,7 +427,6 @@ The corresponding STEP exchange file encoding is illustrated in <<ex-2>>.
 image::diam-2.svg[]
 
 ===== ((application_protocol_definition))
-(((application_protocol_definition)))
 
 The application_protocol_definition entity represents the identification of the STEP
 Application Protocol (AP) that specifies the scope and extent of the application
@@ -473,7 +469,6 @@ application context for the product data that is being exchanged.
 
 [[sec-1.1.2.2]]
 ===== ((application_context))
-(((application_context)))
 
 The application_context entity identifies the application domain that defined the
 data. The application_context entity may have an identifier associated with it through
@@ -523,7 +518,6 @@ may have concurrent 'manufacturing' and 'design' life-cycle view definitions.
 *_Related Entities:_* There are no specific related entities.
 
 ===== ((product_context))
-(((product_context)))
 
 The product_context entity is a subtype of application_context_element. All STEP
 products must be founded in a product_context to specify the point of view on the
@@ -556,7 +550,6 @@ result in values such as 'mechanical' or 'electrical'.
 
 [[sec-1.1.2.4]]
 ===== ((product_definition_context))
-(((product_definition_context)))
 
 The product_definition_context entity is a subtype of application_context_element.
 All STEP product_definitions must be founded in a product_definition_context to identify
@@ -624,7 +617,6 @@ a product_definition with the 'primary' context information.
 *_Related Entities:_* There are no specific related entities.
 
 ===== ((product_definition_context_association))
-(((product_definition_context_association)))
 
 The product_definition_context_association entity allows for multiple additional
 contexts to be associated with a single product_definition.
@@ -664,7 +656,6 @@ to relate a product_definition with its 'primary' context information.
 *_Related Entities:_* There are no specific related entities.
 
 ===== ((product_definition_context_role))
-(((product_definition_context_role)))
 
 The product_definition_context_role entity provides a role string that is related
 to a product_definition_context_association entity.
@@ -745,7 +736,6 @@ classification are illustrated in <<diam-3>>.
 image::diam-3.svg[]
 
 ===== ((product_related_product_category))
-(((product_related_product_category)))
 
 The product_related_product_category entity is a subtype of product_category.
 It represents the identification of a specific classification applied directly to
@@ -790,7 +780,6 @@ is a part.
 *_Related Entities:_* There are no specific related entities.
 
 ===== ((product_category_relationship))
-(((product_category_relationship)))
 
 The product_category_relationship entity establishes a category-subcategory relationship
 between two product_category entities.

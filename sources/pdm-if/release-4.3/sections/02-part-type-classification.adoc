@@ -30,7 +30,6 @@ part type classification are illustrated in <<diam-5>>.
 image::diam-5.svg[]
 
 ==== ((product_related_product_category))
-(((product_related_product_category)))
 
 The product_related_product_category entity is a subtype of product_category.
 
@@ -95,7 +94,6 @@ as an intermediate node in a classification hierarchy to which no products are d
 assigned.
 
 ==== ((product_category_relationship))
-(((product_category_relationship)))
 
 The product_category_relationship entity establishes a category-subcategory relationship
 between two product_category entities.

@@ -44,7 +44,6 @@ definitions associated with product data are illustrated in <<diam-6>>.
 image::diam-6.svg[]
 
 ===== ((property_definition))
-(((property_definition)))
 
 A property_definition is, in the given context, a property that characterizes a part.
 In the given context, it applies to a product_definition that represents a life cycle
@@ -71,7 +70,6 @@ names for specific properties exist. Preprocessor should use these values where 
 *_Related Entities:_* None specified.
 
 ===== ((property_definition_representation))
-(((property_definition_representation)))
 
 A property_definition_representation is, in the given context, an association between
 a property and its representation.
@@ -112,7 +110,6 @@ value' to indicate that the representation relates to a property value.
 *_Related Entities:_* None specified.
 
 ===== ((representation_context))
-(((representation_context)))
 
 The representation_context defines the context of interpretation for the values of
 items in a representation.
@@ -138,7 +135,6 @@ items in a representation.
 *_Related Entities:_* None specified.
 
 ===== ((measure_representation_item))
-(((measure_representation_item)))
 
 A measure_representation_item is, in the property context, a value element that participates
 as an item in one or more representations to define the respective properties.
@@ -204,7 +200,6 @@ property identification are illustrated in <<diam-7>>.
 image::diam-7.svg[]
 
 ===== ((General_property))
-(((General_property)))
 
 A general_property identifies a property type/classification independently of the
 association of a definition of that type of property to product data.
@@ -241,7 +236,6 @@ to a property_definition is not mandatory.
 to the characterized property_definition.
 
 ===== ((general_property_association))
-(((general_property_association)))
 
 A general_property_association associates a given property with a general_property
 in order to collect property definitions of the same type. The entity also carries
@@ -285,7 +279,6 @@ for the part definition that is described by the property.
 and a general_property.
 
 ===== ((general_property_relationship))
-(((general_property_relationship)))
 
 A general_property_relationship asserts a relationship between two independently
 identified general property identifications. A typical example of the use of this
@@ -386,7 +379,6 @@ of time during which a given object is used or will last. For duration propertie
 property_definition.name *= 'duration property'* shall be used.
 
 ===== ((descriptive_representation_item))
-(((descriptive_representation_item)))
 
 A descriptive_representation_item is in the property context a textual element that
 participates in one or more representations to define the respective properties.
@@ -473,7 +465,6 @@ property identification are illustrated in <<diam-8>>.
 image::diam-8.svg[]
 
 ===== ((product_definition_shape))
-(((product_definition_shape)))
 
 Product_definition_shape represents the shape of a product. The shape may be a conceptual
 shape for which a specific geometric representation is not required.
@@ -496,7 +487,6 @@ attached
 *_Related Entities:_* None specified.
 
 ===== ((shape_definition_representation))
-(((shape_definition_representation)))
 
 A shape_definition_representation links the definition of a shape, i.e., the product_definition_shape, with its representation, i.e., a shape_representation. For a given product_definition_shape alternative representations might be given by multiple occurrences of shape_definition_representation that each link a representation to one product_definition_shape.
 
@@ -527,7 +517,6 @@ using _name_attribute_.attribute_value.
 *_Related Entities:_* None specified.
 
 ===== ((shape_representation))
-(((shape_representation)))
 
 Shape_representation is a subtype of representation that is specifically used to
 represent shape information. The shape information represented is either the complete
@@ -572,7 +561,6 @@ property of an identified portion of a part shape) or an instance of product_def
 representing the complete shape of a part.
 
 ===== ((geometric_representation_context))
-(((geometric_representation_context)))
 
 The geometric_representation_context defines the coordinate space in which the geometric
 model defined by a shape_representation resides.
@@ -606,7 +594,6 @@ with 'external'.
 for the use by shape_representations.
 
 ===== ((geometric_representation_item))
-(((geometric_representation_item)))
 
 Geometric_representation_items are items for product data representation with the
 additional meaning of having geometric context. Geometric_representation_items are
@@ -634,7 +621,6 @@ be instantiated.
 to define transformation information.
 
 ===== ((axis2_placement_3d))
-(((axis2_placement_3d)))
 
 Axis2_placement_3d is a geometric_representation_item that specifies the location
 and orientation in three-dimensional space of two mutually perpendicular axes.
@@ -707,7 +693,6 @@ property identification are illustrated in <<diam-9>>.
 image::diam-9.svg[]
 
 ===== ((shape_aspect))
-(((shape_aspect)))
 
 An instance of shape_aspect is used to identify a portion of a part shape. To this
 portion of the part shape properties can be associated with the portion. Typically
@@ -913,7 +898,6 @@ shape representations is illustrated in <<diam-12>>.
 image::diam-12.svg[]
 
 ===== ((shape_representation_relationship))
-(((shape_representation_relationship)))
 
 The entity shape_representation_relationship_is a subtype of representation_relationship.
 The subtype adds specific local constraints that ensures that it defines a relationship
@@ -952,7 +936,6 @@ specified further by the relation type indicated by the attribute shape_represen
 *_Related Entities:_* None specified.
 
 ===== ((representation_relationship_with_transformation))
-(((representation_relationship_with_transformation)))
 
 The entity representation_relationship_with_transformation_is a subtype of representation_relationship.
 The subtype adds the attribute transformation_operator as a reference to a transformation.
@@ -1094,7 +1077,6 @@ in <<diam-14>>.
 image::diam-14.svg[]
 
 ===== ((item_defined_transformation))
-(((item_defined_transformation)))
 
 An item_defined_transformation models a transformation performed by defining two
 representation_items before and after applying the transformation function The transformation
@@ -1160,7 +1142,6 @@ is possible.
 image::diam-17.svg[]
 
 ===== ((cartesian_transformation_operator))
-(((cartesian_transformation_operator)))
 
 Cartesian_transformation_operator defines a geometric transformation composed of
 translation and rotation. Mirroring and scaling should not be used in the context
@@ -1408,13 +1389,11 @@ image::diam-19.svg[]
 === ((Known issues))
 
 ==== Material properties
-(((Known issues,Material properties)))
 
 Some application protocols such as AP214 use specific subtypes to specify material
 properties. These subtypes are currently not included in the PDM Schema.
 
 ==== Mapping of part properties in AP 214
-(((Known issues,Mapping of part properties in AP 214)))
 
 The requirement to represent properties for parts is in AP214 always mapped onto
 an AIM structure that extends the property_definition tree with a general_property.
