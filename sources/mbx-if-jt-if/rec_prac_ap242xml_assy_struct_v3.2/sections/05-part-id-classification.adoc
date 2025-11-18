@@ -1,0 +1,1259 @@
+[[cls-5]]
+== Part Identification and Classification
+
+The scope of this section corresponds to <<CAX-IF-PSUG,section=1>> and
+<<CAX-IF-PSUG,section=2>>.
+
+The AP242 Domain Model manages industrial products as Parts. An AP242 Domain Model
+conformant data exchange shall include at least one element of type Part.
+
+Identification of Parts in the AP242 Domain Model uses three concepts:
+
+* Part Master Identification,
+* Context Information, and
+* Type Classification.
+
+Part master identification consists of the base part number, a unique part version
+identification, and -- optionally -- the identification of a view definition that describes
+application domain, lifecycle stage and property values. Details are specified in <<cls-5.1>>.
+
+Context information provides scope and environment of interpretation of product identification
+information. Context information may be given locally, that is, for a single XML element,
+such as, for Parts using ViewContext (see PartView in <<cls-5.1.3>> and the "ViewContext"
+template in <<cls-4.6.8>>), or globally for the entire physical file using the element
+ExchangeContext for stating the organization that owns all identifiers in the data set (see
+template in <<cls-4.6.1>>).
+
+For Part classification the AP242 Domain Model distinguishes the following two approaches:
+
+* Type classification
+** An identified Part may be placed into one or several of the following categories:
+'piece part', 'product', 'software', 'assembly', 'tool', or 'raw material'. These values
+are set in the attribute Part.PartTypes; see <<cls-5.1.1>>.
+
+* General classification
+** Parts may need to be classified according to a classification system with explicit
+reference to classification criteria and related properties. For example, pumps
+may be classified according to their principle of working and their capacity. Such
+classification is enabled by the attribute Part.ClassifiedAs; see <<cls-5.1.1>>. Thus,
+a Part may be linked to an extensive and already existing classification system.
+
+These three concepts are represented in a data exchange by attributes of the three main
+information elements in each of the two templates "Part" and "Assembly".
+
+[[cls-5.1]]
+=== Templates "Part" and "Assembly"
+
+To enable independent use of Parts and Assemblies both a "Part" template and an "Assembly"
+template are specified here. They support the ability to uniquely identify Parts and
+Assemblies including their metadata and properties. This backbone of the AP242 information
+model consists in the AP242 Domain Model of the following structurally distinct data types as
+also shown in <<fig-22;and!fig-23>>:
+
+* Part,
+* PartVersion and,
+* PartView respectively AssemblyDefinition.
+
+The representations of the Part and PartVersion concepts are identical for both the "Part" and
+the "Assembly" templates; only on the third level of detail they differ, that is, below
+PartVersion, as shown in <<fig-22;and!fig-23>> below.
+
+The Part maintains information common to all Part versions and disciplines and/or life-cycle
+views. It contains the base Part number and name. The base number should not be subject to
+any encoding of information into a single complex parseable string.
+
+The version information may represent a design revision or iteration in a design cycle of a
+part. The Part version collects and, thus, relates all information among all associated
+disciplines and life-cycle view definitions.
+
+Part, PartVersion and PartView, respectively AssemblyDefinition, shall be written to the
+XML-file using containment. The information elements in the white area on the left side of
+<<fig-22;and!fig-23>> are root elements and are, thus, outside of the containment blocks.
+
+[[fig-22]]
+.Template "Part"
+image::img38.png[]
+
+[[fig-23]]
+.Template "Assembly"
+image::img39.png[]
+
+[[cls-5.1.1]]
+==== Part
+
+The Part entity represents the part master base information. This entity collects all
+information that is common among the different versions and views of the part. The part
+number is strictly an identifier. It should not be used as a 'smart string' with some
+parseable internal coding scheme, e.g., to identify version or classification information.
+
+The Part number identifier shall be unique within the scope of the business process of the
+information exchange. This is typically not a problem when the product data is only used
+within a single company. If the data is being assembled for external use, the identification
+must be interpreted as unique within that broader domain. Processors may need to evaluate
+more than one string (i.e., more than only Part.id) to establish unique identification of the
+Part. The "Identifier" template provides a combination of parameters including
+Identifier.idRoleRef and Identifier.idContextRef that make Part identification unique.
+
+The following XML-snippet is an example from a physical file that is in accordance to
+<<fig-22>.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000017086CB0">
+  <Id>
+    <Identifier uid="pid--0000000017086CB0--id1" id="as1" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017086CB0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017086CB0--id1">
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+   </Versions>
+</Part>
+<Part uid="p--000000001E5A89F0">
+  <Id>
+    <Identifier uid="pid--000000001E5A89F0--id2" id="plate" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E5A89F0--id2">
+...
+      <Views>
+        <PartView uid="pvv--000000001E5A89F0--id2">
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[tab-27]]
+."Part" Attributes
+[cols="a,a",options=header]
+|===
+| Entity Part attributes
+| Attribute type
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| Name
+| DescriptorSelect
+
+| PartTypes
+| SET[1:?] of PartClassSelect
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| Versions
+| SET[1:?] of PartVersion
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| PartRelationship
+| OPTIONAL SET[1:?] of PartRelationship
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *ClassifiedAs*: the classifications of the Part. The value of this attribute need not be
+specified. Use "Classification" template (see <<cls-4.6.5>>).
+
+* *Description*: an expanded name or text that provides further information about the Part.
+The value of this attribute need not be specified. Use "Description" template
+(see <<cls-4.6.7>>).
+
+* *Id*: the identifier or set of identifiers for the Part, the part number. Use "Identifier"
+template (see <<cls-4.6.6>>).
+
+* *Name*: the nomenclature or common name of the Part. Use "Description" template
+(see <<cls-4.6.7>>).
+
+* *PartTypes*: the category of a Part. PartTypes is a set of one or many strings. As defined
+in the ISO AP242 specification, use ClassString if the value of this element is one or
+several of the following:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| PartTypes
+| Explanation
+
+| 'piece part'
+| a product that is not subject to decomposition from the perspective of a specific application; is also called component
+
+| 'product'
+| a thing or substance produced by a natural or artificial process; may be a piece part, an assembly of piece parts, a tool, an assembly of tools, and raw material
+
+| 'software'
+| a non-tangible product that is an organized collection of computer data and instructions for use by a computer
+
+| 'tool'
+| a product used to manufacture products by applying various manufacturing technologies
+
+| 'assembly'
+| a product that is decomposable into a set of piece parts or other assemblies from the perspective of a specific application
+
+| 'raw material'
+| basic substance in its natural, modified, or semi-processed state, used as an input to a production process that shall result in piece parts and tools
+|===
+
+otherwise use PartCategoryEnum as far as possible, otherwise use Class
+--
+
+* *Versions*: the related variants of the Part; a Part shall have at least one PartVersion.
+
+* *AlternatePartRelationship:* to assign (optionally) an alternate part to this part. For
+more details, refer to <<cls-7.5.1>>.
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the Part. Use the
+"PropertyAssignment" template; see <<cls-6.2>> for details.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_*
+
+* Properties shall only be associated to the Part if they apply in the source PDM system
+to ALL PartVersions (i.e. if the source PDM system has two objects: a part master object
+and a part version object).
+
+* Although some values already recommended for PartTypes are defined in PartCategoryEnum, for
+upward compatibility reasons, their mapping as ClassString is recommended.
+
+*_Postprocessor Recommendation:_*
+
+* If the target PDM system also has a part master object, these properties shall be mapped
+to it and apply to all part versions. If not, they shall be mapped only to those part versions
+that are mentioned for this part in the XML file.
+
+* For upward compatibility reasons: PartCategoryEnum should be also supported.
+
+[[cls-5.1.2]]
+==== PartVersion
+
+The PartVersion element represents the identification of a specific version of the base Part
+identification. A particular PartVersion is always related to exactly one Part. This is why,
+in XML it is embedded within a Part element.
+
+In order to represent the 'make or buy' information as in STEP AP214 AIM, the usage of
+ClassifiedAs attribute is recommended (see ISO Jira Task TCSC410303-909).
+
+*_Preprocessor Recommendations:_*
+
+* For the purpose of the typical CAx data exchange use case of these recommended
+practices, only one view definition (PartView) shall be assigned to each PartVersionandonly
+one version for each part.
+
+* For the purpose of the typical PDM data exchange use case of these recommended
+practices, multiple versions of each part and multiple views of each version may be
+exchanged.
+
+Examples of PartVersion instantiations are in the XML-snippet in <<cls-4.1.2>>.
+
+[[tab-28]]
+."PartVersion" Attributes
+[options=header,cols="a,a"]
+|===
+| Entity PartVersion attributes
+| Attribute type
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| Views
+| OPTIONAL SET[1:?] of PartView
+
+| ActivityAssignment
+| OPTIONAL SET[1:?] of ActivityAssignment
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| ApprovalAssignment
+| OPTIONAL SET[1:?] of ApprovalAssignment
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| DatetimeAssignment
+| OPTIONAL SET[1:?] of DateTimeAssignment
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| EffectivityAssignment
+| OPTIONAL SET[1:?] of EffectivityAssignment
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| OrganizationOrPersonInOrganizationAssignment
+| OPTIONAL SET[1:?] of OrganizationOrPersonInOrganizationAssignment
+
+| PartVersionRelationship
+| OPTIONAL SET[1:?] of PartVersionRelationship
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *ActivityAssignment*: the Activities associated to the PartVersion. The value of this
+attribute need not be specified. Use "Activity" template (see Recommended Practices for
+AP242 Domain Model XML Change Management for details).
+
+* *ApprovalAssignment*: the level of acceptance of the PartVersion. The value of this
+attribute need not be specified. Use "Approval" template (see <<cls-4.6.17>>).
+
+* *ClassifiedAs*: the classifications of the PartVersion. The value of this attribute need not
+be specified except for the 'make or buy' information. Use "Classification" template
+(see <<cls-4.6.5>>).
+
+* *DatetimeAssignment*: the date and time of the creation or update of the PartVersion.
+The value of this attribute need not be specified. Use "DateTime" template
+(see <<cls-4.6.11>>).
+
+* *Description*: the reason for the creation of the version. The value of this attribute need
+not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* *_EffectivityAssignment_*: to assign (optionally) one or multiple Effectivities to the usage
+of the PartVersion. Use the "EffectivityAssignment" template (see
+Recommended Practices for AP242 Domain Model Configuration Management for details).
+
+* *Id*: the identifier or set of identifiers for the PartVersion, the part version number. Use
+IdentifierString type or "Identifier" template (see <<cls-4.6.6>>).
+
+** *_Preprocessor Recommendations:_* If an organization does not version parts, it
+is recommended that the id attribute contains the string '/NULL' to indicate that no version
+information is relevant or intended. In this case only a single PartVersion
+shall be assigned to the Part. The id attribute shall be given the value /ANY if the
+assembly structure of the source system stores only the Part number and
+computes the identifier of the PartVersion at runtime based on parameters, such as,
+latest version and version valid at a given time.
+
+*** NOTE: This technique may reduce the amount of data sent in change
+packages, but it also reduces the ability to track the actual contents of parts
+lists at a particular change level.
+
+** For the purpose of the typical CAx data exchange use case of these
+recommended practices, the use of '/ANY' is not recommended.
+
+** *_Postprocessor Recommendations:_* If the value of the id attribute for a
+PartVersion is the string '/NULL', postprocessors should use this as an indication that the
+sending system or business process does not support versioning of Parts.
+Postprocessors need to recognize an id value of '/ANY' as a generic revision of a Part
+that is involved as a component in an assembly. This is used to indicate that any
+existing revision of the component is valid for use in the parent assembly and that
+the right PartVersion identifier must be computed at runtime.
+
+* *Views*: the set of PartView objects that are defined for the PartVersion.
+
+** Each PartVersion shall have at least one associated PartView. This PartView
+shall represent the mechanical view definition of the part. For this mandatory
+PartView, the SET-type attribute PartView.initialContext.applicationDomain.sameAs
+shall contain the ProxyString type value 'mechanical design'. No other
+instances of PartView of the same PartVersion shall contain this string.
+
+** Other instances of PartView may be associated to the same PartVersion, for
+example, a PartView of the composites representation of the part. A meaningful
+value of PartView.initialContext.applicationDomain.sameAs should be agreed
+between data exchange partners; the list of pre-defined values in <<cls-4.6.8>> may be
+extended by user-defined values.
+
+* *OrganizationOrPersonInOrganizationAssignment*: an organization or person in
+organization with a specific relation to the PartVersion according to the
+OrganizationOrPersonInOrganizationAssignment.role attribute. The value of this attribute need
+not be specified. Use "PersonInOrganization" template (see <<cls-4.6.19>>).
+
+* *PartVersionRelationship*: a PartVersion of the same Part or of a different Part with a
+specific relation to the PartVersion according to the PartVersionRelationship.RelationType
+attribute. The value of this attribute need not be specified. Use "PartVersionRelationship"
+template (see <<cls-5.1.5>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-5.1.3]]
+==== PartView
+
+The PartView entity represents the identification of a particular view on a version of the
+part base identification relevant for the requirements of particular life-cycle stages,
+application domains and user-defined properties. A PartView may be based on an application
+domain and/or a lifecycle stage (e.g., design, manufacturing). A PartView collects product
+data for a specific discipline and lifecycle. More than one PartView may be associated with a
+particular PartVersion, each representing a different view of the Part.
+
+AssemblyDefinition is a subtype of PartView. It is used to associate subordinate components of
+the Part.
+
+The PartView entity enables the establishment of many relationships between Parts and other
+product data concepts, such as, assembly structures, properties (including shape), and
+external descriptions of the product via documents (see <<cls-7.4>>).
+
+*_Preprocessor Recommendations:_*
+
+* The use of PartView entities is not strictly required by rules in the AP242 Domain Model,
+but it is strongly recommended. All PartVersion entities shall have at least one associated
+PartView.
+
+* If a PDM system does not distinguish between PartVersion and PartView, only one PartView
+shall be mapped (having id as unset).
+
+An example of a PartView instantiation is in the XML-snippet in <<cls-4.1.2>>.
+
+[[tab-29]]
+."PartView" Attributes
+[cols="a,a",options=header]
+|===
+| Entity PartView attributes
+| Attribute type
+
+| AdditionalContexts
+| OPTIONAL SET[1:?] of ViewContext
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| DefiningGeometry
+| OPTIONAL GeometricModel
+
+| AuxiliaryGeometry
+| OPTIONAL SET[1:?] of GeometricModel
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| InitialContext
+| ViewContext
+
+| span:gray[InZone]
+| span:gray[OPTIONAL SET[1:?\] of InZone]
+
+| span:gray[InterfaceConnection]
+| span:gray[OPTIONAL SET[1:?\] of InterfaceConnection]
+
+| span:gray[InterfaceDefinitionConnection]
+| span:gray[OPTIONAL SET[1:?\] of InterfaceDefinitionConnection]
+
+| span:gray[MaterialIdentification]
+| span:gray[OPTIONAL SET[1:?\] of MaterialIdentification]
+
+| Occurrence
+| OPTIONAL SET[1:?] of DefinitionBasedOccurrence
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| span:gray[ShapeDependentProperty]
+| span:gray[OPTIONAL SET[1:?\] of ShapeDependentProperty]
+
+| ShapeElement
+| OPTIONAL SET[1:?] of ShapeElement
+
+| span:gray[SurfaceCondition]
+| span:gray[OPTIONAL SET[1:?\] of SurfaceCondition]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[BreakdownVersionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of BreakdownVersionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| DocumentAssignment
+| OPTIONAL SET[1:?] of DocumentAssignment
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| PartViewRelationship
+| OPTIONAL SET[1:?] of PartViewRelationship
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[ViewOccurrenceRelationship]
+| span:gray[OPTIONAL SET[1:?\] of ViewOccurrenceRelationship]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *AdditionalContexts*: the set of ViewContext objects that are relevant context
+descriptions for this PartView in addition to the InitialContext. The AdditionalContexts
+shall not contain the ViewContext that is referenced as the InitialContext. The value of this
+attribute need not be specified. Use "ViewContext" template (see <<cls-4.6.8>>).
+
+* *ClassifiedAs*: the classifications of the PartView. The value of this attribute need not be
+specified except for nested files (see <<cls-9.3>>) and incremental exchange (see
+<<cls-9.4>>). Use "Classification" template (see <<cls-4.6.5>>).
+
+* *DefiningGeometry*: the GeometricModel that provides the shape for the PartView. See
+<<cls-6.1>> for details of instantiating a GeometricModel and linking it to a PartView. The
+value of this attribute need not be specified.
+
+* *AuxiliaryGeometry:* the set of GeometricModels that provide additional shapes for the
+PartView. These additional shapes do not define the primary geometry of a PartView.
+The value of this attribute need not be specified.
+
+* *Description*: text or the set of texts that provide further information about the PartView.
+The value of this attribute need not be specified. Use "Description" template (see
+<<cls-4.6.7>>).
+
+* *Id*: the identifier or set of identifiers for the PartView. The value of this attribute
+need not be specified. Use IdentifierString type or "Identifier" template (see <<cls-4.6.6>>).
+
+** *_Preprocessor Recommendations_*: There is no standard mapping for the id
+attribute of PartView; however, the value should be unique relative to other
+PartViews related to the same PartVersion. The id attribute shall not be
+'overloaded' to include, for example, life-cycle or organizational information; this is
+generally not recommended for the AP242 Domain Model. This attribute should contain
+a unique identifier for the PartView - no additional semantics are associated with
+this attribute.
+
+** *_Postprocessor Recommendations:_* Postprocessors do not need to expect any
+semantics from the id attribute; it is a pure identifying string. The id value --
+possibly composed of several values according to the "Identifier" template - should
+be unique relative to other the identifiers of other PartViews related to the same
+PartVersion.
+
+* *InitialContext*: the ViewContext in which this view of the PartVersion has been designed
+primarily. Use "ViewContext" template (see <<cls-4.6.8>>).
+
+* *Occurrence*: the instantiations of the PartView in a product structure. The element
+Occurrence itself cannot be instantiated. For the purpose of these recommended practices
+only the subtype "SingleOccurrence" (see template in <<cls-7.1>>) shall be used.
+
+* *ShapeElement:* to assign one or many ShapeElement to the PartView. See
+<<AP242-PMI>> for details.
+
+* *DocumentAssignment:* to assign a DocumentVersion to the PartView. See
+<<cls-11.2>> for details.
+
+* *PartViewRelationship*: to assign an assembly link to the PartView. See the restrictions
+to the use of this construct in the <<cls-7.4>>.
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the PartView. Use the
+"PropertyAssignment" template; see <<cls-6.2>> for details.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+[[cls-5.1.4]]
+==== AssemblyDefinition
+
+The AssemblyDefinition is a definition of a PartVersion that associates subordinate components
+to this PartVersion. It is a subtype of PartView and inherits, thus, all its attributes. As
+for PartViews, occurrences can be derived from AssemblyDefinition, properties, such as, shape,
+can be assigned to it and documents may be associated with it.
+
+Components are added to an AssemblyDefinition by NextAssemblyOccurrenceUsage
+
+An example of an AssemblyDefinition instantiation is in the XML-snippet in <<cls-7.1>>.
+
+*_Preprocessor Recommendations:_* single parts (having no component parts beyond them),
+shall not be mapped as AssemblyDefinition, but rather as PartView.
+
+[[tab-30]]
+."AssemblyDefinition" Attributes, including attributes inherited from "PartView"
+[cols="a,a",options=header]
+|===
+| Entity AssemblyDefinition attributes
+| Attribute type
+
+| AdditionalContexts
+| OPTIONAL SET[1:?] of ViewContext
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| DefiningGeometry
+| OPTIONAL GeometricModel
+
+| AuxiliaryGeometry
+| OPTIONAL SET[1:?] of GeometricModel
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| InitialContext
+| ViewContext
+
+| span:gray[InZone]
+| span:gray[OPTIONAL SET[1:?\] of InZone]
+
+| span:gray[MaterialIdentification]
+| span:gray[OPTIONAL SET[1:?\] of MaterialIdentification]
+
+| Occurrence
+| OPTIONAL SET[1:?] of DefinitionBasedOccurrence
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| span:gray[ShapeDependentProperty]
+| span:gray[OPTIONAL SET[1:?\] of ShapeDependentProperty]
+
+| span:gray[ShapeElement]
+| span:gray[OPTIONAL SET[1:?\] of ShapeElement]
+
+| span:gray[SurfaceCondition]
+| span:gray[OPTIONAL SET[1:?\] of SurfaceCondition]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[BreakdownVersionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of BreakdownVersionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| DocumentAssignment
+| OPTIONAL SET[1:?] of DocumentAssignment
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PartViewRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PartViewRelationship]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| ViewOccurrenceRelationship
+| OPTIONAL SET[1:?] of ViewOccurrenceRelationship
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+
+| AssemblyType
+| OPTIONAL ClassSelect
+
+| KinematicMechanismAssociation
+| OPTIONAL SET OF KinematicMechanismAssociation
+
+| MotionModelAssociation
+| OPTIONAL SET OF MotionModelAssociation
+|===
+
+*_Attribute recommendations_*
+
+* *AssemblyType*: the kind of the AssemblyDefinition. The value of this attribute need not be
+specified. The following are examples of recommended AssemblyType values:
+
+** 'functional assembly',
+** 'manufacturing assembly',
+** 'design assembly'.
+
+* *ViewOccurrenceRelationship*: to assign an assembly link to the PartView. Use the
+"SingleOccurrence" template (see <<cls-7.1>> for details)
+or "SpecifiedOccurrence" template (see <<cls-7.2>> for details).
+
+* In addition, all attributes and attribute recommendations for PartView apply.
+
+* *KinematicMechanismAssociation:* to assign (optionally) one or multiple Mechanisms to the
+AssemblyDefinition. Use the "Mechanism" template (see Recommended Practices for
+AP242 Domain Model XML Kinematics for details).
+
+* *MotionModelAssociation*: to assign (optionally) one or multiple Kinematic Motions to the
+AssemblyDefinition. Use the "LinkMotionAlongPath" template (see Recommended Practices
+for AP242 Domain Model XML Kinematics for details).
+
+[[cls-5.1.5]]
+==== PartVersionRelationship
+
+Used to relate several versions of the same part:
+
+[%unnumbered]
+image::img40.png[]
+
+or of different parts.
+
+[[fig-24]]
+.Template "PartVersionRelationship"
+image::img41.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000017D374A0">
+  <Id>
+    <Identifier uid="pid--0000000017D374A0--id1" id="as1" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+  <Name>
+    <CharacterString>as1</CharacterString>
+  </Name>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017D374A0--id1">
+...
+       <Id id="A.1"/>
+...
+       <PartVersionRelationship uid="pvr--1">
+         <Related uidRef="pv--0000000017D374A0--id2"/>
+         <RelationType>
+           <ClassString>sequence</ClassString>
+         </RelationType>
+       </PartVersionRelationship>
+     </PartVersion>
+     <PartVersion uid="pv--0000000017D374A0--id2">
+...
+       <Id id="A.2"/>
+...
+     </PartVersion>
+   </Versions>
+</Part>
+----
+
+[[tab-31]]
+."PartVersionRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity PartVersionRelationship attributes
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| Related
+| PartVersion
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *Id*: the identifier or set of identifiers for the PartVersionRelationship. The value of
+this attribute need not be specified. Use IdentifierString type or "Identifier" template
+(see <<cls-4.6.6>>).
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type if one of the values
+below is used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the ISO AP242
+Specification, where applicable, the following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| RelationType |
+
+| 'derivation'
+| The business object defines a deriving relationship where the related PartVersion is based on the relating PartVersion which is an earlier version of the same or of a different Part
+
+| 'hierarchy'
+| The business object defines a hierarchical relationship where the related PartVersion is a subordinate version of the relating PartVersion
+
+| 'sequence'
+| The business object defines a version sequence where the relating PartVersion is the preceding version of the related PartVersion that is the following version. For a given PartVersion there shall be at most one PartVersionRelationship of this relationType referring to this PartVersion as 'relating' and at most one PartVersionRelationship of this relationType referring as 'related'.
+
+The Part associated to the Relating/Related PartVersions shall be the same.
+
+| 'supplied item'
+| The business object defines a relationship between two PartVersion objects representing the same object in different organizational contexts, but having different contents (for example full assembly structure at the supplier and single part at the OEM
+
+| 'alternative'
+| The business object defines a relationship where the related PartVersion is an alternative to the relating PartVersion (not symmetric)
+
+ISO Jira Task TCSC410303-1308 has been created to add a new subtype of PartVersionRelationship called AlternatePartVersionRelationship (similar to AlternatePartRelationship) or to define 'alternative part version relationship' as RelationType
+
+| 'mirrored'
+| The business object defines a relationship where the relating PartVersion is mirrored from the related (original) PartVersion (see <<cls-7.7>>)
+
+| 'alternate shape'
+| The business object defines a relationship where the relating PartVersion defines an Alternative Instance Shape of the related PartVersion (for example in case of Flexible Part, see <<cls-7.8>>)
+|===
+--
+
+* *_Related_*: the other object of *PartVersion* that is part of the relationship
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the PartVersionRelationship.
+Use the "PropertyAssignment" template; see <<cls-6.2>> for details.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* The relating and the related PartVersions shall be different objects
+
+* In case of RelationType 'alternative', 'mirrored' or 'alternate shape', the relating and the
+related PartVersions shall belong to different Parts, otherwise they shall belong to the
+same Part.
+
+* In case of RelationType 'alternative', if the relation is symmetric in the source
+
+* [strike]#In case of RelationType 'alternative', Either the Id of all the
+PartVersionRelationships having the same Relating PartVersion shall have all the same value
+(or all being unset), or they shall have a unique value.#
+
+* PDM system, then a reverse-relationship shall state that it applies in both directions.
+
+* If there are more than one alternate part involved, a 'star' structure from the base
+PartVersion to each alternate PartVersion shall be mapped (this star maps the semantic, that
+there is a base PartVersion and a number of alternate PartVersions. All the alternate
+PartVersions are on the same semantical level, but not on the same semantical level than
+the base PartVersion.
+
+* Alternate PartVersions shall have no revision effectivities and their usages shall have no
+occurrence effectivities, since the ones defined on the base part also apply to the alternate
+PartVersions.
+
+* The combination of the base PartVersion and the alternate PartVersion shall be unique.
+
+*_Postprocessor Recommendations:_*
+
+* If the target system does not support alternate PartVersionRelationship, but only
+AlternatePartRelationship (see <<cls-7.5.1>>), it shall check if the same alternate rule
+applies to all versions of the alternate part (mentioned in the XML file) for all versions of
+the base part (mentioned in the XML file) and map them as one instance of
+AlternatePartRelationship. Otherwise, an error shall be returned and the
+PartVersionRelationships shall be ignored.
+
+[[cls-5.1.6]]
+==== Distinction between Identifiers given by OEM and Supplier
+
+The same Parts and Assemblies may be assigned different identifiers by different and
+collaborating organizations, for example, by OEM and by suppliers. To exchange more than one
+identifier many Identifiers shall be used. In the context of Part and Assembly this applies
+specifically to Part.Id, PartVersion.Id, PartView.Id (respectively AssemblyDefinition.id if
+set) and optionally Occurrence.Id.
+
+This example shows that the same part (and its PartVersions) may have a different Identifier
+at an OEM and at its supplier:
+
+[source%unnumbered,xml]
+----
+<Class uid="rl--ii">
+  <Id id="identification information"/>
+</Class>
+<Class uid="rl--eii">
+  <Id id="exchange identification information"/>
+</Class>
+<Organization uid="o--000000178">
+  <Id id="mercedes-benz.com"/>
+  <Name>
+    <CharacterString>Mercedes-Benz</CharacterString>
+  </Name>
+  <OrganizationTypes>
+    <ClassString>company</ClassString>
+  </OrganizationTypes>
+</Organization>
+<Organization uid="o--000000179">
+  <Id id="bosch.com"/>
+  <Name>
+    <CharacterString>Bosch</CharacterString>
+  </Name>
+  <OrganizationTypes>
+    <ClassString>company</ClassString>
+  </OrganizationTypes>
+</Organization>
+<Part uid="p--000000001E60C660">
+  <Id>
+    <Identifier uid="pid--000000001E60C660--id6" id="bolt" idRoleRef="rl--eii" idContextRef="o--000000178"/>
+    <Identifier uid="pid--000000001E60C660--id7" id="BO-bolt" idRoleRef="rl--ii" idContextRef="o--000000179"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E60C660">
+...
+      <Id>
+        <Identifier uid="pid--000000001EAA8110--id6" id="A.1" idRoleRef="rl--eii" idContextRef="pid--000000001E60C660--id6"/>
+        <Identifier uid="pid--000000001EAA8110--id7" id="001,3" idRoleRef="rl--ii" idContextRef="pid--000000001E60C660--id7"/>
+      </Id>
+...
+    </PartVersion>
+...
+  </Versions>
+...
+</Part>
+----
+
+Collaborating partners may mutually agree how many and which identifiers they want to
+exchange. The case that one organization assigns several identifiers to the same instance is
+covered by recommendations for template "Identifier" in <<cls-4.6.6>>.
+
+To avoid being obliged to exchange the full id list for all idContextRefs between the OEM, the
+tier-1 and the tier-n suppliers, the ids having the role 'exchange identification
+information' shall be exchanged (the others become optional) => it is sufficient that each
+exchange partner stores the mapping between the exchange id(s) and his own internal id. For a
+given Identifier, there shall be one or many ids with this value in idRoleRef (over all
+idContextRef values).
+
+If a Part or Assembly is assigned identifiers by different organizations, ownership of the
+Part or Assembly shall be documented using template
+"OrganizationOrPersonInOrganizationAssignment"; see <<cls-4.6.19>>.
+OrganizationOrPersonInOrganizationAssignment.role shall be given
+the value "owner" from <<tab-23>>. Thus, by matching the Organization in
+Identifier.idContextRef with the
+OrganizationOrPersonInOrganizationAssignment.assignedPersonOrOrganization.associatedOrganization
+that plays the role of "owner", the original identifier of a Part or Assembly
+can be uniquely distinct from other identifiers.
+
+The same applies to Document/DocumentVersion/DocumentDefinition and similarly identified
+objects.
+
+[source%unnumbered,xml]
+----
+<Class uid="rl--ii">
+  <Id id="identification information"/>
+</Class>
+<Class uid="rl--eii">
+  <Id id="exchange identification information"/>
+</Class>
+
+<Organization uid="o--000000178">
+  <Id id="mercedes-benz.com"/>
+  <Name>
+    <CharacterString>Mercedes-Benz</CharacterString>
+  </Name>
+  <OrganizationTypes>
+    <ClassString>company</ClassString>
+  </OrganizationTypes>
+</Organization>
+<PersonInOrganization uid="pio--005-TPEVD-Mustermann">
+  <AssociatedOrganization uidRef="o--000000178"/>
+  <AssociatedPerson uidRef="pers--Mustermann"/>
+  <Id>
+    <Identifier uid="pio--005-TPEVD-Mustermann--1" id="005-TP/EVD-Mustermann" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+  <PersonRole>
+    <ClassString>employee</ClassString>
+  </PersonRole>
+</PersonInOrganization>
+
+<Part uid="p--000000001E60C660">
+  <Id>
+    <Identifier uid="pid--000000001E60C660--id6" id="bolt" idRoleRef="rl--eii" idContextRef="o--000000178"/>
+    <Identifier uid="pid--000000001E60C660--id7" id="BO-bolt" idRoleRef="rl--ii" idContextRef="o--000000179"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E60C660">
+...
+      <Id>
+        <Identifier uid="pid--000000001EAA8110--id6" id="A.1" idRoleRef="rl--eii" idContextRef="pid--000000001E60C660--id6"/>
+        <Identifier uid="pid--000000001EAA8110--id7" id="001,3" idRoleRef="rl--ii" idContextRef="pid--000000001E60C660--id7"/>
+      </Id>
+...
+      <OrganizationOrPersonInOrganizationAssignment uid="poa--0000000017D374A0--id1">
+        <AssignedPersonOrOrganization uidRef="pio--005-TPEVD-Mustermann"/>
+        <Role>
+          <ClassString>owner</ClassString>
+        </Role>
+      </OrganizationOrPersonInOrganizationAssignment>
+...
+    </PartVersion>
+...
+  </Versions>
+...
+</Part>
+----

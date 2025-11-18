@@ -1,0 +1,292 @@
+== Scope
+
+[[cls-2.1]]
+=== In Scope
+
+*The following are within the scope of this document:*
+
+* Implementations based on AP242 Edition 3 (2022) Domain Model (ISO 10303-4442) for:
+
+* Basic PDM Capabilities
+
+** Identification concept [Part, Part Version, Part View]
+
+** User Defined Attributes (non-geometric properties)
+
+** Mechanical CAD Assembly Structures
+
+** Component Instances, Placement / Transformations
+
+** Classification
+
+** Document Management
+
+* Identifiers at OEM and supplier
+
+* Customized PDM Information
+
+* Multi-View Product Structure Representation
+
+* CAx-PDM Compatibility
+
+* Geometric and Assembly Validation Properties
+
+* AP242 IS Domain Model XML File Structure
+
+** One XML file for the entire assembly structure ("monolithic" approach)
+
+** One XML file per assembly node and per leaf node part ("nested" / "fully
+shattered" approach)
+
+* External References to files
+
+** STEP Part 21 files (CAx-IF / LOTAR Scope)
+
+** AP242 XML files (for "nested" / "fully shattered" approach)
+
+** ISO 14306 JT files (JT-IF / JT-WF Scope)
+
+** CAD native files (e.g. Creo, NX, CATIA V5/V6...)
+
+** Office and general files (e.g., PDF, JPEG...)
+
+*The following capabilities are included in this document for completeness of the definitions,
+but have not yet been fully tested by the involved Implementor Forums*:
+
+* 5.1.2: Multiple PartVersions within one Part
+
+* 5.1.3: Multiple PartViews within one PartVersion
+
+* 5.1.5: PartVersionRelationship
+
+* 7.2: SpecifiedOccurrence
+
+* 8.2: DocumentDefinitionRelationship
+
+* 8.3: DocumentVersionRelationship
+
+* 9.2: FileRelationship
+
+* 10: DocumentFileProperty
+
+* 11.1: Model splitting and alternative geometries (CAx mapping)
+
+* 11.2: Model splitting and alternative geometries (PDM mapping)
+
+* 12.3: PropertyDefinitionRelationship
+
+* 14.2.2: Groups of customized properties
+
+These sections are defined to the best knowledge of the authors; however, changes based on
+
+implementation feedback are possible once these capabilities are being tested.
+
+[[cls-2.2]]
+=== Out of Scope
+
+*The following are out of scope for this document because they will be covered in other
+documents:*
+
+* CAx-specific Capabilities such as Kinematics, Composites, Wire Harness, etc.
+
+* Advanced PDM Capabilities:
+
+** Configuration, Effectivity, Change Management, ...
+
+* External Element References (into Part 21 files, into JT or between Domain Model XML files):
+planned for section 9.5
+
+* Implementations based on any edition of the AP242 Domain Model (ISO 10303-4442) other than
+Edition 3 (2022).
+
+*The following are out of scope for this document at the moment, because the underlying use
+cases and requirements have not yet been fully described:*
+
+* Address
+
+* Certification
+
+* Contract
+
+* ConstituentPart (including measured, calculated, and estimated / asserted weight for single
+parts and assemblies)
+
+* FrozenAssignment
+
+* InformationUsageRightAssignment
+
+* MaterialPropertyAssignment
+
+* ModelPropertyAssignment
+
+* Subtypes of OccurrenceRelationship (ReplacedUsageRelationship and
+SameTimeMachiningRelationship)
+
+* OrganizationRelationship
+
+* MakeFromRelationship
+
+* QuantifiedOccurrence
+
+* ReplacedPartViewRelationship
+
+* ToolPartRelationship
+
+* PhysicalDocumentDefinition
+
+* Project
+
+* ProjectAssignment
+
+* ProjectRelationship
+
+* PropertyDefinitionAssignment
+
+* SecurityClassificationAssignment
+
+* ShapeElementRelationship
+
+* TimeIntervalAssignment
+
+* Validation Properties for Product Structures and External References
+
+* Document structures
+
+These will be added in later revisions of this document, based on users' needs and testing
+progress.
+
+[[cls-2.3]]
+=== Implementation Changes between AP242 Ed.1 IS and AP242 Ed. 1 TC
+
+For a number of constructs, the implementation changed between the original version of AP242
+and its Technical Corrigendum, i.e., ISO 10303-3001 Ed.1 and Ed.2 respectively. These changes
+became necessary due to deficiencies found in the original definitions of these elements, or
+to lay the foundation for future extensions of the data model.
+
+The changes include structural changes such as embedding and referencing of XML elements
+as well as technical changes such as new element types or changed definition of attributes.
+Several of these changes are incompatible ones, but have been agreed to by all stakeholders,
+nonetheless.
+
+The list below provides an overview for the necessary implementation changes to support
+AP242-TC in scope of this document:
+
+* Change of the URL of the AP242 XSD (from IS to TC) (see <<cls-1.1.2;and!cls-4.1.6>>)
+
+* Introduction of RepresentationContext (as supertype of GeometricCoordinateSpace) and
+embedding of the Representations and referencing RepresentationItems embedded in
+the Representations
+
+** This affects the Full Positioning Representations (see <<cls-7.3.2>>), the CentreOfMass
+(see <<cls-13.1.2>>) as well as the Kinematics features (see Recommended Practices for AP242
+Domain Model XML Kinematics for details)
+
+** Since the EXPRESS schema misses RepresentationContext.Items, it is not possible to export
+CentreOfMass as XML out of an EXPRESS based preprocessor.
+
+* Introduction of PartView.auxiliaryGeometry for the mapping of alternate Models (see
+<<cls-11.1;and!cls-11.2>>)
+
+* Introduction of GeneralGeometricRepresentationRelationship as subtype of
+GeometricRepresentationRelationship for the mapping of model splitting (see
+<<cls-11.1;and!cls-11.2>>)
+
+* idRoleRef now mandatory in the XSD (as already mandatory in the EXPRESS Schema)
+
+* enhanced semantical type checking in the XSD (fix of some key and keyref definitions)
+
+* Header.Documentation now as LIST (see <<cls-4.1.5>>)
+
+* ShapeElement is no root object anymore
+
+* Fix of the modeling of SpecifiedOccurrence (see <<cls-7.2>>)
+
+* Improvements of the specification of XSD derivation from EXPRESS (see <<annex-A>>)
+
+* CentreOfMass.CentrePoint (of type CartesianPoint) not anymore embedded but referenced (now
+embedded into RepresentationContext.Items)
+
+[[cls-2.4]]
+=== Implementation Changes between AP242 Ed.1 TC and AP242 Ed.2
+
+For a number of constructs, the implementation changed between the Ed.1 and Ed.2, i.e., ISO
+10303-3001 Ed.2 and ISO 10303-4442 Ed.1. These changes became necessary due to deficiencies
+found in the original definitions of these elements, or to lay the foundation for future
+extensions of the data model.
+
+The changes include structural changes such as embedding and referencing of XML elements
+as well as technical changes such as new element types or changed definition of attributes.
+Except very few of them, all these changes are upward compatible.
+
+The list below provides an overview for the necessary implementation changes to support AP242
+Ed.2 in scope of this document:
+
+* Change of the URL of the AP242 XSD (see <<cls-1.1.2;and!cls-4.1.6>>)
+
+* New attribute ApprovalAssignment.Role (#6291) (see <<cls-4.6.17;and!cls-14.3>>)
+
+* Attributes PropertyValue.Definition (#6451), PropertyDefinition.Id and
+PropertyDefinition.PropertyType (#6021) now optional (no changes in the Rec. Pracs.)
+
+* New attribute FileLocations in File, parallel to Locations (#6204) (no changes in the
+Rec. Pracs.)
+
+* Type of Part.PartTypes changed from ClassSelect to PartClassSelect => new ENUMERATION type
+PartCategoryEnum (see <<cls-5.1.1>>)
+
+* Type of ViewContext.ApplicationDomain: new ENUMERATION type PredefinedApplicationDomainEnum
+added to ApplicationDomainSelect (see <<cls-4.6.8>>).
+
+* Type of PropertyValue.Definition: new ENUMERATION type PropertyDefinitionEnum added to
+PropertyDefinitionSelect (see <<cls-4.6.9;and!cls-4.6.10>>).
+
+* PropertyValueAssignment added to Document (#6020) and to DocumentVersion (see <<cls-8.1.1>>)
+
+* Optional attributes ClassLibrary and ContractAssignment added to ExchangeContext (no changes
+in the Rec. Pracs.)
+
+* CartesianTransformation not anymore subtype of DetailedGeometricModelItem => no embedment in
+RepresentationContext (#7537) (see <<cls-7.3.2.2>>)
+
+* Type of PartView/ProductConfiguration.Occurrence changed from DefinitionBasedOccurrence
+(*Single* and QuantifiedOccurrence) to Occurrence (embraces also SpecifiedOccurrence) (see
+<<cls-5.1.3>>) (rollbacked in Ed3)
+
+* NextAssemblyOccurrenceUsage.Placement is now a *_SET OF_* TransformationSelect (#8080)
+(see <<cls-7.1>>)
+
+* New EXPRESS attributes Items and Representations in RepresentationContext (to be compliant
+to the (unchanged) XSD) (no changes in the Rec. Pracs.)
+
+* Alphabetical order of AssemblyViewRelationshipSubstitution in AssemblyViewRelationship
+changed (#6273, #6904) (see <<cls-7.4>>)
+
+* Embedment of SpecifiedOccurrence into Occurrence renamed and retyped from
+SpecifiedOccurrence to Occurrence (see <<cls-7.1>>) (rollbacked in Ed3)
+
+* Changes in the specification of XSD derivation from SysML (instead of EXPRESS) =>
+see <<annex-A>>
+
+[[cls-2.5]]
+=== Implementation Changes between AP242 Ed.2 and AP242 Ed.3
+
+Some smaller changes which could not be submitted in time for Ed.2 have been added within a
+Minor Revision published as Ed.3.
+
+All these changes are upward compatible.
+
+The list below provides an overview for the necessary implementation changes to support AP242
+Ed.3 in scope of this document:
+
+* In NextAssemblyOccurrenceUsage.Placement, _SET OF_ TransformationSelect is renamed to
+_SET OF_ TransformationAndAssociationSelect (no change of content) (see <<cls-7.1>>)
+
+* PropertyValueAssignment added to AssemblyOccurrenceRelationshipSubstitution (#8183)
+(see <<cls-7.5.2>>)
+
+* Rollback of the Ed2 change "Embedment of SpecifiedOccurrence into Occurrence renamed and
+retyped from SpecifiedOccurrence to Occurrence" (see <<cls-7.1>>)
+
+* Rollback of the Ed2 change "Type of PartView/ProductConfiguration.Occurrence changed from
+DefinitionBasedOccurrence (Single and QuantifiedOccurrence) to Occurrence (embraces also
+SpecifiedOccurrence)" (see <<cls-5.1.3>>)

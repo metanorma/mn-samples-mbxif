@@ -1,0 +1,78 @@
+= Recommended Practices for STEP AP242 Edition 3 Domain Model XML Product & Assembly Structure
+:doctype: general-guidelines
+:docidentifier: MBx-IF/JT-IF Recommended Practices
+:committee: MBx-IF/JT-IF
+:committee-type: technical
+:version: 3.2
+:revdate: 2024-01-11
+:copyright-holder: MBx Interoperability Forum / JT Implementor Forum
+:mn-document-class: mbxif
+:fullname: Jochen Boy
+:affiliation: PROSTEP AG
+:email: jochen.boy@prostep.com
+:fullname_2: Phil Rosché
+:affiliation_2: ACCR, LLC.
+:email_2: phil.rosche@accr-llc.com
+:fullname_3: Frédéric Darré
+:affiliation_3: Airbus Operations
+:email_3: frederic.f.darre@airbus.com
+:fullname_4: Guillaume Hirel
+:affiliation_4: T-Systems
+:email_4: guillaume.hirel@t-systems.com
+:fullname_5: Jochen Haenisch
+:affiliation_5: Jotne EPM
+:email_5: jochen.haenisch@jotne.com
+:language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+include::sections/00-doc-history.adoc[]
+
+include::sections/01-intro.adoc[]
+
+include::sections/02-scope.adoc[]
+
+include::sections/03-reference-to-rp.adoc[]
+
+include::sections/04-basic-concepts.adoc[]
+
+include::sections/05-part-id-classification.adoc[]
+
+include::sections/06-part-properties.adoc[]
+
+include::sections/07-part-structure-relationships.adoc[]
+
+include::sections/08-doc-id-classification.adoc[]
+
+include::sections/09-external-files.adoc[]
+
+include::sections/10-doc-file-properties.adoc[]
+
+include::sections/11-doc-file-assoc-to-pd.adoc[]
+
+include::sections/12-pdm-properties.adoc[]
+
+include::sections/13-validation-properties.adoc[]
+
+include::sections/14-exchange-of-customized-pdm-info.adoc[]
+
+include::sections/15-multiview-prod-struc-representation.adoc[]
+
+include::sections/16-cax-pdm-compatibility-guide.adoc[]
+
+include::sections/17-outlook.adoc[]
+
+include::sections/18-list-of-templates.adoc[]
+
+include::sections/aa-xml-schema-derivation.adoc[]
+
+include::sections/ab-known-issues.adoc[]
+
+include::sections/ac-bibliography.adoc[]
+
+include::sections/ad-conversion.adoc[]
+
+include::sections/ae-rec-for-the-definition-of-units.adoc[]

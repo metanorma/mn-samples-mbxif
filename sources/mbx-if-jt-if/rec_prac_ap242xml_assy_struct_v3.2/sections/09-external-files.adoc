@@ -1,0 +1,2133 @@
+[[cls-9]]
+== External Files
+
+In the same way than in <<CAX-IF-PSUG,section=7>>, the aim of this section
+is to map simple external references to a named file.
+
+Referencing a specific element within the file (External Element References or EER) is not in
+scope of this document. It is planned for AP242 Edition 4 in the section 9.6.
+
+Depending on the business use case, this can be (reusing the terminology
+defined in the <<CAX-IF-ER>>):
+
+* so-called 'Classic' or 'Basic' references:
+
+** an ISO STEP Part 21 (AP214, AP242) file containing the geometry of a part
+
+** an ISO JT file containing the light-weight visualization of a part
+
+** any further standard geometry format (VDAFS, IGES, ...)
+
+** any proprietary geometry format (CATIA V4, V5, V6, ProEngineer, NX, ...)
+
+* so-called 'Extended' or 'Nested' references:
+
+** another AP242 XML file (see "nested" / "fully shattered" <<cls-9.3>>)
+
+[[cls-9.1]]
+=== Template "DigitalFile"
+
+*_Preprocessor Recommendations:_*
+
+The referenced FormatProperties and CreationProperties can be reused within the XML file by
+all DigitalFiles to which they apply. Dito for the Units referenced by the SizeProperties.
+
+If the DigitalFiles are mapped as Documents, the Content, Creation and Format Properties may
+be applied to the DigitalDocumentDefinition instead of the DigitalFile, if these values
+apply to all files associated to the same Document.
+
+If the external files are exchanged in the same directory than the assembly XML file (for
+example within a zip file), ExternalItem.Source can be left unset.
+
+If the PDM representation is used, it is not recommended to reuse the same DigitalFile in
+several Documents via DigitalDocumentDefinition.Files.
+
+*_Postprocessor Recommendations:_*
+
+Analogous to the mechanism described in <<CAX-IF-ER>>:
+
+* the name of the target file is to be expected in ExternalItem.Id
+
+* if ExternalItem does not exist, evaluate DigitalFile.Id (defined as OPTIONAL in the schema,
+it becomes mandatory in this case)
+
+* the general behavior for evaluating ContentProperty, CreationProperty, FormatProperty and
+SizeProperty shall be 'only for information' and shall not cause the postprocessor to stop
+processing if the given content, creation system, format or size is not supported by the
+postprocessor. The postprocessor shall anyway load and import the file correctly.
+
+[[fig-53]]
+.Template "DigitalFile"
+image::img85.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<CreationProperty uid="fcp--V5">
+  <CreatingInterface>COM/FOX V6.1.4</CreatingInterface>
+  <CreatingSystem>CATIA V5 B25 SP0 HF0</CreatingSystem>
+</CreationProperty>
+
+<FormatProperty uid="ffp--STEP">
+  <CharacterCode>
+    <ClassString>ISO 8859-1</ClassString>
+  </CharacterCode>
+  <DataFormat>
+    <ClassString>ISO 10303-242</ClassString>
+  </DataFormat>
+</FormatProperty>
+
+<Unit uid="u--000000003">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>byte</ClassString>
+  </Name>
+  <Prefix>
+    <ClassString>kilo</ClassString>
+  </Prefix>
+  <Quantity>
+    <ClassString>data size</ClassString>
+  </Quantity>
+</Unit>
+<Classification uid="gtc--3">
+  <Class>
+    <ClassString>solid geometry</ClassString>
+  </Class>
+  <Role>geometry type</Role>
+</Classification>
+<File xsi:type="n0:DigitalFile" uid="df--000000001E60C660">
+  <FileContent uid="fc--3">
+    <DetailLevel>
+      <CharacterString>production level</CharacterString>
+    </DetailLevel>
+    <GeometryTypes>
+      <Classification uidRef="gtc--3"/>
+    </GeometryTypes>
+  </FileContent>
+  <FileCreation uidRef="fcp--V5"/>
+  <FileFormat uidRef="ffp--STEP"/>
+  <FileSize uid="fsp--3">
+    <FileSize uid="fspp--3" xsi:type="n0:NumericalValue">
+      <Definition>
+        <PropertyDefinitionString>file size property</PropertyDefinitionString>
+      </Definition>
+      <Name>
+        <CharacterString>file size</CharacterString>
+      </Name>
+      <Unit uidRef=" u--000000003"/>
+      <ValueComponent>2.3</ValueComponent>
+    </FileSize>
+  </FileSize>
+  <FileType>
+    <ClassString>geometry</ClassString>
+  </FileType>
+  <Id>
+    <Identifier uid="dfid--000000001E60C660--18" id="bolt.stp" idContextRef="o--000000178"/>
+  </Id>
+  <Locations>
+    <ExternalItem uid="idal--000000001E60C660--ei">
+      <Id id="bolt.stp"/>
+    </ExternalItem>
+  </Locations>
+</File>
+----
+
+[[tab-61]]
+."DigitalFile" Attributes
+[cols="a,a",options=header]
+|===
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| FileContent
+| OPTIONAL ContentProperty
+
+| FileCreation
+| OPTIONAL CreationProperty
+
+| FileFormat
+| OPTIONAL FormatProperty
+
+| FileLocations
+| OPTIONAL SET[1:?] OF FileLocationIdentification
+
+| FileSize
+| OPTIONAL SizeProperty
+
+| FileType
+| OPTIONAL ClassSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| Locations
+| OPTIONAL SET[1:?] of ExternalItem
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| VersionId
+| OPTIONAL IdentifierSelect
+
+| ActivityAssignment
+| OPTIONAL SET[1:?] of ActivityAssignment
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| ApprovalAssignment
+| OPTIONAL SET[1:?] of ApprovalAssignment
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| DateTimeAssignment
+| OPTIONAL SET[1:?] of DateTimeAssignment
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| FileRelationship
+| OPTIONAL SET[1:?] of FileRelationship
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| OrganizationOrPersonInOrganizationAssignment
+| OPTIONAL SET[1:?] of OrganizationOrPersonInOrganizationAssignment
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provides further information about the
+DigitalFile. The value of this attribute need not be specified. Use "Description" template.
+
+* *_FileContent:_* the kind of geometric data stored into the DigitalFile. The value of this
+attribute need not be specified.
+
+* *_FileCreation:_* details of the context of the creation of the DigitalFile => Reference
+to a CreationProperty. The value of this attribute need not be specified.
+
+* *_FileFormat:_* data format of the DigitalFile => Reference to a FormatProperty. According
+to the CAX-IF recommendation the value of this attribute is mandatory, use
+"FormatProperty" Template (see <<cls-10.1>>) to fulfil it.
+
+* *_FileSize:_* details of the size of the DigitalFile. The value of this attribute need not
+be specified. Use "SizeProperty" template (see <<cls-10.4>>).
+
+* *_FileType:_* type of the DigitalFile => Use ClassString if one of the values below is
+used; otherwise use "Class" Template (see <<cls-4.6.4>>).
++
+--
+According to the ISO AP214 Specification of document_type_property, where applicable,
+the following values shall be used:
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| File Type
+|
+
+| 'catalogue'
+| the File is the catalogue in which the associated object is listed
+
+| 'manual'
+| the File is the handbook that is supplied for the associated object
+
+| 'specification'
+| the File specifies the considerations that lead to the design finally chosen for the associated object
+
+| 'geometry'
+| The file represents a shape model
+
+| 'NC data'
+| The file represents numerical control data
+
+| 'FE data'
+| The file represents finite element data
+
+| 'sample data'
+| The file represents measured data
+
+| 'process plan'
+| The file represents process planning data
+
+| 'check plan'
+| The file represents quality control planning data
+
+| 'drawing'
+| The file represents a technical drawing
+
+| 'structured product data'
+| The document file contains product meta data and data related to product structure. This value shall be used for nested external references, when the referenced document relates to another Domain Model XML file (see <<cls-9.3>>)
+|===
+--
+
+* *_Id:_* the identifier for the DigitalFile. Although optional in the schema, this
+attribute shall be specified. Use "Identifier" template (see <<cls-4.6.6>>).
+
+* *_FileLocations:_* location of the DigitalFile. The value of this attribute need not be
+specified. If empty or unset, the file shall be located in the same directory as the Domain
+Model XML file referencing to it.
+
+* *_Locations:_* alternatives of the identifier and location of the file. The value of this
+attribute need not be specified. If empty or unset, the file shall be located in the same
+directory as the Domain Model XML file referencing to it.
+
+* *VersionId*: the identifier or set of identifiers for the version of the DigitalFile, the
+file version number. Use IdentifierString type. The value of this attribute need not be
+specified.
+
+* *_ActivityAssignment_*: the Activities associated to the DigitalFile. The value of
+this attribute need not be specified. Use "Activity" template (see Recommended Practices for
+AP242 Domain Model XML Change Management for details).
+
+* *ApprovalAssignment*: to assign an Approval to the DigitalFile. Use the "Approval"
+template; see <<cls-4.6.17>> for details. The value of this attribute need not be specified.
+
+* *DateTimeAssignment*: to assign a DateTime to the DigitalFile. Use the "DateTime"
+template; see <<cls-4.6.11>> for details. The value of this attribute need not be specified.
+
+* *FileRelationship*: to relate to another DigitalFile. Use the "FileRelationship"
+template, see <<cls-9.2>>.
+
+* *OrganizationOrPersonInOrganizationAssignment*: to assign an Organization or a
+PersonInOrganization to the DigitalFile. Use the "PersonInOrganization" template; see
+<<cls-4.6.19>> for details. The value of this attribute need not be specified.
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the File. Use the
+"DocumentFileProperty" template; see <<cls-10.5>> for details.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_*
+
+* Using DigitalFile.Locations and ExternalItem.Source, no cyclic structure shall be
+instantiated (in case ExternalItem.Source would be of type Document of DigitalFile). This is
+why the use of IdentifierString is recommended below for ExternalItem.Source).
+
+* The use of Locations rather than FileLocations is recommended. Both should not be set
+at the same time.If multiple versions of a DigitalFile are needed, since DigitalFile.Id and
+DigitalFile.VersionId are in the same object, all versionless attributes of DigitalFile (Id,
+FileFormat, FileType, , ...) shall be redundantly mapped to all versions, including the
+multiple identifiers.
+
+*_Postprocessor Recommendation:_*
+
+For upward compatibility reasons: if Locations is not set, interprete FileLocations instead.
+
+[[tab-62]]
+."ExternalItem" Attributes
+[cols="a,a",options=header]
+|===
+| Entity ExternalItem
+| Attribute type
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| Source
+| OPTIONAL ExternalSourceSelect
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_Id:_* the identifier for the ExternalItem (redundant to DigitalFile.Id).
+Use of IdentifierString type.
+
+* *_Description_*: the text or the set of texts that provides further information
+about the ExtenalItem. The value of this attribute need not be specified.
+Use of "Description" template.
+
+* *_Source_*: the relative path to the file, or an absolute path (for example in the case
+of an URL). Use IdentifierString type. The following symbols shall be used in combination
+with directory names (if needed):
++
+--
+** '/' or '\' to depict the directory structure
+** '.' To depict the current directory ('./' and '.\' are also allowed)
+** '..' to move up to the next higher directory
+
+The value of this attribute need not be specified. If unset, '.' is assumed.
+The use of non-URL absolute paths (like \\servername\.. or c:\... on Windows, or /... on
+Unix/Linux shall be agreed on project basis, since it prerequires that both sender and
+receiver have access to the same file system, which is not a typical use case).
+--
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_*
+
+ExternalItem.Id shall not contain any path information. The path information shall be mapped
+only to ExternalItem.Source.
+
+*_Postprocessor Recommendation:_*
+
+The path shall be extracted from ExternalItem.Source.
+
+[[tab-63]]
+."FileLocationIdentification" Attributes
+[cols="a,a",options=header]
+|===
+| Entity FileLocationIdentification
+| Attribute type
+
+| ExternalId
+| OPTIONAL IdentifierString
+
+| SourceId
+| IdentifierString
+
+| SourceType
+| IdentifierString
+|===
+
+*_Attribute recommendations_*
+
+* *_ExternalId:_* the identifier of the external item (redundant to DigitalFile.Id). Use of
+IdentifierString type. The value of this attribute need not be specified. If the attribute
+is not specified, then SourceId completely specifies the file location.
+
+* *_SourceId_*: the text that identifies the context in which the ExternalId is specified.
+In case of SourceType='URL' or 'FTP', the Source shall store the relative path to the file,
+or an absolute path (for example in the case of an URL). Use IdentifierString type. The
+following symbols shall be used in combination with directory names (if needed):
++
+--
+** '/' or '\' to depict the directory structure
+** '.' To depict the current directory ('./' and '.\' are also allowed)
+** '..' to move up to the next higher directory
+
+The use of non-URL absolute paths (like \\servername\.. or c:\... on Windows, or /... on
+Unix/Linux shall be agreed on project basis, since it prerequires that both sender and
+receiver have access to the same file system, which is not a typical use case).
+--
+
+* *_SourceType:_* the text that identifies the identification scheme of the SourceId.
+The following values are recommended:
+
+According to the ISO AP242 Specification, where applicable, the
+following values shall be used:
+
+[%unnumbered,options=header,cols="a,a"]
+|===
+| SourceType
+|
+
+| 'URL'
+| For a web page
+
+| 'FTP'
+| For an FTP address
+
+| 'ISBN'
+| For physical documents
+|===
+
+[[cls-9.2]]
+=== Template "FileRelationship"
+
+This relationship enables to relate two files.
+
+[[fig-54]]
+.Template "FileRelationship"
+image::img86.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<File xsi:type="n0:DigitalFile" uid="df--000000001EAA8110">
+...
+  <Id>
+    <Identifier uid="dfid--000000001EAA8110--14" id="l-bracket.stp" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <FileRelationship uid="fr--1">
+    <Related uidRef="df--000000001EAE2660"/>
+    <RelationType>
+      <ClassString>sequence</ClassString>
+    </RelationType>
+  </FileRelationship>
+...
+</File>
+
+<File xsi:type="n0:DigitalFile" uid="df--000000001EAE2660">
+...
+  <Id>
+    <Identifier uid="dfid--000000001EAE2660--18" id="bolt.stp" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+</File>
+----
+
+[[tab-64]]
+."FileRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity FileRelationship attributes
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| Related
+| File
+
+| RelationType
+| ClassSelect
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type if one of the
+values below is used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the
+ISO AP242 Specification, where applicable, the following values shall be used:
++
+--
+[%unnumbered,options=header,cols="a,a"]
+|===
+| RelationType
+|
+
+| 'addition'
+| The business object specifies that the related file provides supplementary or collateral information with regard to the information provided by the relating file
+
+| 'copy'
+| The business object defines a relationship where the related file is a copy of the relating file
+
+| 'decomposition'
+| The business object defines a relationship where the related file is one of potentially more sub documents of the relating file
+
+| 'derivation'
+| The business object defines a relationship where the related file is derived from the relating file
+
+| 'peer'
+| The business object specifies that the related file provides required information with regard to that provided by the relating file. The peer document is essential for a complete understanding
+
+| 'reference'
+| The business object defines a relationship where the related file is referenced from the relating
+
+| 'sequence'
+| The business object defines a logical sequence where the related file comes after the relating file.
+
+In case the Id is equal and VersionId of both Files is different, a version sequence is defined.
+
+| 'substitution'
+| The business object defines a relationship where the related file replaces the relating file
+
+| 'translation'
+| The FileRelationship specifies that the related file is generated through a translation process from the relating file
+|===
+--
+
+* *_Related_*: the other object of *File* that is part of the relationship
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-9.3]]
+=== File Structure (monolithic/nested)
+
+Analogous to the mechanism described in <<CAX-IF-ER>>,
+it is possible to exchange the multiple level structure either in one XML file
+(so-called monolithic structure), or to split each part node into a dedicated XML file
+(so-called nested structure).
+
+The so-called '_specified_ Reference' Mechanism is taken over from
+<<VDA4956,chapter=5.5>> and <<VDA4956,annex=D>> (see <<annex-C>>).
+
+NOTE: This mechanism is not meant to be used for incremental data exchange: a nested
+structure shall be exchanged with all its components. It may also be used for the purpose of
+long-term archiving, since each product structure node (and its history) can be archived
+independently from the other product structure nodes. Incremental data exchange is supported
+using the so-called 'Reference' Mechanism of the above VDA recommendation. This mechanism is
+described in the next chapter.
+
+Special attention is needed in the case that the set of information contained in the XML
+files concerning the component parts goes beyond the minimum set of entities and attributes
+needed to define the external reference -- for instance when user defined attributes are
+given as well. In the structure as illustrated in <<fig-55>> below, information concerning
+the Nut part would be stored redundantly in two XML files: the one for the Nut-Bolt Assembly
+and the one for the Rod Assembly. This opens the door for inconsistencies, especially since
+the information for the part is only complete when access the assembly file(s)
+referencing it.
+
+[[fig-55]]
+.Example for not recommended Nested Structure
+image::img87.png[]
+
+[[fig-56]]
+.Example for Nested Structure with additional part-level XML files
+image::img88.png[]
+
+Hence it is recommended in this case to create an additional XML file for every part file,
+which carries all PDM-relevant data for this part in one place. The superordinate assembly
+XML files will reference the part's XML file, which will in turn reference the actual part
+geometry file. <<fig-56>> illustrates the extended file structure.
+
+This mechanism also provides the correct input for Long Term Archiving.
+
+A referenced component is mapped in the XML File of its assembly(s) by:
+
+. mapping a minimum set of entities and attributes (subset of those mapped in the
+component XML file or in the monolithic mapping):
+
+** Part.id with idRoleRef, idContextRef. Name and PartTypes (since mandatory) shall
+be set respectively to dummy values '/NULL' and 'piece part',
+
+** PartVersion.id (or '/ANY' if the right version get computed at runtime by the PDM
+application or during the merge process of the nested files),
+
+** PartView.id (only if multiple views are handled), PartView.InitialContext
+(since mandatory)
+
+** Occurrence.id (to build the referenced part as NextAssemblyOccurrenceUsage into the
+assembly node)
+
+. [[point2]]No further attributes (like descriptions, classifications (except the one
+mentioned in <<point4>>), no assignments of any kind (except to the DigitalFile referencing
+to the component file (see <<point2>>), i.e., no validation properties, ... mapping a
+reference to the component file (AP242 XML file) between the PartView and the DigitalFile
+
+. in case the full positioning representation defined in <<cls-7.3.2>> is used: mapping a
+reference to the component file (AP242 XML file) between the ExternalGeometricModel
+and the DigitalFile, and
+
+. [[point4]]mapping a dedicated Classification
+
+. SingleOccurrences, and all their properties shall be defined in the superordinate
+assembly file, rather than in the part file. Doing so, the part file is independent from
+where and how often it is built into product structures.
++
+--
+[NOTE,type=remark]
+====
+If a SingleOccurrence is defined in the structure, but not used anywhere, it will
+not be mapped into any superordinate assembly file and thus will get lost.
+====
+--
+
+. If no NextAssemblyOccurrenceUsage instance is available for a given
+NextAssemblyViewUsage, the nested file referencing shall be
+performed over NextAssemblyViewUsage.
+
+. If both NextAssemblyOccurrenceUsage and NextAssemblyViewUsage are available for
+a given assembly link, the nested file referencing shall be consistent (i.e. referencing the
+same nested file).
+
+. Further candidates for nesting are PartRelationship (for example
+AlternatePartRelationship), PartVersionRelationship and PartViewRelationship.
+
+[NOTE,type=remark]
+====
+In case multiple ids are available for a referenced component, it is sufficient here to
+mention at least the id having the idRoleRef 'exchange identification information' and to
+exchange all the multiple ids (including the one having the idRoleRef 'exchange
+identification information') only inside the component XML file.
+====
+
+If the identifier (with role 'identification information') gets changed to the role
+'exchange identification information' (for the same idContextRef), for example if a 'made'
+part becomes a 'bought' part, the referencing mechanism should be able to evaluate both
+roles. Otherwise the role would have to be updated in all usages of this part.
+
+It is assumed that even if a part gets more identifiers during his life cycle, the file name
+of the nested reference shall not change (except regarding the version number).
+
+The following mappings still need to be specified. This will done be as testing of nested
+product structures progresses in the PDM-IF. The definitions will be updated accordingly in
+future releases of this document.
+
+. SpecifiedOccurrences: the XML-embedded SpecifiedOccurrences along the attribute
+'Definition' shall also be defined in the superordinate assembly file. Management of
+references along the attribute 'UpperUsage' needs to be defined. In addition, any
+SpecifiedOccurrence that is defined in the structure, but not used anywhere, will get lost
+entirely due to the splitting of the information.
+
+. Multiple PartViews: shall all Views of a PartVersion always be exchanged into one single
+file, of could each PartView be exchanged in a separate file? Both approaches are
+possible. In the latter case, a view identifier must be added to the file name. Requirements
+to be discussed.
+
+. Documents: Since a PDM document can be shared by multiple parts, shall it be
+exchanged as a separate file? This scenario is similar to a part file being shared by
+multiple sub-assemblies as described above, but could lead to an exponential increase of
+references. Requirements and practicality need to be discussed.
+
+. Kinematics: This is described in the Recommended Practices for AP242 Domain Model
+XML Kinematics. Definitions applicable to the product structure in general made in this
+context will be reflected here.
+
+. ProductConfiguration: This is described in the Recommended Practices for AP242
+Domain Model XML Configuration Management. Definitions applicable to the product
+structure in general made in this context will be reflected here.
+
+*_Preprocessor Recommendations:_*
+
+The part-level XML file describes the component part with all its master data. This master
+data should not be included in the assembly XML files placed above to avoid inconsistencies.
+Whether the part-level XML file is needed depends on the use case: in the area of Long-Term
+Archiving, each part needs to be fully defined on its own, with its master data and
+geometry, which requires the additional XML file. For the exchange of an assembly structure
+with plain references to the component parts and no additional PDM information, it is
+optional.
+
+To follow a reference from one XML file to another, the uniqueness of the parts is not
+ensured via the uids of the XML elements in the different XML files (the same part version
+could have a different uid in each XML file where it is defined or referenced), but via the
+*Identifier* elements.
+
+For the purpose of the typical CAx-IF data exchange use case of these recommended practices,
+the use of '/ANY' is not recommended.
+
+All the nested files that describe a product structure shall have the same value in
+ExchangeContext.IdentificationContext.
+
+[[fig-57]]
+.Element Structure for Nested XML File
+image::img89.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Classification uid="gtc-1">
+  <Class>
+    <ClassString>specified reference</ClassString>
+  </Class>
+  <Role>specified reference</Role>
+</Classification>
+<Part uid="p-000000001E720B30">
+  <Id>
+    <Identifier uid="pid-000000001E720B30-id7" id="nut" idRoleRef="rl-ii" idContextRef="o-000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv-000000001E720B30-id7">
+      <Id id="/NULL"/>
+      <Views>
+        <PartView uid="pvv-000000001E720B30-id7">
+          <ClassifiedAs>
+            <Classification uidRef="gtc-1"/>
+          </ClassifiedAs>
+...
+          <DocumentAssignment xsi:type= "n0:DocumentAssignment" uid="da-000000001A304330-id7">
+            <AssignedDocument uidRef="df-000000001E720B30"/>
+            <Role>
+              <ClassString>mandatory</ClassString>
+            </Role>
+          </DocumentAssignment>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<FormatProperty uid="ffp-AP242BOMODEL">
+  <CharacterCode>
+    <ClassString>UTF-8</ClassString>
+  </CharacterCode>
+  <DataFormat>
+    <ClassString>ISO 10303-242 Domain Model XML</ClassString>
+  </DataFormat>
+</FormatProperty>
+<Classification uid="gtc-2">
+  <Class>
+    <ClassString>assembly</ClassString>
+  </Class>
+  <Role>geometry type</Role>
+</Classification>
+<CreationProperty uid="fcp-V5">
+  <CreatingInterface>COM/FOX V6.1.4</CreatingInterface>
+  <CreatingSystem>CATIA V5 B25 SP0 HF0</CreatingSystem>
+</CreationProperty>
+<File xsi:type="n0:DigitalFile" uid="df-000000001E720B30">
+  <FileContent uid="fc-4">
+    <GeometryTypes>
+      <Classification uidRef="gtc-2"/>
+    </GeometryTypes>
+  </FileContent>
+  <FileCreation uidRef="fcp-V5"/>
+  <FileFormat uidRef="ffp-AP242BOMODEL"/>
+  <FileType>
+    <ClassString>structured product data</ClassString
+  </FileType>
+  <Id>
+    <Identifier uid="dfid-000000001E720B30-19" id="nut.stpx" idRoleRef="rl-ii" idContextRef="o-000000178"/>
+  </Id>
+  <Locations>
+    <ExternalItem uid="idal-000000001E720B30-ei">
+      <Id id="nut.stpx"/>
+        </ExternalItem>
+      </Locations>
+    </File>
+----
+
+Unlike in <<cls-11.1;and!cls-11.2>> (CAx vs. PDM representation of DocumentAssignment,
+the references to the intermediate XML files shall not be mapped as a managed document, since
+these are not stored as managed document in the PDM system, but are only created
+during the export process.
+
+[[fig-58]]
+.Example for Nested Structure with altenate parts
+image::img90.png[]
+
+[[fig-59]]
+.Example for Nested Structure with substitute parts
+image::img91.png[]
+
+[[fig-60]]
+.Example for Nested Structure with SpecifiedOccurrences
+image::img92.png[]
+
+*_Preprocessor Recommendations:_*
+
+* If multiple PartVersions of a Part are provided, each PartVersion shall be mapped to a
+separate file
+
+* It is assumed that even if a part gets more identifiers during his life cycle, the file
+name of the nested reference shall not change.
+
+* There is no general recommendation for using the Part.Id to build the file name, but it
+might be the most straightforward way to do it (e.g. <Part.Id>.stpx).
++
+--
+WARNING: Using the Part.Id and the PartVersionId to build the file name implies some
+limitations:
+
+** If the identifier with role 'exchange identification information' gets changed from
+one idContextRef to another), for example if a 'made' part becomes a 'bought'
+part, or if the role 'exchange identification information' is introduced on the
+identifier of an external company, the file name will now use the other identifier having
+the role 'exchange identification information'. This should be avoided in the
+context of Long Term Archiving, where each change in an assembly structure gets
+archived individually: changing the name of the filename will cause a broken
+reference from all assemblies where the changed component is referenced.
+
+** If /ANY is used for referencing the PartVersion.Id (for example to reference a
+standard part, in case of unprecise structure or for AlternatePartRelationship), the
+referenced filename shall not use the PartVersion.Id. The file name containing
+each version of the part shall also not use the PartVersion.Id, since this would
+result in a broken reference. Inconvenient: such a Part cannot be used simultaneously
+in a precise structure (using PartVersion.Id in the Filename) an in an
+unprecise structure (not using the PartVersion.Id in the Filename)...
+
+** Even for precise structures, where a given version of the component gets built
+into an assembly node, it may be meaningful not to use the PartVersion.Id in the
+file name. For example, the Long Term Archiving tool can overtake the choice of
+the right version, storing all of them under the same file name. Another advantage
+is that it allows a part to be used 'precise' in one product structure and 'unprecise'
+in another one.
+
+** Ditto for the naming of the file for the root node: it may be used later in a precise
+/ unprecise structure (not being a root part anymore).
+--
+
+* The ExternalGeometricModel.Id, ExternalGeometricModel.ExternalFile[DigitalFile].Id
+and DigitalFile.Locations[ExternalItem.]Id or
+DigitalFile.FileLocations.ExternalId
+shall have the same value than the name of the AP242 XML file where the component file is
+described. For example:
+
+** NextAssemblyOccurrenceUsage structure is imprecise (use of /ANY):
+nut.stpx without PartVersion.Id
+
+** NextAssemblyOccurrenceUsage structure is precise or multiple versions are
+provided for a given Part: nut-A.1.stpx with PartVersion.Id
+
+* What characters are valid for use in the file name depends on the operating system. A
+typical (but non exhaustive) list of invalid characters is \*/\<>|:?". It is recommended to
+replace invalid characters with an underscore ('_') when creating the file name.
+Some CAD systems have additional restrictions, but CAD files are not .stpx files.
+
+* The location path of the nested files shall be relative paths to the directory of the file
+that contains the nested file reference.
+
+* When re-exporting the model, e.g., after an update, it needs to be ensured that the file
+names are created consistently, in particular for delta-exchange scenarios.
+
+* DigitalFile.VersionId shall not be set
+
+* If all the nested stpx files and the document files are exchanged within an overall
+archive, the compression algorithm used to build the archive shall be compliant to the
+"Recommended Practices for STEP File Compression" from the CAx IF.
+
+* If the product structure mapped in the nested stpx file has one single top level assembly
+node, the name of the overall archive shall be the same as the stpx file of the top-level
+assembly node. This simplifies the analysis for the import tool which doesn't have to go
+through all stpx files to find out the top node.
+
+* The use of compression for single stpx files (exchanged as stpxZ files) is optional. If
+used, it shall comply to the "Recommended Practices for STEP File Compression" from the
+CAx IF.
+
+* No nested stpx file shall be created for a part where the so-called 'Reference' Mechanism
+(as defined in <<cls-9.4.1>>) is used.
+
+*_Postprocessor Recommendations:_*
+
+* If the data is exchanged within an overall archive, and if there is one stpx(Z) file within
+the archive having the same name as the archive itself, this stpx(Z) can be assumed to
+be the only top-level assembly node of the whole data. If not, the top-level assembly
+node(s) have to be found out through scanning all the stpx(Z) files.
+
+* The import status of each file shall be logged in the result report, so that in case of
+problems, the files not imported before can be imported during the next attempt, instead of
+importing the whole structure again.
+
+* In order to detect that any file present in the import directory hasn't been processed (for
+example because its reference from another file was not evaluated or ignored), it is
+recommended to get some statistics like: nb of files found, nb of files processed (in use
+also at the CAx-IF)
+
+* Any file reference that couldn't be resolved (for example because the referenced file
+couldn't be found) should be logged in the result report.
+
+[[cls-9.3.1]]
+==== Handling of nested Relationships
+
+Let's take the example of PartVersionRelationships: according to the ISO definition, the
+'sequence' relationship shall be mapped with Relating as precedessor and Related as
+successor (see <<cls-5.1.5>>).
+
+The 'Related' (successor) PartVersion is not known when releasing/archiving a
+'Relating' (predecessor) PartVersion. The 'sequence' relationship between one PartVersion and
+its successor is only created when the successor PartVersion is created.
+
+In this case, an additional 'Relating' object may be mapped within the nested file of the
+'Related' object. The 'Relating' object shall be mapped as a nested reference, like the
+component parts of an assembly. Here in the nested file of the successor Part, the
+predecessor Part is a nested reference (minimal instantiation) and maps only the
+PartVersionRelationship of kind 'sequence' to the successor Part (fully instantiated).
+
+Other example: if a (non-installed) part gets released together with 5 alternative shape
+parts (Flexible Parts), according to <<cls-5.1.5>>, these PartVersionRelationships shall be
+mapped within the nested file of each of the Flexible Parts. When releasing an additional
+Flexible Part, the nested file of the (non-installed) Part may not be edited, nor is it
+necessary to release it again => the additional PartVersionRelationship shall be mapped to
+the nested file of the 6^th^ Flexible Part like:
+
+[[fig-61]]
+.Special handling of additional 'Related' Parts after archiving/releasing the 'Relating' Part (here example of an additional shape as Flexible Part)
+image::img93.png[]
+
+The decision to map a Relationship to the relating or to the related nested file depends on
+the documentation process of each relationship:
+
+* Does the relationship get changed together with the Relating object? =>
+map the relationship to the nested file of the Relating object
+
+* Does the relationship get changed together with the Related object? =>
+map the relationship to the nested file of the Related object
+
+[[cls-9.4]]
+=== Incremental Data Exchange
+
+The key feature of incremental data exchange is that only a subset of available product data
+is exchanged at a certain time. Incremental data exchange reduces the amount of data to be
+exchanged. This approach supports actual practice in product data exchange where commonly
+after the first data exchange only subsets or additional portions of product data are
+exchanged.
+
+The following examples give an idea of incremental data exchange.
+
+[example]
+An OEM sends or makes available changes of a particular subset of product
+data to be communicated, e.g., new versions of items, documents, geometry, positioning
+information or item properties. Usually, the data set has links to product data, which has
+been already sent before or which will be sent later.
+
+[example]
+A supplier sends an update of data. Usually, the supplier only has a specific
+subset of product data from the OEM's viewpoint that he is allowed to modify.
+
+In these cases, it is feasible to exchange only the modified portion of product data. Another
+reason to exchange only a particular portion of product data is that a supplier should only
+modify and send back the shaft of a gearbox, but he has received the complete gearbox with
+all connected components in order to provide the environmental context.
+
+Incremental data exchange also includes the exchange of administrative product data without
+CAx files and the exchange of single items and their administrative product data without item
+structure.
+
+NOTE: An "incremental data exchange" is different from a "delta exchange". A delta exchange
+implies an exchange of differences only usually with respect to a set of data previously
+sent. That means it is the exchange of results of actions, which have been performed at the
+sender's side and are to be communicated, e.g., "add component 3 and 4 to an assembly" or
+"remove document xyz from the set of describing documents of an item". A delta exchange has
+to be harmonized between two communication partners because change processes usually are
+company specific.
+
+[[cls-9.4.1]]
+==== Reference mechanism
+
+The so-called 'Reference' Mechanism is taken over from <<VDA4956,chapter=5.5>>
+and <<VDA4956,annex=D>>.
+
+NOTE: This mechanism is not meant to be used for nested structures (see previous chapter),
+
+[example]
+An assembly structure is exchanged, but (some) components are only
+referenced and not exchanged including their complete definition at
+the same time.
+
+[example]
+A part may be exchanged, but its assigned document is only referenced.
+
+A reference is a means to identify a single instance or a group of related instances at
+object level. It is applicable to an existing object at sender's and/or receiver's site or
+represents an object as a 'placeholder', i.e., an instance may be referenced at a certain
+time of data exchange if it was exchanged before or if it will be exchanged later on.
+
+A reference object gets classified as 'reference':
+
+part::
+
+Part::: classifiedAs (only if the sender PDM system has a part master object)
+
+PartView::: classifiedAs
+
+document::
+
+Document::: classifiedAs (only if the sender PDM system has a document master object)
+
+DigitalDocumentDefinition::: classifiedAs
+
+A reference object is mapped in the XML File of its assembly(s) by mapping a minimum set of
+entities and attributes. The application of the reference mechanism is recommended for:
+
+part::
+
+Part::: id with idRoleRef, idContextRef. Name and PartTypes (since mandatory) shall
+be set respectively to dummy values '/NULL' and 'piece part',
+
+PartVersion::: id (or '/ANY' if the right version get computed at runtime by the PDM
+application),
+
+PartView::: id (optional), initialContext (mandatory)
+
+document::
+
+Document::: id with idRoleRef, idContextRef, Name and DocumentTypes (since
+mandatory) shall be set respectively to dummy values '/NULL and 'geometry',
+
+DocumentVersion::: id (or '/ANY' if the right version get computed at runtime by the
+PDM application),
+
+DigitalDocumentDefinition::: id (optional)
+
+*_Preprocessor Recommendations:_*
+
+* NOTE: In case multiple ids are available for a referenced component, it is sufficient here
+to mention at least the id having the idRoleRef 'exchange identification information'.
+
+* Each reference shall be explicitly classified as 'reference'
+
+* The minimum set of entities, attributes and attribute values (see above) shall identify
+uniquely the referenced object. Otherwise, a receiver will interpret the same object as a
+new one because of different identifiers.
+
+* The number of relationships (between the assembly and referenced components and
+between part and a referenced document) has to represent the complete list (of
+components of the assembly, of documents of the part), independently whether an individual
+component/document is referenced or its complete definition is exchanged.
+
+* Other data associated to the referenced instance or group of instances (properties, dates,
+persons, approval...) shall not be instantiated, since they will be ignored by the
+postprocessor. This applies also for documents associated to a reference part and for
+files associated to a reference document, as well as to the assembly links and
+effectivities from a referenced assembly to its direct components:
+
+** For example, if bounding box geometry has been sent previously, but contains
+changed components, the assembly nodes of the bounding box geometry shall
+be sent completely _with_ the assembly links to the changed components and with
+'reference' links to the unchanged components.
+
+** For example, if some components have been sent previously but their positioning
+within the assembly changed, the unchanged components would be sent as 'reference'
+_without_ their underlying assembly links; only their positioning would be
+exchanged.
+
+* In case of AlternatePartRelationship, one version of the part shall be provided and
+referenced
+
+*_Postprocessor Recommendations:_*
+
+* If the target PDM system hasn't got a part master object:
+
+** the attributes/properties of a non-reference Part(master) shall be mapped only to those
+part versions / part views that are mentioned for this part in the XML file and
+that are not 'referenced'. If all PartVersions/PartViews are 'referenced', the part
+master changes will be ignored.
++
+Dito for Document/DocumentVersion,
+
+** the attributes/properties (present in the target PDM system) of a reference
+Part(master) shall apply to the import of the PartVersions/PartViews
+
+* If the target PDM system hasn't got a part view object, the attributes/properties (present
+in the target PDM system) of a reference PartView shall apply to the import of the
+PartVersion.
++
+Dito for DocumentVersion/DigitalDocumentDefinition,
+
+* It is assumed that all attributes/properties of a referenced part/document are unchanged.
+This applies also to the documents of a referenced part and to the files of a referenced
+document, but not necessarily to the assembly links and effectivities from a referenced
+assembly to its direct underlying components: if they are provided, they should be imported
+(either none or all the direct assembly links under the assembly node will be provided).
+
+* If the reference mechanism is used on non-supported objects (i.e. other than Part and
+Document), an error shall be reported
+
+Here are some examples:
+
+[[fig-62]]
+.Template "Component reference"
+image::img94.png[]
+
+[[fig-63]]
+.Template "Document reference"
+image::img95.png[]
+
+[[cls-9.5]]
+=== Delta Exchange
+
+For some special cases, the Incremental Exchange (see <<cls-9.4>>) is not enough granular.
+For example, in an assembly node having a very large number of components
+(NextAssemblyOccurrenceUsages (NAOU))
+
+* if one NextAssemblyOccurrenceUsage shall be deleted, one updated and one added,
+all the NAOUs have to be exchanged
+
+* the receiver detects the deleted/updated/added NAOU by comparing all the NAOUs
+with the content of his PDM application
+
+[[fig-64]]
+.Differences between full data exchange, incremental exchange and delta exchange
+image::img96.png[]
+
+[[fig-65]]
+.Example of a Delta Exchange on an assembly part with one component deleted, one added and one modified
+image::img97.png[]
+
+In a changed object, beside the changed attributes, only a minimum set of entities and
+attributes are mapped. The application of the delta exchange mechanism is recommended for:
+
+Part:
+
+* Part: id with idRoleRef, idContextRef. Name and PartTypes (since mandatory) shall
+be set respectively to dummy values '/UNCHANGED' and the type value before/after
+the change,
+
+* PartVersion: id (or '/ANY' if the right version get computed at runtime by the PDM
+application),
+
+* PartView: id (optional), initialContext (mandatory)
+
+Document:
+
+* Document: id with idRoleRef, idContextRef, Name and DocumentTypes (since mandatory)
+shall be set respectively to the dummy value '/UNCHANGED' and the type
+value before/after the change,
+
+* DocumentVersion: id (or '/ANY' if the right version get computed at runtime by the
+PDM application),
+
+* DigitalDocumentDefinition: id (optional)
+
+[[fig-66]]
+.Example of the minimal instanciation of Delta Exchange of a new assembly version with one component deleted, one added and one modified
+image::img98.png[]
+
+*_Preprocessor Recommendation:_*
+
+* NOTE: In case multiple ids are available for a delta changed object, and none id is
+added nor suppressed, it is sufficient here to mention at least the id having the idRoleRef
+'exchange identification information'.
+
+* Each changed object shall be explicitly classified as 'delta change'.
+
+* Only the changed attributes need to be mapped (for example: some properties of an
+assembly node were updated), all the missing attributes are considered as unchanged.
+
+* References to unchanged objects (for example updated part with unchanged
+Document) shall be mapped as defined for Incremental Exchange with
+ClassifiedAs.Class.ClassString='reference'. Refer to the
+<<cls-9.4>> for more details.
+
+* If an object referenced by DeleteElement.PreviousDesignObject has
+ClassifiedAs.Class.ClassString='delta change',
+this means that the change is performed in the
+PreviousDesignObject itself. In this case, this object shall be already existing
+in the target system (according to its key attributes).
+
+[[fig-67]]
+.Same example as update of an existing PartVersion
+image::img99.png[]
+
+* If an object referenced by DeleteElement.PreviousDesignObject has
+ClassifiedAs.Class.ClassString='reference',
+this means that the change is performed in the
+successor version of the object and not in the PreviousDesignObject itself. In this case,
+its successor shall be related to it via a
+Part/DocumentVersionRelationship with Relationship='sequence'.
+Refer to the <<cls-5.1.5>> or <<cls-8.3>> for more details.
+
+* An object having ClassifiedAs.Class.ClassString='delta change' and having no
+DeleteElement.PreviousDesignObject that reference to it may either:
+
+** be already existing in the target system (according to its key attributes),
+
+** or be a new one. In this case, its predecessor shall be related to it via a
+Part/DocumentVersionRelationship with Relationship='sequence'. Refer to the
+<<cls-5.1.5>> or <<cls-8.3>> for more details.
+
+* Mixing full/incremental exchange with delta exchange is not recommended
+
+[[fig-68]]
+.Example of the minimal instanciation of Delta Exchange of a new part version with one document deleted, one added and one modified
+image::img100.png[]
+
+*_Postprocessor Recommendation:_*
+
+T.B.S.
+
+[[cls-9.5.1]]
+==== Template "DeltaChange"
+
+A DeltaChange is a mechanism to describe changes in product data. It collects the change
+activities that describe the differences between two (or more) objects.
+
+The single changes on attribute level are collected by the attribute ChangeActivities.
+
+[[fig-69]]
+.Template "DeltaChange"
+image::img101.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Classification uid="delta">
+  <Class>
+    <ClassString>delta change</ClassString>
+  </Class>
+  <Role>delta change</Role>
+</Classification>
+<Classification uid="ref_pv">
+  <Class>
+    <ClassString>reference</ClassString>
+  </Class>
+  <Role>VDA reference mechanism</Role>
+</Classification>
+...
+<DeltaChange uid="dc-1">
+  <ChangeActivities>
+    <DeltaChangeActivity uid="dca-1" xsi:type="bom:AddElement">
+      <CurrentDesignObject>
+        <ViewOccurrenceRelationship uidRef="ID_1708"/>
+      </CurrentDesignObject>
+    </DeltaChangeActivity>
+    <DeltaChangeActivity uid="dca-2" xsi:type="bom:DeleteElement">
+      <PreviousDesignObject>
+        <ViewOccurrenceRelationship uidRef="ID_1738"/>
+      </PreviousDesignObject>
+    </DeltaChangeActivity>
+    <DeltaChangeActivity uid="dca-3" xsi:type="bom:ModifyElement">
+      <AttributeName>Placement</AttributeName>
+      <CurrentDesignObject>
+        <ViewOccurrenceRelationship uidRef="ID_1726d"/>
+      </CurrentDesignObject>
+    </DeltaChangeActivity>
+  </ChangeActivities>
+  <DescribedChange uidRef="pvr-1"/>
+  <Id>
+    <Identifier uid="dc-id1" id="Sequence#1" idRoleRef="ID_804" idContextRef="ID_805"/>
+  </Id>
+</DeltaChange>
+...
+<Part uid="ID_1998">
+  <Id>
+    <Identifier uid="ID_1995" id="120241-TSI-VDA" idRoleRef="ID_804" idContextRef="ID_805"/>
+  </Id>
+  <Name>
+    <CharacterString>/UNCHANGED</CharacterString>
+  </Name>
+  <PartTypes>
+    <ClassString>assembly</ClassString>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="ID_1997">
+      <Id>
+        <Identifier uid="ID_1996" id="A.1" idRoleRef="ID_804" idContextRef="ID_1995"/>
+      </Id>
+      <Views>
+        <PartView uid="ID_899" xsi:type="bom:AssemblyDefinition">
+          <ClassifiedAs>
+            <Classification uidRef="delta"/>
+          </ClassifiedAs>
+          <InitialContext uidRef="ID_829"/>
+          <ViewOccurrenceRelationship uid="ID_1738" xsi:type="bom:NextAssemblyOccurrenceUsage">
+            <Related uidRef="ID_1740"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="ID_1726" xsi:type="bom:NextAssemblyOccurrenceUsage">
+            <Related uidRef="ID_1728"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <CartesianTransformation uid="ID_1727">
+<RotationMatrix>1.000000000000080E+00 -7.462707997618930E-13 -
+1.763715855220600E-12 7.404873296037771E-13 1.000000000000090E+00 -
+5.210185581589930E-13 1.753736316324390E-12 5.239827668972550E-13
+1.000000000000090E+00</RotationMatrix>
+<TranslationVector>{{{*6.437129533499321E-01 2.800987384232940E-01 -* *5.673703299180340E-02*}}}</TranslationVector>
+              </CartesianTransformation>
+            </Placement>
+          </ViewOccurrenceRelationship>
+9
+      </Views>
+      <PartVersionRelationship uid="pvr-1">
+        <Related uidRef="ID_1997d"/>
+        <RelationType>
+          <ClassString>sequence</ClassString>
+        </RelationType>
+      </PartVersionRelationship>
+    </PartVersion>
+    <PartVersion uid="ID_1997d">
+      <Id>
+        <Identifier uid="ID_1996d" id="A.2" idRoleRef="ID_804" idContextRef="ID_1995"/>
+      </Id>
+      <Views>
+        <PartView uid="ID_899d" xsi:type="bom:AssemblyDefinition">
+          <ClassifiedAs>
+            <Classification uidRef="delta"/>
+          </ClassifiedAs>
+          <InitialContext uidRef="ID_829"/>
+          <ViewOccurrenceRelationship uid="ID_1726d" xsi:type="bom:NextAssemblyOccurrenceUsage">
+            <Related uidRef="ID_1728"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <CartesianTransformation uid="ID_1727d">
+<RotationMatrix>1.000000000000080E+00 -7.462707997618930E-13 -
+1.763715855220600E-12 7.404873296037771E-13 1.000000000000090E+00 -
+5.210185581589930E-13 1.753736316324390E-12 5.239827668972550E-13
+1.000000000000090E+00</RotationMatrix>
+<TranslationVector>{{{*6.437129533499321E-00 2.800987384232940E-00 -* *5.673703299180340E-01*}}}</TranslationVector>
+              </CartesianTransformation>
+            </Placement>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="ID_1708" xsi:type="bom:NextAssemblyOccurrenceUsage">
+            <Related uidRef="ID_1710"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <CartesianTransformation uid="ID_1709">
+<RotationMatrix>1 -5.423864602588700E-13 -1.360506705124480E-12
+5.423864602583161E-13 1 -4.042063721496210E-13 1.360506705124780E-12
+4.042063721488900E-13 1</RotationMatrix>
+<TranslationVector>6.437129533580320E-01 2.800987384249200E-01 -
+5.673703299222880E-02</TranslationVector>
+              </CartesianTransformation>
+            </Placement>
+          </ViewOccurrenceRelationship>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+...
+<Part uid="ID_2002">
+  <Id>
+    <Identifier uid="ID_1999" id="120242-TSI-VDA" idRoleRef="ID_804" idContextRef="ID_805"/>
+  </Id>
+  <Name>
+    <CharacterString>/NULL</CharacterString>
+  </Name>
+  <PartTypes>
+    <ClassString>piece part</ClassString>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="ID_2001">
+      <Id>
+        <Identifier uid="ID_2000" id="A.1" idRoleRef="ID_804" idContextRef="ID_1999"/>
+      </Id>
+      <Views>
+        <PartView uid="ID_1602">
+          <ClassifiedAs>
+            <Classification uidRef="ref_pv"/>
+          </ClassifiedAs>
+          <Id id="design"/>
+          <InitialContext uidRef="ID_829"/>
+          <Occurrence uid="ID_1740" xsi:type="bom:SingleOccurrence">
+            <Id id="Lower piston_i"/>
+          </Occurrence>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+...
+----
+
+[[tab-65]]
+."DeltaChange" Attributes
+[cols="a,a",options=header]
+|===
+| Entity DeltaChange
+| Attribute type
+
+| ChangeActivities
+| OPTIONAL SET[1:?] OF DeltaChangeActivity
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| DescribedChange
+| OPTIONAL DeltaChangeRelationshipSelect
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_ChangeActivities_*: the additions, deletions, or modifications caused by the DeltaChange.
+The value of this attribute need not be specified. Use "DeltaChangeActivity" template.
+
+* *_DescribedChange_*: a relationship that identifies the previous group of objects and
+current group of objects. For example, consider two PartVersion objects A and B which are
+related by a PartVersionRelationship with RelationType 'sequence'. The attribute
+DescribedChange of DeltaChange references this PartVersionRelationship. The value of
+this attribute need not be specified but is recommended in order to clearly identify the
+previous version of the object (for example for AddElement/ModifyElement) and the new
+version of the object (for example for DeleteElement) since these objects are not
+referenced explicitly.
+
+* *_Description_*: the text or the set of texts that provides further information about the
+DeltaChange. The value of this attribute need not be specified. Use "Description" template.
+
+* *_Id:_* the identifier for the DeltaChange. Use "Identifier" template (see <<cls-4.6.6>>).
+
+* *_Name_*: the words or set of words by which the DeltaChange is known. The value of this
+attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_*
+
+* The use of DeltaChange is mandatory in case of a a DeltaChangeActivity of type
+DeleteElement (see next section), otherwise it is optional (as long as no ordering of the
+changes has to be specified, see below).
+
+* If the Delta Exchange is triggered each time a part reaches a given lifecycle state, it
+may be of interest to map only one instance of DeltaChange per STEP file and to set
+the DeltaChange.Id as a unique sequence number over all the data supplies between
+two partners, so that the receiver can make sure that he didn't skip any delta supply
+files.
+
+* The use of the attribute DescribedChange assumes that one DeltaChange object is
+mapped for each changed object. In the above example (PartVersion A.1->A.2 and A.2-
+>A.3), one DeltaChange from PartVersion A.1->A.2 and one DeltaChange from
+PartVersion A.2->A.3). In this case, it is recommended to specify the ordering of
+changes. For this purpose, a JIRA issue TCSC410303-1509 has been created to
+introduce an DeltaChangeRelationship between two DeltaChanges.
+
+[[fig-70]]
+.Example of a Delta Exchange for two sequential part changes which order is controlled between two DeltaChanges
+image::img102.png[]
+
+* Currently, the Select type used for the definition of DescribedChange is very limited
+compared to the 100 objects defined in DeltaChangeManagementObjectSelect. For this
+purpose, a JIRA issue TCSC410303-1511 has been created to add all the relationship
+objects that are relating objects defined in DeltaChangeManagementObjectSelect.
+
+*_Postprocessor Recommendation:_*
+
+_T.B.S._
+
+[[cls-9.5.2]]
+==== Template "DeltaChangeActivity"
+
+A DeltaChangeActivity is the representation of a detailed change within a DeltaChange.
+
+There are 4 kinds of delta change activities:
+
+* A *DeleteElement* is a type of DeltaChangeActivity that identifies one or several objects
+that have been deleted.
++
+--
+[example]
+Version A of a part has a subcomponent C1. In version B of the part this
+subcomponent is deleted. This change can be described by referencing with the
+attribute PreviousDesignObject of DeleteElement a NAOU representing the deleted
+subcomponent C1 in version A.
+--
+
+* An *AddElement* is a type of DeltaChangeActivity that identifies one or several objects
+that have been added.
++
+--
+[example]
+In version B of a part a new subcomponent C1 is added. This change can
+be described by referencing with the attribute CurrentDesignObject of AddElement a
+NAOU representing the new subcomponent C1.
+--
+
+* A *ModifyElement* is a type of DeltaChangeActivity that identifies one or several object
+that have been modified.
++
+--
+[example]
+The Placement of one of the subcomponents C1 has been modified from
+version A to version B of a part. This change can be described by referencing with the
+attribute CurrentDesignObject of ModifyElement a NAOU representing the modified
+Placement value in version B.
+--
+
+* A *ModifySingleElement* is a type of DeltaChangeActivity that identifies an object that
+has been modified.
++
+--
+[example]
+The Placement of one of the subcomponents C1 has been modified from
+version A to version B of a part. This change can be described by referencing with the
+attribute PreviousDesignObject of ModifySingleElement a NAOU representing the
+original Placement value of version A, and with the attribute CurrentDesignObject of
+ModifySingleElement a NAOU representing the new Placement value of version B.
+--
+
+[[fig-71]]
+.Template "DeltaChangeActivity"
+image::img103.png[]
+
+[[tab-66]]
+."DeltaChangeActivity" Attributes
+[cols="a,a",options=header]
+|===
+| Entity DeltaChangeActivity (and its subtypes)
+| Attribute type
+
+| AttributeName
+| OPTIONAL STRING
+
+| span:gray[ChangeElementSequence]
+| span:gray[OPTIONAL SET[1:?\] OF ChangeElementSequence]
+
+| span:gray[ChangeLocationInAggregateAttribute]
+| span:gray[OPTIONAL LIST[1:?\] OF INTEGER]
+
+| Except for DeleteElement: +
+CurrentDesignObject
+| Except for ModifySingleElement: SET[1:?] OF... DeltaChangeManagementObjectSelect
+
+| except for AddElement: +
+PreviousDesignObject
+| Except for ModifySingleElement: SET[1:?] OF... DeltaChangeManagementObjectSelect
+|===
+
+*_Attribute recommendations_*
+
+* *_AttributeName_*: the attribute of the previous and current objects whose values are
+changed. The value of this attribute need not be specified. Use IdentifierString type.
+
+* *_CurrentDesignObject_*: the set of objects that have been added (AddElement) or
+modified (ModifyElement).
+
+* *_PreviousDesignObject_*: the previous object that has been modified (ModifyElement) or
+deleted (DeleteElement).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Since ModifySingleElement does not enable to bind multiple changes (unlike
+AddElement, ModifyElement and DeleteElement) and since it obliges to reference both objects
+(before and after the change) while in most use cases, it is sufficient to exchange only
+the object after the change, the use of ModifySingleElement is not recommended.
+
+* AddElement may be omitted (an object not being associated to a DesignChange object
+is implicitly new).
+
+* ModifyElement may be omitted if the file does not contain several sequential changes
+(PartVersion A.1->A.2 and A.2->A.3). During import, possibly the receiver system may
+compare DateTimeAssignment having Role='update' (see <<cls-4.6.16>>) with the
+timestamp in the target PDM system.
+
+* It is recommended to set AttributeName in case several sequential changes might have
+occurred on the same object since the last Delta Exchange (PartVersion A.1->A.2 and
+A.2->A.3). For example, the PartVersionDescription changed between A.1 and A.2, but
+not between A.2 and A.3 => Description (optional attribute) will not be set for A.3 =>
+without setting AttributeName to 'Description' for the first nor to the second
+ModifyElement, the receiver interface might interpret that the Description has been emptied
+in A.3
+
+* For CurrentDesignObject/PreviousDesignObject, it is recommended to reference a PDM
+business object that gets versioned through the change. For example, PartVersion,
+DocumentVersion, ProductClass, ProductConfiguration, Activity, WorkOrder, WorkRequest,
+Observation, ... or even more in some PDM systems, like
+NextAssemblyOccurrenceUsage in 3DExp... More granular AP242 objects
+are not recommended, except to map
+the change of customized properties from a non-unset value to an unset value
+(see <<cls-14.3>>).
+
+*_Postprocessor Recommendation:_*
+
+T.B.S.
+
+[[cls-9.6]]
+=== External Element References (EER)
+
+An External Element Reference (EER) consists of a referencing and referenced element. Three
+kinds of EERs are planned at the moment:
+
+* From AP242 XML file to another AP242 XML file
+
+** Example of use case: nested files, see <<cls-9.3>>
+
+** Here a new referencing mechanism is currently being defined in Part 15 Edition
+2 (to be introduced with AP242 Edition 4), less redundant than the current
+incremental exchange and nesting mechanism and more general than the
+RepresentationItem.External and SameAs mechanisms
+
+* From AP242 XML file to Part 21 file
+
+** Example of use case: assembly PMIs, see <<AP242-PMI>>
+
+** Here the anchor section mechanism of Part 21 is recommended,
+combined with the new referencing mechanism for AP242 XML mentioned
+above.
+
+* From AP242 XML file to JT file
+
+** Example of use case: assembly PMIs, see <<AP242-PMI>>
+
+** Here the JT monikers need to be generalized to all JT objects (not only
+XTBodies and XTFaces),
+combined with the new referencing mechanism for AP242 XML mentioned
+above.
+
+[[cls-9.6.1]]
+==== Part 15 Edition 2 Reference Mechanism
+
+Coming together with AP242 Domain Model Edition 4, using this mechanism, a reference to any
+object of any type may be defined. There are three XML cases:
+
+[%unnumbered,cols="a,a,a",options=header]
+|===
+| XML Case
+| Everything in one file
+| External Reference
+
+| #1: No containment
+|
+[source%unnumbered,xml]
+----
+<Part uid="ID_1978">
+...
+  <Versions>
+    <PartVersion uid="ID_1977">
+...
+      <Views>
+        <PartView uid="ID_1976">
+...
+          <ShapeElement uid="_2667">
+...
+            <RepresentedGeometry uidRef="ID_1908"/>
+...
+          </ShapeElement>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationItem xsi:type="n0:AdvancedFace" uid="ID_1908" {{{*uuid="550e8400-e29b-11d4-a716-446655440000"*}}}>
+...
+</RepresentationItem>
+----
+|
+[source%unnumbered,xml]
+----
+<Part uid="ID_1978">
+...
+  <Versions>
+    <PartVersion uid="ID_1977">
+...
+      <Views>
+        <PartView uid="ID_1976">
+...
+          <ShapeElement uid="_2667">
+...
+            <RepresentedGeometry uidRef="ID_1908"/>
+...
+          </ShapeElement>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<ExternalRefBaseObject uid="ID_869" typeRef=" AdvancedFace" {{{extId**Ref="550e8400-e29b-11d4-a716-446655440000"**}}} URL="./120236-TSI-VDA-A.1.stpx">
+</ExternalRefBaseObject>
+----
+
+| #2: Simple containment
+|
+[source%unnumbered,xml]
+----
+<Part uid="ID_1978">
+...
+  <Versions>
+    <PartVersion uid="ID_1977">
+...
+      <Views>
+        <PartView uid="ID_1976" {{{*uuid="550e8400-* *e29b-11d4-a716-446655440000"*>}}}
+...
+          <Occurrence uid="ID_1975" xsi:type="bom:SingleOccurrence">
+            <Id id="Rear Brake"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+|
+[source%unnumbered,xml]
+----
+<ExternalRefBaseObject uid="ID_869" typeRef="bom:PartView" {{{*extIdRef="550e8400-e29b11d4-a716-446655440000"*}}} URL="./120236-TSI-VDA-A.1.stpx">
+  <SubObject uid="ID_870" xsi:type="bom:SingleOccurrence">
+    <Id id="Rear Brake"/>
+  </SubObject>
+</ExternalRefBaseObject>
+----
+
+| #3: Containment over a complex element
+|
+[source%unnumbered,xml]
+----
+<Part uid="ID_1978" {{{*uuid="550e8400-e29b-11d4-a716-446655440000"*}}}>
+...
+  <Versions>
+    <PartVersion uid="ID_1977">
+...
+      <Views>
+        <PartView uid="ID_869">
+          <Id id="design"/>
+          <InitialContext uidRef="ID_829"/>
+          <Occurrence uid="ID_1504" xsi:type="bom:SingleOccurrence">
+            <Id id="Rear Brake"/>
+          </Occurrence>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+|
+[source%unnumbered,xml]
+----
+<ExternalRefBaseObject uid="ID_869" typeRef="bom:Part" {{{extId**Ref="550e8400-e29b-11d4-a716-446655440000"**}}} URL="./120236-TSI-VDA-A.1.stpx">
+  <NamedSubObject elementName="Versions">
+  <SubObject uid="ID_870" xsi:type="bom:PartVersion">
+...
+      <Views>
+        <PartView uid="ID_869">
+          <Id id="design"/>
+          <InitialContext uidRef="ID_829"/>
+          <Occurrence uid="ID_1504" xsi:type="bom:SingleOccurrence">
+            <Id id="Rear Brake"/>
+          </Occurrence>
+        </PartView>
+      </Views>
+    </SubObject>
+  </NamedSubObject>
+</ExternalRefBaseObject>
+----
+|===
+
+In all cases:
+
+* the attribute 'uuid' has to be set for at least all the 'original' objects that shall be
+externally referenced (via 'extIdRef' of type UUID). It has to comply to the syntax pattern
+of a UUID v5. The content of uuid depends on the company's agreement and is independent from
+the usage of the reference mechanism
+
+[[tab-67]]
+."ExternalRefBaseObject" Attributes
+[options=header,cols="a,a"]
+|===
+| Entity ExternalRefBaseObject
+| Attribute type
+
+| SubObject
+| OPTIONAL SET[1:?] OF BaseObject
+
+| NamedSubObject
+| OPTIONAL SET[1:?] OF NamedSubObject
+
+| extIdRef
+| xsd:string or UUID
+
+| typeRef
+| xsd:string
+
+| URL
+| xsd:string
+|===
+
+*_Attribute recommendations_*
+
+* *_SubObject_*: an embedded object (any BaseObject) in case of a simple containment. The
+value of this attribute need not be specified. All the XSD restrictions and all
+recommendations defined for the BaseObject shall apply.
+
+* *_NamedSubObject_*: an embedded object in case of a containment over a complex
+element. The value of this attribute need not be specified. See below.
+
+* *_extIdRef_*: the identifier (or UUID) of the referenced object in another file (AP242
+Domain Model, AP242 P21, JT, CAD native, ...). The content of the identifier or UUID (tool
+specific, centrally managed like UUID v4/v5) and its persistence (unlike the uid) is not in
+scope of this document.
+
+* *_typeRef_*: the type of the referenced object (without any namespace). It shall be a valid
+object name within the DomainModel and shall correspond to the type of the referenced
+object in the referenced file (for example AdvancedFace in case of advanced_face in a
+P21 file or XTFace in a JT file)
+
+* *_URL_*: the location where the referenced object can be found. In some cases like the
+usage of UUID v5 identifiers, this attribute need not be specified. Otherwise, it shall
+contain the relative path to the file, or an absolute path (for example in the case of an
+URL). The following symbols shall be used in combination with directory names (if needed):
++
+--
+** '/' or '\' to depict the directory structure
+
+** '.' To depict the current directory ('./' and '.\' are also allowed)
+
+** '..' to move up to the next higher directory
+
+The use of non-URL absolute paths (like \\servername\.. or c:\... on Windows, or /... on
+Unix/Linux shall be agreed on project basis, since it prerequires that both sender and
+receiver have access to the same file system, which is not a typical use case).
+--
+
+[[tab-68]]
+."NamedSubObject" Attributes
+[cols="a,a",options=header]
+|===
+| Entity NamedSubObject
+| Attribute type
+
+| SubObject
+| span:gray[SET[1:?\] OF BaseObject]
+
+| elementName
+| xsd:string
+|===
+
+*_Attribute recommendations_*
+
+* *_SubObject_*: an embedded object (any BaseObject) in case of a containment over a
+complex element. All the XSD restrictions and all recommendations defined for the
+BaseObject shall apply.
+
+* *_elementName_*: the name of the complex element used for the containment.
+
+*_Preprocessor Recommendations:_*
+
+* typeRef shall be a valid element name of the AP242 DomainModel, no matter which
+format and data model the referenced file has (see next sections for more details)
+
+* If both referencing and referenced files have the same format (AP242 DomainModel
+XML), the value of typeRef and the type of the referenced Object shall be identical.
+If the referenced file has another format (where the referenced element can be uniquely
+identified), the value of typeRef and the type of the referenced object shall be equivalent
+(see next sections for more details)
+
+* Using the supertype or one of its subtype for typeRef depends on the situation.
++
+--
+[example]
+ActivityRelationship.Related for example can either reference
+uid="xxx"> or . The same applies to typeRef: if the referenced activity is a
+planned one, the subtype PlannedActivity shall be used
+--
+
+* SubObject shall not be a BaseRootObject, since is shall be only used in case of
+containments.
+
+* The type of SubObject contained in ExternalRefBaseObject shall be allowed as
+containment of an element defined by typeRef or shall correspond to the type of corresponding
+elementName in the type typeRef (in case of a containment over a complex element)
++
+--
+[example]
+SingleOccurrence (rsp. Occurrence) is contained in PartView
+--
+
+* Attribute elementName of NamedSubObject shall be the name of an embracing element
+in the type given by typeRef
++
+--
+[example]
+Versions is the name of an embracing element in Part
+--
+
+* The type of the SubObject contained in NamedSubObject shall correspond to the type of
+corresponding elementName in the type typeRef
++
+--
+[example]
+The type of the elements in NamedSubObject with elementName Versions in typeRef Part is
+PartVersion
+
+This mechanism is not needed recursively, e.g., if a new PartView is added to a
+PartVersion, this PartVersion should be externally referenced rather than referencing the
+Part => always and only the direct container of a new contained object shall be referenced
+--
+
+* Within one stpx file, the same object shall not be provided as ExternalRefBaseObject
+and as 'original' object (since it does not make sense), even not if they have different
+UUIDs (it would violate the uniqueness rule of the UUID).
+This applies also in case of simple/complex containment
++
+--
+[example]
+a PartView x shall not be present as ExternalRefBaseObject and as (Named)SubObject
+
+For this reason, within one stpx file, all the containments of kind SubObject and
+NamedSubObject that apply to the same referenced object shall be placed in the one
+ExternalRefBaseObject
+--
+
+* In some special cases, many elements of a referenced object are needed. In this case,
+each referenced element shall be mapped as a distinct ExternalRefBaseObject.
++
+--
+[example]
+====
+new PartVersion to a referenced Part:
+
+* the Part itself shall be mapped as ExternalRefBaseObject, containing the new PartVersion
+via NamedSubObject
+
+* the Part.Id shall be mapped as a disctinct ExternalRefBaseObject, referenced by
+PartVersion.Id.idContextRef according to <<cls-4.6.6>>
+====
+--
+
+* Unlike in the 'original' objects, the order of the elements in an ExternalRefBaseObject is
+not relevant, but it may be convenient to stick to the order within the 'original' object for
+manual comparisons
+
+* The upper cardinality of the original XML element shall not be violated
++
+--
+[example]
+'Versions' may have multiple elements, but 'InitialContext' may not
+--
+
+* The lower cardinality '1' of the original XML element doesn't have to be fulfilled, since a
+mandatory element has been already defined in the original object and doesn't need to be
+confirmed within the referenced object (except if it shall change to a new value).
++
+--
+[example]
+Part.Name need not to be provided if it didn't change_
+--
+
+* Since ExternalRefBaseObject is a kind of BaseRootObject, it inherits from the attribute
+'uuid' => theoretically, a ExternalRefBaseObject could be referenced, but until a use case
+is identified, this is not recommended
+
+* Even if (Named)SubObject would allow to map some DeltaChange semantic like:
+
+** In case the upper cardinality of the original XML element is 'unbounded':
+previously provided elements in the original object are kept unchanged. The new
+ones are added to them or replacing them in case they have the same key attributes
+
+** In case the upper cardinality of the original XML element is 1: the previously
+provided value gets replaced by it.
+it is not recommended to use it that way
+
+* It is not recommended to use (Named)SubObject if the value is identical to the one
+provided in the original object, or when the key attributes are the same =>
+(Named)SubObject shall be used only to set a previously unset element or to add an element
+to a sequence of elements
+
+*_Postprocessor Recommendation:_*
+
+T.B.S.
+
+[[cls-9.6.2]]
+==== References into a Part 21 Geometry File
+
+The recommendation is to use Anchor references as defined in Part 21 Edition 3 (see the
+"Recommended Practices for Persistent IDs for Design Iteration and Downstream Exchange" for
+more details <<PID>>).
+
+[[fig-72]]
+.Example of an EER to an element within a Part 21 geometry file
+image::img104.png[]
+
+*_Preprocessor Recommendations:_*
+
+* Part 21 specifies: "The identified ANCHOR_ITEM shall meet the requirements for an
+entity or value instance belonging to the file_schema of this exchange structure."
++
+--
+The object type given in ExternalRefBaseObject.typeRef (according to the AP242
+DomainModel) shall be equivalent to the type of the referenced object in the AP242 MIM.
+
+For example, if the AP242 XML references an AdvancedFace into a P21 file, the referenced
+UUID shall be an Anchor which points to an ADVANCED_FACE'.
+--
+
+[[cls-9.6.3]]
+==== References into a JT Geometry File
+
+Since Monikers are currently not (yet) available on all JT elements (only on XTBodies and
+XTFaces, but not on XTEdges, PMI Annotations, ..), the current workaround is to:
+
+* maintain a user defined string property called 'Anchor' as JtkProperty (would have to be
+set with a stable Persistent ID as defined in <<PID>>). This works for all XTEntities, but
+nor for PMI annotations
+
+* for PMI annotations, maintain a user defined property called 'Anchor' set to 'invisible'
+An issue has been submitted to Siemens in order to enhance the usage of Monikers to all
+necessary JT elements. This is planned to be available until the end of 2024.
+
+[[cls-9.6.4]]
+==== Handling of updates in the referencing or referenced file
+
+In all cases, the UUID of an 'original' object shall be set prior to (or at the same time
+as) its usage as reference. This sounds logical, but implies clear rules when creating,
+keeping stable and updating references.
+
+3 scenarios are identified:
+
+. Referencing and referenced file are created together
+.. Here the stability of the Ids is not critical
+.. But this is not practicable for most use cases, like assembly level PMIs
+
+. Referencing file is created later (possibly via another tool) and references further
+elements within an already existing file
+.. requires that all the referenced elements have already a stable Id (before they
+ever get referenced)
+.. or that it may be easily generated out of it (Anchor, Moniker), but this requires
+to enrich/update the referenced file. Even using Anchors (separate section within
+the P21 file => can be added without editing the data section), the Part 21 file has
+to be edited.
+
+. Referenced file gets modified
+.. requires that the referenced elements keep the same Id (as long as the changes
+do not impact the definition of the referenced items)
+.. if the change is too big to keep the references unchanged, the referencing files
+need to be updated (not only the extIdRef, but also their semantical content)

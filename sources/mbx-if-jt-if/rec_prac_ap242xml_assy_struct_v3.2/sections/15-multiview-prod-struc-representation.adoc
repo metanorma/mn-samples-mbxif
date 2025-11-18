@@ -1,0 +1,233 @@
+[[cls-15]]
+== Multi-View Product Structure Representation
+
+This section describes how to represent multiple views of the product structure and how to
+keep relationship between these views.
+
+*The different views covered are:*
+
+* AsDesigned,
+* AsPlanned,
+* AsDocumented / AsCertified,
+* AsPlanned,
+* AsBuild,
+* AsDelivered, and
+* AsSupported / AsFlying / AsMaintained / AsOperated.
+
+*The following topics are described in this chapter:*
+
+* Multiple view concept
+* Product structure with Part and Occurrence
+* Product structure with IndividualPart
+* Relationship for tracking usage
+
+[[cls-15.1]]
+=== Multiple view concept
+
+The view concept is managed via the Template "ViewContext" (see <<cls-4.6.8>>). These views
+relate to virtual / physical instances of the products. Each instance can be identified by
+unique (within the organization) serial number (SN).
+
+The 'multi-SN keyword' describes product structures defined with Part and Occurrence of Part.
+
+The 'one per SN' keyword describes product structures defined with IndividualPart.
+
+Mapping between the views introduced above and the LifeCycleStage concept:
+
+* AsDesigned (multi-SN) => 'design'
+* AsPlanned (multi SN) => 'manufacturing planning'
+* AsDocumented / AsCertified (multi-SN) => 'documentation' or 'certification'
+* AsPlanned (one per SN) => 'manufacturing realization'
+* AsBuild (one per SN) => 'built' or 'manufactured'
+* AsDelivered (one per SN) => 'delivery'
+* AsSupported / AsFlying / AsMaintained / AsOperated (one per SN) => 'support'
+
+The following table show values that should be used for the management of complex product
+structure with differents views.
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| ViewContext.ApplicationDomain
+| ViewContext.LifeCycleStage
+
+| 'mechanical design' 'electrical design'
+| 'design'
+
+| 'mechanical design' 'electrical design'
+| 'manufacturing planning'
+
+| 'product delivery'
+| 'documentation' or 'certification'
+
+| 'mechanical design' 'electrical design'
+| 'manufacturing realization'
+
+| 'mechanical design' 'electrical design'
+| 'built" or 'manufactured'
+
+| 'product delivery'
+| 'delivery'
+
+| 'product support'
+| 'support'
+|===
+
+[[cls-15.2]]
+=== Product structure with Part and Occurrence
+
+This chapter is for the representation of AsDesigned, AsPlanned (engineering), and
+AsDocumented/AsCertified.
+
+This product structure is composed of Part and Occurrences. Each product structure contains a
+full set of information and supports multiple effectivies / MSN:
+
+* Part/PartVersion/PartView (<<cls-5.1>>)
+* Properties (<<cls-6>>)
+* Occurrence and relationship with matrix positioning (<<cls-7.1>>)
+
+Even if the STEP information model allows multiple PartViews under a PartVersion, for use
+cases with multiple views each product structure must be duplicated for compatibility with
+tools, i.e. one Part/PartVersion/PartView for AsDesigned products and a different
+Part/PartVersion/PartView for AsPlanned products. There are no restrictions for a STEP file
+to have multiple root nodes, one per view.
+
+Depending on the use case, the same part geometry may be shared by the AsDesigned and
+AsPlanned parts, or each of them may have his own geometry.
+
+Example of "As designed and As planned" duplicate product structure
+
+[[fig-95]]
+.Representation of As Designed and As Planned views
+image::img127.png[]
+
+[[cls-15.3]]
+=== Product structure with IndividualPart
+
+This chapter is for the representation of AsPlanned (manufacturing), AsBuild, AsDelivered and
+AsSupported/AsFlying/AsMaintained/AsOperated product structure.
+
+This representation based on `IndividualPart` objects is currently out of scope.
+
+[[cls-15.4]]
+=== Relationship between views based on product structure with Part and Occurrence
+
+To keep track of the usage of product between several views use the
+`PartViewRelationship` (<<cls-7.4>>) only for the root nodes relation and
+`OccurrenceRelationship` for the other structure nodes.
+
+Example of "As designed and As planned" product structure with their usage relationship on
+`PartView` and `Occurrence`
+
+[[fig-96]]
+.Representation of tracking relationship
+image::img128.png[]
+
+*_Preprocessor Recommendations:_*
+
+* Tracking relationships on sub-assembly / single part level shall build upon tracking
+relationships on parent assembly levels, so they are fully defined within the whole assembly.
+Otherwise, the import in some PDM systems (like 3DExperience) will not be possible:
+
+** Here a valid example of PartView Relationship on level 1 and Occurrence
+Relationships on level 2 and 3, saying that the occurrence E the as-planned Fuse
+within Assy Fuse... is tracked to the occurrence 5 of as-designed Fuse, but only
+in the context of the occurrence B of as-planned Assy Fuse... tracked to
+occurrence 4 of as-designed Fuse...Assy.
+Using this tracking, the as-planned Assy Fuse... may have only one occurrence
+within the as-planned Part_Aircraft.
++
+--
+[%unnumbered]
+image::img129.png[]
+--
+
+** Here a valid example of PartView Relationships on level 1 and 2, and
+Occurrence Relationship on level 3, saying that the occurrence E of as-planned Fuse
+within Assy Fuse... is tracked by occurrence 5 of as-designed Fuse, applying to
+all the occurrences of as-planned Assy Fuse... anywhere in the whole as-planned assembly.
++
+--
+[%unnumbered]
+image::img130.png[]
+--
+
+** Here a valid example of PartView Relationships on level 1, 2 and 3, saying that
+all the occurrences of as-planned Fuse anywhere within the whole assy are
+tracked to the as-designed Fuse.
++
+--
+[%unnumbered]
+image::img131.png[]
+--
+
+** Here a valid example of PartView Relationship on level 1 and Occurrence
+Relationship on SpecifiedOccurrence on level 3 which refers to a SingleOccurrence
+on level 2, saying that the occurrence E the as-planned Fuse within Assy
+Fuse... is tracked to the occurrence 5 of as-designed Fuse, but only in the context
+of the occurrence 4 of as-designed Fuse...Assy.
+Here no tracking is defined from as-planned Assy Fuse... => other components
+of as-planned Assy Fuse... could be tracked anywhere else within the as-designed
+assembly structure and not only within the as-designed Fuse...Assy.
++
+--
+[%unnumbered]
+image::img132.png[]
+--
+
+** Here an invalid example of View Relationship on level 1 and Occurrence
+Relationships on level 3 without tracking on level 2 => it is not clear which for which
+occurrence of the as-planned Assy Fuse... the tracking of occurrence E applies.
++
+--
+[%unnumbered]
+image::img133.png[]
+--
+
+* To do so, if the AsDesigned depth of the product structure is >1 and there is no tracking
+relationship defined on each parent level, the tracking relationships on the child levels
+shall reference SpecifiedOccurrences of the SingleOccurence on the parent level (see
+<<cls-7.2>>):
++
+--
+[%unnumbered]
+image::img134.png[]
+--
+
+* A purchased part in the AsPlanned view (i.e. having ClassifiedAs.Role='make or buy'
+with ClassifiedAs.Class='bought' shall be a single part. In the AsDesigned view, it may
+also be an assembly part.
+
+*_Postprocessor Recommendations:_*
+
+If OccurrenceRelationship is not supported by the target PDM system to map the tracking
+relationship, it shall be mapped as PartViewRelationship and return a warning (especially if
+there are many OccurrenceRelationships of the same part that have tracking relationships to
+different parts (not possible to map using PartViewRelationship).
+
+If tracking relationships of SpecifiedOccurrences are not supported by the target PDM system,
+they shall be mapped as SingleOccurrences and return a warning (since some complex cases
+cannot be mapped).
+
+[[cls-15.4.1]]
+==== PartViewRelationship usage for multi view
+
+See <<cls-7.4>>.
+
+The `RelationType` attribute should be set with 'tracking' value with ClassString type.
+
+The `Relating` attribute represents the consumer in the relationship (example AsPlanned)
+
+The `Related` attribute represents the consumed object in the relationship
+(example AsDesigned).
+
+[[cls-15.4.2]]
+==== OccurrenceRelationship usage for multi view
+
+See <<cls-7.6>>.
+
+The `RelationType` attribute should be set with 'tracking' value with ClassString type.
+
+The `Relating` attribute represents the consumer in the relationship (example AsPlanned)
+
+The `Related` attribute represents the consumed object in the relationship
+(example AsDesigned).

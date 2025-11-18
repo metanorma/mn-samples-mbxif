@@ -1,0 +1,1124 @@
+[[cls-13]]
+== Validation Properties
+
+This chapter describes how to confirm the correctness of exchanged geometry information and
+assembly information compared to its source. The following exchange process is suggested to
+enable validation of exchanged information. It is optional to apply validation
+properties in exchange files.
+
+Product data are created in a source system and shall be sent to a target system using the
+exchange format described in this document.
+
+The source system derives -- from its own representation of the product data -
+validation properties that reflect the main semantics of the product data.
+For the purpose of this document the
+following two types of validation properties are distinguished:
+
+* _Assembly Validation Properties (AVP):_ They provide a verification capability for product
+structure data where geometry is not present. Two properties are recommended:
+one to ensure that the number of instances found at each node is correct and another one
+to ensure that the position and orientation information for each instance is correct.
+See <<CAx-IF-RP,section=7>>
+(see reference in <<annex-C>>) and <<cls-13.1>>, below for details.
+
+* _Geometric Validation Properties (GVP):_ They describe characteristics of a
+solid or surface model or of a collection of them and are assigned to parts and assemblies.
+See <<CAx-IF-RP,section=4>>
+(see reference in <<annex-C>>) and <<cls-13>>, below for details.
+
+These validation properties enable the verification of geometry and assembly information of
+received data sets. Values for these properties are added to the exchanged data set of the
+product structure, that is, to the representation that is sent to the target system. The
+target system reads the received data set including the source validation properties. It
+converts the data set, but not the validation properties, to the target representation. The
+target system derives the validation properties from this local representation after
+conversion using the same algorithms that are described here and that were applied at the
+source system.
+
+The validation property values of the source and the target representations are then
+compared, manually or by a dedicated application. If the values are identical within an
+agreed tolerance, the semantics of the source product data were exchanged correctly to the
+target representation. With this, the validation of the exchange is completed successfully.
+
+*_Preprocessor Recommendations:_* It is recommended that all the validation properties of one
+AssemblyDefinition use the same PropertyValueAssignment.
+
+[[cls-13.1]]
+=== Assembly Validation Properties (Notional Solid, Number of Children)
+
+<<CAx-IF-RP,section=7>>
+(see reference in <<annex-C>>) specifies the semantics of two Assembly Validation Properties:
+
+* _Number of Children:_ For each node the number of instances or branches is recorded.
+
+* _Notional Solids Centroid Position:_ The positional information for each instance in the
+product structure is recorded, i.e. position and orientation of the coordinate systems for
+each child node relative to its parent. Note that this condition is not mathematically
+guaranteed by this methodology, but the chance of an incorrect position and orientation
+combining to give the correct result is extremely small.
+
+These two validation properties allow verifying that the number of instances found at each
+node is correct and that the position and orientation information for each instance is
+correct.
+
+The following sub-sections describe the representations of values of these properties in an
+AP242 Domain XML exchange structure.
+
+[[cls-13.1.1]]
+==== Number of Children
+
+Each Part node which is a parent part of at least one other Part node will have a property
+attached to enumerate the actual number of child instances of that parent node.
+
+This property shall be assigned to an AssemblyDefinition as property, using the
+"PropertyAssignment" template; see <<cls-6.2>>. The property value counts the number
+of NextAssemblyOccurrenceUsage instances that reference this AssemblyDefinition
+by their relating-attribute; see <<fig-88>>, below.
+
+NOTE: Number of Children properties shall be computed without taking configuration
+management information into account, since not all target applications support configuration
+management information. Configuration management information may include concepts like
+effectivity and versioning.
+
+The property value shall be instantiated according to the following description, which is
+depicted in the instance diagram in <<fig-88>> below.
+
+All instances of type AssemblyDefinition that are used as relating AssemblyDefinition
+instances by one or more NextAssemblyOccurrenceUsage instances will
+have a single PropertyValueAssignment of the PropertyAssignment template assigned
+to it to represent the number of children count. The classification of this
+PropertyValueAssignment instance shall follow the
+recommendation for attribute classifiedAs in <<cls-6.2>>.
+
+Only one NumericalValue shall be referenced by this PropertyValueAssignment,
+that is, there shall be only one element in the set of assignedPropertyValues.
+The name of this NumericalValue shall be 'number of children'. The
+PropertyDefinition.PropertyType shall be 'assembly validation property' and the
+PropertyDefinition.Id shall be 'quality property'. The Unit of the NumericalValue shall be
+'each'. The format of the NumericalValue should be Integer (i.e. not a real with comma or
+scientific notation).
+
+[[fig-88]]
+.Instantiation of AVP 'number of children' for 3 children
+image::img120.png[]
+
+[[cls-13.1.2]]
+==== Notional Solids Centroid Position
+
+This property is similar to the geometric validation property "centroid"
+(see section ??): here, as well, a location property is defined for
+each sub-assembly. However, in this case the property is not calculated
+based on the real geometry of the product.
+
+The details of this property are specified in
+<<CAx-IF-RP,section=7.2>> and repeated here.
+
+For the top node and each intermediate node of a product structure, a notional solid is
+assumed within the child node of each child instance of that node. Using the positional and
+orientation relationship for each child instance, a centroid position can be calculated for
+the combined set of notional solids within the set of child instances.
+
+The notional solid will be a cube of size 10 x 10 x 10. The notional solid will be
+positioned with its centroid at (10.0, 10.0, 10.0) of the coordinate system of the child
+node. Note that the actual size and shape of the notional solid will not, in fact, affect
+the overall result. The key data is the centroid position and the assumption that the volume
+of the notional solid in each child node is the same. Mathematically, the calculated point
+is the mean of the set of points at (10.0, 10.0, 10.0) within the child nodes.
+
+Note that in contrast to an actual solid centroid, the notional solid itself is not in the
+STEP file -- it is just a convention. Thus, it has to be ensured that the correct
+geometrical context is used for the notional solids centroid position, in order to guarantee
+that the units are applied correctly. In addition, the notional solid does not have any
+material properties such as density and weight, thus centroid, center of mass and center of
+geometry are synonymous.
+
+The child node may be a leaf node of the overall assembly or another intermediate node within
+the sub-assembly. Each case is treated in the same way. Even though the child node might be
+an intermediate node with no actual geometry defined, a notional solid will be assumed for
+the purpose of this calculation.
+
+The notional centroid for each sub-assembly is influenced only by the notional solids in
+each of its direct child nodes.
+
+The property value shall be instantiated according to the following description, which is
+depicted in the instance diagram in <<fig-89>>, below.
+
+All instances of type AssemblyDefinition that are referenced as relating AssemblyDefinition
+instances by one or more NextAssemblyOccurrenceUsage instances will have a single
+CentreOfMass assigned to it. The CentreOfMass represents the notional solid centroid
+position. The child nodes that this centroid position is valid for are those Occurrences
+that are referenced by the NextAssemblyOccurrenceUsage.related attributes.
+
+The role of the CentreOfMass shall be 'assembly validation property'. Its id shall be
+'notional solids centroid'. An AssemblyDefinition instance shall be assigned at maximum one
+instance of CentreOfMass with this id.
+
+The CentreOfMass.centrePoint is a CartesianPoint with exactly three coordinate values of type
+REAL. The CartesianPoint defines the calculated centroid for the notional solids assumed for
+each child node. See <<cls-6.1>> for the definition of CartesianPoint.
+
+To denote the coordinate space of the CartesianPoint a GeometricCoordinateSpace is
+instantiated with dimensionCount equal three, as this is a centroid in three-dimensional
+space.
+
+The unit that the coordinate values are measured in shall be provided as string-value in the
+attribute CentreOfMass.definedIn.unit or at least in ExchangeContext.DefaultUnit.
+
+In case of relative positioning, it is up to the pre-processor to provide a distinct instance
+of GeometricCoordinateSpace for each CentreOfMass.
+
+[[fig-89]]
+.Instantiation of AVP 'notional solids centroid'
+image::img121.png[]
+
+[[tab-76]]
+."CentreOfMass" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY CentreOfMass
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| DefinedIn
+| GeometricCoordinateSpace
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| Id
+| OPTIONAL Id
+
+| Role
+| OPTIONAL ClassSelect
+
+| span:gray[ValueDetermination]
+| span:gray[OPTIONAL ClassSelect]
+
+| CentrePoint
+| CartesianPoint
+|===
+
+*_Attribute recommendations:_*
+
+* *_DefinedIn_*: the GeometricCoordinateSpace in which the property is applicable. To denote
+the coordinate space of the CartesianPoint, a GeometricCoordinateSpace is instantiated
+with dimensionCount equal three, as this is a centroid in three dimensional space. The
+unit that the coordinate values are measured in shall be provided as string-value in the
+attribute CentreOfMass.definedIn.unit . In case of relative positioning, it is up to the
+preprocessor to provide a distinct instance of GeometricCoordinateSpace for
+each CentreOfMass.
+
+* *_Id_*: the identifier for the CentreOfMass. The id shall be provided as type
+IdentifierString; the string value shall be 'notional solids centroid'. An
+AssemblyDefinition object shall be assigned at maximum one object of CentreOfMass
+with this id.
+
+* *_Role_*: the meaning of the assignment. The role of the CentreOfMass shall be provided as
+type ClassString; the string value shall be 'assembly validation property'.
+
+* *_CentrePoint_*: a point in three-dimensional space that defines the location of a
+CentreOfMass in a GeometricCoordinateSpace. The CentreOfMass.centrePoint is a CartesianPoint
+with exactly three coordinate values of type REAL. The CartesianPoint defines the
+calculated centroid for the notional solids assumed for each child node.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* If the Part/Assembly for the CentreOfMass has a GeometricModel associated to it, both
+(CentreOfMass and GeometricModel) shall be defined in the same GeometricCoordinateSpace.
+
+*_Postprocessor Recommendations:_*
+
+* According to the <<CAx-IF-RP,section=4.13.2>>, the value of the validation property
+(CentrePoint) and the centroid value calculated using the AP242 XML file shall not deviate
+by more than 1 millimeter three-dimensional distance to be considered as 'green'.
+
+*_Related Entities:_*
+
+* See <<tab-35>> in <<cls-6.1>> for the definition of CartesianPoint.
+
+* See <<tab-33>> in <<cls-6.1>> for the definition of GeometricCoordinateSpace.
+
+[[cls-13.2]]
+=== Geometric Validation Properties (Repeated from referenced Parts)
+
+Geometric Validation Properties (GVP) describe characteristics of a solid or surface model
+or of a collection of them. The original specification of GVPs is in <<CAx-IF-RP,section=4>>
+(see reference in <<annex-C>>) for details.
+
+It is recommended that the Geometrical Validation Properties are mapped within the CAD
+models, so that the single parts can be validated using the GVPs.
+
+Additionally, the assembly structure can be validated using the Assembly Validation
+Properties. If both is correct, everything is OK: There is no need to store the GVPs in the
+Domain Model.
+
+[[cls-13.3]]
+=== LOTAR Product Structure Validation Properties (PSVP)
+
+NOTE: Some concepts in this section, namely the definition and transfer of the hash attribute
+definitions, are included for completeness but have not yet been fully tested. Hence, these
+definitions might change in the future.
+
+In order to check the integrity of the exchanged/archived product structure data, LOTAR
+defines a way to build hash values out of multiple attribute values (see LOTAR document
+referenced in <<annex-C>>). The LOTAR specification is not specific to a data format, so
+here the implementation recommendation is defined for usage with the AP242 Domain Model.
+
+[[fig-90]]
+.Example of LOTAR Product Structure Validation Properties at the single File, Part and Assembly level
+image::img122.png[]
+
+The following Validation Properties are defined:
+
+* AHash: is the hash value of the associated node based on the attributes defined by the
+AHashAttributes + (in case structure relationships underneath the node shall also be
+taken into consideration) based on the attributes defined by the AHashStructureAttributes
+
+* BHash: is the hash value of a non-geometrical file, like PDF
+
+* CHash: is the hash value of a geometrical file, like AP242 P21, JT, ...
+
+* The mechanisms defined in this section allow any further Hash (DHash, EHash, ...)
+defined on further objects, project specific and agreed between the exchange partners.
+
+A hash value must be calculated using a standard cryptographic algorithm to generate a unique
+signature The Hash algorithm used to compute the hash values is also mapped, so that the
+consumers of the data can regenerate the hash after loading to validate that the data
+integrity. Recommended are:
+
+* SHA1 for AHash
+* SHA512 for BHash and CHash, due to its greater length but any industry standard
+algorithm that ensures file uniqueness are possible if agreed between the exchange partners.
+
+[NOTE,type=remark]
+====
+Even if stored as a string property, a hash is a hexadecimal value,
+therefore it is _not_ case sensitive.
+====
+
+Two main use cases are identified:
+
+. Import the STEP data in the target PDM system, compute the validation properties out of
+the imported data and compare them with the values given in the STEP data
+
+. Validation of the STEP data itself, before importing/archiving the STEP data
+
+These two use cases have slightly different requirements. These differences are mentioned
+along the following sections.
+
+[[cls-13.3.1]]
+==== Definition of AHashAttributes
+
+AHashAttributes is a comma separated list of the object attributes, that have
+their values included in the AHash calculation.
+This is a subset of the attributes in the AP242 Domain Model XML file.
+However, it is possible to define another separator in the PropertyValues
+AHashAttributesSeparatorBegin (instead of ',') and AHashSeparatorEnd
+(empty in case of ',', used only with different
+begin and end separators like '<' and '>').
+For use case 1, it shall be ensured that all attributes of this
+subset shall be imported into the target system, for example
+
+* overtake the partner revision number
+* no truncation of large string attribute values
+* enough precision in order to overtake all the significant digits of integers/doubles
+* etc...
+
+The attributes shall be uniquely identified using their case-sensitive spelling defined in
+the XSD and a path definition, how to come from the current object to the attribute.
+
+The EXPRESS path operators provide a powerful mechanism to traverse forward/backward any
+path, but would be a rupture with the XML data and XSD definition and would require specific
+development due to the lack of wide tool support.
+Rather than defining a proprietary syntax, the possibilities of Xpath have been analyzed and
+seem to be sufficient.
+For better understanding, the following examples are given both in XPath syntax and (for
+information) in EXPRESS syntax. AHashAttributes shall contain only the XPath syntax.
+
+[example]
+.Example of AHashAttributes: the line feeds (replacing the ',') are here only for better readability but shall not be part of the real data
+====
+[source%unnumbered]
+----
+./parent::Views/parent::PartVersion/parent::Versions/parent::Part/Id/Identifier
+
+./parent::Views/parent::PartVersion/parent::Versions/parent::Part/Name
+
+//PersonInOrganization
+  [@uid=./parent::Views/parent::PartVersion/OrganizationOrPersonInOrganizationAssignment
+      [Role/ClassString='creator']
+    /AssignedPersonOrOrganization/@uidRef
+  ]/Id/Identifier/@id
+
+./parent::Views/parent::PartVersion/DateTimeAssignment
+  [Role/ClassString='creation']
+  /AssignedDate
+
+./Id/Identifier
+
+//Approval
+  [@uid=./parent::Views/parent::PartVersion/ApprovalAssignment
+    [not(boolean(./Role))]
+    /AssignedApproval/@uidRef
+  ]/Status
+
+./PropertyValueAssignment/AssignedPropertyValues/PropertyValue
+  [Name/CharacterString='PDMIFPartTol_xxx']:7E
+
+./PropertyValueAssignment/AssignedPropertyValues/PropertyValue
+  [Name/CharacterString='PDMIFPartVers_ValueList']
+
+//Class
+  [@uid=//Classification
+    [@uid=./parent::Views/parent::PartVersion/parent::Versions/parent::Part/ClassifiedAs/Classification/@uidRef
+    ]
+    /Class/Class/@uidRef
+  ]
+
+./parent::Views/parent::PartVersion/parent::Versions/parent::Part/PartTypes[PartCategoryEnum='assembly']/PartCategoryEnum/text()
+----
+
+Here the value without line feeds (with ',' as separator):
+
+[source%unnumbered]
+----
+./parent::Views/parent::PartVersion/parent::Versions/parent::Part/Id/Identifier,./parent::Views/parent::PartVersion/parent::Versions/parent::Part/Name,//PersonInOrganization[@uid=./parent::Views/parent::PartVersion/OrganizationOrPersonInOrganizationAssignment[Role/ClassString='creator']/AssignedPersonOrOrganization/@uidRef]/Id/Identifier/@id,./parent::Views/parent::PartVersion/DateTimeAssignment[Role/ClassString='creation']/AssignedDate,./Id/Identifier,//Approval[@uid=./parent::Views/parent::PartVersion/ApprovalAssignment[not(boolean(./Role))]/AssignedApproval/@uidRef]/Status/ClassString,./PropertyValueAssignment/AssignedPropertyValues/PropertyValue[Name/CharacterString='PDMIFPartTol_xxx']:7E,./PropertyValueAssignment/AssignedPropertyValues/PropertyValue[Name/CharacterString='PDMIFPartVers_ValueList'],//Class[@uid=//Classification[@uid=./parent::Views/parent::PartVersion/parent::Versions/parent::Part/ClassifiedAs/Classification/@uidRef]/Class/Class/@uidRef],./parent::Views/parent::PartVersion/parent::Versions/parent::Part/PartTypes[PartCategoryEnum='assembly']/PartCategoryEnum/text()
+----
+
+Equivalence using EXPRESS path operators (just for information):
+
+[source%unnumbered]
+----
+SELF::ViewOf::VersionOf::Id,
+
+SELF::ViewOf::VersionOf::Name,
+
+SELF::Viewof<-AssignedTo{OrganizationOrPersonInOrganizationAssignment | Role = 'creator'}[1]::AssignedPersonOrOrganization::Id,
+
+SELF::Viewof<-AssignedTo{DateTimeAssignment | Role = 'creation'}[1]::AssignedDate,
+
+SELF::Id,
+
+SELF::Viewof<-AssignedTo{ApprovalAssignment | Description = 'disposition' AND Role = ?}[1]::Status,
+
+SELF<-AssignedTo{PropertyValueAssignment}::AssignedPropertyValues{PropertyValue | Name = 'PDMIFPartTol_xxx'},
+
+SELF<-AssignedTo{PropertyValueAssignment}::AssignedPropertyValues{PropertyValue | Name = 'PDMIFPartVers_ValueList'},
+
+SELF::ViewOf::VersionOf::ClassifiedAs::Class
+
+SELF::ViewOf::VersionOf{PartTypes = PartCategoryEnum.assembly}::PartTypes[1]
+----
+====
+
+The order of the attributes in the list defines the order of their string value
+concatenation.
+
+Each attribute value is assumed to be an XML string (use of UTF-8 as stated in the first
+line of the XML file).
+
+In order to handle empty values or unset optional attribute, each attribute value
+shall be separated. An appropriate separator shall not occur in the attribute values.
+The use of XML tag delimiter '<' and '>' is recommended (while these characters are mapped as
+&lt; and &gt; if they appear within the attribute values) since it will not collide with an
+attribute value.
+However, it is possible to define another separator in the PropertyValues
+AHashSeparatorBegin and AHashSeparatorEnd.
+
+[example]
+.Example of string concatenation of the AHash attribute values before computing the AHash: the line feeds and blanks between two separators are here only for better readability but shall not be part of the real data
+====
+[source%unnumbered]
+----
+<
+  <
+    <as1-A>
+    <identification information>
+    <company-a.com>
+  >
+  <
+    <as1-B>
+    <exchange identification information>
+    <company-b.com>
+  >
+  <
+    <as1-C>
+    <identification information>
+    <company-c.com>
+  >
+>
+
+<
+  <de-DE><as 1 deutsch>
+  <en-US><as 1 english>
+  <fr-FR><as 1 francais>
+>
+
+<005-TP/EVD-Mustermann>
+
+<2021-10-16T09:08:07>
+
+<&>
+
+<in progress>
+
+<
+  <3e-3>
+  <8.901>
+  <4e-3>
+>
+
+<
+  <PDMIFPartVers_ValueList#1>
+  <PDMIFPartVers_ValueList#2>
+  <PDMIFPartVers_ValueList#3>
+>
+
+<
+  <customized part type>
+  <PDMIFPartType_xxx>
+>
+
+<assembly>
+----
+
+Here the value without line feeds:
+
+[source%unnumbered]
+----
+<<<as1-A><identification information><company-a.com>><<as1-B><exchange identification information><company-b.com>><<as1-C><identification information><company-c.com>>><<de-DE><as 1 deutsch><en-US><as 1 english><fr-FR><as 1 francais>><005-TP/EVD-Mustermann><2021-10-16T09:08:07><&><in progress><<3e3><8.901><4e-3><<PDMIFPartVers_ValueList#1><PDMIFPartVers_ValueList#2><PDMIFPartVers_ValueList#3>><<customized part type><PDMIFPartType_xxx>><assembly>
+----
+====
+
+The AHash value for this string (used as CPAH in the next section) is
+69601e8d1534d46214141a1461c966ff96699a66 (computed with http://www.sha1online.com/).
+
+[[cls-13.3.1.1]]
+===== Date/Time
+
+For use case 1, all dates and times shall be converted to UTC (Time Zone Designation 'Z', 'Z'
+being given in the string value) during computing the hash value, so the hash value is
+reproduceable.
+
+[[cls-13.3.1.2]]
+===== ValueWithUnit
+
+Each value (NumericalValue) of combination of values (ValuesWithTolerances,
+ValueRange, ValueList, ValueSet, LimitsAndFits) shall be enclosed in a start and end
+separator so it is clear that they belong to one PropertyValue.
+
+For use case 1, complex values like ValueRange, ValueWithTolerances, the value components
+shall be concatenated in alphabetical order.
+
+For use case 2, complex values like ValueRange, ValueWithTolerances, the value components
+shall be concatenated in the order defined by the XSD.
+
+If the value has a unit (except Integer, Real, Boolean, Logical as defined in
+<<cls-12.5.3>>), and
+if the unit is different from the default unit defined in ExchangeContext.DefaultUnit,
+the ValueWithUnit.Unit.Prefix + Unit.Name shall be considered for building the hash value
+(especially in use case 1 after import/re-export of the dat), but does not need to be
+part of the hashed value since part of the definition of the PropertyValue in the original
+stpx file.
+
+[NOTE,type=remark]
+====
+The xPath needs only to point ot the element of type ValueWithUnit =>
+xPath only returns the ValueWithUnit node without content (since it is not of type string)
+and the algorithm used to build the AHash shall retrieve the content of ValueWithUnit,
+depending on which kind of ValueWithUnit applies.
+====
+
+In case of ValueList, redundant values shall not be pruned (like xPath would do it).
+
+[[cls-13.3.1.3]]
+===== Double
+
+For use case 1, double values need to be formatted in a unique way, so the hash value is
+reproduceable:
+
+* Zero should simply be represented as 0.
+* The first non zero digit should be to the left of the decimal.
+* Remove trailing zeros from the decimal.
+* Remove leading zeros from the exponent.
+* When the exponent is zero remove the exponent portion altogether.
+* The negative symbol is only included when required, positive signs are always suppressed.
+
+For use case 1, a "format" specification (for the number of relevant digits of double
+attributes, see below) has to be defined, since the interfaces may provide more digits than
+the relevant precision, which may cause different roundings and would lead to different hash
+values. Its syntax shall be `[width]type` placed directly at the end of the attribute path,
+using the separator ':'.
+
+* `width` gives the number of relevant digits after the dot in an
+exponential notation having only one digit before the dot
+
+* `type` (E)xponential
+
+It is possible to define another separator in the PropertyValues
+AHashAttributeFormatSeparatorBegin
+(instead of ':') and AHashAttributeFormatSeparatorEnd (empty in case of ':', used only
+with different begin and end separators like '<' and '>').
+
+If no format is provided, all provided digits are assumed to be relevant.
+This can be applied for use case 2.
+
+[example]
+`-1e4, 1.43233e12, 1.278e-3, 1.2e1, 0, 3.4e1, 1.75`
+
+This also applies to vector and matrix attributes like in
+CartesianTransformation or AxisPlacement.
+
+Using xPath, the format and the number of relevant digits can only be defined
+on each element of type `xsd:double` using the XSLT function
+`format-number(LowerLimit, '\#.\##\##\##\###')`.
+Therefore, a proprietary extension to xPath is necessary: add :xE where x is the integer
+size of the display including the digit left to the decimal and excluding the negative
+and decimal signs. The format applies to all elements of type `xsd:double` present within
+the Xpath element where it is defined. For example for a ValueWithTolerances,
+`PropertyValue:7E` applies to TolerancedValue, LowerLimit and UpperLimit. In case of
+RotationMatrix:7E and TranslationVector:7E, it applies to each element of the Matrix/Vector.
+
+=> For the computation of the AHash, the double value shall be rounded. For example with 7E,
++01.2345678000e012 would be formatted and truncated to 1.234568e12 when building the
+AHash value.
+
+For use case 2, neither the format nor the number of relevant digits need to be defined
+since the values provided in the STEP file shall be taken as is (as strings).
+
+[[cls-13.3.1.4]]
+===== Boolean/Logical
+
+According to <<cls-12.5.3>>, 1 for 'TRUE', 0 for 'FALSE', and 0.5 for 'UNKNOWN' shall be
+mapped using their decimal value.
+
+[[cls-13.3.1.5]]
+===== ValueList, ValueSet
+
+For use case 1, the SET value components shall be concatenated in the alphabetical order
+while the LIST value components shall be ordered as they are stored in the target PDM system.
+For use case 2, the value components shall be concatenated in the order given in the stpx
+File.
+
+The List/Set of values shall be enclosed in a start and end separator so it is clear that
+they belong to one PropertyValue.
+
+[[cls-13.3.1.6]]
+===== Identifier(s)
+
+In case an Id is not of type IdentifierString, but of type Identifier, all three XML
+attributes (id, idRoleRef.Id and idContextRef.Id shall be concatenated in the order defined
+in the XSD.
+
+Each triple of id, idRoleRef.Id and idContextRef.Id shall be enclosed in a start and end
+separator so it is clear that they belong to one PropertyValue.
+
+For use case 1, in case of multiple Identifiers, all the Identifiers shall be concatenated in
+alphabetical order.
+
+For use case 2, in case of multiple Identifiers, all the Identifiers shall be concatenated
+in the order given in the stpx File.
+
+Multiple identifiers shall be enclosed in a start and end separator so it is clear that they
+belong to one identifier attribute.
+
+[NOTE,type=remark]
+====
+The xPath needs only to point ot the element of type IdentifierSelect => xPath only
+returns the Identifier node without content (since it is not of type string) and the
+algorithm used to build the AHash shall retrieve the IdentifierString, the Identifier or the
+multiple Identifiers elements, depending on which applies.
+====
+
+[[cls-13.3.1.7]]
+===== Class
+
+In case a classification attribute is not of type ClassString, but of type Class, both XML
+attributes DefinedIn.Id and Id shall be concatenated in the order given in the stpx File and
+enclosed in a start and end separator so it is clear that they belong to one class attribute.
+
+[NOTE,type=remark]
+====
+The xPath needs only to point ot the element of type ClassSelect => xPath only returns
+the Class node without content (since it is not of type string) and the algorithm used to
+build the AHash shall retrieve the ClassString or the Class elements, depending on which
+applies.
+====
+
+[[cls-13.3.1.8]]
+===== LocalizedString
+
+In case a string attribute is not of type CharacterString, but LocalizedString, all the
+localized strings shall be concatenated and for each of them, both attributes
+`lang` and the string value shall be concatenated and enclosed in a start and end separator
+so it is clear that they belong to one string attribute.
+
+For use case 1, all the LocalizedStrings shall be concatenated in alphabetical order of
+`lang`.
+
+For use case 2, all the LocalizedStrings shall be concatenated in the order given in the
+stpx File.
+
+[NOTE,type=remark]
+====
+The xPath needs only to point ot the element of type MultiLingualStringSelect => xPath
+only returns the MultiLingualStringSelect node without content (since it is not of type
+string) and the algorithm used to build the AHash shall retrieve the CharacterString or the
+LocalizedStrings, depending on which applies.
+====
+
+[[cls-13.3.1.9]]
+===== Unset
+
+If the given path for an attribute as no match, either because the path is not fulfilled or
+because the attribute value ist unset, the value of the attribute shall be unset
+
+In order to distinguish between empty and unset attribute, empty shall be mapped as an empty
+value and unset as '&'. Since & is mapped as "&amp;" if it appears within the attribute
+values, it will not collide with an attribute value.
+
+However, it is possible to define another unset character in the PropertyValue
+AHashUnsetFlag.
+
+[[cls-13.3.1.10]]
+===== Subtypes
+
+A given subtype may be restricted in xPath using
+`[@xsi:type='bom:ValueList'`], but this is not
+supported by all xPath engines (like XMLSpy).
+
+[[cls-13.3.1.11]]
+===== Enumerations
+
+A given enumeration value may be restricted in xPath using
+`[PartCategoryEnum='assembly']` and `PartCategoryEnum/text()`
+to retrieve the value itself.
+
+[[cls-13.3.2]]
+==== Definition of AHashStructureAttributes
+
+AHashStructureAttributes is a comma separated list of the structure relationship attributes
+underneath the object, that have their values included in the AHash calculation.
+
+However, it is possible to define another separator in the PropertyValues
+AHashAttributesSeparatorBegin (instead of ',') and AHashSeparatorEnd
+(empty in case of ',', used only with different
+begin and end separators like '<' and '>').
+
+xPath prunes all duplicate and empty values from its result. Therefore, a two step approach
+is needed to get the relevant structure attributes for each child of the structure
+relationship:
+
+. Set AHashStructureAttributes[1] with the relative path from the object to the chosen
+relationship
+. Set AHashStructureAttributes[2] to [n] with the xPaths to the relevant attribute,
+expressed relatively to AHashStructureAttributes[1].
+
+All aspects of the previous section apply, except that in this case, the AHash
+computation is done in three steps:
+
+. Hash computation based on AHashAttributes, called the Current Part Attribute Hash
+(CPAH), as defined in the previous section
+
+. Computation of AHashStructureAttributes[1]
+.. For each result found, computation/concatenation based on AHashStructureAttributes[2]
+to [n]
+
+. String concatenation of the CPAH value with the result of step 2
+
+. Hash computation of the whole string
+
+In order to handle multiple relationships, the attribute list related to each relationship
+shall be separated.
+An appropriate separator shall not occur in the attribute values.
+The use of XML tag delimiter '<' and '>' is recommended (while these characters are mapped as
+&lt; and &gt; if they appear within the attribute values) since it will not collide with an
+attribute value.
+However, it is possible to define another separator in the PropertyValues
+AHashStructureSeparatorBegin and AHashStructureSeparatorEnd
+
+Example of AHashStructureAttributes: the line feeds (replacing the ',') are here only for
+better readability but shall not be part of the real data:
+
+[source%unnumbered]
+----
+< -- first relationship
+  ./ViewOccurrenceRelationship[xsi:type="bom:NextAssemblyOccurrenceUsage"] -- relative path of the relationship
+
+  //Occurrence[@uid=./Related/@uidRef]/Id/@id
+
+  ./Placement/CartesianTransformation/RotationMatrix:7E
+
+  ./Placement/CartesianTransformation/TranslationVector:7E
+
+  //Occurrence[@uid=./Related/@uidRef]/parent::PartView/parent::Views/parent::PartVersion/parent::Versions/parent::Part/Id/Identifier
+
+  ./PropertyValueAssignment/AssignedPropertyValues/PropertyValue[Name/CharacterString='PDMIFNaou_Boolean']
+>
+< -- second example of relationship, not used in the following example
+  ./parent::Views/parent::PartVersion/PartVersionRelationship[RelationType/ClassString='alternative']
+  ...
+>
+----
+
+Here the value without line feeds (with ',' as separator):
+
+[source%unnumbered]
+----
+<./ViewOccurrenceRelationship[xsi:type="bom:NextAssemblyOccurrenceUsage"],//Occurrence[@uid=./Related/@uidRef] /Id/@id,./Placement/CartesianTransformation/RotationMatrix:7E,./Placement/CartesianTransformation/TranslationVector:7E,//Occurrence[@uid=./Related/@uidRef]/parent::PartView/parent::Views/parent::PartVersion/parent::Versions/parent::Part/Id/Identifier,./PropertyValueAssignment/AssignedPropertyValues/PropertyValue[Name/CharacterString='PDMIFNaou_Boolean']>
+----
+
+Equivalence using EXPRESS path operators (just for information):
+
+[source%unnumbered]
+----
+SELF<-Relating{NextAssemblyOccurrenceUsage}::Related::Id,
+SELF<-Relating{NextAssemblyOccurrenceUsage}::Placement::RotationMatrix,
+SELF<-Relating{NextAssemblyOccurrenceUsage}::Placement::TranslationVector,
+SELF<-Relating{NextAssemblyOccurrenceUsage}::Related::Definition::ViewOf::VersionOf::Id,
+SELF<-Relating{NextAssemblyOccurrenceUsage}<-AssignedTo{PropertyValueAssignment}::AssignedPropertyValues{PropertyValue | Name = 'PDMIFNaou_Boolean'},
+SELF::ViewOf<-Relating{PartVersionRelationship}...
+----
+
+[example]
+.Example of string concatenation of the AHash attribute values before computing the AHash: the line feeds and blanks are here only for better readability but shall not be part of the real data
+====
+[source%unnumbered]
+----
+<69601e8d1534d46214141a1461c966ff96699a66>
+<
+<
+  <left bracket>
+  <0 -0.866025 -0.5 1 0 0 0 -0.5 0.866025>
+  <5e1 -1.6967263e1 1.680486e1>
+  <
+    <
+      <l-bracket-A>
+      <identification information>
+      <company-a.com>
+    >
+    <
+      <l-bracket-B>
+      <exchange identification information>
+      <company-b.com>
+    >
+    <
+      <l-bracket-C>
+      <identification information>
+      <company-c.com>
+    >
+  >
+  <
+    <logical representation>
+    <0>
+  >
+>
+
+<
+  <plate.1>
+  <-1 0 0 0 0.5 -0.866025 0 -0.866025 -0.5>
+  <1e2 -3.25e1 -5.629165e1>
+  <
+    <
+      <plate-A>
+      <identification information>
+      <company-a.com>
+    >
+    <
+      <plate-B>
+      <exchange identification information>
+      <company-b.com>
+    >
+    <
+      <plate-C>
+      <identification information>
+      <company-c.com>
+    >
+  >
+  <
+    <logical representation>
+    <0>
+  >
+>
+
+<
+  <prod4.1>
+  <0 -0.5 0.866025 0.5 0.75 0.433013 -0.866025 0.433013 0.25>
+  <4e1 2.5 -1.16913e2>
+  <
+    <
+      <nut and rod-A>
+      <identification information>
+      <company-a.com>
+    >
+    <
+      <nut and rod-B>
+      <exchange identification information>
+      <company-b.com>
+    >
+    <
+      <nut and rod-C>
+      <identification information>
+      <company-c.com>
+    >
+  >
+  <
+    <logical representation>
+    <0>
+  >
+>
+
+<
+  <right bracket>
+  <0 0.866025 0.5 1 0 0 0 0.5 -0.866025>
+  <5e1 -4.803274e1 -1.293882e2>
+  <
+    <
+      <l-bracket-A>
+      <identification information>
+      <company-a.com>
+    >
+    <
+      <l-bracket-B>
+      <exchange identification information>
+      <company-b.com>
+    >
+    <
+      <l-bracket-C>
+      <identification information>
+      <company-c.com>
+    >
+  >
+  <
+    <logical representation>
+    <0>
+  >
+  >
+>
+----
+
+Here the value without line feeds:
+
+[source%unnumbered]
+----
+<69601e8d1534d46214141a1461c966ff96699a66><<<left bracket><0 -0.866025 -0.5 1 0 0 0 -0.5 0.866025><5e1 -1.696726e1 1.680486e1><<<l-bracket-A><identification information><company-a.com>><<l-bracket-B><exchange identification information><company-b.com>><<l-bracket-C><identification information><company-c.com>>><<logical representation><0>>><<plate.1><-1 0 0 0 0.5 -0.866025 0 -0.866025 -0.5><1e2 -3.25e1 -5.629165e1><<<plate-A><identification information><company-a.com>><<plate-B><exchange identification information><company-b.com>><<plate-C><identification information><company-c.com>>><<logical representation><0>>><<prod4.1><0 -0.5 0.866025 0.5 0.75 0.433013 -0.866025 0.433013 0.25><4e1 2.5 -1.169134e2><<<nut and rod-A><identification information><company-a.com>><<nut and rod-B><exchange identification information><company-b.com>><<nut and rod-C><identification information><company-c.com>>><<logical representation><0>>><<right bracket><0 0.866025 0.5 1 0 0 0 0.5 -0.866025><5e1 -4.803274e1 -1.293882e2><<<l-bracket-A><identification information><company-a.com>><<l-bracket-B><exchange identification information><company-b.com>><<l-bracket-C><identification information><company-c.com>>><<logical representation><0>>>>
+----
+
+The AHash value for this string is 800278a65702afbf845477d4cee7f1798913127a (computed
+with http://www.sha1-online.com/).
+====
+
+In order to handle structure relationship has multiple childs, the AHashStructureAttribute
+values for each child shall be enclosed in a start and end separator so it is clear that
+they belong to different childs. For more details, see AHashSeparatorBegin and
+AHashSeparatorEnd defined ins the previous section.
+
+Since especially the backward path expression (similar to the USEDIN EXPRESS function)
+returns an unordered SET back, it is important that the order is kept over all the
+AHashStructure-attributes that use the same path, so that the multiple childs
+are concatenated consistently.
+
+For use case 1, the order of the backward SET-values shall be the alphabetical order of the
+internal ids of the referenced PDM objects.
+
+For use case 2, the order of the backward SET-values shall be the alphabetical order of the
+uids of the referenced XML objects.
+
+In order to be able to exchange/archive the product structure in nested files (see
+<<cls-9.3>>), the AHashStructureAttributes shall contain only key attributes of the child
+parts that are used to reference it in a nested file. Otherwise, every local changes in the
+child parts would oblige to compute bottom up all the AHashes of the whole product structure.
+
+[[cls-13.3.3]]
+==== Template "AHash"
+
+This section specifies what and how to attach the AHash, AHashAttributes,
+AHashStructureAttributes and AHashAlgorithm properties to an object.
+
+Currently, it is recommended to attach a AHash only to a PartView or to an
+AssemblyDefinition.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<PropertyDefinition uid="ID_216">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>assembly validation property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyDefinition uid="ID_216-1">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>product structure validation property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+
+<Part uid="p--0000000017D374A0">
+...
+  <Id>
+    <Identifier uid="pid--0000000017D374A0--id1" id="as1-A" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+    <Identifier uid="pid--0000000017D374A0--id2" id="as1-B" idRoleRef="rl--eii" idContextRef="o--000000179"/>
+    <Identifier uid="pid--0000000017D374A0--id3" id="as1-C" idRoleRef="rl--ii" idContextRef="o--000000180"/>
+  </Id>
+...
+
+  <Versions>
+    <PartVersion uid="pv--0000000017D374A0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017D374A0--id1">
+...
+          <PropertyValueAssignment uid="ID_225">
+            <AssignedPropertyValues>
+              <PropertyValue uid="ID_224" xsi:type="n0:NumericalValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_216"/>
+                </Definition>
+                <Name>
+                  <CharacterString>number of children</CharacterString>
+                </Name>
+                <Unit uidRef="ID_x543008816"/>
+                <ValueComponent>4</ValueComponent>
+              </PropertyValue>
+              <PropertyValue uid="ID_224-1" xsi:type="n0:StringValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_216-1"/>
+                </Definition>
+                <Name>
+                  <CharacterString>AHash</CharacterString>
+                </Name>
+                <ValueComponent>
+                  <CharacterString>800278a65702afbf845477d4cee7f1798913127a</CharacterString>
+                </ValueComponent>
+              </PropertyValue>
+              <PropertyValue uid="ID_224-2" xsi:type="n0:StringValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_216-1"/>
+                </Definition>
+                <Name>
+                  <CharacterString>AHashAttributes</CharacterString>
+                </Name>
+                <ValueComponent>
+                  <CharacterString>./parent::Views/parent::PartVersion/parent::Versions/parent::Part/Id/Identifier,./parent::Views/parent::PartVersion/parent::Versions/parent::Part/Name,//PersonInOrganization[@uid=./parent::Views/parent::PartVersion/OrganizationOrPersonInOrganizationAssignment[Role/ClassString='creator']/AssignedPersonOrOrganization/@uidRef]/Id/Identifier/@id,./parent::Views/parent::PartVersion/DateTimeAssignment[Role/ClassString='creation']/AssignedDate,./ Id/Identifier,//Approval[@uid=./parent::Views/parent::PartVersion/ApprovalAssignment[not(boolean(./Role))]/AssignedApproval/@uidRef]/Status/ClassString,./PropertyValueAssignment/AssignedPropertyValues/PropertyValue[Name/CharacterString='PDMIFPartTol_xxx']:7E,./PropertyValueAssignment/AssignedPropertyValues/PropertyValue[Name/CharacterString='PDMIFPartVers_ValueList'],//Class[@uid=//Classification[@uid=./parent::Views/parent::PartVersion/parent::Versions/parent::Part/ClassifiedAs/Classification/@uidRef]/Class/Class/@uidRef],./parent::Views/parent::PartVersion/parent::Versions/parent::Part/PartTypes[PartCategoryEnum='assembly']/PartCategoryEnum/text()</CharacterString>
+                </ValueComponent>
+              </PropertyValue>
+              <PropertyValue uid="ID_224-3" xsi:type="n0:StringValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_216-1"/>
+                </Definition>
+                <Name>
+                  <CharacterString>AHashStructureAttributes</CharacterString>
+                </Name>
+                <ValueComponent>
+                  <CharacterString>&lt;./ViewOccurrenceRelationship[xsi:type="bom:NextAssemblyOccurrenceUsage"],//Occurrence[@uid=./Related/@uidRef]/Id/@id,./Placement/CartesianTransformation/RotationMatrix:7E,./Placement/CartesianTransformation/TranslationVector:7E,//Occurrence[@uid=./Related/@uidRef]/parent::PartView/parent::Views/parent::PartVersion/parent::Versions/parent::Part/Id/Identifier,./PropertyValueAssignment/AssignedPropertyValues/PropertyValue[Name/CharacterString='PDMIF-Naou_Boolean']&gt;</CharacterString>
+                </ValueComponent>
+              </PropertyValue>
+              <PropertyValue uid="ID_224-4" xsi:type="n0:StringValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_216-1"/>
+                </Definition>
+                <Name>
+                  <CharacterString>AHashAlgorithm</CharacterString>
+                </Name>
+                <ValueComponent>
+                  <CharacterString>SHA1</CharacterString>
+                </ValueComponent>
+              </PropertyValue>
+            </AssignedPropertyValues>
+            <ClassifiedAs>
+              <Classification uidRef="ID_217"/>
+            </ClassifiedAs>
+          </PropertyValueAssignment>
+...
+        </PartView>
+      </Views>
+...
+    </PartVersion>
+  </Versions>
+...
+</Part>
+----
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-91]]
+.Template "AHash"
+image::img123.png[]
+
+List of attributes and recommendation are similar to the PropertyAssignment
+template defined in <<cls-6.2>>.
+
+*_Preprocessor Recommendations:_*
+
+* It is recommended that all the validation properties (AVPs and PSVP) use the same
+PropertyValueAssignment.
+
+* It is recommended to include the specification used to dictate the calculation of the
+hash value ('AHashSpecification'). This may be a reference to the LOTAR specification,
+or it may be a company specific document which provides the recipe for calculation.
+
+* If AHashAttributes, AHastStructureAttributes and AHashAlgorithm have the same values
+for all objects for which a AHash gets calculated, it is recommended to instantiate
+them only in one object.
+
+For this purpose, a JIRA issue TCSC410303-660 has been created to attach them to the
+ExchangeContext. Since a StringValue cannot be reused by multiple PropertyValueAssignments,
+but would have to be copied each time, the above recommendation keeps the datasize as small
+as possible.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+T.B.S.
+
+[[cls-13.3.4]]
+==== Template "BHash and CHash"
+
+This section specifies what and how to attach the BHash and BHashAlgorithm properties to a
+non-geometrical DigitalDocumentDefinition, as well as the CHash and CHashAlgorithm properties
+to a geometrical DigitalDocumentDefinition.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-92]]
+.Template "BHash and CHash"
+image::img124.png[]
+
+*_Preprocessor Recommendations:_*
+
+* It is recommended to include the specification used to dictate the calculation of the
+hash value ('BHashSpecification' or 'CHashSpecification'). This may be a reference to the
+LOTAR specification, or it may be a company specific document which provides the
+recipe for calculation.
+
+* If BHashAlgorithm has the same values for all objects for which a BHash gets
+calculated, it is recommended to instantiate it only in one object.
+For this purpose, a JIRA issue TCSC410303-660 has been created to attach them to the
+ExchangeContext. Since a StringValue cannot be reused by multiple PropertyValueAssignments,
+but would have to be copied each time, the above recommendation
+keeps the datasize as small as possible.
+
+* Ditto for CHashAlgorithm.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+T.B.S.

@@ -1,0 +1,54 @@
+[[cls-17]]
+== Outlook
+
+As written in the introductory sections of this document, the Recommended Practices for AP242
+Domain Model XML Product and Assembly Structure have been written to guide
+implementations of the new Domain Model XML format for the well-established exchange of
+product and assembly information. This document focuses on the core scope in the area of
+CAD-PDM interaction.
+
+Since meta data and product structures are key data for almost all businesses and life cycle
+processes, it is clear that the agreements documented in this document have to be discussed
+with and accepted by all involved communities; users and implementors alike. User groups and
+implementor forums as described in the introduction in <<cls-1.2>> provide the platform for
+this. Also, in order to guarantee process stability, the documented agreements have to
+remain stable.
+
+STEP Domain Models and the XML representations are still a rather new concept, which is only
+now being implemented on a broad basis. This means that the data model will change over time,
+in order to address issues discovered during implementation, or to support new requirements.
+<<annex-B>> below gives an overview on such issues that are currently being worked by the
+AP242 project. In cases where future versions of the AP242 Domain Model require changes to
+existing implementations, the recommended practices will clearly point out these differences
+and how to support them in pre- and postprocessors.
+
+Building on this core scope, the data scope of AP242 Domain Model XML implementations will
+increase in the future. Functionalities listed as out of scope of this document, for instance
+Composites or advanced PDM capabilities such as Configuration Management, will be addressed
+by the respective communities as soon as a stable basis has been established. These specific
+capabilities will then be defined in separate documents referencing this one where
+necessary. This will ensure the manageability of this document, and also allow the
+documentation of in-development capabilities to be updated more frequently without excessive
+harmonization overhead.
+
+[[cls-17.1]]
+=== "Model-based" approach for future versions of this document
+
+A model-based approach for capturing and interrelating recommended practices should be used,
+in order to allow:
+
+* Easy publication through dynamic web sites;
+* Easy change management and consistency with automated regeneration of documents from a
+valid model;
+* An implementable document;
+* Allow computer aided verification and validation
+
+Principles introduced in the STEP new architecture:
+
+* Definition of use cases called DEXs, describing the business need with templates vocabulary
+* Definition of a building block mechanism called "Core Technical Capabilities", describing
+a recommendation of use on a subset of the STEP AP242 Domain Model entities
+
+In order to prepare the future versions of this document, the concept of templates has been
+used (see a list of available templates in <<cls-18>>). The next stage will be the creation
+of DEXs for automatic verification and validation.

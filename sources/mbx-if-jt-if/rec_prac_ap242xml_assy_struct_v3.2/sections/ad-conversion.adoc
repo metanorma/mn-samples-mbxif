@@ -1,0 +1,90 @@
+[[annex-D]]
+[appendix]
+== Conversion from implicitly to explicitly defined transformation
+
+The first step is now to extract the two matrices implicitly given by each of the two
+placements.
+The AxisPlacement has a name, a location and two axes as attributes. The axes are the axis
+and ref_direction attribute, where axis is the placement Z axis direction and the
+ref_direction is an approximate to the placement X axis direction. From this information, a
+right-handed coordinate system is computed:
+
+Let stem:[z] be the placement Z axis direction and stem:[a]
+be the approximate placement X axis direction.
+Approximate here means that stem:[a] and stem:[z] are not required to be orthogonal.
+Then the exact placement X axis direction is given as stem:[x = <<a-(a*z)z>>]
+and the placement Y axis direction calculates
+to stem:[y=<<z xx x>>].
+
+For the first representation item, the following calculations would result:
+
+[stem]
+++++
+"axis: " z=((0.0),(-0.8660254),(0.5)), " ref_direction: " a=((1.0),(0.0),(0.0)),
+++++
+
+therefore stem:[x=<<a-(a*z)z>>=<<a-0z>>=a] because stem:[z] and stem:[a]
+are already orthogonal in this example.
+
+Next step is calculating stem:[y] using the vector product: stem:[y=<<z xx x>> =
+((0.0),(0.5),(0.8660254))]
+
+So the geometric function which leads from the coordinates of the global coordinate system
+to those of the first axis placement is represented by the rotation matrix stem:[A] given by
+the three vectors stem:[x], stem:[y] and stem:[z] plus the translation vector stem:[t] given
+by the AxisPlacement's location attribute:
+
+[stem]
+++++
+A = ((1.0,0.0,0.0),(0.0,0.5,-0.8660254),(0.0,0.8660254,0.5)) "  " t = ((1.0),(1.0),(3.0))
+++++
+
+In the same way, the matrix stem:[B] and the vector stem:[u]
+are computed from the second axis placement:
+
+[stem]
+++++
+B = ((0.7071068,-0.7071068,0.0),(0.7071068,0.7071068,0.0),(0.0,0.0,1.0)) "  " u=((2.0),(2.0),(1.0))
+++++
+
+Geometrically, the matrix stem:[A] defines a stem:[60"unitsml(deg)"] rotation around the
+global X axis and the matrix stem:[B] gives a stem:[45"unitsml(deg)"] rotation around the
+global Z axis.
+
+To get the explicit transformation from the information gained so far, the matrices have to
+be combined. The idea is as follows: To move a point from a location within the first
+placement (called 'source') into a location within the second one (called 'target'), three
+steps have to be made:
+
+First, the point has to be multiplied with the inverted matrix stem:[A^(-1)] to undo the
+rotation, which occurs when going from the global coordinate system into the first placement
+system.
+
+Next, multiply it with the second matrix stem:[B] to get it into the right position for the
+target placement.
+
+Finally, a translation vector is needed to put the point into its correct location within
+the second axis placement. Calculation of this vector can be seen below.
+
+As stem:[A] is a rotation matrix, the inverted matrix stem:[A^(-1)=A^T], the transposed
+matrix. Steps 1 and 2 can be combined:
+
+[stem]
+++++
+C = BA^(-1) = ((0.7071068,-0.3535534, -0.6123724),(0.7071068, 0.3535534, 0.6123724),(0.0, -0.8660254, 0.5))
+++++
+
+The translation vector needed is
+
+[stem]
+++++
+nu = u - Ct = ((3.4835639),(-0.8977775),(0.3660254))
+++++
+
+This means moving any point stem:[P] from a location within the first placement into the
+second one follows the calculation
+
+[stem]
+++++
+P' = C*P + nu
+++++

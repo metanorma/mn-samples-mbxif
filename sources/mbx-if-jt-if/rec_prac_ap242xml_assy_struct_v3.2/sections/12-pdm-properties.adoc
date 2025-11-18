@@ -1,0 +1,776 @@
+[[cls-12]]
+== PDM Properties and CAD User-Defined Attributes
+
+In the same way that in the <<CAX-IF-UDA>>,
+the aim of this section is to specify how to transfer:
+
+* PDM type properties
+* PDM system properties
+* user defined attributes (UDA's) in Computer Aided Design (CAD) systems
+
+[[cls-12.1]]
+=== Fundamental concepts
+
+The approach used to transfer PDM properties and user defined attributes is the "general
+property" approach introduced in Part 41. It is based on the concept that an attribute (the
+key in a key-value pair) is defined once as a placeholder and is then used to assign the
+actual values to the respective target elements as often as needed.
+
+The reference points in a STEP file for which such an attribute shall be defined in the given
+context are:
+
+* the entire part (`Part`, `AssemblyDefinition` or `PartView`)
+using "PropertyValueAssignment" template (see <<cls-6.2>>)
+Part(master) is not applicable to UDAs, since CAD systems don't have a business object
+"PartMaster" like some of the PDM systems.
+
+* an instance of the part in an assembly (`NextAssemblyOccurrenceUsage`) using
+PropertyValueAssignment template (see <<cls-6.2>>)
+
+* a part view relationship in an assembly (`PartViewRelationship`) using
+PropertyValueAssignment template (see <<cls-6.2>>)
+This is not applicable to UDAs, since CAD systems only consider occurrences.
+
+* a portion of the shape defining the part (`Part`, `AssemblyDefinition` or `PartView`)
+(see <<AP242-PMI>>)
+
+* the entire document (DocumentDefinition) according to <<cls-8.1>>
+This is not applicable to UDAs, since CAD systems don't have a business object
+"Document" like the PDM systems.
+
+We will refer to these reference points as "Model Element" in figures below.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyValueAssignments may be assigned to further related objects (like
+Occurrence, PartVersion, DocumentVersion, ...), in order to reduce the complexity of the
+postprocessor implementation, only assignments to the objects mentioned above are
+recommended.
+
+There are a number of pre-defined property types in STEP that may be used to store a PDM
+property or a user-defined attribute. In the context of this document, this includes:
+
+* descriptive attributes ("StringValue" template see <<cls-4.6.10>>)
+
+** name and value
+
+* simple measure values
+
+** name and value ("Values without unit" template for integer or real see <<cls-12.5.3>>)
+
+** name, value and unit ("NumericalValue" template see <<cls-4.6.9>>)
+
+* boolean values ("Values without unit" template for boolean/logical see <<cls-12.5.3>>)
+
+** name and value
+
+* value ranges ("ValueRange" template see <<cls-4.6.11>>)
+
+** name, lower limit, upper limit and unit
+
+* values with tolerances ("ValueWithTolerances" template see <<cls-4.6.12>>)
+
+** name, lower limit, upper limit, nominal value and unit
+
+* aggregation of values (list or set) ("ValueList"/"ValueSet" templates
+see <<cls-4.6.13>> and <<cls-4.6.15>>)
+
+** name and StringValue or NumericalValue for each value element
+
+[[cls-12.2]]
+=== Template "PropertyDefinition"
+
+The `PropertyDefinition` defines a PDM property or a user defined attribute. This can
+then be used by one or several PropertyValues.
+
+To assign a PropertyDefinition:
+
+* create a `PropertyValue` with the "NumericalValue" (see <<cls-4.6.9>>),
+"StringValue" templates (see <<cls-4.6.10>>), ValueRange (see <<cls-4.6.11>>),
+ValueWithTolerances (see <<cls-4.6.12>>), ValueList (see <<cls-4.6.13>>)
+or ValueSet (see <<cls-4.6.15>>).
+
+* in the property value template, link the `PropertyValue` to the
+`PropertyDefinition` with `PropertyValue.Definition` attribute.
+
+[[fig-84]]
+.Definition of an attribute name and its usage
+image::img116.png[]
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-85]]
+.Template "PropertyDefinition"
+image::img117.png[]
+
+[[tab-74]]
+."PropertyDefinition" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY PropertyDefinition
+| Attribute Type
+
+| span:gray[AllowedUnits]
+| span:gray[OPTIONAL SET[1:?\] of UnitSelect]
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| DefinedIn
+| OPTIONAL ExternalClassSystem
+
+| span:gray[Definition]
+| span:gray[OPTIONAL ProxyItemSelect]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| PropertyType
+| OPTIONAL ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| VersionId
+| OPTIONAL IdentifierSelect
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| PropertyDefinitionRelationship
+| OPTIONAL SET[1:?] of PropertyDefinitionRelationship
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_Id_* attribute is the text that represents the general property. Use
+IdentifierString if one of the values below is used, otherwise use "Identifier" template
+(see <<cls-4.6.6>>).
++
+--
+When applicable, the following values shall be used:
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| Id
+| Explanation
+
+|'recyclability property'
+| A recyclability property is information concerning the ability to reuse objects or components of objects after their primarily intended usage
+
+| 'mass property'
+| a mass property is a quantity of matter of which an object consists
+
+| 'quality property'
+| A quality property is a property that provides information about the level of quality of products or processes
+
+| 'cost property'
+| A cost property is a property that specifies costs
+
+| 'duration property'
+| A duration property is a property that specifies a period of time during which a given object is used or will last
+
+| 'general property'
+| A general property is a property for which the exact purpose is not known at the time. This is the recommended value for the case an exporting system does not provide such a classification of properties by purpose.
+|===
+--
+
+* The *_PropertyType_* attribute is the kind of property the *PropertyDefinition* defines.
+Use "Class" template (see <<cls-4.6.4>>). When applicable, the following values shall be
+used. If one of these values apply, use ClassString:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| PropertyType
+| Explanation
+
+| 'system property'
+| The property is internal to the source PDM system and may be mostly ignored by the target PDM system, except in scenarios to maintain the full functionality of the transferred data
+
+[example]
+PDM vault, lifecycle template, ...
+
+| 'PDM property'
+| The property is defined with COTS solution. Relevant for PDM data exchange.
+
+[example]
+calculated weight, estimated weight, material standard, ...
+
+| 'customized PDM property'
+| The property is present only on particular categories of part (for example standard part, software part, ...) or documents customized in the underlying PDM system. The part/document category itself is mapped in PartTypes/DocumentTypes (see <<cls-5.1.1>>/<<cls-8.1.1>>). Relevant for PDM data exchange and (if the CAx system can handle them) for CAx data exchange.
+
+[example]
+software characteristics, ...
+
+| 'user defined attribute'
+| The property is defined by the user on a specific object and does not exist for all instances of the PDM object. Relevant for the CAx data exchange, and (if the PDM system can handle them) for PDM data exchange
+
+[example]
+surface finish
+|===
+--
+
+* For the properties defined in <<cls-13>> (validation properties), the
+following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| PropertyType
+| Explanation
+
+| 'assembly validation property'
+| According to <<cls-13.1.1;and!cls-13.1.2>>
+|===
+--
+
+* For the semantic texts involved in PMIs <<AP242-PMI>>, the following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| PropertyType
+| Explanation
+
+| 'semantic text'
+| See <<AP242-PMI,section=6.3>>
+|===
+--
+
+* The *_DefinedIn_* attribute specifies where is defined the type represented by the Id. The
+value of this attribute need not be specified. Reference to an ExternalClassSystem element.
+
+* *_VersionId_*: the identification or set of identifications of a specific version
+of the PropertyDefinition. The value of this attribute need not be specified.
+
+* *_PropertyDefinitionRelationship_*: to relate to another PropertyDefinition.
+Use the "PropertyDefinitionRelationship" template, see <<cls-12.3>>.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyType becomes optional with Ed2, for upward compatibility reasons, it is
+still recommended to set it as if it was mandatory. A valid exception to this rule is in case
+of ValueList or ValueSet: if the PropertyValues within the ValueList/ValueSet have the
+same PropertyDefinition, it is sufficient to set it for ValueList/ValueSet and to leave it
+unset in the embedded PropertyValues.
+
+* If multiple versions of a PropertyDefinition are needed, since PropertyDefinition.Id and
+PropertyDefinition.VersionId are in the same object, all versionless attributes of
+PropertyDefinition (Id, Name, , ...) shall be redundantly mapped to all versions, including
+the multiple identifiers.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<PropertyValue uid="id1" xsi:type="ap:NumericalValue">
+  <Definition>
+    <PropertyDefinition uidRef="pd--000000320"/>
+  </Definition>
+    <Name>
+      <CharacterString>angle</CharacterString>
+    </Name>
+  <Unit uidRef="u--000000002"/>
+  <ValueComponent>45</ValueComponent>
+</PropertyValue>
+
+<PropertyDefinition uid="pd--000000320">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>user defined attribute</ClassString>
+  </PropertyType>
+  <VersionId id="A.1"/>
+</PropertyDefinition>
+----
+
+[[cls-12.3]]
+=== Template "PropertyDefinitionRelationship"
+
+This relationship enables to relate two PropertyDefinitions.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<PropertyDefinition uid="ID_60">
+  <Id id="PDMIFPartBool_TSI"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+  <VersionId id="A.1"/>
+  <PropertyDefinitionRelationship uid="pdr--1">
+    <Related>
+      <PropertyDefinition uidRef="ID_60-1"/>
+    </Related>
+    <RelationType>
+      <ClassString>sequence</ClassString>
+    </RelationType>
+  </PropertyDefinitionRelationship>
+</PropertyDefinition>
+
+<PropertyDefinition uid="ID_60-1">
+  <Id id="PDMIFPartBool_TSI"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+  <VersionId id="B.1"/>
+</PropertyDefinition>
+----
+
+[[tab-75]]
+."PropertyDefinitionRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity PropertyDefinitionRelationship attributes
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| Related
+| PropertyDefinitionSelect
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type if one of the
+values below is used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the
+ISO AP242 Specification, where applicable, the following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| RelationType
+|
+
+| 'decomposition'
+| The PropertyDefinitionRelationship defines a relationship where the Related PropertyDefinition is a member of a group of PropertyDefinition objects that is established by the Relating PropertyDefinition
+
+| 'dependency'
+| The related PropertyDefinition is dependent upon the Relating PropertyDefinition
+
+| 'hierarchy'
+| The business object defines a hierarchical relationship where the Related PropertyDefinitionn is on a lower level than the Relating PropertyDefinition
+
+| 'peer'
+| The related PropertyDefinition shall not be used without the Relating PropertyDefinitionn and vice versa
+
+| 'substitution'
+| The PropertyDefinitionRelationship defines a relationship where the Related PropertyDefinition replaces the Relating PropertyDefinition
+
+| 'value domain'
+| The PropertyDefinitionRelationship defines a relationship where the values assigned to the Relating PropertyDefinition shall be within the limits indicated by the values assigned to the Related PropertyDefinition
+|===
+--
+
+* Additionally, the following value is recommended:
++
+--
+[%unnumbered,cols="a,a"]
+|===
+| 'sequence'
+| The business object defines a logical sequence where the related PropertyDefinition comes after the relating PropertyDefinition.
+
+In case the Id is equal and VersionId of both PropertyDefinitions is different, a version sequence is defined.
+|===
+--
+
+* *_Related_*: the other object of *PropertyDefinition* that is part of the relationship
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-12.4]]
+=== Specifying the target for the attribute
+
+User defined attributes can be attached to the geometry in a STEP file at different levels of
+granularity, i.e. individual solids or surfaces, or entire parts. While all CAD systems
+support the definition of attributes at the part level, only some systems can handle
+attributes at the level of individual shape elements.
+
+[[cls-12.4.1]]
+==== Attributes at the part level
+
+To assign a user defined attribute to both individual parts and assemblies, it is
+recommended to use "PropertyAssignment" template defined in <<cls-6.2>>.
+
+[[fig-86]]
+.User defined attribute at the part/assembly level
+image::img118.png[]
+
+[[cls-12.4.2]]
+==== Attributes at component instances in an assembly
+
+To assign a user defined attribute to a specific instance of a component within an assembly,
+the property needs to be attached to the assembly definition. If the instance in question is
+an immediate child of the assembly node, the attribute will be attached to the
+`NextAssemblyOccurenceUsage`, it is recommended to use "PropertyAssignment"
+template defined in <<cls-6.2>> directly in the
+`NextAssemblyOccurenceUsage` entity.
+
+[[fig-87]]
+.User defined attribute for a simple component instance in an assembly
+image::img119.png[]
+
+[[cls-12.5]]
+=== Definition of attribute value
+
+In the same way that in <<CAX-IF-UDA,section=7>>,
+the aim of this section is set up a property value for a property.
+
+There are two types of values:
+
+* Values with unit (e.g., measure values)
+* Values without unit (String, Integer, Real, Boolean)
+
+[[cls-12.5.1]]
+==== Values with Unit
+
+A value attribute transports a general value with an associated unit. To define a value
+attribute, the "NumericalValue" template defined in <<cls-4.6.9>> is used.
+
+NOTE: NumericalValue is a subtype of ValueWithUnit, hence the definition of a unit is
+mandatory. For transfer of values without applicable unit, see section below.
+
+Example of use of the "NumericalValue" template:
+
+[source%unnumbered,xml]
+----
+<PropertyValue uid="id1" xsi:type="ap:NumericalValue">
+  <Definition>
+    <PropertyDefinition uidRef="pd--000000320"/>
+  </Definition>
+    <Name>
+      <CharacterString>angle</CharacterString>
+    </Name>
+  <Unit uidRef="u--000000002"/>
+  <ValueComponent>45</ValueComponent>
+</PropertyValue>
+<PropertyDefinition uid="pd--000000320">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>user defined attribute</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+----
+
+[[cls-12.5.2]]
+==== Values without Unit (String)
+
+Values without applicable unit convey all kinds of information, in particular
+in the context of PDM Properties.
+
+To define such an attribute (string), the "StringValue" template defined
+in <<cls-4.6.10>> shall be used.
+
+*_Preprocessor Recommendations:_*
+
+* A _descriptive attribute_ stores an arbitrary text string in the `ValueComponent`
+attribute. As usual in STEP, any special characters in the name or description need to be
+encoded in Unicode.
+
+*_Postprocessor Recommendations:_*
+
+* The values shall be mapped to the internal attribute types of the importing system
+according to its default typecasting rules. In case an unexpected value is encountered --
+e.g. an arbitrary string when an integer value is expected -- an error message shall be
+given.
+
+NOTE: For implementations based on AP242 MIM / STEP Part 21, the EXPRESS data model
+defines the following entity type for the transfer of string values:
+
+* `descriptive_representation_item`
+
+[[cls-12.5.3]]
+==== Values without unit (Integer, Real, Boolean, Logical)
+
+Values without applicable unit convey all kinds of information, in particular
+in the context of PDM Properties.
+
+To define such an attribute (Integer, Real, Boolean, Logical), the "NumericalValue"
+template defined in <<cls-4.6.10>> shall be used.
+
+Three main types can be distinguished, which shall be handled as recommended below.
+
+*_Preprocessor Recommendations:_*
+
+* A dedicated `Name` shall be set with the value 'number without unit'.
+* An _integer attribute_ stores a whole number (and nothing else) as a double in the
+`ValueComponent` attribute. Examples for this include counts and sequences.
+* A _real attribute_ stores a decimal number (and nothing else) as a double in the
+`ValueComponent` attribute. Examples for this include ratios and percentages.
+* A _boolean_ or _logical attribute_ stores a pre-defined value as a double in the
+`ValueComponent` attribute. The value shall be either 1 for 'TRUE', 0 for 'FALSE', or 0.5
+for 'UNKNOWN'.
+
+*_Postprocessor Recommendations:_*
+
+* The values shall be mapped to the internal attribute types of the importing system
+according to its default typecasting rules. In case an unexpected value is encountered --
+e.g. an arbitrary string when an integer value is expected -- an error message shall be
+given.
+
+NOTE: For implementations based on AP242 MIM / STEP Part 21, the EXPRESS data model
+defines three dedicated entity types for the transfer of values without unit:
+
+* `integer_representation_item`
+* `real_representation_item`
+* `boolean_representation_item`
+
+Having such explicit counterparts in the AP242 Domain Model would improve the stability of
+PDM Property exchange. ISO Jira Task
+https://sd.iso.org/jira-pilot/browse/TCSC410303-1399[TCSC410303-1399]
+has been created to add these elements in a future revision
+of the standard. Target for STEP AP242 ed3 to improve the model.
+
+[example]
+.Example of Integer representation with the "NumericalValue" template
+====
+
+Use "number without unit" as the `NumericalValue Name` and "integer representation" as
+`Unit Name`.
+
+[source%unnumbered,xml]
+----
+<PropertyValue uid="id1" xsi:type="ap:NumericalValue">
+  <Definition>
+    <PropertyDefinition uidRef="pd--000000320"/>
+  </Definition>
+  <Name>
+    <CharacterString>number without unit</CharacterString>
+  </Name>
+  <Unit uidRef="u--000000002"/>
+  <ValueComponent>45</ValueComponent>
+</PropertyValue>
+
+<Unit uid="u--000000002">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>integer representation</ClassString>
+  </Name>
+</Unit>
+----
+====
+
+[example]
+.Example of Real representation with the "NumericalValue" template
+====
+Use "number without unit" as the `NumericalValue Name` and "real representation" as
+`Unit Name`.
+
+[source%unnumbered]
+----
+<PropertyValue uid="id1" xsi:type="ap:NumericalValue">
+  <Definition>
+    <PropertyDefinition uidRef="pd--000000320"/>
+  </Definition>
+  <Name>
+    <CharacterString>number without unit</CharacterString>
+  </Name>
+  <Unit uidRef="u--000000002"/>
+  <ValueComponent>0.56</ValueComponent>
+</PropertyValue>
+
+<Unit uid="u--000000002">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>real representation</ClassString>
+  </Name>
+</Unit>
+----
+====
+
+[example]
+.Example of Boolean / Logical representation with the "NumericalValue" template
+====
+For the Boolean representation, the ValueComponent element have to be set following the list
+hereafter because the XSD used an XSD:double where string value are not authorized.
+
+Based on the Logical, Boolean definition from the 10303 Part11: FALSE < UNKNOWN < TRUE
+
+Use "number without unit" as the `NumericalValue Name` and "logical representation" as
+`Unit Name`.
+
+* FALSE : ValueComponent = 0 (for Logical and Boolean)
++
+--
+[source%unnumbered,xml]
+----
+<PropertyValue uid="id1" xsi:type="ap:NumericalValue">
+  <Definition>
+    <PropertyDefinition uidRef="pd--000000320"/>
+  </Definition>
+  <Name>
+    <CharacterString>number without unit</CharacterString>
+  </Name>
+  <Unit uidRef="u--000000002"/>
+  <ValueComponent>0</ValueComponent>
+</PropertyValue>
+
+<Unit uid="u--000000002">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>logical representation</ClassString>
+  </Name>
+</Unit>
+----
+--
+
+* UNKNOWN : ValueComponent = 0.5 (only for Logical and NOT for Boolean)
++
+--
+[source%unnumbered,xml]
+----
+<PropertyValue uid="id1" xsi:type="ap:NumericalValue">
+  <Definition>
+    <PropertyDefinition uidRef="pd--000000320"/>
+  </Definition>
+  <Name>
+    <CharacterString>number without unit</CharacterString>
+  </Name>
+  <Unit uidRef="u--000000002"/>
+  <ValueComponent>0.5</ValueComponent>
+</PropertyValue>
+
+<Unit uid="u--000000002">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>logical representation</ClassString>
+  </Name>
+</Unit>
+----
+--
+
+* TRUE : ValueComponent = 1 (for Logical and Boolean)
++
+--
+[source%unnumbered,xml]
+----
+<PropertyValue uid="id1" xsi:type="ap:NumericalValue">
+  <Definition>
+    <PropertyDefinition uidRef="pd--000000320"/>
+  </Definition>
+  <Name>
+    <CharacterString>number without unit</CharacterString>
+  </Name>
+  <Unit uidRef="u--000000002"/>
+  <ValueComponent>1</ValueComponent>
+</PropertyValue>
+
+<Unit uid="u--000000002">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>logical representation</ClassString>
+  </Name>
+</Unit>
+----
+--
+====
