@@ -1,17 +1,17 @@
 ---
 metanorma:
   source:
-    - sources/cae-if/hb-vol2-v1.1/document.adoc
-    - sources/cae-if/r5s-v1.0/document.adoc
-    - sources/cax-if-pdm-if/rp-ext-ref-v2.1/document.adoc
-    - sources/cax-if/rp-unicode-strings-v1.0/document.adoc
-    - sources/cax-if/ts-53j-v1.0/document.adoc
-    - sources/ewis-if/rp-ap242-ehxml-v2.0/document.adoc
-    - sources/ewis-if/ts-v4.0/document.adoc
-    - sources/mbx-if/gg-v2.0/document.adoc
-    - sources/mbx-if-jt-if/document.adoc
-    - sources/pdm-if/release-4.3/document.adoc
-    - sources/mbx-if-jt-if/rec_prac_ap242xml_assy_struct_v3.2/document.adoc
+    files:
+      - sources/cae-if/hb-vol2-v1.1/document.adoc
+      - sources/cae-if/r5s-v1.0/document.adoc
+      - sources/cax-if-pdm-if/rp-ext-ref-v2.1/document.adoc
+      - sources/cax-if/rp-unicode-strings-v1.0/document.adoc
+      - sources/cax-if/ts-53j-v1.0/document.adoc
+      - sources/ewis-if/rp-ap242-ehxml-v2.0/document.adoc
+      - sources/ewis-if/ts-v4.0/document.adoc
+      - sources/mbx-if/gg-v2.0/document.adoc
+      - sources/pdm-if/release-4.3/document.adoc
+      - sources/mbx-if-jt-if/rec_prac_ap242xml_assy_struct_v3.2/document.adoc
 
   collection:
     name: MBx-IF documents in Metanorma
