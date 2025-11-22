@@ -1,0 +1,137 @@
+
+[.preface]
+== Document History
+
+[cols="3",options="header,unnumbered"]
+|===
+| Revision | Date | Change
+| 1.0 | 2021-11-26 | Initial public release
+| 1.1 | 2022-11-18 | Final updates for AP242 Ed.3. Incorporated feedback from CAx-IF / JT-IF testing throughout the document.
+| 1.2 | 2024-01-11 | Updates for extended testing scope, e.g., rack and pinion
+|===
+ 
+[.preface]
+== Working History -- Changes since version 0.12 (July 2020)
+
+[cols="a,a,a",options="header,unnumbered"]
+|===
+| Revision | Date | Change
+
+| 1.0 | 2021-11-26 |
+Adaptation for AP242 Ed.3 Domain Model
+
+Section 1.1.3: Implementation changes to AP242 Ed.2
+
+Section 1.1.4: Impl. changes to AP242 Ed.2 Minor Rev.
+
+Throughout: Updated references from AP242 Ed.1 TC BO Model to AP242 Ed.3 Domain Model;
+Rename 'kinematic joint' with 'kinematic pair' all over the document.
+
+Section 1.1.2: URL of Domain Model corrected; remark how to find the Ed. 2 MR Domain
+Model XSD if not published yet by the ISO
+
+Section 4.2: additional comments regarding Jira issue BS10303-6167 and regarding
+the use of AxisPlacement
+
+Sections 4.2, 4.11 and 4.12: remark added, that SpecifiedOccurrences are mostly not
+supported by the PDM systems => currently out of scope
+
+Section 4.3: New attribute ActuatedPair.Name new and (Minor Revision) mandatory;
+new recommendation for ActuatedPair
+
+Section 4.3.1: LowOrderKinematicPair.Lower/UpperLimitActualTranslationX/Y/Z changed
+from xsd:string to xsd:double; Introduction of homokinetic_pair; Updates in spherical_pair_with_pin;
+Updates in universal_pair
+
+Section 4.3.2: HighOrderKinematicPair.CurveOrSurface1/2 changed from ComplexType/group
+to a simple reference; Clarification of the usage of HighOrderKinematicPair.orientation
+
+Section 4.3.3: Ditto for LowOrderKinematicPairWithMotionCoupling. Lower/UpperLimitRackDisplacement,
+.Pitch and .Radius1/2
+
+PropertyValueAssignment added to Representation and RepresentationItem for the mapping
+of validation properties. The relevant objects are KinematicLink (4.2), KinematicPair
+(<<sec_4.3>>) Mechanism (<<sec_4.4>>), LinkMotionAlongPath (<<sec_4.8>>) and KinematicPathDefinedByNodes (<<sec_4.9>>)
+
+New <<sec_4.5>> (Mechanism Structure)
+
+Section 4.12: LinkMotionRelationship.related: type changed; LinkMotionRelationship:
+attribute RelationType made optional
+
+Section 4.13: updates in the validation properties
+
+Some additional consistency rules added as Preprocessor recommendations in <<sec_4.2;and!sec_4.3;and!sec_4.4>>; recommendation for validation properties with value 0 updated
+
+Section 4.13.2.4: number of actuations now computed over the whole mechanism rather
+than for each KinematicPair
+
+CAx-IF / JT-IF Recommended Practices
+
+AP242 Ed.3 Domain Model XML Kinematics
+
+Version 1.2; 11 January 2024
+
+New section 4.13.2.5: number of KinematicPairs for each kind of KinematicPair
+
+Old section 4.13.2.5: Grübler Count / Mobility Formula removed
+
+| 1.1 | 2022-11-18 | Section 1.1.2: update Ed3 Domain Model URL to official value
+from the ISO
+
+Section 4.2: cardinality of relationship between KinematicLink and Occurrence: rule
+exception for Rigid Groups removed
+
+Section 4.2, 4.5: update of preprocessor recommendations regarding Rigid Groups
+
+Section 4.3: typos corrected; new recommendation regarding sharing the same GeometrixCoordinateSpace
+for the AVP 'notional solids centroid' and the Mechanism
+
+Section 4.4: model splitting limitation removed (outdated); 'identical matrix' restriction
+removed regarding BaseLink
+
+Sections 4.4, 4.6, 4.7: 'fixed part' overworked to BaseLink
+
+Section 4.5: one red OccurrenceRelationship missing in the figure. Reuse AxisPlacement
+from Mechanism to build the NAOU under the dummy assembly nodes. Further updates
+in the mapping of rigid group during import/export
+
+Section 4.13.2: introduction added with reference to the mapping of validation properties
+in [AP242-PAS] + XML examples
+
+Section 4.13.2.3: name of validation property changed from 'number of moving parts'
+to 'number of moving KinematicLinks'
+
+Annex B: new issue numbers after switch from PDES Inc. Bugzilla to ISO Jira
+
+KinematicPair.Name added to all the XML examples
+
+| 1.2 | 2024-01-11
+
+| Section 4.3: remove rule that imply that lower limit and higher limit always have
+to be both present, or both empty; Link3/PairFrame3 and Link4/PairFrame4 added as
+issue to Edition 4 due to changes in the definition of rack_and_pinion
+
+Section 4.3.3: update of definition of rack_and_pinion; workaround introduced in
+order to support CAD systems that map the coupling pairs to low order pairs
+
+Section 4.4: update in XML example: use of Mechanism.Id (mandatory) rather than Mechanism.Name
+(optional)
+
+Section 4.5: slight updates and additional details for the mapping of complex rigid
+groups (new classification)
+
+Section 4.13: typo in 'kinematics validation property' fixed ('s' missing)
+
+Section 4.13.2.2: add LowOrderKinematicPairWithMotionCoupling to the computation
+of the validation property 'number of low order kinematic pairs'
+
+Sections 4.9 and 4.10 : update the definition of TStart and TEnd
+
+All relevant sections: allow the use of SpecifiedOccurrence (for Mechanism and for Motion)
+
+CAx-IF / JT-IF Recommended Practices
+
+AP242 Ed.3 Domain Model XML Kinematics
+
+Version 1.2; 11 January 2024
+|===

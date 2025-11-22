@@ -1,0 +1,1404 @@
+
+[[sec-3]]
+== ((Part Properties))
+
+The PDM Schema allows specifying properties associated with parts. A property is
+the definition of a special quality and may reflect physics or arbitrary, user defined
+measurements. A general pattern for instantiating property information is used in
+the PDM Schema. A number of pre-defined property type names are also proposed for
+use when appropriate.
+
+A special case of part properties is that of the part shape property - a representation
+of the geometrical shape model of the part. Various relationships are defined between
+external geometrical models to represent geometric model structure and the associated
+transformation information required for digital mock-up of assembly structures.
+
+=== ((General Part Properties))
+
+The PDM Schema allows specifying properties associated with product data by linking
+a representation of the property values to the object with which the property is
+associated.
+
+The PDM Schema optionally allows property identification that is independent from
+the actual association of a property to product data. In this case, the property
+definitions of a given type are additionally associated to a single 'general' identification
+for the particular type of property. The general_property entity collects multiple
+property_definitions that are of the same type, which may be associated to different
+elements of product data.
+
+==== ((Properties Associated with Product Data))
+
+The PDM Schema allows specifying properties associated with product data. To specify
+properties associated with product data, a property definition tree is instantiated
+that links a representation of the property values to the described object that is
+the object with which the property is associated. The type of the property is given
+by the value of the attribute property_definition.name.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of property
+definitions associated with product data are illustrated in <<diam-6>>.
+
+[[diam-6]]
+.Property Definition Associated with Product Data Instance Diagram
+image::diam-6.svg[]
+
+===== ((property_definition))
+
+A property_definition is, in the given context, a property that characterizes a part.
+In the given context, it applies to a product_definition that represents a life cycle
+and application domain specific view on a part.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY property_definition | Attribute Population | Remarks
+
+| name        | type: identifier = string               | Provides the property type name
+| description | type: text = string                     | OPTIONAL
+| definition  | type: entity = here: product_definition
+| References product_definition as the element of part identification that is described
+by the property.
+
+|===
+
+*_Preprocessor Recommendations_:* The name attribute characterizes the kind/type
+of the property. For the property_definition.name attribute, a number of predefined
+names for specific properties exist. Preprocessor should use these values where applicable.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== ((property_definition_representation))
+
+A property_definition_representation is, in the given context, an association between
+a property and its representation.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY property_definition_representation | Attribute Population | Remarks
+
+| definition          | type: entity = property_definition | References associated property_definition
+| used_representation | type: entity = representation      | References associated representation
+|===
+
+*_Preprocessor Recommendations_:* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== ((representation))
+
+A representation, in the context of part properties, is a collection of one or more
+measure_representation_items related to a property_definition via a property_definition_representation.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY representation | Attribute Population | Remarks
+
+| name | type: label = STRING | shall be instantiated with 'property value'
+| items | type: entity = measure_representation_item | the items that constitute the representation of the document property
+| context_of_items | type: entity = representation_context |
+|===
+
+*_Preprocessor Recommendations:_* The name attribute shall be instantiated as 'property
+value' to indicate that the representation relates to a property value.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== ((representation_context))
+
+The representation_context defines the context of interpretation for the values of
+items in a representation.
+
+*_Attributes_*
+
+* The *_context_identifier_* attribute identifies the context.
+
+* The *_context_type_* attribute specifies the type of the context.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY representation_context | Attribute Population | Remarks
+
+| context_identifier | type: label = string |
+| context_type       | type: text = string  |
+|===
+
+*_Preprocessor Recommendations_:* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== ((measure_representation_item))
+
+A measure_representation_item is, in the property context, a value element that participates
+as an item in one or more representations to define the respective properties.
+The given numeric value is associated with the relevant unit.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY measure_representation_item | Attribute Population | Remarks
+
+| name            | type: label = STRING         | the name attribute indicates the name of the represented property
+| value_component | type: select = measure_value |
+| unit_component  | type: entity = unit          |
+|===
+
+*_Preprocessor Recommendations:_* For the unit_component it is recommend to do complex
+instantiations of named_unit with si_unit or named_unit with conversion_based_unit
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+.exchange file segment for property definition associated with product data
+[source]
+--
+/* Entities #5020 to #5070 assert that the #290 defined view */
+/* of part has a mass of 3KG					*/
+#5020 = PROPERTY_DEFINITION('mass property', $, #290);
+#5030 = PROPERTY_DEFINITION_REPRESENTATION(#5020, #5040);
+#5040 = REPRESENTATION('property value', (#5060), #5050);
+#5050 = REPRESENTATION_CONTEXT('', '');
+#5060 = MEASURE_REPRESENTATION_ITEM('mass', MASS_MEASURE(3000), #5070);
+#5070 =(NAMED_UNIT(*) MASS_UNIT() SI_UNIT($,.GRAM.));
+--
+
+==== ((Independent Property Identification))
+
+The PDM Schema also optionally allows property identification that is independent
+from the actual association of the property to product data. In this case, the property
+definitions of a given type are additionally associated to a single 'general' identification
+for the particular type of property.
+
+The general_property entity collects multiple property_definitions of the same type
+by usage of the general_property_association entity. Multiple property definitions
+of the same type may exist and be associated to different elements of product data.
+The relationship between a general_property identification and a related property
+also indicates if the related property is 'definitional' (i.e., can be used to discriminate
+a given element against others) or 'non-definitional'.
+
+The PDM Schema also supports the specification of relationships between two general
+property objects. These relationships may be used to indicate that the value of one
+property can be derived from the value of another property. The relationship is modeled
+using the entity general_property_relationship.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of independent
+property identification are illustrated in <<diam-7>>.
+
+[[diam-7]]
+.Independent General Property Identification and Relationship Instance Diagram
+image::diam-7.svg[]
+
+===== ((General_property))
+
+A general_property identifies a property type/classification independently of the
+association of a definition of that type of property to product data.
+
+*_Attributes_*
+
+* The *_id_* attribute provides an identification of a general property.
+
+* The *_name_* attribute stores the type of the described property.
+
+* The *_description_* attribute can be used to provide a further description of the
+property type.
+
+* {empty}
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY general_property | Attribute Population | Remarks
+
+| id          | Type: identifier = string | Recommended to be instantiated as ''
+| name        | Type: label = string      | Characterizes the property
+| description | Type: text = string       | OPTIONAL, provides further description of the property
+|===
+
+*_Preprocessor Recommendations_:* General_property.name shall be replicated from
+the name attribute from the associated property_definition(s).For general_property.name
+a number of predefined names for specific properties exist. Preprocessor should use
+these values where applicable. The instantiation of a general_property in association
+to a property_definition is not mandatory.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* General_property is to be associated via general_property_association
+to the characterized property_definition.
+
+===== ((general_property_association))
+
+A general_property_association associates a given property with a general_property
+in order to collect property definitions of the same type. The entity also carries
+the information whether a given property can be used to distinguish the described
+object from others.
+
+*_Attributes_*
+
+* The *_name_* attribute indicates whether the described property can be used to
+distinguish the described element from others of the same kind.
+
+* The *_description_* attribute can be used to provide a further description of the
+property type.
+
+* The *_base_definition_* attribute references the general_property associated with
+the property_definition.
+
+* The *_derived_definition_* references the characterized property_definition.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY general_property_association | Attribute Population | Remarks
+
+| name | type: label = string
+| Specifies whether the associated property_value object may be used to distinguish
+the described element from others of the same kind. A value of 'definitional' indicates
+that the associated property_value distinguishes it from others. The permissive list
+for the name attribute is 'definitional', 'non-definitional' or ''.
+| description        | type: text = string                | OPTIONAL
+| base_definition    | type: entity = general_property    |
+| derived_definition | type: entity = property_definition |
+|===
+
+*_Preprocessor Recommendations_:* The value of the name attribute may be used to
+indicate if the associated derived_definition is a defining and distinguishing property
+for the part definition that is described by the property.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* General_property_association relates a property_definition
+and a general_property.
+
+===== ((general_property_relationship))
+
+A general_property_relationship asserts a relationship between two independently
+identified general property identifications. A typical example of the use of this
+entity is to describe the 'derived' relation type, where the relating_property is
+specified as being derived from the related_property.
+
+*_Attributes_*
+
+* The *_name_* attribute is used to describe the type of relationship between the
+properties.
+
+* The *_description_* attribute can be used to provide optional further textual description.
+
+* The *_relating_property_* attribute references the first of the related property
+pair.
+
+* The *_related_property_* attribute references the second of the related property
+pair.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY general_property_relationship | Attribute Population | Remarks
+
+| name              | type: label = string            |
+| description       | type: text = string             | OPTIONAL
+| relating_property | type: entity = general_property |
+| related_property  | type: entity = general_property |
+|===
+
+*_Preprocessor Recommendations_:*. The meaning of the relating_property and related_property
+attributes is specified further by the relation type indicated with general_property_relationship.name.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-8]]
+.exchange file segment for independent property identification
+[source]
+--
+/* Entity #5000 establishes a property of type 'mass' independently */
+/* of any value assignment of that property to product data. */
+#5000 = GENERAL_PROPERTY('', 'mass property', $);
+
+/* Entities #5010 and #5080 serve to collect all value assignments */
+/* of the property of type 'mass' together under the independent */
+/* general'mass' property definition */
+
+#5010 = GENERAL_PROPERTY_ASSOCIATION('non-definitional', '', #5000, #5020);
+#5080 = GENERAL_PROPERTY_ASSOCIATION('non-definitional', '', #5000, #5090);
+
+/* Entities #5020 to #5070 assert that the in #290 defined view */
+/* of part2 has a mass of 3KG*/
+#5020 = PROPERTY_DEFINITION('mass property', $, #290);
+#5030 = PROPERTY_DEFINITION_REPRESENTATION(#5020, #5040);
+#5040 = REPRESENTATION('property value', (#5060), #5050);
+#5050 = REPRESENTATION_CONTEXT('', '');
+#5060 = MEASURE_REPRESENTATION_ITEM('mass', MASS_MEASURE(3000), #5070);
+#5070 =(NAMED_UNIT(*) MASS_UNIT() SI_UNIT($,.GRAM.));
+
+/* Entities #6090 to #6060 assert that the in #390 defined view */
+/* of part2 has a mass of 6KG*/
+#6090 = PROPERTY_DEFINITION('mass property', $, #390);
+#6030 = PROPERTY_DEFINITION_REPRESENTATION(#6090, #6040);
+#6040 = REPRESENTATION('property value', (#6060), #6050);
+#6050 = REPRESENTATION_CONTEXT('', '');
+#6060 = MEASURE_REPRESENTATION_ITEM('mass', MASS_MEASURE(6000), #5070);
+--
+
+[[sec-3.1.3]]
+==== ((Pre-Defined Properties))
+
+For the representation of part properties, a number of property types have been pre-defined.
+It is recommended to use these values for the property_definition.name attribute
+where applicable.
+
+* *Recyclability property* - A recyclability property is information concerning the
+ability to reuse objects or components of objects after their primarily intended
+usage. For recyclability properties of parts property_definition.name
+*= 'recyclability property'* shall be used.
+
+* *Mass property* - a mass property is a quantity of matter of which an object consists.
+For mass properties of parts property_definition.name *= 'mass property'* shall be
+used.
+
+* *Quality property* - A quality property is a property that provides information
+about the level of quality of products or processes. A quality property documents,
+e.g., the level of quality reached for the parts prototypes. For quality properties
+of parts property_definition.name *= 'quality property'* shall be used.
+
+* *Cost property* - a cost property is a property that specifies costs. For cost
+properties of parts property_definition.name *= 'cost property'* shall be used.
+
+* *Duration property* - A duration property is a property that specifies a period
+of time during which a given object is used or will last. For duration properties
+property_definition.name *= 'duration property'* shall be used.
+
+===== ((descriptive_representation_item))
+
+A descriptive_representation_item is in the property context a textual element that
+participates in one or more representations to define the respective properties.
+
+* The *_name_* attribute characterizes the information modeled with the descriptive_representation_item.
+
+* The *_description_* attribute defines a textual value as an instantiation of the
+modeled property.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY descriptive_representation_item | Attribute Population | Remarks
+
+| name        | type: label = STRING |
+| description | type: text = STRING  | The description is the value associated with
+the representation item in textual form
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* The descriptive_representation_items for a given property are
+collected in a representation.
+
+==== Additional Part Properties
+
+Several implementations and pilot projects have identified the requirement to exchange
+additional properties beyond the pre-defined values given in <<sec-3.1.3>>. One example
+of such a user defined property is the notes/remarks related to a product. A remark
+is some text that while associated with a part does not identify or describe it.
+These general remarks associated with part meta data are mapped to descriptive_representation_items
+related to the product_definition via a property_definition. This instantiation structure
+captures the actual text of a note/remark as a remarks property in the STEP file.
+The property_definition.name = '*remarks property*' may be used to identify such
+a property. An alternative external representation of related notes/remarks as a
+'document' (see <<sec-5.1>>) or a 'file' (see <<sec-7.1>>) makes reference to, but
+does not capture the actual text.
+
+=== ((External Part Shape))
+
+The PDM Schema generally represents part master data. This part 'meta' data does
+not typically represent the detailed geometry of the part shape - this is the scope
+of CAD systems. Rather, the externally defined geometry is identified as an external
+representation of the part shape that is related to the part master data.
+
+Part geometry is identified in the PDM Schema as a representation of a property of
+a part definition. The external part shape represents an external model referenced
+to an external file that is associated to the PDM master file.
+
+==== ((Geometric Shape Property))
+
+Part geometry is identified in the PDM Schema as a representation of a property of
+a part definition. As with general part properties, a representation of a property
+is identified and linked to the product definition by the entity property_definition.
+For the part shape property, property_definition is specialised to the subtype
+product_definition_shape.
+
+The external part shape is represented by the entity shape_representation, a subtype
+of representation used in general part properties. Shape_representations model external
+models that are referenced in files associated to the PDM master file.
+
+STEP Application Protocols define various subtypes of shape_representations with
+differing constraints on the allowable representation_items to explicitly represent
+the detailed geometric model. In the context of the PDM Schema, it is generally assumed
+that these subtypes of shape_representation are not used.
+
+In the scope of the PDM Schema it is generally assumed that shape_representations
+are placeholders for externally defined geometry. This geometry may be defined in
+STEP format as well as in native CAD format. In general it is not recommended to
+instantiate dedicated geometric elements as items of the shape_representations for
+PDM Schema files. However, certain detailed elements of the shape are required to
+be able to place and relate the external geometric models together. Therefore, placement
+information is placed in the set of items of each shape_representation. Placement
+information is modeled using the entity axis_placement, a subtype of geometric_representation_item.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of independent
+property identification are illustrated in <<diam-8>>.
+
+[[diam-8]]
+.Assignment of Part Shape to the View of the Part Instance Diagram
+image::diam-8.svg[]
+
+===== ((product_definition_shape))
+
+Product_definition_shape represents the shape of a product. The shape may be a conceptual
+shape for which a specific geometric representation is not required.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_shape | Attribute Population | Remarks
+
+| name        | type: label = string              | no standard mapping exists should be instantiated as empty string
+| description | type: text = string               | OPTIONAL
+| definition  | type: entity = product_definition
+| reference to an instance of product_definition to which the shape information is
+attached
+|===
+
+*_Preprocessor Recommendations_:* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== ((shape_definition_representation))
+
+A shape_definition_representation links the definition of a shape, i.e., the product_definition_shape, with its representation, i.e., a shape_representation. For a given product_definition_shape alternative representations might be given by multiple occurrences of shape_definition_representation that each link a representation to one product_definition_shape.
+
+*_Attributes_*
+
+* The *_definition_* attribute is used to point to the product_definition_shape for
+which the representation of shape is provided.
+
+* The *_used_representation_* references an instance of shape_representation that
+provides a representation of the part shape.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY shape_definition_representation | Attribute Population | Remarks
+
+| definition          | type: entity = product_definition_shape |
+| used_representation | type: entity = shape_representation     |
+|===
+
+*_Preprocessor Recommendations_:* Some APs allow the assignment of a role
+('detailed representation' or 'idealized representation') to a shape_definition_representation
+by using _name_attribute_.named_item. However, it is recommended to use a document
+content property (see <<sec-9.2>>) to record this type of information instead of
+using _name_attribute_.attribute_value.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== ((shape_representation))
+
+Shape_representation is a subtype of representation that is specifically used to
+represent shape information. The shape information represented is either the complete
+shape of a part or corresponds to a specifically identified portion of a part shape.
+For the PDM schema it is generally recommended to explicitly link instances of shape_representations
+to the corresponding part master data. This linkage can either be established via
+product_definition_shape or the usage of shape_aspect together with product_definition_shape.
+
+*_Attributes_*
+
+* The *_name_* attribute unambiguously identifies the geometric model within the
+CAD environment.
+
+* The *_items_* attribute collects the items of the shape_representation.
+
+* The *_context_of_items_* attribute references a geometric_representation_context
+that establishes the coordinate space for the shape_representation.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY shape_representation | Attribute Population | Remarks
+
+| name             | type: label = string              |
+| items            | type: set of representation items | a set of __representation_item__s that are related in the context_of_items
+| context_of_items | type: entity = geometric_representation_context
+| reference to an instance of _geometric_representation_context_ or an complex instance
+of (_geometric_representation_context, global_uncertainty_assigned_context_)
+
+|===
+
+*_Preprocessor Recommendations:_* Some APs allow the assignment of a version to a
+shape_representation by using _version_assignment_.assigned_id with fixed value:
+_version_assignment_.role.name = 'version id'. It is recommended not to assign versions
+to shape_representations.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* A shape_representation is in the PDM Schema always referenced
+by at least one instance of shape_definition_representation. The shape_definition_representation
+relates the shape_representations either to a property_definition (defining the shape
+property of an identified portion of a part shape) or an instance of product_definition_shape
+representing the complete shape of a part.
+
+===== ((geometric_representation_context))
+
+The geometric_representation_context defines the coordinate space in which the geometric
+model defined by a shape_representation resides.
+
+*_Attributes_*
+
+* The *_context_identifier_* attribute identifies the coordinate system.
+
+* The *_context_type_* attribute specifies the type of context.
+
+* The *_coordinate_space_dimension_ attribute* defines the dimensionality of the
+coordinate space.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY geometric_representation_context | Attribute Population | Remarks
+
+| context_identifier         | type: label = string            |
+| context_type               | type: text = string             | should be instantiated with 'external'
+| coordinate_space_dimension | type: dimension_count = INTEGER | it is recommend to instantiate with 3
+|===
+
+*_Preprocessor Recommendations_:* The explicit representation of geometry is not
+in the scope of the PDM Schema. The PDM Schema supports exclusively shape_representations
+that are externally defined. Thus the context_type attribute should be instantiated
+with 'external'.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* geometric_representation_context specifies the coordinate system
+for the use by shape_representations.
+
+===== ((geometric_representation_item))
+
+Geometric_representation_items are items for product data representation with the
+additional meaning of having geometric context. Geometric_representation_items are
+subtyped to a variety of entities in the context of geometric representations.
+The subtypes relevant for the PDM Schema are axis2_placements that can be used to
+define transformations between shape_representations.
+
+*_Attributes_*
+
+* The *_name_* attribute is used to name the geometric_representation_item.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY geometric_representation_item | Attribute Population | Remarks
+
+| name | type: label = string |
+|===
+
+*_Preprocessor Recommendations:_* only subtype of geometric_representation_item should
+be instantiated.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* most relevant in the scope of the PDM Schema is axis2_placement_3d
+to define transformation information.
+
+===== ((axis2_placement_3d))
+
+Axis2_placement_3d is a geometric_representation_item that specifies the location
+and orientation in three-dimensional space of two mutually perpendicular axes.
+
+*_Attributes_*
+
+* The *_name_* attribute provides a name for the placement.
+
+* The *_location_* attribute defines the spatial position of the reference point
+and origin of the associated placement coordinate system.
+
+* The *_axis_* attribute defines the exact direction of the local stem:[Z] axis.
+
+* The *_ref_direction_* attribute can be used to determine the direction of the local
+stem:[X] axis.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY axis2_placement_3d | Attribute Population | Remarks
+
+| name          | type: label = string           |
+| location      | type: entity = cartesian_point |
+| axis          | type: entity = direction       | OPTIONAL
+| ref_direction | type: entity = direction       | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* If necessary an adjustment to ref_direction has
+to be made to maintain orthogonality to the axis direction. If axis or ref_direction
+are omitted, these directions are taken from the geometric coordinate system.
+
+*_Related Entities:_* None specified.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-9]]
+.exchange file segment to associate shape to part views
+[source]
+--
+#290 = PRODUCT_DEFINITION('p2v', 'view on part2', #280, #130);
+/* Entities #600 to #660 define the geometric model for 'part2' */
+#600 = PRODUCT_DEFINITION_SHAPE('shape_p2',$,#290);
+#610 = SHAPE_DEFINITION_REPRESENTATION(#600,#620);
+#620 = SHAPE_REPRESENTATION('sol2',(#670),#630);
+#630 = GEOMETRIC_REPRESENTATION_CONTEXT('c2','external',3);
+/* Entities #640 to #670 are the elements of shape representation */
+#640 = CARTESIAN_POINT('', (3.0E+001, 0.0E+000, 1.0E+001));
+#650 = DIRECTION('', (0.0E+000, -1.0E+000, 0.0E+000));
+#660 = DIRECTION('', (1.0E+000, 0.0E+000, 0.0E+000));
+#670 = AXIS2_PLACEMENT_3D('', #640, #650, #660);
+--
+
+==== ((Portions of the Part Shape))
+
+The PDM Schema supports the requirement to identify explicitly a portion of shape
+that may be associated with other information -- including dedicated geometric models.
+Property information can be linked to shape aspects via property definitions. A prominent
+special case is the assignment of dedicated shape_representations as shown in the
+diagram below. The shape_representation can either represent the part shape completely
+or just partial geometry.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of independent
+property identification are illustrated in <<diam-9>>.
+
+[[diam-9]]
+.Identification and Representation of Portions of Part Shape Instance Diagram
+image::diam-9.svg[]
+
+===== ((shape_aspect))
+
+An instance of shape_aspect is used to identify a portion of a part shape. To this
+portion of the part shape properties can be associated with the portion. Typically
+the geometric elements that establish the shape_aspect are collected in a shape_representation
+which is related to the shape_aspect via instances of property_definition and
+shape_definition_representation. In cases in which a shape_representation deliberately
+represents only portions of an overall part shape it is recommended to relate this
+shape_representation to the part shape via the usage of shape_aspect .
+
+*_Attributes_*
+
+* The *_name_* is the organizational name of the shape_aspect.
+
+* The *_description_* attribute provides an optional textual description of the shape_aspect.
+
+* The *_of_shape_* attribute references the product_definition_shape of which the
+shape_aspect is a portion.
+
+* The *_product_definitional_* attribute indicates whether the portion of shape lies
+on the physical boundary of the part shape.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY shape_aspect | Attribute Population | Remarks
+
+| name                 | type: label = STRING                    |
+| description          | type: text = STRING                     | OPTIONAL
+| of_shape             | type: entity = product_definition_shape |
+| product_definitional | type: LOGICAL
+| If a value of TRUE is given, then it is asserted that the shape_aspect is on the
+physical boundary of the product_definition_shape.
+|===
+
+*_Preprocessor Recommendations_:* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-10]]
+.exchange file segment for identification of shape portions
+[source]
+--
+#700 = PRODUCT_DEFINITION_SHAPE('shape_p',$,#260);
+#710 = SHAPE_ASPECT('aspect1',$,#700,.T.);
+/* Entities #730 to #790 define the geometry related to */
+/* shape_aspect #710*/
+#730 = PROPERTY_DEFINITION('shape for aspect1',$,#710);
+#740 = SHAPE_DEFINITION_REPRESENTATION(#730,#750);
+#750 = SHAPE_REPRESENTATION('sa1',(#795),#760);
+--
+
+==== ((Relating Externally Defined Part Shape to an External File))
+
+The PDM Schema generally represents part master data. This part 'meta' data does
+not typically represent the detailed geometry of the part shape - this is the scope
+of CAD systems. Rather, the externally defined geometry is identified as an external
+representation of the part shape that is related to the part master data. Part geometry
+is identified in the PDM Schema as a representation of a property of a part
+definition - it is actually in externally referenced files. These files are often
+generated by CAD systems, and contain the detailed geometric shape representation
+with dedicated geometric elements.
+
+The external part shape is an external geometric model related to the part master
+data and is referenced as an external CAD file. Specifics of external file identification
+are described in <<sec-7>>. The external file that contains the detailed geometry
+is attached to the part master data in two ways:
+
+* Related to the product identification data using applied_document_reference.
+
+* Related to the shape_representation representing the external geometric model using
+the entities property_definition and property_definition_representation.
+
+It is recommended that applied_document_reference be used, in general, to relate
+an external file representing the CAD model to the product_definition of a part identification
+(see <<sec-10>>). If the external file representing the CAD model exists alone as
+an unmanaged external file reference, then the document_reference should be applied
+directly from the document_file (see <<sec-10.2>> ). If the external file representing
+the CAD model exists as a constituent file of a managed document (using the
+'Document as Product' approach), the document_reference should be applied from the
+managed document via the document_product_equivalence (see <<sec-10.1>>).
+
+If the CAD file contains the definitional shape of the part, then an external geometric
+model should be represented (using shape_representation) and the external CAD file
+should also be related to this shape_representation using property_definition and
+property_definition_representation.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of relating
+part shape to the external CAD file is illustrated in <<diam-10>>.
+
+[[diam-10]]
+.Part Shape Related to External File Instance Diagram
+image::diam-10.svg[]
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-11]]
+.exchange file segment for externally defined geometry in managed documents
+[source]
+--
+/* Entities #370 to #497 define a managed document which */
+/* contains a representation of the shape of 'part2' */
+#370 = PRODUCT('p2_shape_doc', 'document reflecting
+shape of part2', '', (#20));
+#380 = PRODUCT_RELATED_PRODUCT_CATEGORY('document', '', (#370));
+#390 = DOCUMENT_TYPE('configuration controlled document version');
+#400 = DOCUMENT('', '', '', #390);
+#410 = APPLIED_DOCUMENT_REFERENCE(#290, 'equivalence', (#400));
+#420 = OBJECT_ROLE('mandatory', '');
+#430 = ROLE_ASSOCIATION(#420, #410);
+#440 = PRODUCT_DEFINITION_FORMATION('1', '', #370);
+#450 = DOCUMENT_PRODUCT_EQUIVALENCE('equivalence', '', #400, #440);
+#460 = PRODUCT_DEFINITION_CONTEXT('digital document definition', #10, '';
+#470 = PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS('p2_shape_d',
+'digital document for part2 shape', #440, #460,(#475));
+#475 = DOCUMENT_FILE('p2_shape_file', '', '', #485, '', $);
+#480 = DOCUMENT_REPRESENTATION_TYPE('digital',#475);
+#485 = DOCUMENT_TYPE('');
+#490 = IDENTIFICATION_ROLE('local node','access context');
+#495 = APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT(
+'part1_geometry.stp',#490, #497,(#475));
+#497 = EXTERNAL_SOURCE('c:\part_dir');
+/* Entities #600 to #660 define the geometric model for 'part2' */
+#600 = PRODUCT_DEFINITION_SHAPE('shape_p2',$,#290);
+#610 = SHAPE_DEFINITION_REPRESENTATION(#600,#620);
+#620 = SHAPE_REPRESENTATION('sol2',(#670),#630);
+#630 = GEOMETRIC_REPRESENTATION_CONTEXT('c2','external',3);
+#640 = CARTESIAN_POINT('', (3.0E+001, 0.0E+000, 1.0E+001));
+#650 = DIRECTION('', (0.0E+000, -1.0E+000, 0.0E+000));
+#660 = DIRECTION('', (1.0E+000, 0.0E+000, 0.0E+000));
+#670 = AXIS2_PLACEMENT_3D('', #640, #650, #660);
+
+/* Entities #680 and #690 indicate that the shape_representation #620 /
+/* is externally defined by the file represented by #475 */
+#680 = PROPERTY_DEFINITION('external definition',$,#475);
+#690 = PROPERTY_DEFINITION_REPRESENTATION(#680,#620);
+--
+
+[[ex-12]]
+.exchange file segment for externally defined geometry in flat files
+[source]
+--
+/* Entities #500 to #560 define the geometric model for 'part1' */
+#500 = PRODUCT_DEFINITION_SHAPE('shape_p1',$,#230);
+#510 = SHAPE_DEFINITION_REPRESENTATION(#500,#520);
+#520 = SHAPE_REPRESENTATION('sol1',(#570),#530);
+#530 = GEOMETRIC_REPRESENTATION_CONTEXT('c1','external',3);
+#540 = CARTESIAN_POINT('', (1.0E+001, 0.0E+000, 1.0E+001));
+#550 = DIRECTION('', (0.0E+000, -1.0E+000, 0.0E+000));
+#560 = DIRECTION('', (1.0E+000, 0.0E+000, 0.0E+000));
+#570 = AXIS2_PLACEMENT_3D('', #540, #550, #560);
+
+/* Entities #575 to #585 state that the shape_representation #520 */
+/* is externally defined in a digital file with the location */
+/* 'part2_geometry.stp'*/
+#575 = APPLIED_DOCUMENT_REFERENCE(#576,(#230));
+#576 = DOCUMENT_FILE('p1_shape','',$,#577,'',$);
+#577 = DOCUMENT_TYPE('geometry');
+#578 = ROLE_ASSOCIATION(#579,#575);
+#579 = OBJECT_ROLE('mandatory',$);
+#580 = DOCUMENT_REPRESENTATION_TYPE('digital',#576);
+#581 = IDENTIFICATION_ROLE('local node','access context');
+#582 = APPLIED_EXTERNAL_IDENTIFICATION_ASSIGNMENT(
+'part2_geometry.stp',#581,#583,(#576));
+#583 = EXTERNAL_SOURCE('c:\part_dir');
+#584 = PROPERTY_DEFINITION('external definition',$,#576);
+#585 = PROPERTY_DEFINITION_REPRESENTATION(#584,#520);
+--
+
+==== ((Splitting shape into multiple shape representations))
+
+<<diam-11>> depicts the instantiation for a part with more than one shape representation,
+where the total representation of the part shape is obtained by summing up all representations.
+In the particular case illustrated in <<diam-11>>, the shape is represented by a
+collection of CAD files.
+
+[[diam-11]]
+.Shape representation split into multiple CAD files
+image::diam-11.svg[]
+
+=== ((External Geometric Model Structure))
+
+External geometric models may be related together to form hierarchical geometric
+model structures. The orientation and location of two shape_representations relative
+to each other can be defined using a subtype of shape_representation_relationship
+that references a transformation. For example, one might want to specify such a transformation
+to geometrically relate representations of the part shape in order to relate the
+shape of components in an assembly structure for digital mock-up applications.
+
+==== ((Relating Part Shape))
+
+The EXPRESS entities and attributes used to support the requirements of relating
+shape representations is illustrated in <<diam-12>>.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+[[diam-12]]
+.Relating Shape Representations with Transformation Instance Diagram (item_defined_transformation example)
+image::diam-12.svg[]
+
+===== ((shape_representation_relationship))
+
+The entity shape_representation_relationship_is a subtype of representation_relationship.
+The subtype adds specific local constraints that ensures that it defines a relationship
+between two shape_representations. To define a relationship between two shape_representations
+that is established via a transformation, a complex instantiation of shape_representation_relationship
+AND representation_relationship_with_transformation is used.
+
+*_Attributes_*
+
+* The *_name_* attribute is used to name the relationship. The name of the relationship
+can be used to indicate the type of the relationship established. Relationships may
+be established to capture semantics as 'is derived from', 'should be oriented against'
+or 'decomposition'.
+
+* The *_description_* attribute can be used to provide optional further textual description.
+
+* The *_rep_1_* attribute references the first of the related shape_representations.
+
+* The *_rep_2_* attribute references the second of the related shape_representations.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY shape_representation_relationship | Attribute Population | Remarks
+
+| name        | type: label = string                | May characterize the type of the relationship
+| description | type: text = string                 | OPTIONAL
+| rep_1       | type: entity = shape_representation |
+| rep_2       | Type: entity = shape_representation |
+|===
+
+*_Preprocessor Recommendations_:* The meaning of the rep_1 and rep_2 attributes is
+specified further by the relation type indicated by the attribute shape_representation_relationship.name.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+===== ((representation_relationship_with_transformation))
+
+The entity representation_relationship_with_transformation_is a subtype of representation_relationship.
+The subtype adds the attribute transformation_operator as a reference to a transformation.
+To define a relationship between two shape_representations that is established via
+a transformation, a complex instantiation of shape_representation_relationship AND
+representation_relationship_with_transformation is used.
+
+NOTE: A shape_representation_relationship between instances of shape_representation
+does not necessarily imply a relationship in the sense of decomposition of a given
+part shape. A decomposition type of relationship can be assumed when shape_representations
+which are linked to shape_aspects of a product_definition_shape are related to a
+shape_representation declared to represent the same product_definition_shape in total,
+i.e., a shape_representation linked to the product_definition_shape with an instance
+of shape_definition_representation.
+
+*_Attributes_*
+
+* The *_name_* attribute is used to name the relationship and may characterize the
+relation type.
+
+* The *_description_* attribute can be used to provide optional further textual description.
+
+* The *_rep_1_* attribute references the first of the related shape_representations.
+
+* The *_rep_2_* attribute references the second of the related shape_representations.
+
+* The *_transformation_operator_* attribute specifies the transformation operator
+that defines the relationship.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY shape_representation_relationship | Attribute Population | Remarks
+
+| name                    | See shape_representation_relationship |
+| description             | See shape_representation_relationship | OPTIONAL
+| rep_1                   | See shape_representation_relationship |
+| rep_2                   | See shape_representation_relationship |
+| transformation_operator | type: entity item_defined_transformation or functionally_defined_transformation |
+|===
+
+*_Preprocessor Recommendations_:* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-13]]
+.exchange file segment for relating shape representations
+[source]
+--
+#520 = SHAPE_REPRESENTATION('sol1',(#570),#530);
+#530 = GEOMETRIC_REPRESENTATION_CONTEXT('c1','external',3);
+#540 = CARTESIAN_POINT('', (1.0E+001, 0.0E+000, 1.0E+001));
+#550 = DIRECTION('', (0.0E+000, -1.0E+000, 0.0E+000));
+#560 = DIRECTION('', (1.0E+000, 0.0E+000, 0.0E+000));
+#570 = AXIS2_PLACEMENT_3D('', #540, #550, #560);
+#1070 = SHAPE_REPRESENTATION('s_assembly',(#1110,#1140),#1080);
+#1080 = GEOMETRIC_REPRESENTATION_CONTEXT('ca','',3);
+#1110 = AXIS2_PLACEMENT_3D('', #1090, #1095, #1100);
+#1120 = CARTESIAN_POINT('', (1.0E+001, 1.0E+000, 1.0E+001));
+#1125 = DIRECTION('', (1.0E+000, 0.0E+000, 0.0E+000));
+#1130 = DIRECTION('', (0.0E+000, -1.0E+000, 0.0E+000));
+#1220 =(REPRESENTATION_RELATIONSHIP('','',#520,#1070)
+REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#1230) SHAPE_REPRESENTATION_RELATIONSHIP());
+#1230 = ITEM_DEFINED_TRANSFORMATION('p1t','',#1110,#570);
+--
+
+==== ((Relating portions of shape to each other))
+
+By using the above described shape_representation_relationship concept, geometric
+relations of individual portions of shape defined as shape_aspects can be represented.
+If the portions of the shape together represent the part shape completely, geometric
+relationships between the shape_representations representing the individual shape_aspects
+and the shape_representation representing the product_definition_shape should be
+defined.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of relating
+portions of shape are illustrated in <<diam-13>>.
+
+NOTE: the portions of shape related to each other are not necessarily portions of
+the same part shape. This capability might as well be used to e.g., define geometric
+orientations of the faces of a tool and a part for a machining operation.
+
+[[diam-13]]
+.Specifying Geometric Relations between Portions of Shape Instance Diagram
+image::diam-13.svg[]
+
+==== Additional Geometric Model Structures
+
+Several implementations and pilot projects have identified the requirement to handle
+multiple feature shapes associated with a single part.
+
+One example is an alternate geometry representation for a part shape or a partial
+shape, e.g., simplified, other geometry type. The relationships of the alternate
+geometry representations can be defined by a representation_relationship (with e.g.,
+name='derived' to state that the simplified geometry is derived from the original
+geometry).
+
+Another example is the definition of auxiliary geometry not being part of the shape,
+e.g., tooling, test equipment or some object to provide scale of new design geometry.
+In this case the shape_representation is linked to a product_definition by using
+property_definition. Product_definition_shape is not used. The auxiliary geometry
+may be related to the part geometry to describe the geometric relationship.
+
+=== ((Relative Orientation and Location of Related Geometric Models))
+
+The relative orientation and location of two shape_representations to each other
+can be defined with the shape_representation_relationship that reference transformations.
+One might want to specify such transformations to geometrically relate representations
+of portions of the part shape to relate the shape of components in an assembly structure
+in order to define the geometric relations.
+
+The PDM Schema supports two methods to define geometric relationships between external
+models:
+
+* _implicitly_ by identifying two items that establish a reference relationship via
+an item_defined_transformation,
+
+* _explicitly_ with the help of a functionally_defined_transformation. It is generally
+recommended that cartesian_transformation_operator be used to define a functionally_defined_transformation.
+
+==== ((Implicitly defined transformations between geometric models))
+
+A relationship can be defined implicitly by referencing an item_defined_transformation
+that has two reference points to specify origin and target of the transformation.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of implicit
+definition of transformation between the elements of two representations are illustrated
+in <<diam-14>>.
+
+[[diam-14]]
+.Implicitly Defined Geometric Relations Instance Diagram
+image::diam-14.svg[]
+
+===== ((item_defined_transformation))
+
+An item_defined_transformation models a transformation performed by defining two
+representation_items before and after applying the transformation function The transformation
+function is not explicitly provided, but it is derived through its relationship to
+the representation_items.
+
+*_Attributes_*
+
+* The *_name_* attribute provides a name for the transformation.
+
+* The *_description_* attribute can be used to provide optional further textual description.
+
+* The *_transform_item_1_* references the first item (origin for the transformation).
+
+* The *_transform_item_2_* attribute references the second item (target for the transformation).
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY item_defined_transformation | Attribute Population | Remarks
+
+| name             | type: label = string               |
+| description      | type: text = string                | OPTIONAL
+| transform_item_1 | type: entity = representation_item | here: axis2_placement_3d
+| transform_item_2 | type: entity = representation_item | here: axis2_placement_3d
+|===
+
+*_Preprocessor Recommendations_:* To be meaningful the item_defined_transformation
+with axis2_placement_3d requires that the representations that include transform_item_1
+and transform_item_2 share the same geometric_representation_context.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+==== ((Explicitly defined transformations between geometric models))
+
+Relationships between geometric models can be made modeled in an explicit manner
+by using instances of cartesian_transformation_operator.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of explicit
+definition of transformation between the elements of two representations is illustrated
+in <<diam-15;and!diam-16;and!diam-17>>.
+
+[[diam-15]]
+.Explicit Representation of a Translation Instance Diagram
+image::diam-15.svg[]
+
+The scale attribute with a positive value different from 1.0 allows uniform scaling
+in addition to translation or identity.
+
+[[diam-16]]
+.Explicit Representation of a Translation with Scaling Instance Diagram
+image::diam-16.svg[]
+
+An additional rotation or mirroring requires the definition of the three *axis* attributes.
+If all optional attributes are set, a composition of all kinds of transformation
+is possible.
+
+[[diam-17]]
+.Explicit Representation of a Translation with Rotation Instance Diagram
+image::diam-17.svg[]
+
+===== ((cartesian_transformation_operator))
+
+Cartesian_transformation_operator defines a geometric transformation composed of
+translation and rotation. Mirroring and scaling should not be used in the context
+of representing the geometric equivalent for an assembly structure. There are two
+subtypes of cartesian_transformation_operator:
+
+* cartesian_transformation_operator_2d,
+
+* cartesian_transformation_operator_3d.
+
+*_Attributes_*
+
+* The *_name_* attribute (inherited from supertype representation_item) provides
+a naming capability.
+
+* The *_name_* attribute (inherited from functionally_defined_transformation) provides
+a naming capability.
+
+* The *_description_* attribute can be used to provide optional further textual description.
+
+* The *_axis1_* attribute is the stem:[X] axis direction of the transformation target.
+
+* The *_axis2_* attribute is the stem:[Y] axis direction of the transformation target.
+
+* The *_local_origin_* attribute is the required translation specified as a cartesian
+point. The actual translation included in the transformation is from the geometric
+origin to the local origin.
+
+* The *_scale_* attribute is the scaling value specified for the translation.
+
+* The *_axis3_* attribute is the stem:[Z] axis direction of the transformation target.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY cartesian_transformation_operator | Attribute Population | Remarks
+
+| representation_item.name                 | type: label = string           |
+| functionally_defined_transformation.name | type: label = string           |
+| description                              | type: text = string            | OPTIONAL
+| axis1                                    | type: entity = direction       | OPTIONAL
+| axis2                                    | type: entity = direction       | OPTIONAL
+| local_origin                             | type: entity = cartesian_point |
+| scale                                    | type: REAL                     | OPTIONAL
+| axis3                                    | type: entity direction         | OPTIONAL Attribute specific to cartesian_transformation_operator_3d
+|===
+
+*_Preprocessor Recommendations_:* A cartesian_transformation_operator is a subtype
+of geometric_representation_item, and has attributes populated with geometric entities.
+In consequence an instance of a cartesian_transformation_operator must be founded
+in (i.e., must exist as an element of) a shape_representation. It is thus recommended
+that the cartesian_transformation_operator be referenced as an item of the shape_representation
+that is the value of the attribute rep_2 of a shape_representation_relationship (e.g.,
+the 'parent' shape_representation). In the context of an assembly, the rep_2 attribute
+points to the assembly definition as a target for the transformation of the component
+instance shape. This recommendation interprets the transformation to be part of the
+assembly shape rather than of the component shape.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* None specified.
+
+A cartesian_transformation_operator_3d defines a geometric transformation composed
+of translation, rotation, mirroring and uniform scaling. Depending on what kind of
+transformation is implemented, certain optional attributes are required. With only
+local_origin given as an attribute, the transformation may be an identity or a translation.
+
+==== Conversion from Implicit to Explicit Transformation Information
+
+In STEP, there are two possibilities of representing a transformation between two
+geometric models. In an implicitly defined transformation the item_defined_transformation
+entity is used with two representation_items (mostly axis2_placement_3ds) before
+and after applying the transforming function. In an explicitly defined transformation,
+this function is given by an instance of cartesian_transformation_operator. The operations
+allowed in this context are rotation and translation.
+
+The intention of this section is to demonstrate how to extract the transforming function
+from an item_defined_transformation and model to an explicitly defined transformation
+from this information. Therefore, an example is constructed. First, the implicit
+way is shown, then the conversion will be calculated and finally the explicit representation
+is described.
+
+===== ((Implicitly defined transformation))
+
+To implicitly define a transformation between two representation_items, the following
+entities and attributes are needed (see <<diam-18>>)
+
+[[diam-18]]
+.Implicit Transformation Instance Diagram
+image::diam-18.svg[]
+
+This structure can be rediscovered in the following fragment from a Part 21 file:
+
+[[ex-14]]
+.file segment for implicitly defined transformation
+[source]
+--
+/* representation_item 1 */
+
+#1000=CARTESIAN_POINT('', 1.0, 1.0, 3.0);
+#1010=DIRECTION('', 0.0, -0.8660254, 0.5);
+#1020=DIRECTION('', 1.0, 0.0, 0.0);
+#1030=AXIS2_PLACEMENT_3D('', #1000, #1010, #1020);
+
+/* representation_item 2 */
+
+#1050=CARTESIAN_POINT('', 2.0, 2.0, 1.0);
+#1060=DIRECTION('', 0.0, 0.0, 1.0);
+#1070=DIRECTION('', 0.7071068, 0.7071068, 0.0);
+#1080=AXIS2_PLACEMENT_3D('', #1050, #1060, #1070);
+
+/* transformation */
+
+#1100=ITEM_DEFINED_TRANSFORMATION('', '', #1030, #1080);
+#1110=REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION('', '', #800,
+#900, #1100);
+--
+
+===== ((Conversion))
+
+The first step is now to extract the two matrices implicitly given by each of the
+two placements. The axis2_placement_3d has a name, a location and two axes as attributes.
+The axes are the axis and ref_direction attribute, where axis is the placement stem:[Z]
+axis direction and the ref_direction is an approximate to the placement stem:[X]
+axis direction. From this information, a right-handed coordinate system is computed:
+
+Let stem:[z] be the placement stem:[Z] axis direction and stem:[a] be the approximate
+placement stem:[X] axis direction. Approximate here means that stem:[a] and stem:[z]
+are not required to be orthogonal. Then the exact placement stem:[X] axis direction
+is given as stem:[x = langle a - (a cdot z) z rangle] and the placement stem:[Y]
+axis direction calculates to stem:[y = langle z xx x rangle].
+
+For the first representation item, the following calculations would result:
+
+[stem%unnumbered]
+++++
+"axis:" quad z = ((0.0),(-0.8660254),(0.5)), quad quad quad quad "ref_direction:"
+quad a = ((1.0),(0.0),(0.0)),
+++++
+
+therefore stem:[x langle a - (a cdot z)z rangle = langle a - 0z rangle = a] because
+stem:[z] and stem:[a] are already orthogonal in this example.
+
+Next step is calculating stem:[y] using the vector product:
+stem:[y = langle z xx x rangle = ((0.0),(0.5),(0.8660254))].
+
+So the geometric function which leads from the coordinates of the global coordinate
+system to those of the first axis placement is represented by the rotation matrix
+stem:[A] given by the three vectors stem:[x], stem:[y] and stem:[z] plus the translation
+vector stem:[t] given by the axis2_placement_3d's location attribute:
+
+[stem%unnumbered]
+++++
+A = ((1.0,0.0,0.0),(0.0,0.5,0.8660254),(0.0,-08660254,0.5)), quad quad quad quad t = ((1.0),(1.0),(3.0))
+++++
+
+In the same way, the matrix stem:[B] and the vector stem:[u] are computed from the
+second axis placement:
+
+[stem%unnumbered]
+++++
+B = ((0.7071068,-0.7071068,0.0),(0.7071068,0.7071068,0.0),(0.0,0.0,1.0)), quad quad quad quad t = ((1.0),(1.0),(3.0))
+++++
+
+Geometrically, the matrix stem:[A] defines a stem:[60 "unitsml(deg)"] rotation around
+the global stem:[X] axis and the matrix stem:[B] gives a stem:[45 "unitsml(deg)"]
+rotation around the global stem:[Z] axis.
+
+To get the explicit transformation from the information gained so far, the matrices
+have to be combined. The idea is as follows: To move a point from a location within
+the first placement into a location within the second one, three steps have to be
+made:
+
+. First, the point has to be multiplied with the inverted matrix stem:[A_^{-1}] to
+undo the rotation, which occurs when going from the global coordinate system into
+the first placement system.
+
+. Next, multiply it with the second matrix stem:[B] to get it into the right position
+for the target placement.
+
+. Finally, a translation vector is needed to put the point into its correct location
+within the second axis placement. Calculation of this vector can be seen below.
+
+As stem:[A] is a rotation matrix, the inverted matrix combined: stem:[A^{-1} = A^T],
+the transposed matrix. Steps 1 and 2 can be combined:
+
+PDM Schema Usage Guide
+
+[stem%unnumbered]
+++++
+C = BA^{-1} = ((0.7071068,-0.3535534,-0.6123724),(0.7071068,0.3535534,0.6123724),(0.0,-0.8660254,0.5))
+++++
+
+The translation vector needed is
+
+[stem%unnumbered]
+++++
+v = u - Ct = ((3.4835639),(-0.8977775),(0.3660254))
+++++
+
+This means moving any point stem:[P] from a location within the first placement into
+the second one follows the calculation
+
+[stem%unnumbered]
+++++
+P' = C cdot P + v
+++++
+
+===== ((Explicitly defined transformation))
+
+This information will now be used in a Part 21 file example, using an instance of
+the cartesian_transformation_operator_3d to perform a translation with rotation,
+where the columns of the matrix stem:[C] are the three axis attributes and the vector
+stem:[v] is the local_origin attribute. The structure of the file is shown in the
+following diagram:
+
+[[diam-19]]
+.Explicit Transformation Instance Diagram
+image::diam-19.svg[]
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-15]]
+.file segment for explicit transformation
+[source]
+--
+/* translation vector v */
+
+#1000=CARTESIAN_POINT('', 3.4835639, -0.8977775, 0.3660254);
+
+/* rotation matrix C */
+
+#1010=DIRECTION('', 0.7071067811865, 0.7071067811865, 0.0);
+#1020=DIRECTION('', -0.3535533905933,0,3535533905933,
+0.8660254037844);
+#1030=DIRECTION('', -0.6123724356958, 0.6123724356958, 0.5);
+
+/* transformation */
+
+#1040=CARTESIAN_TRANSFORMATION_OPERATOR_3D('', '', $, #1010, #1020,
+#1000, $, #1030);
+#1050=REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION('', '', #800,
+#900, #1040);
+--
+
+=== ((Known issues))
+
+==== Material properties
+
+Some application protocols such as AP214 use specific subtypes to specify material
+properties. These subtypes are currently not included in the PDM Schema.
+
+==== Mapping of part properties in AP 214
+
+The requirement to represent properties for parts is in AP214 always mapped onto
+an AIM structure that extends the property_definition tree with a general_property.
+In consequence, AP214-compliant implementations are forced to always instantiate
+general_property when part properties shall be represented. We feel that this is
+not adequate, since PDM systems in general do not have the capability to distinguish
+between properties related to parts and properties as a general characterization
+criteria independent from the actually present product data population.

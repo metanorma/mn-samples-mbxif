@@ -1,0 +1,51 @@
+= Recommended Practices for STEP AP242 Edition 3 Domain Model XML Kinematics
+:doctype: recommended-practices
+:docnumber: 1
+:docidentifier: CAx-IF/JT-IF RP AP242e3 Kinematics (v1.2)
+:committee: CAx-IF
+:committee-type: technical
+:committee_2: JT-IF
+:committee-type_2: technical
+:version: 1.2
+:issued-date: 2024-01-11
+:copyright-holder: CAx Interoperability Forum
+:mn-document-class: mbxif
+:fullname: Jochen Boy
+:affiliation: PROSTEP AG
+:email: jochen.boy@prostep.com
+:role-description: CAx-IF
+:fullname_2: Phil Rosché
+:affiliation_2: ACCR, LLC.
+:email_2: phil.rosche@accr-llc.com
+:role-description_2: CAx-IF
+:fullname_3: Guillaume Hirel
+:affiliation_3: T-Systems
+:email_3: guillaume.hirel@t-systems.com
+:role-description_3: Technical
+:fullname_4: Alexandre Cros
+:affiliation_4: Dassault Systèmes
+:email_4: alexandre.cros@3ds.com
+:role-description_4: Technical
+:language: en
+:toclevels: 3
+:toc-figures: true
+:toc-tables: true
+:imagesdir: images
+:mn-output-extensions: xml,html,pdf,rxl
+
+
+include::sections/00-preface.adoc[]
+
+include::sections/01-introduction.adoc[]
+
+include::sections/02-scope.adoc[]
+
+include::sections/03-reference.adoc[]
+
+include::sections/04-kinematics.adoc[]
+
+include::sections/aa-list-of-templates.adoc[]
+
+include::sections/ab-known-issues.adoc[]
+
+include::sections/b0-bibliography.adoc[]

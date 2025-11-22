@@ -1,0 +1,9 @@
+
+[bibliography]
+== Bibliography
+
+* [[[ISO_1000,hidden(ISO 1000)]]]
+
+* [[[ISO_10303,hidden(ISO 10303)]]]
+
+* [[[ISO_31,hidden(ISO 31)]]]

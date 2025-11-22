@@ -1,0 +1,921 @@
+
+[[sec-1]]
+== ((Part Identification))
+
+The PDM Schema manages all parts as products, according to a fundamental STEP interpretation
+of 'Part as Product'. Part identification is achieved using basic product identification.
+In addition, a product may represent a managed document and be identified according
+to the 'Document as Product' interpretation (see <<sec-5.1>>).
+
+Part identification is the center for assignment of further product management data.
+As a consequence, at least one product identification (part or document) must be
+instantiated for the exchange of part/document data in the STEP PDM Schema.
+
+The simple alias concept supports assignment of an alternate identifier to a product.
+This mechanism may also be used to alias other elements of product data.
+
+Do not use the alias identification for the requirement of supplied part or document
+identification. This more complex alias relationship concept is specific for identification
+and renumbering of supplier's parts and documents. See Supplied Part Identification
+<<sec-4.5.4>> and Alias Identification <<sec-12>>
+
+=== ((Part as Product))
+
+The PDM Schema manages all parts as products. Identification of products in the STEP
+PDM Schema consists of three distinct concepts:
+
+* Product Master Identification,
+
+* Context Information,
+
+* Type Classification.
+
+Product master identification maintains the base part number, distinct part version
+identification, and information identifying a view definition. An identified part
+may be a single piece part or an assembly of arbitrary complexity.
+
+Context information provides a scope and necessary circumstance for interpretation
+of product identification information.
+
+Type classification distinguishes products representing parts from those that represent
+documents.
+
+==== ((Product Master Identification))
+
+Product master identification supports the ability to uniquely identify a part.
+The identification of products in the STEP PDM Schema consists of three important
+and structurally distinct concepts:
+
+* Base Identification,
+
+* Version Identification,
+
+* View Definition.
+
+The master base identification maintains information common to all product versions
+and disciplines and/or life-cycle views. It contains the base product number and
+name. The base number should not be subject to any encoding of information into a
+single complex parse able string.
+
+There must be at least one version assigned to a product base identification.
+The version information may represent a design revision or iteration in a design
+cycle of a part. There may be more than one version associated with a product master.
+The set of versions associated with a base product may be related together to represent
+the version history of that product. The product version collects all information
+among all associated disciplines and life-cycle view definitions.
+
+It is recommended that at least one view definition be assigned to each product version.
+There may be two exceptions to this general rule:
+
+* Supplied product identification, in which case a supplied product may be represented
+by only product version;
+
+* Version identification and when version history is represented, where only the
+most recent current version is required to have an associated view definition.
+
+The product definition view collects information relevant from the perspective of
+a particular application domain or life-cycle stage. There may be more than one life-cycle
+view definition associated with a particular version of a product. This is especially
+important to enable different views on product assembly structures.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of part master
+identification are illustrated in <<diam-1>> below. The corresponding STEP exchange
+file encoding is given in <<ex-1>>.
+
+[[diam-1]]
+.Part Master Identification Instance Diagram
+image::diam-1.svg[]
+
+[[sec-1.1.1.1]]
+===== ((product))
+
+The product entity represents the product master base information. This entity collects
+all information that is common among the different versions and views of the product.
+The product number is strictly an identifier. It should not be used as a 'smart string'
+with some parse able internal coding scheme, e.g., to identify version or classification
+information.
+
+The product number identifier must be unique within the scope of the business process
+of the information exchange. This is typically not a problem when the product data
+is only used within a single company. If the data is being assembled for an external
+use, the identification must be interpreted as unique within that broader domain.
+Processors may need to evaluate more than one string (i.e., product.id) to establish
+unique identification of a part; there may be a combination of parameters that make
+part identification unique. The associated organization entity with the role
+'id owner' can be used to derive a uniqueness parameter if the product.id attribute
+is not unique within the domain of the business arrangement of the exchange.
+
+*_Attributes_*
+
+* The *_id_* attribute stores the unique base identifier for a product, the product
+number.
+
+* The *_name_* attribute stores the nomenclature, or common name, of the product.
+
+* The *_description_* attribute should contain an expanded name or description of
+the product.
+
+* Context information is stored in the *_frame_of_reference_* attribute. All products
+in STEP must be founded in some product_context. This requirement is discussed in
+more detail in <<sec-1.1.2>>.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product | Attribute Population | Remarks
+
+| id | type: identifier = string product number identification | Unique within the
+scope provided by organization in role 'id owner'
+| name               | type: label = string           |
+| description        | type: text = string            |
+| frame_of_reference | type: entity = product_context | SET [1:?]
+|===
+
+*_Preprocessor Recommendations_*: All preprocessors should use valid user (non-defaulted)
+data for the values assigned to the attributes id and name, as well as to the id
+of the organization related in the role 'id owner'. In populating the id attribute,
+the identifier must be unique within the scope of the related organization or
+person_and_organization in the role 'id owner'.
+
+*_Postprocessor Recommendations_*: Postprocessors should provide user access to the
+values of the attributes id and name, as well as the id of the organization related
+in the role 'id owner'.
+
+*_Related Entities:_* The PDM Schema requires that all products exist in at least
+one product_category, to provide type classification information. This type classification
+requirement is discussed in <<sec-1.1.3>>.
+
+It is strongly recommended that products have a related organization or person_and_organization
+that identifies responsibility for the original design of the part. The role of this
+assignment is identified as the 'id owner'. This is the organization or person_and_organization
+that defines the part and assigns the part number. See <<sec-13.1>> for guidance
+on how to create the organization or person_and_organization entities.
+
+In addition, the product may optionally be referenced by the following entities:
+
+* applied_organization_assignment (or applied_person_and_organization_assignment)
+to represent the customer, or other associations of an organization to a product
+(see <<sec-13.1>>);
+
+* product_related_product_category to classify a product with respect to specific
+criteria. One product_related_product_category is required to represent product type
+(see <<sec-1.1.3>>).
+
+===== ((product_definition_formation))
+
+The product_definition_formation entity represents the identification of a specific
+version of the base product identification. A particular product_definition_formation
+is always related to exactly one product.
+
+Each instance of product is required to have an associated instance of product_definition_formation.
+A single product entity may have more than one associated product_definition_formation.
+The set of these product_definition_formation entities represents the revision history
+of the product.
+
+*_Attributes_*
+
+* The *_id_* attribute uniquely identifies this version of the related product.
+
+* The *_description_* attribute contains the reason for the creation of the version.
+
+* The attribute *_of_product_* provides a link to the base product of which this
+entity represents a version.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_formation | Attribute Population | Remarks
+
+| id          | type: identifier = string part version identification | Unique in relation to the specified of_product
+| description | type: text = string                                   | OPTIONAL
+| of_product  | type: entity = product                                |
+|===
+
+*_Preprocessor Recommendations:_* If an organization does not version parts, it is
+recommended that the id attribute contain the string '/NULL' to indicate that no
+version information is relevant or intended. In this case only a single product_definition_formation
+for the part is possible. Some preprocessors have used an id value of '/ANY' to indicate
+that _any_ existing revision of a component is valid for the parent assembly.
+This technique may reduce the amount of data sent in change packages, but it also
+reduces the ability to track the actual contents of parts lists at a particular change
+level.
+
+*_Postprocessor Recommendations:_* If the value of the id attribute for a
+product_definition_formation is the string '/NULL', postprocessors should use this
+as an indication that the sending system or business process does not support versioning
+of parts. Postprocessors may also recognize an id value of '/ANY' as a generic revision
+of a part when it is involved as a component in an assembly. This has been used to
+indicate that _any_ existing revision of the component is valid for use in the parent
+assembly.
+
+*_Related Entities:_* In general, each product_definition_formation is recommended
+to have an associated product_definition representing the view definition for the
+part version. In restricted cases, a part version without a definition may be used
+to enhance information about another related, fully defined version.In two specific
+cases a part version may be exchanged without an associated view definition:
+
+. When version history (sequence relationship) is represented - only the most recent
+version is required to have an assigned product_definition. If there is no product_definition
+associated with the previous versions, only basic information about the sequence
+of previous versions is exchanged as additional information about the current part
+version that is the focus of the data exchange;
+
+. Where a supplied item is identified using the alias relationship - the supplier
+part version may not have an associated product_definition.
+
+In addition, a product_definition_formation may be optionally referenced by the following
+entities:
+
+* product_definition_formation_relationship to associate two product versions with
+each other to characterize the version history;
+
+* applied_organization_assignment (or applied_person_and_organization_assignment)
+to represent the update/modifier, customer, or other associations of an organization
+to a product version;
+
+* applied_date_assignment (or applied_date_and_time_assignment) to represent various
+dates related to a product version;
+
+* applied_approval_assignment to record the authorization status of a product version
+(see <<sec-13.2>>);
+
+* applied_security_classification_assignment to record a level of security clearance
+for a product version.
+
+===== ((product_definition_formation_with_specified_source))
+
+The product_definition_formation_with_specified_source entity is a subtype of the
+entity product_definition_formation. This entity adds the attribute make_or_buy to
+indicate the source of the version - either 'made' or 'bought'. This entity is never
+used in the context of 'Document as Product', but it may be used in 'Part as Product'
+for compatibility with AP203. However, this make-versus-buy distinction can be ambiguous
+in the context of exchange - going down a supply chain, the sender is often 'bought'
+while the receiver is 'made', while in the other direction, the sender is 'made'
+and the receiver 'bought'. Because of this ambiguity the use of this entity is not
+generally recommended.
+
+*_Attributes_*
+
+* The *_make_or_buy_* attribute contains the source information.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_formation_with_specified_source | Attribute Population | Remarks
+
+| id          | Same as supertype.         | Same as supertype.
+| description | Same as supertype.         | Same as supertype.
+| of_product  | Same as supertype.         | Same as supertype.
+| make_or_buy | type: source (enumeration) | not recommended
+|===
+
+*_Preprocessor Recommendations:_* The use of this subtype is optional. It is not
+recommended in the general case. The source value is an enumerated type having possible
+values '.MADE.', '.BOUGHT.', or '.NOT KNOWN.'. '.MADE.' indicates the part is built
+within the company. '.BOUGHT.' indicates a vendor part, but this distinction can
+be unclear when the data is exchanged.
+
+*_Postprocessor Recommendations:_* If this entity is encountered, the postprocessor
+should at a minimum process the information from the supertype entity product_definition_formation.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((product_definition))
+
+The product_definition entity represents the identification of a particular view
+on a version of the product base identification relevant for the requirements of
+particular life-cycle stages and application domains. View may be based on application
+domain and/or life-cycle stage (e.g., design, manufacturing). A view collects product
+data for a specific task. It is possible to have many product_definition views for
+a part/version combination.
+
+The product_definition entity enables the establishment of many important relationships.
+Product_definition is the central element to link product information to parts, e.g.,
+assembly structure, properties (including shape), and external descriptions of the
+product via documents.
+
+The use of product_definition entities is not strictly required by rules in the PDM
+Schema, but it is strongly recommended. All product_definition_formation entities
+should always have at least one associated product_definition, except in the case
+of supplied product identification and version history information.
+
+*_Attributes_*
+
+* The _id_ attribute identifies which view of the product the particular instance
+represents.
+
+* The _description_ attribute specifies the word or group of words used to refer
+to the product_definition.
+
+* The _formation_ attribute links to the product_definition_formation of which this
+represents a view.
+
+* Context information is stored in the *_frame_of_reference_* attribute. All STEP
+product_definitions must be founded in some product_definition_context that identifies
+the application domain and life-cycle stage from which the data is viewed (see <<sec-1.1.2>>).
+
+[cols="5",options="header,unnumbered"]
+|===
+| ENTITY product_definition | Attribute Population | Remarks
+
+| id                 | type: identifier = string                   | must be unique in relation with a specific product_version
+| description        | type: text = string                         | OPTIONAL
+| formation          | type: entity = product_definition_formation | reference to the associated product_definition_formation
+| frame_of_reference | type: entity = product_definition_context
+| reference to the associated product_definition_context (see <<sec-1.1.2.4>>)
+|===
+
+*_Preprocessor Recommendations:_* There is no standard mapping for the id attribute
+of product_definition, however the value should be unique relative to others related
+to the same product_definition_formation. Previous use of the id attribute on product_definition
+had sometimes 'overloaded' the unique identifier with informal life-cycle or organization
+information. This is not generally recommended for the PDM Schema - this attribute
+should contain a unique identifier for the part view definition - no additional semantics
+are associated with this attribute in the PDM Schema.
+
+*_Postprocessor Recommendations:_* Previous use of the id attribute on product_definition
+had sometimes 'overloaded' the unique identifier with informal life-cycle or organization
+information, this should not be expected in general or required for postprocessing.
+
+*_Related Entities:_* A product_definition may be referenced by the following entities:
+
+* applied_identification_assignment to assign alias identifiers,
+
+* product_definition_relationship to associate two product_definitions with each
+other to characterize various product structures,
+
+* property_definition to associate general properties,
+
+* configuration_design to associate configuration identification information,
+
+* applied_organization_assignment (or applied_person_and_organization_assignment)
+(see <<sec-13.1>>),
+
+* applied_date_assignment (or applied_date_and_time_assignment) to represent various
+dates related to a product_definition,
+
+* applied_approval_assignment to record the authorization status of a product_definition
+(see <<sec-13.2>>),
+
+* applied_security_classification_assignment to record a level of security clearance
+for a product_definition,
+
+* applied_document_reference to assign documents (external descriptions) to the product_definition.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-1]]
+.exchange file segment for part master identification
+[source]
+--
+#30 = PRODUCT_CONTEXT('', #20, '');
+#40 = PRODUCT('part_id', 'part_name', 'part_description', (#30));
+#60 = PRODUCT_DEFINITION_FORMATION('pversion_id','pversion_description', #40);
+#80 = PRODUCT_DEFINITION('view_id', 'view_name', #60, #90);
+#90 = PRODUCT_DEFINITION_CONTEXT('part definition', #20, '');
+--
+
+[[sec-1.1.2]]
+==== ((Context Information))
+
+Context information provides a scope and necessary circumstance for product identification
+information. It consists of two separate and related areas:
+
+* Application Protocol Identification,
+
+* Application Context Information.
+
+Application Protocol identification is provided by the entity application_protocol_definition.
+It characterizes the STEP Application Protocol (AP) or similar working draft STEP
+specification that includes or uses the PDM Schema and provides the scope or general
+context for the exchange data set. The general context identifies the usage of the
+information within the scope of the PDM Schema, and may define the application domain
+which provides a basis for the interpretation of all information represented in the
+product data exchange. It is generally recommended that application protocol identification
+and general context information be handled structurally the same for 'Part as Product'
+and 'Document as Product' as for 'Product Concept'. A single instance of the entity
+application_context is typically referenced by all product_context and product_concept_context
+entities. This application_context instance is referenced by a single instance of
+the entity application_protocol_definition.
+
+Application context information identifies the usage of the information within the
+scope of the PDM Schema. Application context information is divided into application
+domain information and product definition context information:
+
+* The application domain is identified by the application_context entity. Each application
+domain is represented by an instance of application_context that is referenced by
+product view definitions (product view and type definition) which belong to the application
+domain;
+
+* The product_definition_context carries information distinguishing the life-cycle
+stage (e.g., design, manufacturing) relevant to a particular product view definition
+as well as indication of the type of the definition - e.g., part definition, functional
+definition.
+
+Identification of a valid scope and context of interpretation for the identifier
+of a product is also required in the PDM Schema. This involves the assignment of
+an organization to the product, in the role 'id owner' to identify the scope of uniqueness
+and validity of the product id.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of context information
+related to basic product identification are illustrated in <<diam-2>> below.
+The corresponding STEP exchange file encoding is illustrated in <<ex-2>>.
+
+[[diam-2]]
+.Part Master with Context Information Instance Diagram
+image::diam-2.svg[]
+
+===== ((application_protocol_definition))
+
+The application_protocol_definition entity represents the identification of the STEP
+Application Protocol (AP) that specifies the scope and extent of the application
+domain appropriate for this information model. An AP that uses the PDM Schema should
+provide values for the attributes of this entity.
+
+*_Attributes_*
+
+* The *_application_interpreted_model_schema_name_* attribute identifies the name
+of the EXPRESS schema that specifies the information model used for the data representation
+and exchange.
+
+* The *_application_protocol_year_* attribute identifies the year of publication
+of the specification.
+
+* The *_status_* attribute provides information about the degree of maturity of the
+defining specification.
+
+* The *_applications_* attribute provides a reference to the associated application_context
+entity.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY application_protocol_definition | Attribute Population | Remarks
+
+| application_interpreted_model_schema_name | type: label = text 'pdm_schema'    | If the PDM Schema is contained within an Application Protocol, the AP name should be used.
+| application_protocol_year                 | type: year_number = integer 2000   | If the PDM Schema is contained within an Application Protocol, the AP year should be used.
+| status                                    | type: label = text 'version 1.2'   | If the PDM Schema is contained within an Application Protocol, the AP status should be used.
+| applications                              | type: entity = application_context |
+|===
+
+*_Preprocessor Recommendations:_* This entity should be instantiated exactly once
+in the data set. In some cases, an application protocol may support multiple application_contexts.
+The entity application_protocol_definition should reference the 'primary' defining
+application context for the product data that is being exchanged.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-1.1.2.2]]
+===== ((application_context))
+
+The application_context entity identifies the application domain that defined the
+data. The application_context entity may have an identifier associated with it through
+the entity id_attribute and its attribute_value attribute. The application_context
+entity may have a description associated with it through the entity description_attribute
+via the attribute attribute_value. It is not recommended to instantiate these optional
+values.
+
+In the case of application protocol identification the application domain is optional,
+which provides a basis for the interpretation of all information represented in the
+product data exchange.
+
+In the case of application context information, there exists a 'primary' application
+context for each product_definition. This is the value of the attribute product_definition.frame_of_reference;
+it is the frame_of_reference for the 'primary' product_definition_context (see <<sec-1.1.2.4>>).
+This 'primary' application context represents the defining application domain for
+each product_definition. Additional application domains may be associated with a
+product_definition through additional product_definition_contexts via the entity
+product_definition_context_association.
+
+*_Attributes_*
+
+* The *_application_* attribute identifies the name of the general application domain
+that defined the data.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY application_context | Attribute Population | Remarks
+
+| application | type: label = text |
+|===
+
+*_Preprocessor Recommendations:_* This entity should be instantiated once in the
+data set for each relevant application domain.There is no standard mapping for the
+application attribute of application_context in the case of application protocol
+identification. Therefore application domain is optional in this case.
+
+Where appropriate, the value 'assembly study', 'digital mock up', 'process planning',
+'electrical design', or 'mechanical design' should be used.
+
+NOTE: 'electrical design' and 'mechanical design' are not understood to mean the
+design life cycle - e.g., within the application domain 'mechanical design', you
+may have concurrent 'manufacturing' and 'design' life-cycle view definitions.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((product_context))
+
+The product_context entity is a subtype of application_context_element. All STEP
+products must be founded in a product_context to specify the point of view on the
+application. The product_context entity identifies the engineering discipline's point
+of view from which the data is being presented. This entity will establish the context
+perspective and source of requirements for product entities (see <<sec-1.1.1.1>>).
+
+*_Attributes_*
+
+* The *_discipline_type_* attribute contains a description of the discipline point
+of view for a product.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_context | Attribute Population | Remarks
+
+| name               | type: label = text                 |
+| frame_of_reference | type: entity = application_context |
+| discipline_type    | type: label = text                 |
+|===
+
+*_Preprocessor Recommendations:_* It is recommended to instantiate this entity exactly
+once in the data set. There is no standard mapping for the name attribute of a product_context.
+There is no standard mapping for the discipline_type attribute.
+
+*_Postprocessor Recommendations:_* Past use of the attribute discipline_type may
+result in values such as 'mechanical' or 'electrical'.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-1.1.2.4]]
+===== ((product_definition_context))
+
+The product_definition_context entity is a subtype of application_context_element.
+All STEP product_definitions must be founded in a product_definition_context to identify
+the product definition type and life-cycle stage from which the data is viewed.
+
+There are two ways to implement the product_definition_context in STEP:
+
+* association of a single primary context with a product_definition,
+
+* assignment of more than one (additional) context to a product_definition.
+
+The value of the attribute product_definition.frame_of_reference is a product_definition_context
+that represents the 'primary' defining context for a view. In general this defining
+context is qualified both by type (product_definition_context.name) and by life-cycle
+(product_definition_context.life_cycle_stage) information. The primary context also
+has associated application domain information (see <<sec-1.1.2.2>>).
+
+The product_definition_context_association entity allows for multiple additional
+contexts to be associated with a single product_definition. There is always one required
+'primary' context that identifies the defining application domain and life-cycle
+information. Additional product_definition_context entities identify additional concurrent
+relevant views on the product_definition. These application_contexts are related
+to the product definition by product_definition_context_association.
+
+*_Attributes_*
+
+* The *_name_* attribute indicates the type of view being defined.
+
+* The *_frame_of_reference_* attribute is a pointer to the associated application_context
+entity.
+
+* The *_life_cycle_stage_* attribute identifies the life-cycle view on the associated
+product_definition.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_context | Attribute Population | Remarks
+
+| name               | type: label = text                 | Distinguishes the type of the associated product_definition
+| frame_of_reference | type: entity = application_context |
+| life_cycle_stage   | type: label = text                 | string appropriate to describe the life-cycle point of view
+|===
+
+*_Preprocessor Recommendations:_* The name attribute provides a distinction on the
+type of view on a part version ('part definition') from one of a document version
+('digital document definition', 'physical document definition'). This attribute may
+also indicate other types of definitions: e.g., functional, or spatial and/or zonal.
+
+The attribute life_cycle_stage contains a description of the particular viewpoint
+from which the data may be interpreted. Recommended values include 'design' and 'manufacturing'.
+Preprocessors should identify life-cycle information for the defining 'primary'
+product_definition_context, they may also indicate additional relevant life_cycle_stage
+information with a second product_definition_context, related via the product_definition_context_association
+
+*_Postprocessor Recommendations:_* Postprocessors should interpret the value of the
+name attribute as a type distinction between various definitions of parts and documents.
+The life_cycle_stage attribute value may be interpreted as the relevant viewpoint
+from which the data is valid. Interoperable processors will understand life-cycle
+information from the defining 'primary' product_definition_context as well as any
+additional life-cycle information provided by other relevant product_definition_context
+entities related via the product_definition_context_association.
+The product_definition_context_association entity may or may not be present relating
+a product_definition with the 'primary' context information.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((product_definition_context_association))
+
+The product_definition_context_association entity allows for multiple additional
+contexts to be associated with a single product_definition.
+
+With 'Part as Product', there is always one required 'primary' context that identifies
+the defining application domain and life-cycle information from which the data is
+viewed. This 'primary' context is the value of the attribute product_definition.frame_of_reference.
+Additional product_definition_context entities identify additional concurrent relevant
+views on the product_definition. These additional contexts are related to the product
+definition by the entity product_definition_context_association.
+
+*_Attributes_*
+
+* The *_definition_* attribute provides a reference to the associated product_definition
+entity.
+
+* The *_frame_of_reference_* attribute is a pointer to the associated product_definition_context
+entity.
+
+* The *_role_* attribute gives an optional role indication to the association.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_context_Association | Attribute Population | Remarks
+
+| definition         | type: entity = product_definition              |
+| frame_of_reference | type: entity = product_definition_context      |
+| role               | type: entity = product_definition_context_role |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations
+
+*_Postprocessor Recommendations:_* Interoperable postprocessors should expect that
+a product_definition_context_association entity might be, or might not be, present
+to relate a product_definition with its 'primary' context information.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((product_definition_context_role))
+
+The product_definition_context_role entity provides a role string that is related
+to a product_definition_context_association entity.
+
+*_Attributes_*
+
+* The *_name_* attribute provides the word or group of words by which the role is
+referred.
+
+* The *_description_* attribute provides additional descriptive information related
+to the role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_context_role | Attribute Population | Remarks
+
+| name        | type: label = string | 'additional context'
+| description | type: text = string  | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-2]]
+.exchange file segment for part master with context information
+[source]
+--
+#10 = APPLICATION_PROTOCOL_DEFINITION('version 1.2','pdm_schema',2000, #20);
+#20 = APPLICATION_CONTEXT('mechanical design');
+#30 = PRODUCT_CONTEXT('', #20, '');
+#40 = PRODUCT('part_id', 'part_name', 'part_description', (#30));
+#60=PRODUCT_DEFINITION_FORMATION('pversion_id','pversion_desc',#40);
+#80 = PRODUCT_DEFINITION('view_id', 'view_name', #60, #90);
+#90 = PRODUCT_DEFINITION_CONTEXT('part definition', #20, '');
+--
+
+[[ex-3]]
+.exchange file segment for part master without application domain of application protocol identification and multiple application context information
+[source]
+--
+#10 = APPLICATION_PROTOCOL_DEFINITION('version 1.2','pdm_schema',2000, #20);
+#20 = APPLICATION_CONTEXT('');
+#30 = PRODUCT_CONTEXT('', #20, '');
+#40 = PRODUCT('part_id', 'part_name', 'part_description', (#30));
+#60 = PRODUCT_DEFINITION_FORMATION('pversion_id','pversion_desc',#40);
+#80 = PRODUCT_DEFINITION('view_id', 'view_name', #60, #90);
+#90 = PRODUCT_DEFINITION_CONTEXT('part definition', #100, 'design');
+#100 = APPLICATION_CONTEXT('mechanical design');
+#110 = PRODUCT_DEFINITION_CONTEXT_ASSOCIATION (#80, #130, #120);
+#120 = PRODUCT_DEFINITION_CONTEXT_ROLE ('additional context', $);
+#130 = PRODUCT_DEFINITION_CONTEXT('', #100, 'manufacturing');
+--
+
+[[sec-1.1.3]]
+==== ((Type Classification))
+
+Type Classification information provides the basic capability to distinguish between
+products interpreted as _parts_ and those interpreted as _documents_. This capability
+also supports distinguishing between different types of parts, e.g., _detail, assembly_,
+or _standard_ parts.
+
+A 'detail' is a 'part' - it represents a part that is not broken down into other
+identified, managed component parts in a product structure. The value 'detail' is
+used to distinguish from 'assembly' if this is required when exchanging product structure.
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of part type
+classification are illustrated in <<diam-3>>.
+
+[[diam-3]]
+.Part Master with Part Type Instance Diagram
+image::diam-3.svg[]
+
+===== ((product_related_product_category))
+
+The product_related_product_category entity is a subtype of product_category.
+It represents the identification of a specific classification applied directly to
+a product. The name and description attributes are inherited from the supertype product_category.
+This subtype adds the attribute products that allow it to be associated (related)
+directly to a product instance.
+
+NOTE: This classification relates to the process view on the product. It is not an
+indication whether or not the associated information is actually given in the file.
+For example a product might be classified as an assembled part despite the fact that
+the information on the product structure related to this assembly is not given in
+the file.
+
+*_Attributes_*
+
+* The *_products_* attribute associates the category with the product entity instances
+to which it applies.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_related_Product_category | Attribute Population | Remarks
+
+| name | type: label = string 'part','detail','assembly', 'standard' | The primary
+value to use is 'part' - the values 'detail', 'assembly', and 'standard' indicate
+a further type distinction on the part.
+| description | type: text = string | OPTIONAL
+| products | type: entity = product | SET[1:?]
+
+|===
+
+*_Preprocessor Recommendations:_* Preprocessors are recommended to always assign
+the type part as a common distinction between parts and documents or other kinds
+of configured items. Further possible type classifications like 'tool, 'raw material',
+or 'module' are valid. Other values such 'detail', 'assembly', or 'standard' may
+also be assigned, but should be related as sub-category to the primary 'part' using
+the product_category_relationship.
+
+*_Postprocessor Recommendations:_* Postprocessors should recognize 'part' but also
+values of 'detail', 'assembly', and 'standard' as indicating the categorized product
+is a part.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== ((product_category_relationship))
+
+The product_category_relationship entity establishes a category-subcategory relationship
+between two product_category entities.
+
+*_Attributes_*
+
+* The *_name_* attribute gives the word or group of words by which the relationship
+is referred.
+
+* The *_description_* attribute provides additional descriptive information about
+the relationship.
+
+* The *_category_* attribute identifies the _super_ category (more general) in the
+relationship.
+
+* The *_sub_category_* attribute identifies the _sub_ category (more specific) in
+the relationship.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_category_relationship | Attribute Population | Remarks
+
+| name         | type: label = string                            |
+| description  | type: text = string                             |
+| category     | type: entity = product_related_product_category |
+| sub_category | type: entity = product_related_product_category |
+|===
+
+*_Preprocessor Recommendations:_* There is no standard mapping defined for the name
+attribute. The description attribute is optional, and may contain any appropriate
+or mutually-agreed-upon string.
+
+*_Postprocessor Recommendations:_* Postprocessors should expect the category value
+to be a product_related_product_category with name 'part'. The value for the attribute
+sub-category will be a product_related_product_category with name 'detail', 'assembly',
+or 'standard' to further qualify the type of part.
+
+*_Related Entities:_* There are no specific related entities.
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-4]]
+.exchange file for part master with type classification
+[source]
+--
+#160 = PRODUCT('H24-1123.1', 'Fixture RX25B', '', (#20));
+#170 = PRODUCT('DIN 932', 'Screw M3x15', '', (#20));
+#250 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#10, #160, #170));
+#260 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #250, #270);
+#270 = PRODUCT_RELATED_PRODUCT_CATEGORY('detail', $, (#160));
+--
+
+The following section combines the above discussed concepts and segments in a complete
+example.
+
+====== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the complete requirements of
+part master identification with context and part type classification are illustrated
+in <<diam-4>>. This figure also illustrates the recommended assignment of an organization
+to the product in the role 'id owner' to identify the scope (context of interpretation)
+for uniqueness and validity of the product id. The corresponding STEP exchange file
+encoding for the complete part master is illustrated in <<ex-4>>.
+
+[[diam-4]]
+.Complete Part Master with Context and Type Classification Instance Diagram
+image::diam-4.svg[]
+
+====== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-5]]
+.exchange file for complete part master with context and type classification
+[source]
+--
+ISO-10303-21; HEADER;
+FILE_DESCRIPTION(('test', 'file'), '2;1');
+FILE_NAME('pid2_p21a.stp', '1999-05-03T21:03:29+00:00', ('N.N.'), (''), '', '', '');
+FILE_SCHEMA(('PDM_SCHEMA {1.2})); ENDSEC;
+DATA;
+
+/* part #1 */
+#10 = PRODUCT('K01-42051', 'Bicycle Bell RX 3', $, (#20));
+/* part context */
+#20 = PRODUCT_CONTEXT('', #30, '');
+#30 = APPLICATION_CONTEXT('');
+#40 = APPLICATION_PROTOCOL_DEFINITION('version 1.2', 'pdm_schema',
+2000, #30);
+
+/* part versions for part #1 */
+#50 = PRODUCT_DEFINITION_FORMATION('02', 'lever modified', #10);
+#60 = PRODUCT_DEFINITION_FORMATION('03', 'upper housing modified', #10);
+#70 = PRODUCT_DEFINITION_FORMATION_RELATIONSHIP('', 'sequence', $, #50,
+#60);
+
+/* definition of view on version 03 of part #1 */
+/* primary life_cycle_stage = design, primary application_domain = mechanical design */
+#80 = PRODUCT_DEFINITION('/NULL', $, #60, #90);
+#90 = PRODUCT_DEFINITION_CONTEXT('part definition', #100, 'design');
+#100 = APPLICATION_CONTEXT('mechanical design');
+
+/* association of the id owner for part #1 */
+#130 = APPLIED_ORGANIZATION_ASSIGNMENT(#140, #150, (#10, #160, #170));
+#150 = ORGANIZATION_ROLE('id owner');
+
+/* information on person and organization */
+#140 = ORGANIZATION('ABC27166', 'Onyx AG', 'location');
+#540 = mailto:PERSON(%27sarah.rijker@onyx.com[PERSON('sarah.rijker@onyx.com',] 'Rijker', 'Sarah', $, $, $);
+#550 = PERSON_AND_ORGANIZATION(#540, #140);
+
+/* part #2 and part #3 */
+#160 = PRODUCT('H24-1123.1', 'Fixture RX25B', '', (#20));
+#170 = PRODUCT('DIN 932', 'Screw M3x15', '', (#20));
+
+/* part versions for part #2 and part #3 */
+#180 = PRODUCT_DEFINITION_FORMATION('B', 'larger screw holes', #160);
+#190 = PRODUCT_DEFINITION_FORMATION('15', '', #170);
+
+/* view definition for version of part #2 */
+#200 = PRODUCT_DEFINITION('/NULL', $, #180, #210);
+#210 = PRODUCT_DEFINITION_CONTEXT('part definition', #215, 'design');
+#215 = APPLICATION_CONTEXT('mechanical design');
+
+/* view definition for version of part #3 */
+#220 = PRODUCT_DEFINITION('/NULL', $, #190, #230);
+#230 = PRODUCT_DEFINITION_CONTEXT('part definition', #240, 'design');
+#240 = APPLICATION_CONTEXT('mechanical design');
+
+/* part discriminator for parts #1 - #3 */
+#250 = PRODUCT_RELATED_PRODUCT_CATEGORY('part', $, (#10, #160, #170));
+#260 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #250, #270);
+#270 = PRODUCT_RELATED_PRODUCT_CATEGORY('detail', $, (#160));
+#280 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #250, #290);
+#290 = PRODUCT_RELATED_PRODUCT_CATEGORY('assembly', $, (#10));
+#300 = PRODUCT_CATEGORY_RELATIONSHIP('', $, #250, #310);
+#310 = PRODUCT_RELATED_PRODUCT_CATEGORY('standard', $, (#170));
+
+ENDSEC;
+END-ISO-10303-21;
+--

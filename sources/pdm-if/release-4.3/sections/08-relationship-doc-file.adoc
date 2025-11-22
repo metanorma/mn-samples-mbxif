@@ -1,0 +1,88 @@
+
+[[sec-8]]
+== Relationship Between Documents and Constituent Files
+
+In 'Document as Product', the view definition is used to represent a definition of
+a particular document representation. There may be more than one representation definition
+associated with a document version. The document representation definition may be
+associated with the constituent external files that make it up. The association of
+constituent files with the definition of a document representation is optional.
+
+If a file is under configuration control, it should be represented as a constituent
+of a document definition view/representation. In this case it is actually the managed
+document that is under direct configuration control, the file is in this way indirectly
+under configuration control. A change to the file results in a change to the managed
+document (i.e., a new version) - the changed file would be mapped as a constituent
+of a view/representation definition of the new document version. A simple external
+reference alone is not configuration controlled; it is just an external file reference
+to product data.
+
+=== Product Definition with associated documents
+
+The AIM entity product_definition_with_associated_documents is used together with
+the identification of external files to support the requirement for the product as
+document with constituent external files.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements of document
+identification with associated constituent external files are illustrated in <<diam-39>>.
+
+[[diam-39]]
+.Document Master with Constituent External Files Instance Diagram
+image::diam-39.svg[]
+
+==== product_definition_with_associated_documents
+
+The product_definition_with_associated_documents entity is a subtype of product_definition.
+It inherits the attributes id, description, formation and frame_of_reference from
+the supertype. This entity is only used in this case of 'Document as Product' and
+is not to be used in the case of 'Part as Product'. The attribute documentation_ids
+provides the relationship to the external file(s) that make up the actual content
+of the document representation definition.
+
+*_Attributes_*
+
+* The *_documentation_ids_* attribute contains a set of at least one instance representing
+the external file(s) that compose this view definition of the document.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY product_definition_with_associated_documents | Attribute Population | Remarks
+
+| id | type: identifier = string
+| the identifier of this document view definition, should be unique in relation to
+a specific version
+| description        | type: text = string                         | optional
+| formation          | type: entity = product_definition_formation | References associated product_definition_formation
+| frame_of_reference | type: entity = product_definition_context   | reference to the associated product_definition_context
+| documentation_ids  | type: entity = document_file                | SET[1:?] of files that make up the definition of the document
+
+|===
+
+*_Preprocessor Recommendations:_* Preprocessors should use this entity instead of
+the supertype product_definition when relating the representation view definition
+of a 'Document as Product' to its constituent external files. The value of the attribute
+id should be unique in relation to a specific version.
+
+*_Postprocessor Recommendations:_* Postprocessors should interpret this entity as
+a document view representation definition that identifies the constituent external
+files that make it up.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-35]]
+.exchange file for document with constituent external files
+[source]
+--
+#270=PRODUCT('doc_4711','packaging guide','packaging guideline for part',(#260));
+#300=PRODUCT_RELATED_PRODUCT_CATEGORY('document',$,(#270));
+#310=DOCUMENT_TYPE('unspecified');
+#320=DOCUMENT_FILE('t1','text.doc','file with text for the guide',#310,'',$);
+#330=PRODUCT_DEFINITION_FORMATION('ver3.2','version 3.2',#270);
+#340=DOCUMENT_FILE('l1','',$,#310,'',$);
+#440=DOCUMENT_REPRESENTATION_TYPE('digital',#340);
+#350=PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS('rep_id_3.2','representation of version 3.2',#330,#250,(#340,#320));
+--

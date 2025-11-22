@@ -1,9 +1,11 @@
 = Recommended Practices for External References with References to the PDM Schema Usage Guide
 :doctype: recommended-practices
 :docnumber: 1
-:docidentifier: CAx-IF RP Ext Ref (v2.1)
-:committee: CAx-IF / PDM-IF
+:docidentifier: CAx-IF/PDM-IF RP Ext Ref (v2.1)
+:committee: CAx-IF
 :committee-type: technical
+:committee_2: PDM-IF
+:committee-type_2: technical
 :version: 2.1
 :issued-date: 2005-01-19
 :copyright-holder: CAx Implementor Forum & PDM Implementor Forum
@@ -11,11 +13,11 @@
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :email: jochen.boy@prostep.com
-:contact-type: CAx-IF
+:role-description: CAx-IF
 :fullname_2: Phil Rosché
 :affiliation_2: ACCR, LLC.
 :email_2: phil.rosche@accr-llc.com
-:contact-type_2: CAx-IF
+:role-description_2: CAx-IF
 :language: en
 :imagesdir: images
 :mn-output-extensions: xml,html,pdf,rxl

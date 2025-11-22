@@ -1,0 +1,19 @@
+<svg width="400" height="150" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg">
+  
+  <rect x="20" y="10" width="150" height="90" style="fill:white;stroke:black;stroke-width:1"/>
+  <text x="95" y="30" font-family="Arial" font-size="14" text-anchor="middle" alignment-baseline="middle" fill="black">product_definition</text>
+  <text x="95" y="55" font-family="Arial" font-size="14" text-anchor="middle" alignment-baseline="middle" fill="black">relationship</text>
+  <text x="95" y="80" font-family="Arial" font-size="14" text-anchor="middle" alignment-baseline="middle" fill="black">formation</text>
+  
+  <line x1="170" y1="30" x2="250" y2="30" style="stroke:black;stroke-width:1"/>
+  <circle cx="255" cy="30" r="4" style="fill:white;stroke:black;stroke-width:1"/>
+  <text x="280" y="35" font-family="Arial" font-size="14" text-anchor="start" alignment-baseline="middle" fill="black">id</text>
+
+  <line x1="170" y1="55" x2="250" y2="55" style="stroke:black;stroke-width:1"/>
+  <circle cx="255" cy="55" r="4" style="fill:white;stroke:black;stroke-width:1"/>
+  <text x="280" y="60" font-family="Arial" font-size="14" text-anchor="start" alignment-baseline="middle" fill="black">name = 'sequence'</text>
+  
+  <line x1="170" y1="80" x2="250" y2="80" style="stroke:black;stroke-width:1;stroke-dasharray:4 2"/>
+  <circle cx="255" cy="80" r="4" style="fill:white;stroke:black;stroke-width:1;stroke-dasharray:none"/>
+  <text x="280" y="85" font-family="Arial" font-size="14" text-anchor="start" alignment-baseline="middle" fill="black">description</text>
+</svg>

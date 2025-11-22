@@ -1,0 +1,26 @@
+
+[bibliography]
+[heading=Bibliography]
+== Reference documents
+
+This recommended practices document is based on and derived from various other
+documents, schemas, and technical presentations. Those resources are listed
+below:
+
+* [[[rp_ap242e3-pas-v3.2,MBx-IF RP AP242e3 XML P&AS (v3.2)]]]
+span:title[Recommended Practices for AP242 Ed.3 Domain Model XML Product & Assembly Structure]
+span:docid[MBx-IF RP AP242 P&AS (v3.2)]
+span:edition[Version 3.2]
+span:type[standard]
+span:date[2024-01-11]
+
+* [[[rp_ap242e3-xml-v3.2,MBx-IF DM AP242e3 (N10590)]]]
+span:title[AP242 Ed.3 Domain Model XML / EXPRESS Schema]
+span:docid[MBx-IF RP AP242 Domain Model]
+span:version[N10590]
+span:type[standard]
+span:date[2021-05-11]
+
+* [[[ISO_10303_4442_2022,hidden(ISO/TS 10303-4442:2022)]]]
+
+* [[[ISO_10303_3001,hidden(ISO/TS 10303-3001)]]]

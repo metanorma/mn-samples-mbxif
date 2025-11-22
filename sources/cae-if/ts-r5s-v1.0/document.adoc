@@ -1,8 +1,8 @@
 = Test Suite for the CAE Implementor Forum Round 5S
 :doctype: test-suite
 :docnumber: 5S
-:docidentifier: CAx-IF TS R5S (v1.0)
-:committee: CAx-IF
+:docidentifier: CAE-IF TS R5S (v1.0)
+:committee: CAE-IF
 :committee-type: technical
 :version: 1.0
 :issued-date: 2019-09-04
@@ -11,15 +11,15 @@
 :fullname: Jochen Boy
 :affiliation: PROSTEP AG
 :email: jochen.boy@prostep.com
-:contact-type: CAx-IF
+:role-description: CAx-IF
 :fullname_2: Phil Rosché
 :affiliation_2: ACCR, LLC.
 :email_2: phil.rosche@accr-llc.com
-:contact-type_2: CAx-IF
+:role-description_2: CAx-IF
 :fullname_3: Jean-Marc Crepel
 :affiliation_3: AFNeT
 :email_3: jean-marc.crepel@afnet.fr
-:contact-type_3: CAx-IF
+:role-description_3: CAx-IF
 :language: en
 :toclevels: 3
 :toc-figures: true

@@ -1,0 +1,445 @@
+
+[[sec_1]]
+== Introduction
+
+[[sec_1.1]]
+=== Document Overview
+
+[[sec_1.1.1]]
+==== Goal and Objectives
+
+The goal of this document is to describe the recommended structure and attribute
+population for particular instance models created from the entities and attributes
+defined by the STEP AP242 "Managed Model-based 3D Engineering" Domain Model and populated
+according to its XML Schema.
+
+The selected instance models illustrate how to encode kinematic data values that
+need to be exchanged in support of key industry requirements common across the mechanical
+design domain. The objectives of the usage guide are to:
+
+* Support the short-term needs of the requirements of the Aerospace & Defense and
+the Automotive industries in the realm of kinematics.
+
+* Prevent the emergence of "flavors", i.e., diverging/conflicting implementations
+of the AP242 Domain Model XML for different communities.
+
+* Ensure consistency with existing Recommended Practices, in particular the joint
+PDM-IF / MBx-IF / JT-IF Recommended Practices for AP242 Domain Model XML Product
+and Assembly Structure.
+
+[[sec_1.1.2]]
+==== Scope
+
+This document describes the Recommended Practices for the exchange of Kinematic data
+with external references to geometry files (regardless of file format). It is based
+on the STEP AP242 Edition 3 Domain Model (<<ISO_10303_4442_2022>>) and the corresponding
+XML schemas, which can be found at:
+
+http://standards.iso.org/iso/ts/10303/-4442/ed-3/tech/xml-schema/domain_model
+
+Therefore, the the XML header of AP242 Domain Model XML files which shall comply
+to Ed.3 shall look like the following:
+
+[source%unnumbered]
+----
+xmlns:n0="http://standards.iso.org/iso/ts/10303/-4442/ed-3/tech/xml-schema/domain_model " xsi:schemaLocation="http://standards.iso.org/iso/ts/10303/-4442/ed-3/tech/xml-schema/domain_model http://standards.iso.org/iso/ts/10303/-4442/ed-3/tech/xml-schema/domain_model/DomainModel.xsd"
+----
+
+NOTE: due to some delays in the publication of the standard, this URL may not be
+available yet. In this case, please use a local copy of the Domain Model XSD as distributed
+within the interoperability forums.
+
+AP242 is the first STEP Domain Model that is being implemented. During the development
+of this document and the related prototyping activities, several issues with the
+schemas and definitions have been identified. These have been documented in the
+ISO Jira system as official maintenance issues for AP242 and will dealt with as part
+of the ISO maintenance procedures. The issues are documented throughout this document
+and gathered in Annex B for reference.
+
+[[sec_1.1.3]]
+==== Implementation Changes between AP242 Ed.1 TC and AP242 Ed.2
+
+For a number of constructs, the implementation changed between the Ed.1 and Ed.2,
+i.e. ISO 10303-3001 Ed.2 and ISO 10303-4442. These changes became necessary due to
+deficiencies found in the original definitions of these elements, or to lay the foundation
+for future extensions of the data model.
+
+The changes include structural changes such as embedding and referencing of XML elements
+as well as technical changes such as new element types or changed definition of attributes.
+Except very few of them, all these changes are upward compatible.
+
+The list below provides an overview for the necessary implementation changes to support
+AP242 Ed.2 in scope of this document:
+
+* New attribute ActuatedPair.Name new => <<sec_4.3>>
+
+* LinkMotionRelationship.related: type changed from ExternalGeometricModel to ComposedOrExternalGeometricModelSelect => <<sec_4.12>> (this has already been assumed in the Rec. Pracs.)
+
+* LinkMotionDecompositionRelationship removed (not used)
+
+* LinkMotionRelationship: attribute RelationType made optional => <<sec_4.12>>
+
+* PropertyValueAssignment added to Representation for the mapping of validation properties.
+The relevant objects are KinematicLink (4.2), KinematicPair (<<sec_4.3>>), Mechanism
+(<<sec_4.4>>), LinkMotionAlongPath (<<sec_4.8>>) and KinematicPathDefinedByNodes
+(<<sec_4.9>>)
+
+* MotionModelAssociation now embedded into AssemblyDefinition (PartView)
+(section 5.1.4 in [242-PAS])
+
+* HighOrderKinematicPair.CurveOrSurface1/2 changed from ComplexType/group to a simple
+reference (since the select type ExternalCurveOrSurfaceSelect contains only references)
+=> <<sec_4.3.2>>
+
+* LowOrderKinematicPair.Lower/UpperLimitActualTranslationX/Y/Z changed from xsd:string
+to xsd:double (new mapping of EXPRESS type LengthMeasure) => <<sec_4.3.1>>
+
+* Ditto for LowOrderKinematicPairWithMotionCoupling.Lower/UpperLimitRackDisplacement,
+.Pitch and .Radius1/2 => <<sec_4.3.3>>
+
+* Clarification of the usage of HighOrderKinematicPair.orientation => <<sec_4.3.2>>
+
+[[sec_1.1.4]]
+==== Implementation Changes between AP242 Ed.2 and AP242 Ed.3
+
+* Attribute ActuatedPair.Name now mandatory -> <<sec_4.3>>
+
+[[sec_1.1.5]]
+==== Intended Audience
+
+This document is intended to be an implementation guide for developers of CAD and
+file translation application systems that support and exchange Kinematic information
+with other systems and applications, in support of the design engineering and related
+downstream business processes.
+
+[[sec_1.1.6]]
+==== Intended Use
+
+This document is intended to be a manual and companion to the developer of STEP data
+exchange and translator software used by applications that support kinematic definitions.
+It provides guidelines for the consistent preprocessor instance model creation and
+requirement value encoding to enable meaningful information exchange between different
+systems and applications using the STEP AP242 Domain model, and guidelines for the
+consistent interpretation by a postprocessor of the STEP AP242 Domain model exchange
+file.
+
+[[sec_1.1.7]]
+==== Document Style
+
+The overall document proceeds in an incremental, step-by-step fashion to describe,
+and in parallel to illustrate the recommended instantiations of the XML elements
+in the STEP AP242 Domain model.
+
+The "template" concept is used in this document. Structures and sub-structures are
+defined in one section; they are then re-used in other sections of the documents.
+These templates are represented by the blue boxes in the diagrams.
+
+Templates for common core constructs, such as for instance Product, are defined in
+the Recommended Practices for AP242 Domain Model XML Product and Assembly Structure
+and re-used here. References to such templates are prefixed with [242-PAS].
+
+The Instance Model diagram figures are presented using a graphical notation intended
+to illustrate the instance model.
+
+Following each instance diagram, a table lists all the attributes of each displayed
+entity according to the XMLschema specification of <<ISO_10303_3001>>. The table includes
+not only the attributes of the EXPRESS schema of the AP242 Domain Model, but also
+inverse attributes of all possible relations to the element in question. Attributes
+that are considered important for the scope of these Recommended Practices are in
+these tables written in black. Attributes that are written in grey are not covered
+by these Recommended Practices; their use is discouraged as it would depend on mutual
+agreements between data exchange partners.
+
+Below the table, all recommended attributes (written in black) are listed and recommendations
+are made for them.
+
+Finally, a STEP AP242 Domain model XML exchange structure example is included.
+The example exchange file corresponds directly to the instance model diagram and
+illustrates the very same thing using a different notation, i.e., STEP AP242 Domain
+model XML syntax versus the graphical instance model notation.
+
+[[sec_1.1.8]]
+==== Document Structure
+
+The overall scope of requirements is partitioned into a set of major sections corresponding
+to the identified units of functionality. Within a major section, there may be sub-sections.
+These sub-sections further divide the scope into smaller components of coherent functionality
+(called "feature") that interact with each other to realize the functionality of
+the entire unit.
+
+There is generally a description of requirements and a corresponding instance diagram
+associated with each section and sub-section of this document. Each instance diagram
+is followed by a detailed explanation and specific recommendations for the entities
+used in the instantiation diagram example. The entity listing and explanation is
+in turn followed by the corresponding XML exchange structure example.
+
+Within a section, diagrams corresponding to sub-sections incrementally build upon
+one another to finally achieve a complete instance model example that illustrates
+the entire scope of the unit of functionality.
+
+[[sec_1.1.9]]
+==== Instantiation Diagrams
+
+The diagrams are presented using a graphical notation intended to illustrate the
+instance model.
+
+This notation is not EXPRESS-G and does not illustrate the XML schema; rather it
+is a graphical illustration of a specific population of a particular instance model
+of the schema. This notation supports:
+
+* Illustration of entity instances and attribute values (both mapped as XML elements)
+
+* Illustration and identification of referenced entity instances that are either
+fully illustrated in the current figure, or that refer to another template
+(if not fully illustrated in the current figure)
+
+* Indication of optional attributes and optional reference entity instances
+(dashed lines),
+
+* Illustration and identification of groups of functionally related instances
+(shaded bounding box), showing how XML elements are embedded into each other
+(the XML elements representing the entity instances placed below are embedded into
+the XML element representing the entity instance placed above), and
+
+* Identification of specific attribute values (typically string values, may also
+be enumerated type values or numerical values).
+
+A legend for the diagram notation is shown below:
+
+[[table-1]]
+.Instance Diagram Notation
+[cols="a,a"]
+|===
+|
+
+[%unnumbered]
+image::object1-1.svg[]
+
+| Object (instance of an EXPRESS ENTITY)
+
+After the #, an instance number is given
+
+|
+
+[%unnumbered]
+image::object1-2.svg[]
+
+| Att1: mandatory attribute
+
+Att2: optional attribute
+
+|
+
+[%unnumbered]
+image::object1-3.svg[]
+
+| Aggregate type for the definition of the cardinality constraint:
+
+B: Bag (non-ordered and my contain duplicates)
+
+S: Set (non-ordered and may not contain duplicates)
+
+L: List (ordered)
+
+[x : y]: lower size : upper size
+
+?: unconstrained
+
+A: Array (indexed)
+[x : y]: lower index : upper index
+
+|
+
+[%unnumbered]
+image::object1-4.svg[]
+
+| Additional constraint on the object: the attribute(s) depicted with '*' have to
+contain unique values.
+
+Currently not used in this document
+
+|
+
+[%unnumbered]
+image::object1-5.svg[]
+
+| Derived Information from another object or attribute
+
+Currently not used in this document
+
+|
+
+[%unnumbered]
+image::object1-6.svg[]
+
+| Simple data types
+
+|
+
+[%unnumbered]
+image::object1-7.svg[]
+
+| User-defined data type
+
+Currently not used in this document
+
+|
+
+[%unnumbered]
+image::object1-8.svg[]
+
+| Enumeration Type
+
+(consists of a limited list of possible values defined for this type)
+
+|
+
+[%unnumbered]
+image::object1-9.svg[]
+
+| Select Type
+
+(is used if a relationship from an object may apply either to Object1 or Object2)
+
+For a better readability, the members of a select type are displayed using the inheritance
+link (see below) and the mutually exclusive constraint. This has the same semantic
+as a select type.
+
+Currently not used in this document
+
+|
+
+[%unnumbered]
+image::object1-10.svg[]
+
+| Attribute as relationship between two Objects (mandatory or optional),
+
+The circle at the end of the line gives the direction.
+
+Rel1: mandatory relationship
+
+Rel2: optional relationship
+
+|
+
+[%unnumbered]
+image::object1-11.svg[]
+
+| Rel2: inverse attribute (i.e. in the converse direction to Rel1) with cardinality
+constraint
+
+Currently not used in this document
+
+|
+
+[%unnumbered]
+image::object1-12.svg[]
+
+| Inheritance from a Supertype to its Subtypes
+
+An Abstract Supertype (ABS) cannot be instanced without one of its non-abstract Subtypes
+
+1: Only one subtype can be instantiated at a time (the subtypes are mutually exclusive).
+Per default, all the subtypes may be combined (not supported by XML)
+
+RT: an inherited attribute is retyped, for example through restriction of its type,
+length, value range, cardinality, mandatory instead of optional or DERIVED
+
+Currently not used in this document
+
+|
+
+[%unnumbered]
+image::object1-13.svg[]
+
+| Objects shown under each other within a blue colored square are embedded into each
+other in XML: here Object2 #2-1 is embedded into Object1 #1-1 as its XML element
+Rel1
+
+|
+
+[%unnumbered]
+image::object1-14.svg[]
+
+| The templates defined in this document are re-used in other sections. This is the
+simple way to refer to a template (if the object referenced within the template is
+implicit, for example the object 'Classification' for the template 'Classification'
+
+|
+
+[%unnumbered]
+image::object1-15.svg[]
+
+| If the template is more complex and the object referenced within the template is
+shown explicitly, portions of the reused template are displayed within a blue frame.
+
+|
+
+[%unnumbered]
+image::object1-16.svg[]
+
+| Alternatively, a template may be re-used through adding new XML containments to
+it
+|===
+
+[[sec_1.2]]
+=== Organizational Framework
+
+These Recommended Practices for AP242 Domain Model XML Kinematics are jointly developed
+and supported by several "communities", specifically the vendor and user communities
+devoted to the development and implementation of AP242 and its associated Domain
+Model. This section describes those communities' responsibilities.
+
+[[sec_1.2.1]]
+==== Vendor Communities
+
+The *CAx-IF* and *JT-IF* will be jointly responsible for the overall organization
+and development of this document. The CAx-IF and JT-IF will:
+
+* Coordinate the creation of the document.
+
+* Verify the approach of the recommended practices in CAx-IF and JT-IF Test Rounds.
+
+* Publish result summaries of testing AP242 Domain Model Kinematics.
+
+* Ensure the consistency with existing CAx-IF, JT-IF and PDM-IF recommended practices.
+
+[[sec_1.2.2]]
+==== User Communities
+
+The *CAx-IF User Group* is the user community for STEP geometry related topics, currently
+primarily comprised of Aerospace and Defence members, and supports the development
+of related use cases, their implementation and support by the standard. It will:
+
+* Support the development of the document.
+
+* Provide subject matter experts.
+
+* Provide A&D requirements and ensure they are fulfilled.
+
+* Ensure the consistency with LOTAR standards.
+
+The *JT Workflow Forum (JT-WF)* is the Automotive user community supporting the development
+of the recommended practices for the ISO JT format. The JT-WF will:
+
+* Support the development of the document.
+
+* Provide subject matter experts.
+
+* Provide Automotive requirements and ensure they are fulfilled.
+
+[[sec_1.3]]
+=== Maintenance of this Document
+
+This document describes the recommended practices to implement Kinematic data using
+the AP242 Domain Model. It is based on the joint PDM-IF / CAx-IF / JT-IF Recommended
+Practices for AP242 Domain Model XML Product and Assembly Structure. Since Kinematics
+are an extension to the core scope that is specific to the CAD domain, it is documented
+in separate document with references to the core document where needed.
+
+It is the responsibility of the CAx-IF and JT-IF to maintain not only this document,
+but also to ensure its consistency with the core document.
+
+AFNeT, PDES, Inc., prostep ivip Association and VDA as the hosting organizations
+of the involved implementor forums will maintain and extend the document as long
+as it provides utility to the vendor community.

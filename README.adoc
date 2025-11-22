@@ -1,33 +1,172 @@
-= MBx-IF sample documents for Metanorma
+= MBx-IF sample documents
 
 == Purpose
 
-This repository contains MBx-IF published documents as reference for 
-implementation of the MBx-IF structure/layout in Metanorma.
+This repository contains MBx-IF published documents as reference for
+implementation of the MBx-IF structure and layout.
 
-There are mainly these types of documents:
+The MBx-IF (MBx Interoperability Forum) is an organization focused on
+interoperability standards across various domains of manufacturing and
+engineering. This repository demonstrates how Metanorma can be used to
+publish standards-compliant documents that follow MBx-IF formatting and
+structural requirements.
 
-* General Guidelines
-* Recommended Practices
-* Test Suites
+== MBx-IF organization structure
 
-In CAx-IF there are the following publishing groups:
+=== Subgroups
 
-* MBx-IF: MBx Interoperability Forum
-* CAx-IF: CAx Interoperability Forum
-* EWIS-IF: EWIS Interoperability Forum
-* CAE-IF: CAE Implementor Forum
-* PDM-IF: PDM Implementor Forum
-* JT-IF: JT Implementor Forum
+The MBx Interoperability Forum (MBx-IF) is the overarching organization
+with the following specialized subgroups.
 
-The documents can be jointly published by more than one group.
-The following pairs have been observed.
+CAx-IF:: CAx Interoperability Forum - focused on CAx (Computer-Aided
+design/manufacturing/engineering) interoperability standards
 
-* CAx-IF / JT-IF
-* CAx-IF / PDM-IF
-* MBx-IF / JT-IF
+EWIS-IF:: EWIS Interoperability Forum - focused on Electrical Wiring
+Interconnection System interoperability standards
 
-== License
+CAE-IF:: CAE Implementor Forum - focused on Computer-Aided Engineering
+implementation guidelines
 
-Copyright respective owners.
+PDM-IF:: PDM Implementor Forum - focused on Product Data Management
+implementation standards
 
+JT-IF:: JT Implementor Forum - focused on JT format implementation
+specifications
+
+
+=== Collaborative publishing
+
+Documents can be jointly published by multiple MBx-IF subgroups when
+their domains overlap. The following collaborative relationships have
+been observed:
+
+* CAx-IF / JT-IF: Joint CAx and JT format specifications
+* CAx-IF / PDM-IF: Joint CAx and Product Data Management standards
+* MBx-IF / JT-IF: Main organization collaborating with JT subgroup
+
+
+== Document types
+
+MBx-IF publishes three main types of documents:
+
+General Guidelines:: (GG, `general-guidelines`) High-level guidance documents
+that provide strategic direction and best practices for implementation
+
+Recommended Practices:: (RP, `recommended-practices`) Detailed technical
+specifications that define specific implementation approaches and methodologies
+
+Test Suites:: (TS, `test-suites`) Comprehensive testing frameworks and
+validation procedures to ensure compliance with MBx-IF standards
+
+
+== Structure
+
+`sources/`::
+Source documents for all MBx-IF publications.
+
+`sources/cae-if/`::
+CAE-IF (CAE Implementor Forum) subgroup documents.
+
+`sources/cae-if/hb-vol2-v1.1/`::
+(docid: CAE-IF HB Vol 2 (v1.1))
+CAE-IF Handbook Volume 2 Version 1.1: Linear Static Structural FEA Handbook.
+
+`sources/cae-if/r5s-v1.0/`::
+(docid: CAE-IF TS R5S (v1.0))
+Test Suite for the CAE Implementor Forum Round 5S
+
+`sources/cax-if/`::
+CAx-IF (CAx Interoperability Forum) subgroup documents.
+
+`sources/cax-if/rp-unicode-strings-v1.0/`::
+(docid: CAx-IF RP Unicode Strings (v1.0))
+CAx-IF Recommended Practices for PMI Unicode String Specifications
+
+`sources/cax-if/ts-53j-v1.0/`::
+(docid: CAx-IF TS R53J (v1.0))
+Test Suite for the CAx Interoperability Forum Round 53J
+
+`sources/cax-if-pdm-if/`::
+Joint CAx-IF/PDM-IF collaborative documents.
+
+`sources/cax-if-pdm-if/rp-ext-ref-v2.1/`::
+(docid: CAx-IF/PDM-IF RP Ext Ref (v2.1))
+Recommended Practices for External References with References to the PDM Schema Usage Guide
+
+`sources/ewis-if/`::
+EWIS-IF (EWIS Interoperability Forum) subgroup documents.
+
+`sources/ewis-if/rp-ap242-ehxml-v2.0/`::
+(docid: EWIS-IF RP AP242 EHXML (v2.0))
+STEP AP 242 Electrical Harness XML Tutorial & Recommended Practices
+
+`sources/ewis-if/ts-v4.0/`::
+(docid: EWIS-IF TS Version v4.0 (1.0))
+EWIS Interoperability Forum Test Suite v4.0
+
+`sources/mbx-if/`::
+MBx-IF (parent organization) documents.
+
+`sources/mbx-if/gg-v2.0/`::
+(docid: MBx-IF GG (v2.0))
+General Guidelines for the MBx Interoperability Forum
+
+`reference-docs/`::
+Reference documentation organized by subgroup, containing original PDF
+documents that serve as source material for the Metanorma implementations.
+These documents provide authoritative reference for validation and
+comparison purposes.
+
+`_site/`::
+(automatically generated) Published documents in multiple output formats
+including HTML, PDF and XML. Generated using Metanorma processing of the source
+documents.
+
+== Usage
+
+=== Quick start
+
+The easy way if you install locally:
+
+[source,sh]
+----
+git clone https://github.com/metanorma/mn-samples-mbxif/
+bundle install
+bundle exec metanorma sources/mbx-if/gg-v2.0/document.adoc
+# => sources/mbx-if/gg-v2.0/document.{html,xml,pdf,doc}
+----
+
+=== Installing Metanorma
+
+See https://www.metanorma.org
+
+=== Building a single document
+
+[source,sh]
+----
+bundle exec metanorma sources/mbx-if/gg-v2.0/document.adoc
+# or
+bundle exec metanorma sources/cax-if/rp-unicode-strings-v1.0/document.adoc
+# or
+bundle exec metanorma sources/cae-if/hb-vol2-v1.1/document.adoc
+----
+
+This command outputs the built document at:
+
+* `sources/{document-dir}/document.{html,pdf,xml,doc}`
+
+=== Building the full site
+
+[source,sh]
+----
+bundle exec metanorma site generate
+----
+
+This command creates `_site/`. The HTML entry point is at `_site/index.html`.
+
+== License and copyright
+
+Content: Copyright MBx-IF hosting organizations: AFNeT, PDES, Inc. and prostep
+ivip.
+
+Code and others: Ribose.

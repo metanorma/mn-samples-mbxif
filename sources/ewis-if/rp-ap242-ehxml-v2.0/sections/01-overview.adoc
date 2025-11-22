@@ -27,7 +27,7 @@ The standard provides a formal mapping from the Domain Model to the Application
 Reference Model (ARM), and from there to the Application Integrated Model (AIM) of
 STEP. The AIM is an alternative way on how to implement data exchange and integration
 for electrical wire harnesses, using either STEP-Part21 files (ISO 10303-21) or other
-implementation methods such as SDAI (Standard Data Access Interface (ISO 10303-22).
+implementation methods such as SDAI (Standard Data Access Interface) (ISO 10303-22).
 
 Formal References:
 
@@ -35,23 +35,27 @@ Formal References:
 Release 2.1; 2019-12-20; on: www-cax-if.orgPlease refer to that document for all
 general concepts. Note that release 2.1 is based on the first edition AP242
 (technical corrigendum).
+
 * STEP: ISO 10303 "Industrial automation systems and integration -- Product data
 representation and exchange"
+
 ** AP242 ed2: ISO 10303-242:2019: Application protocol: Managed model-based 3D
 engineering"
+
 ** XSD of AP242 ed2 Amendment, derived from the Domain Model documented in SysML
 +
 --
 NOTE: This XSD is the basis for this tutorial.
 --
+
 ** the SMRL, "STEP Module and Resource Library", version 9? that contains the ARM
 (Application Reference Model) and mapping to the MIM (Modular Integrated Model).
 +
 --
 NOTE: This tutorial does not address on how to implement EWH on the MIM level using p21
 --
-* ISO 13584-42:2010 Industrial automation systems and integration -- Parts library
--- Part 42: Description methodology: Methodology for structuring parts families
+
+* ISO 13584-42:2010 Industrial automation systems and integration -- Parts library -- Part 42: Description methodology: Methodology for structuring parts families
 
 The work is performed for the joint ASD-Stan / AIA / ProSTEP iViP / PDES Inc.
 consortium "LOTAR International".

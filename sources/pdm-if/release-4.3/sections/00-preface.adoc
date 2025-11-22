@@ -1,0 +1,330 @@
+
+[.preface]
+== Abstract
+
+The STEP PDM (Product Data Management) Schema is a reference information model for
+the exchange of a central, common subset of the data being managed within a PDM system.
+It represents the intersection of requirements and data structures from a range of
+STEP Application Protocols, all generally within the domains of design and development
+of discrete electro/mechanical parts and assemblies.
+
+The STEP PDM Schema is _not_ a specification for the functionality required for the
+complete scope of all PDM system functionality -- i.e., it is _not_ the union, but
+the intersection, of functionality present in the set of STEP Application Protocols.
+There exists functionality important for complete PDM functionality that is not represented
+in the PDM Schema, but is in other units of functionality present in STEP APs.
+
+By definition, a PDM system is something that manages data about products. At the
+central core of PDM information is product identification. A product in STEP represents
+the concept of a general managed item within a PDM system. In the STEP PDM Schema,
+the general product concept may be interpreted as either a Part (see <<sec-1>>) or
+a Document (see <<sec-5>>). In this way, parts and documents are managed in a consistent
+and parallel fashion. <<sec-12>> describes a mechanism to associate product data
+with an additional identifier (alias).
+
+Also central to the functionality of many PDM systems is identification of external
+files (both digital and physical), their relationship to managed documents (see <<sec-8>>),
+and how they can be associated with core product identification (see <<sec-10>>).
+The external file reference mechanism in the STEP PDM Schema is described in <<sec-7>>
+of this document.
+
+Classification of products is important in a PDM system for information classification
+and retrieval. It also supports basic type distinction between products that are
+parts and those that are documents. In the PDM Schema, product classification is
+used consistently for parts (see <<sec-2>>) and documents (see <<sec-6>>).
+
+Product properties are integrally related to the definition of an identified product,
+and so are naturally also included in the central core PDM information. <<sec-3;and!sec-9>>
+discuss properties associated with an identified product, interpreted, respectively,
+as either a part or a document.
+
+Various general authorization and organizational data that are related to core product
+identification play an important role in PDM systems. <<sec-13>> of this document
+describes the various organizational and management constructs that support product
+authorization in the STEP PDM Schema.
+
+Product structures are the principle relationships that define assemblies and product
+configurations. <<sec-4>> details part structures in the STEP PDM Schema; <<sec-11>>
+describes document structures. Configuration identification and effectivity information
+related to these structures is detailed in <<sec-14>>.
+
+<<sec-15>> describes structures to manage the documentation of requests and corresponding
+orders for engineering action in support of the change management process. Also included
+are representations for contract and project identification.
+
+Finally, <<sec-16>> summarizes recommendations related to measures and units.
+
+== Acknowledgements
+
+Rogerio Barra +
+Markus Hauser +
+Oliver Holzel +
+Jim Kindrick +
+Achim Klein +
+Mario Leber +
+Andreas Trautheim +
+Max Ungerer +
+Anna Wasmer +
+Glen Ziolko
+
+[.preface]
+== Overview
+
+*Usage guide goal*: to describe the recommended structure and attribute population
+for particular instance models created from the EXPRESS entities and types defined
+by the STEP PDM Schema. The selected instance models illustrate how to encode data
+values that need to be exchanged in support of key industry requirements common across
+the product manufacturing domain.
+
+*Usage guide status*: Release 4.3 covers the entire scope of the PDM Schema. The
+maintenance of this document is guided by the PDM Implementor Forum where issues
+and clarifications are raised and resolved. Issues may be put forward to the points
+of contact identified on the cover page of this document.
+
+*Intended audience*: developers of applications and information management systems
+that must use product data and exchange it with other systems and applications in
+support of the business processes related to product as_designed scope Anyone interested
+in the scope of the requirements supported by the STEP PDM Schema.
+
+*Intended use*: manual and companion to the developer of STEP data exchange and translator
+software used by applications and information management systems that rely on product
+data. Guideline for consistent preprocessor instance model creation and requirement
+value encoding to enable meaningful information exchange between different systems
+and applications using STEP. Guideline for consistent interpretation by a postprocessor
+of a STEP Part 21 exchange file according to the unified STEP PDM Schema.
+
+*Usage guide style*: overall document proceeds in an incremental, step-by-step fashion
+to describe, and in parallel to illustrate, the recommended instantiation of the
+EXPRESS entities and types in the PDM Schema.
+
+The diagram figures are presented using a graphical notation intended to illustrate
+the instance model. This notation _is not_ EXPRESS-G and _does not_ illustrate the
+EXPRESS schema; rather it is a graphical illustration of a specific population of
+a particular instance model of the schema. This notation supports:
+
+* illustration of entity instances,
+
+* illustration and identification of referenced instances that are not fully illustrated
+in the current figure,
+
+* illustration and identification of the multiple possible referenced instances corresponding
+to an attribute that has a select type as the value,
+
+* indication of optional attributes and optional structure (dashed lines),
+
+* illustration and identification of groups of functionally related instances (shaded
+bounding box),
+
+* identification of specific attribute values (typically string values, may also
+be enumerated type values).
+
+Each instance diagram figure is accompanied by a related STEP Part 21 exchange structure
+example. The example exchange file corresponds directly to the related instance model
+diagram and illustrates the very same thing using a different notation, i.e., STEP
+Part 21 syntax versus the graphical instance model notation.
+
+*Usage guide structure*: the overall scope of requirements is partitioned into a
+set of major sections corresponding to identified units of functionality. Within
+a major section, there may be sub-sections. These sub-sections further divide the
+scope into smaller components of coherent functionality that interact with each other
+to realize the functionality of the entire unit.
+
+There is generally a description of requirements and a corresponding instance diagram
+associated with each section and sub-section of this document. Each instance diagram
+is followed by a detailed explanation and specific recommendations for the EXPRESS
+entities used in the instantiation diagram example. The entity listing and explanation
+is in turn followed by the corresponding STEP Part 21 exchange structure example.
+
+Within a section, diagrams corresponding to sub-sections incrementally build upon
+one another to finally achieve a complete instance model example that illustrates
+the entire scope of the unit of functionality.
+
+[.preface]
+== General Information
+
+*Instantiation diagrams*: the diagrams are presented using a graphical notation intended
+to illustrate the instance model. This notation is not EXPRESS-G, however, it does
+intentionally resemble it. The diagrams do not illustrate the EXPRESS schema, but
+illustrate a specific population of a particular instance model (or portion thereof)
+of the schema. A legend for the diagram notation is shown below :
+
+* illustration of entity instances and their attributes;
+
+[%unnumbered]
+image::diam-u1.svg[]
+
+* identification of optional attributes;
+
+[%unnumbered]
+image::diam-u2.svg[]
+
+* indication of specific attribute values, typically strings, may be enumerated values;
+
+[%unnumbered]
+image::diam-u3.svg[]
+
+* identification of other document sections and referenced entity instances not fully
+illustrated in the current figure;
+
+[%unnumbered]
+image::diam-u4.svg[]
+
+*Entities and attributes not supported by the preprocessor*: for various reasons,
+there may be some entities that cannot be completely exported by the preprocessor.
+Sometimes an application may not maintain all the information that is anticipated
+for the data exchange. Other times, the information may be maintained by a sending
+system but not included in the data exchange. Never the less, the preprocessor must
+provide values for all mandatory attributes in an exchange file. For mandatory string
+attribute values, the null (empty) string '' has often been used when a preprocessor
+can provide no real user data. The default string value '/NULL' may be used for this
+purpose, as recommended by the European automotive industry. When no data is provided
+by a sending system for a string value, the preprocessor should use '/NULL' or the
+empty string ''. To further indicate the reason why no data is provided, the following
+convention may be used:
+
+* Empty string '' indicates user data managed by the sending system but not provided
+for data exchange.
+
+* String '/NULL' indicates user data in a mandatory attribute that is not managed
+by the sending system or currently not known.
+
+* $ is used in the physical file, if an optional attribute is not instantiated.
+
+It is generally not recommended to use the empty null string '' or the default string
+'/NULL' as valid user data.
+
+*Entities and attributes not supported by the postprocessor*: for various reasons,
+there may be some entities that cannot be completely imported by the postprocessor.
+The postprocessor translator implementation simply may not support the import of
+the entity. The receiving system may not maintain the information that is carried
+by an entity or attribute, or it may require specific attribute values that are not
+present in the input data. Entities and attributes not imported should list a reason
+in a history log file. Entities and attributes not supported by the receiving system
+should not cause a system failure. The minimum acceptable behavior should be to ignore
+the unsupported constructs.
+
+*Unspecified and optional attribute values*: optional attributes without specific
+recommended values, such as the description attribute, are available on many entities
+in the PDM Schema. In general, use of this type of attribute is given the following
+recommendation:
+
+*_Preprocessor_* - first, follow the usage guide as much as is possible - if some
+specific common harmonized user requirement has been documented in the usage guide
+for the attribute, try to adapt this requirement to those you have identified (i.e.,
+map the standard into your user domain). If no specific common harmonized user requirement
+has been documented in the usage guide, in general, such an optional attribute should
+not be instantiated. However, these attributes may be used in some bilateral agreements
+between exchange partners.
+
+*_Postprocessor_* - any optional attribute with no specific mapping specified, in
+general, cannot be specifically interpreted in an interoperable way. While these
+types of attributes are in general not recommended to be instantiated, the postprocessor
+should gracefully handle any data that is exchanged using these attributes. A robust,
+interoperable PDM Schema processor will generally provide user access to the values
+exchanged.
+
+*Derived attributes*: in general, derived attributes are not given with the description
+and recommendations for entities in the PDM schema. This is consistent with the STEP
+part 21 specification where derived attributes are not represented in an exchange
+file. Only in certain cases where special attention is required will such an attribute
+be presented and explained in this usage guide.
+
+*Implementation project specific values*: attribute values recommended in this usage
+guide should be supported by systems conforming to the PDM Schema. Other values negotiated
+between exchange partners in specific projects may be used where the interpretation
+of their meaning does not contradict definitions provided in this usage guide. However,
+these agreements will not generally be interoperable solutions.
+
+*Leading and trailing blanks in STRING values*: all white space within the single
+quote delimiters of a STRING value should be considered valid user data.
+
+*Uniqueness of identifiers*: Identifiers cannot be unique in general. In the parallel
+management of internal and external identifiers in a database, duplicate identifiers
+may occur that can cause problems with the uniqueness rules defined in the EXPRESS
+schema. In those cases, the interpretation of the identifier can be logically extended
+by a prefix that identifies the organizational scope (id value of the organization
+related in role 'id owner') to help ensure uniqueness (see <<sec-1.1.1.1>>). The
+unique rule shall be evaluated only in scope of the organization defined by the id_owner.
+Thus, a processor may utilize the organization identifier as a key to identifying
+a product.
+
+*Schema version identification*: version identification for the PDM Schema shall
+be encoded in the header section of the STEP Part 21 exchange file to identify the
+version of the schema to which the file conforms. This is done with the header entity
+*_file_schema_*, which identifies the EXPRESS schemas that specify the entity instances
+in the data section. The attribute *_schema_identifiers_* contains a list of strings
+that name the schema, optionally followed by the object identifier assigned to that
+schema. In place of the object identifier, the PDM Schema version identification
+number shall be enclosed within curly braces. +
+Only capital letters shall be used in schema name strings.
+
+[example]
+To indicate PDM Schema version 1.2, the following instance of the header entity file_schema
+should be used.
+
+[source%unnumbered]
+--
+ISO-10303-21;
+HEADER;
+...
+FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC;
+--
+
+[.preface]
+== Scope of the STEP PDM Schema
+
+The STEP PDM Schema is a core set of entities in STEP that support the mapping of
+concepts for Product Data Management (PDM). This document and the PDM Schema are
+the result of a cooperative development process between ProSTEP and PDES, Inc. The
+PDM Schema has been established to promote interoperability between STEP APs in the
+area of product data management.
+
+[[fig-1]]
+.Positioning and Contents of the PDM Schema
+image::figure-1.svg[]
+
+This document introduces a set of functional areas that together describe the scope
+of functionality of the 1.2 release of the PDM Schema. These units of functionality
+suggest a modular structure for the PDM Schema.
+
+=== Units of Functionality
+
+The product data management requirements addressed by the PDM Schema are organized
+into groupings of related concepts. These groups provide a logical grouping of AIM
+entities for the purpose of a clear structure within the PDM Schema. These groups
+suggest a modular structure for the PDM Schema in line with the current direction
+towards modularization of the technical contents of STEP integrated resources and
+Application Protocols.
+
+The modular semantic units of functionality are listed below:
+
+* Part Identification,
+
+* Part Classification,
+
+* Part Properties,
+
+* Part Structure and Relationships,
+
+* Document Identification,
+
+* Document Classification,
+
+* External Files,
+
+* Relationships Between Documents and Constituent Files
+
+* Document and File Properties,
+
+* Document and File Association to Product Data,
+
+* Document and File Relationships,
+
+* Alias Identification,
+
+* Authorization,
+
+* Configuration and Effectivity Information,
+
+* Work Management Data.

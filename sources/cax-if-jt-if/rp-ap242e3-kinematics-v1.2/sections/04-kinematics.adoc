@@ -1,0 +1,2720 @@
+
+[[sec_4]]
+== Kinematics
+
+The scope of this document is to describe the semantics of kinematic constraints
+between parts.
+
+To describe the kinematic geometric constraints (without a movie), the following
+templates are involved:
+
+* Curve/Surface
+* KinematicLink
+* KinematicPair
+* Mechanism
+* Import Mechanism
+* Kinematic Dressup
+
+[[fig-1]]
+.Overview of Kinematic Capabilities in AP242 Ed.2
+image::figure-1.jpeg[]
+
+Kinematic motions may be described in two ways:
+
+* With a number of discrete snapshots, each one defining the position of the parts.
+Such a motion is computed out of a fully defined motion based on the kinematic geometric
+constraints. This way, the exact position of the parts in between may not be defined.
+This involves the following templates:
+
+** LinkMotionAlongPath
+** KinematicPathDefinedByNodes
+** PathSegment
+** LinkMotionRelationship
+** Simplified Kinematic Positioning Representation
+** Full Kinematic Positioning Representation
+
+* Fully defined based on the kinematic geometrical constraints. This is currently
+out of scope of this recommended practices document.
+
+For more information about the semantics, refer to the STEP Part 105 Application
+Integrated Resources for Kinematics, which is the basis for this area of the AP242
+Domain Model.
+
+[[sec_4.1]]
+=== Template "Curve/Surface"
+
+The Curve/Surface template supports the ability to uniquely identify a Curve or a
+Surface within a DigitalFile.
+
+[[fig-2]]
+.Template "Curve"
+image::figure-2.svg[]
+
+[[fig-3]]
+.Template "Surface"
+image::figure-3.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Items>
+        <RepresentationItem xsi:type="n0:HighOrderKinematicPair" uid="kin--0000000004634060--kpair">
+...
+            <CurveOrSurface1 uidRef="cv--0000000006D3B150--ei"/>
+..
+        </RepresentationItem>
+        <RepresentationItem xsi:type="n0:Curve" uid="cv--0000000006D3B150--ei">
+            <External uid="idal--0000000006D3B150">
+                <Id id="/NULL"/>
+                <Source>
+                    <DigitalFile uidRef="df--0000000006D3B150"/>
+                </Source>
+            </External>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<File xsi :type="n0 :DigitalFile" uid="df--0000000006D3B150">
+...
+    <Id>
+        <Identifier uid="dfid--0000000006D3B150--13" id="Kulisse_kinematic_curve.jt" idContextRef="org--0xbc66cf8"/>
+    </Id>
+    <Locations>
+        <ExternalItem uid="idal--0000000006D3B150--ei">
+            <Id>
+                <Identifier uid="idal--0000000006D3B150--13" id="Kulisse_kinematic_curve.jt" idContextRef="org--0xbc66cf8"/>
+            </Id>
+            <Source>
+                <IdentifierString>.\</IdentifierString>
+            </Source>
+        </ExternalItem>
+    </Locations>
+</File>
+--
+
+[[table-2]]
+."Curve/Surface" Attributes
+[cols="2",options="header"]
+|===
+| Entity Curve/Surface attributes | Attribute type
+
+| External                     | ExternalItem
+| Name                         | OPTIONAL DescriptorSelect
+| ModelPropertyAssignment      | OPTIONAL SET[1:?] of ModelPropertyAssignment
+| PropertyDefinitionAssignment | OPTIONAL SET[1:?] of PropertyDefinitionAssignment
+| PropertyValueAssignment      | OPTIONAL SET[1:?] of PropertyValueAssignment
+|===
+
+*_Attribute recommendations_*
+
+* *External*: the reference to an external item (Id shall contain a unique identifier
+of the curve within the external item; Source shall reference a DigitalFile where
+the Curve can be found under the given Id). Use "DigitalFile" template
+(see [242-PAS] 9.1).
+
+* *Name*: the words or set of words by which the Curve or Surface is known.
+The value of this attribute need not be specified. Use "Description" template
+(see [242-PAS] 4.6.7).
+
+*_Preprocessor Recommendation:_*
+
+If the referenced external item contains only the given curve or surface, the attribute
+'name' may be left empty and the attribute External.Id may be set to '/NULL'. Otherwise,
+the value of 'name' and External.Id shall be identical and enable to identify uniquely
+the Curve/Surface within the CAD model
+
+*_Postprocessor Recommendation:_*
+
+If the attribute External.Id='/NULL', the referenced external item contains only
+the given curve or surface.
+
+Remark: depending on the legacy CAD system. There are several ways to identify the
+Curve/Surface => shall be agreed between the data exchange partners.
+
+Remark: the ExternalItem used for Curve/Surface.External shall not be used as DigitalFile.Locations.
+This is functionally wrong and is not supported by the XSD.
+
+[[sec_4.2]]
+=== Template "KinematicLink"
+
+A KinematicLink positions a part/assembly within a kinematic mechanism.
+
+[[fig-4]]
+.Template "KinematicLink"
+image::figure-4.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:KinematicLink" uid="kin--0000000004633D60--kpair--klink--1">
+            <Id id="/NULL"/>
+            <Items>
+                <RepresentationItem uidRef="kin--0000000004633D60--kpair--kframe--0"/>
+            </Items>
+        </Representation>
+    <Representations>
+    <Items>
+        <RepresentationItem uid="kin--0000000004633D60--kpair--kframe--0" xsi:type="n0:AxisPlacement">
+            <Axis>-1.0000000000,0.0000000000,0.0000000000</Axis>
+            <Position>0.0000000000,-5.0000000000,15.0000000000</Position>
+            <RefDirection>0.0000000000,-1.0000000000,0.0000000000</RefDirection>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<Part uid="p--00000000129ACFC0">
+    <Id>
+        <Identifier uid="pid--00000000129ACFC0--id3" id="Gestell" idContextRef="org--0xbc66cf8"/>
+    </Id>
+...
+    <Versions>
+        <PartVersion uid="pv--00000000129ACFC0--id3">
+...
+            <Views>
+                <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--00000000129ACFC0--id3">
+...
+                    <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--00000000129ACFC0--9">
+                        <Id id="Gestell"/>
+                        <KinematicLinkToOccurrenceAssociation uid="kin--0000000004633D60--kpair--klink--0--ltpo" xsi:type="n0:KinematicLinkToOccurrenceAssociation">
+                            <AssociatedLink uidRef="kin--0000000004633D60--kpair--kframe--0"/>
+                        </KinematicLinkToOccurrenceAssociation>
+                    </Occurrence>
+...
+                </PartView>
+            </Views>
+        </PartVersion>
+    </Versions>
+</Part>
+--
+
+[[table-3]]
+."KinematicLink" Attributes
+[cols="2",options="header"]
+|===
+| Entity KinematicLink attributes | Attribute type
+
+| ClassifiedAs                                 | OPTIONAL SET[1:?] of Classification
+| ClassifiedAs                                 | OPTIONAL SET[1:?] of Classification
+| Description                                  | OPTIONAL DescriptorSelect
+| Id                                           | Id
+| Items                                        | SET[1:?] of RepresentationItem
+| Name                                         | OPTIONAL DescriptorSelect
+| RepresentationTypes                          | OPTIONAL SET[1:?] of ClassSelect
+| VersionId                                    | OPTIONAL Id
+| RepresentationRelationship                   | OPTIONAL SET[1:?] of RepresentationRelationship
+| ActivityAssignment                           | OPTIONAL SET[1:?] of ActivityAssignment
+| ApprovalAssignment                           | OPTIONAL SET[1:?] of ApprovalAssignment
+| DateAndPersonAssignment                      | OPTIONAL SET[1:?] of DateAndPersonAssignment
+| DatetimeAssignment                           | OPTIONAL SET[1:?] of DateTimeAssignment
+| EffectivityAssignment                        | OPTIONAL SET[1:?] of EffectivityAssignment
+| EventAssignment                              | OPTIONAL SET[1:?] of EventAssignment
+| FrozenAssignment                             | OPTIONAL SET[1:?] of FrozenAssignment
+| InformationUsageRightAssignment              | OPTIONAL SET[1:?] of InformationUsageRightAssignment
+| ModelPropertyAssignment                      | OPTIONAL SET[1:?] of ModelPropertyAssignment
+| OrganizationOrPersonInOrganizationAssignment | OPTIONAL SET[1:?] of OrganizationOrPersonInOrganizationAssignment
+| PropertyDefinitionAssignment                 | OPTIONAL SET[1:?] of PropertyDefinitionAssignment
+| PropertyValueAssignment                      | OPTIONAL SET[1:?] of PropertyValueAssignment
+| SecurityClassificationAssignment             | OPTIONAL SET[1:?] of SecurityClassificationAssignment
+| SuppliedObjectRelationship                   | OPTIONAL SET[1:?] of SuppliedObjectRelationship
+| TimeIntervalAssignment                       | OPTIONAL SET[1:?] of TimeIntervalAssignment
+| OfModel                                      | OPTIONAL ExternalGeometricModel
+|===
+
+*_Attribute recommendations_*
+
+* *Description*: the reason for the creation of the KinematicLink. The value of this
+attribute need not be specified. Use "Description" template (see [242-PAS] 4.6.7).
+
+* *Id*: the identifier or set of identifiers for the KinematicLink. Use "Identifier"
+template (see [242-PAS]).
+
+* *Items*: the set of AxisPlacements that can be used to establish a contact frame
+for KinematicPairs.
+
+* *Name*: the words or set of words by which the KinematicLink is known. The value
+of this attribute need not be specified. Use "Description" template (see [242-PAS]
+4.6.7).
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the KinematicLink.
+Use the "PropertyAssignment" template (see [242-PAS] 6.2).
+
+* Other attributes than these are not covered by these Recommended Practices; their
+use is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+_Remark_: the usage of OfModel is not recommended, since it would have to reference
+the same ExternalGeometricModel as on Occurrence or PartView level (via DefiningGeometry).
+
+*_Preprocessor Recommendations_*:
+
+* Each AxisPlacement referenced by "Items" is the absolute placement of one occurrence
+of the part within the Part where the Mechanism is defined. It is computed (by the
+sender system) out of its relative placement in the static assembly structure.
+
+* A KinematicLink shall be referenced by one and only one Part Occurrence
+
+* A Part Occurrence shall be referenced (for a given Mechanism) by at most (optional)
+one KinematicLink (via one instance of KinematicLinkToOccurrenceAssociation embedded
+into the Occurrence object, see [242-PAS] 7.1).
+
+An issue has been created for this purpose on ISO Jira as TCSC410303-817.
+
+This implies: if an occurrence of a part is involved in many KinematicPairs,
+(for example the elbow (on the one end) and the shoulder (on the other end) kinematics
+of the human upper arm), an instance of AxisPlacement shall be created for each of
+both and all referenced via KinematicLink.Items.In very special cases (for example
+a clock having 3 KinematicPairs frame/hour hand, frame/minute hand and frame/second
+hand), the same AxisPlacement may be reused for multiple KinematicPairs (here the
+AxisPlacement of the clock frame).
+
+* A KinematicLink shall be referenced by at least one KinematikPair
+
+* An AxisPlacement defined within KinematicLink.Items[] shall be referenced by at
+least one KinematikPair
+
+[[table-4]]
+."KinematicLinkToOccurrenceAssociation" Attributes
+[cols="2",options="header"]
+|===
+| Entity KinematicLinkToOccurrenceAssociation attributes | Attribute type
+| AssociatedLink | KinematicLink
+|===
+
+*_Attribute recommendations_*
+
+* *AssociatedLink*: the KinematicLink.
+
+_Remarks:_
+
+* When the Occurrence is an assembly, the occurrence path from the occurrence of
+the single part where the AxisPlacement has been computed is currently lost. This
+would enable to recreate the KinematicLink in the right occurrence of the sinle part
+in the target system. Otherwise 'any' part under the moving assembly has to be taken...
+This is not a critical issue, just enables a better mapping. This does not affect
+the fact that the assembly node is used to define the KinematikLink in the target
+system, just the place where to store the AxisPlacement (some CAD systems do not
+support to create AxisPlacements in assembly nodes). => an issue has been created
+in ISO Jira as BS10303-6167 to add an optional attribute 'Substructure' of type
+SpecificOccurrence to KinematicLinkToOccurrenceAssociation, analog to the attribute
+Substructure in ProductStructureKinematicPathAssociation and ProductStructureLinkMotionAssociation.
+
+* As stated in Part 105: _"kinematic structures are represented by graphs where the
+links represent the vertices of the graph, and the joints represent the edges.
+The rigid objects with kinematic representations are defined kinematically in terms
+of links and geometrically in terms of their associated shape representation.
+All coordinate systems related to a kinematic link are founded in the link frame,
+which is the geometric context of the related link representation. These coordinate
+systems are called frames in this part of ISO 10303. For the purpose of representing
+the kinematic aspect of a mechanism, the shape of the link is represented by the
+relative location and orientation of all its pair frames with respect to its link
+frame."_
++
+--
+This means the original shape element from which the AxisPlacement has been computed
+is lost s=> in the target system, the AxisPlacement has to be created into the geometric
+model of the involved part. If this is unproblematic for pure CAx data exchange scenarios,
+it may cause trouble for PDM data exchange especially if the target partner shall
+not edit the geometry but only simulate or work on the kinematics.
+--
+
+[[sec_4.3]]
+=== KinematicPair
+
+A KinematicPair specifies a motion constraint (within a kinematic mechanism) between
+two adjacent KinematicLinks coinciding at a joint.
+
+Before describing the different kinds of KinematicPairs, their common supertype and
+common features are introduced here under:
+
+[[table-5]]
+."KinematicPair" Attributes
+[cols="2",options="header"]
+|===
+| Entity KinematicPair attributes | Attribute type
+
+| External                     | OPTIONAL ExternalItem
+| Name                         | OPTIONAL DescriptorSelect
+| Actuation                    | OPTIONAL ActuatedPair
+| Link1                        | KinematicLink
+| Link2                        | KinematicLink
+| PairFrame1                   | AxisPlacement
+| PairFrame2                   | AxisPlacement
+| ModelPropertyAssignment      | OPTIONAL SET[1:?] of ModelPropertyAssignment
+| PropertyDefinitionAssignment | OPTIONAL SET[1:?] of PropertyDefinitionAssignment
+| PropertyValueAssignment      | OPTIONAL SET[1:?] of PropertyValueAssignment
+|===
+
+*_Attribute recommendations_*
+
+* *Name*: the words or set of words by which the KinematicPair is known. Use "Description"
+template (see [242-PAS] 4.6.7).
+
+* *Actuation*: references an ActuatedPair. The value of this attribute need not be
+specified, especially if many parts are joined together in a chain => the actuation
+of one pair causes implicitly the movement of the other pairs (which do not need
+an own actuation).
+
+* *Link1*: identifies the first KinematicLink.
+
+* *Link2*: identifies the second KinematicLink.
+
+* *PairFrame1*: identifies the AxisPlacement from the first KinematicLink that coincides
+at the joint.
+
+* *PairFrame2*: identifies the AxisPlacement from the second KinematicLink that coincides
+at the joint.
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the KinematicPair.
+Use the "PropertyAssignment" template (see [242-PAS] 6.2).
+
+* Other attributes than these are not covered by these Recommended Practices; their
+use is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+*_Preprocessor Recommendation:_*
+
+* Name shall be always set, since a kinematic pair has always a name in the CAD system
+and this name is relevant for communication between partners.
+
+* The name of the KinematicPair shall be unique within all KinematicPairs of a Mechanism.
+
+* Link1 and Link2 shall not reference the same instance of KinematicLink.
+
+* Usually, an instance of KinematicPair shall be referenced by one and only one Mechanism.
+In special cases (where multiple Mechanisms are defined on the same product structure
+(for example several local Mechanisms and an overall Mechanism), the same KinematicPair
+may be referenced by several Mechanisms.
+
+* The unordered combination of Link1 and Link2 (even of Link2 and Link1) shall be
+unique over all instances of KinematicPair
+
+* The choice of having Link1 or Link2 for the one or the other part is significant
+if:
+** an Actuation
+** Lower/UpperLimits (if the lower and upper limits have a different absolute value)
+are defined. In such a case:
+*** these values always apply to the movement of Link2 relatively to Link1.
+*** only Link1 may be the BaseLink of the Mechanism (see <<sec_4.4>>).
+
+* PairFrame1 shall reference one of the AxisPlacements defined in KinematicLink for
+Link1
+
+* PairFrame2 shall reference one of the AxisPlacements defined in KinematicLink for
+Link2
+
+An ActuatedPair is the indication, along/around which axis the initial movement of
+Link2 relatively to Link1 shall occur.
+
+[[table-6]]
+."ActuatedPair" Attributes
+[cols="2",options="header"]
+|===
+| Entity ActuatedPair attributes | Attribute type
+
+| Name | DescriptorSelect
+| Rx   | OPTIONAL ActuatedDirectionEnum
+| Ry   | OPTIONAL ActuatedDirectionEnum
+| Rz   | OPTIONAL ActuatedDirectionEnum
+| Tx   | OPTIONAL ActuatedDirectionEnum
+| Ty   | OPTIONAL ActuatedDirectionEnum
+| Tz   | OPTIONAL ActuatedDirectionEnum
+|===
+
+*_Attribute recommendations_*
+
+* Depending on the Kind of kinematic pair (see below), one or many of the following
+attributes may be specified:
+
+** *Name*: the words or set of words by which the Actuation is known. Use "Description"
+template (see [242-PAS] 4.6.7). This is the name of the command (in CATIA) resp.
+called driver (in NX).
+
+** *Rx*: indicates that the actuation is around the x-axis. The value of this attribute
+need not be specified.
+
+** *Ry*: indicates that the actuation is around the y-axis. The value of this attribute
+need not be specified.
+
+** *Rz*: indicates that the actuation is around the z-axis. The value of this attribute
+need not be specified.
+
+** *Tx*: indicates that the actuation is along the x-axis. The value of this attribute
+need not be specified.
+
+** *Ty*: indicates that the actuation is along the y-axis. The value of this attribute
+need not be specified.
+
+** *Tz*: indicates that the actuation is along the z-axis. The value of this attribute
+need not be specified.
+
+* Where applicable, the following values shall be used:
++
+--
+[cols="2",options="header,unnumbered"]
+|===
+| Enumeration value | Explanation
+
+| Bidirectional | the actuation is in both directions, positive and negative
+| positive_only | the actuation is in positive direction only
+| negative_only | the actuation is in negative direction only
+| not_actuated  | the translation or rotation axis is not actuated
+|===
+--
+
+*_Preprocessor Recommendation:_*
+
+* If not actuated along a given axle, the actuation should be left empty (rather
+than use the value 'not_actuated'.
+
+* An ActuatedPair shall have at least one actuation around or along X, Y or Z.
+
+_Remarks:_
+
+* Even if both a rotational actuation and a translational actuation may be given
+(for example for a cylindrical_pair), most CAD systems can only actuate one of both
+at a time => the other actuation attributes shall be unset.
+
+* Depending on the legacy CAD system, not all kinds of actuation are supported.
+For example, CATIA only supports 'bidirectional' (default) and the AxisPlacements
+are calculated in such a way, that only Rz and Tz are needed.
+
+* The name of the ActuatedPair shall be unique within all KinematicPairs of a Mechanism.
+
+In the following sections, the subtypes of KinematicPair are described.
+
+According to Part 105: low order pairs can be represented as sliding high order pairs.
+If a pair can be represented as a low order pair, it should be so represented and
+not as a high order pair.
+
+[[sec_4.3.1]]
+==== Template "LowOrderKinematicPair"
+
+For a LowOrderKinematicLink, the motion is constrained by simple translation or rotational
+parameters.
+
+*_Preprocessor Recommendations:_*
+
+* The use of LowOrderKinematicLink shall be done whenever possible, rather than the
+other subtypes of KinematicPair (used only for the more complex cases).
+
+[[fig-5]]
+.Template "LowOrderKinematicPair"
+image::figure-5.svg[]
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:Mechanism" uid="kin--0000000005F89EE0--m">
+...
+            <Items>
+...
+                <RepresentationItem uidRef="kin--0000000004634660--kpair"/> </Items>
+...
+        </Representation>
+    <Representations>
+    <Items>
+        <RepresentationItem xsi:type="n0:LowOrderKinematicPair" uid="kin--0000000004634660--kpair">
+            <Name>
+                <CharacterString>Plunger-Disc-Spring</CharacterString>
+            </Name>
+            <Actuation uid="act--kin--0000000004634660--kpair">
+                <Name>
+                    <CharacterString>command #1</CharacterString>
+                </Name>
+                <Tz>bidirectional</Tz>
+            </Actuation>
+            <Link1 uidRef="kin--0000000004634660--kpair--klink--1"/>
+            <Link2 uidRef="kin--0000000004634660--kpair--klink--2"/>
+            <PairFrame1 uidRef="kin--0000000004634660--kpair--kframe--0"/>
+            <PairFrame2 uidRef="kin--0000000004634660--kpair--kframe--1"/>
+            <Kind>prismatic_pair</Kind>
+            <LowerLimitActualTranslationZ>-100.0000000000</LowerLimitActualTranslationZ>
+            <UpperLimitActualTranslationZ>100.0000000000</UpperLimitActualTranslationZ>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--
+
+[[table-7]]
+."LowOrderKinematicPair" Attributes
+[cols="2",options="header"]
+|===
+| Entity LowOrderKinematicPair attributes | Attribute type
+
+| External                     | OPTIONAL ExternalItem
+| Name                         | OPTIONAL DescriptorSelect
+| Actuation                    | OPTIONAL ActuatedPair
+| Link1                        | KinematicLink
+| Link2                        | KinematicLink
+| PairFrame1                   | AxisPlacement
+| PairFrame2                   | AxisPlacement
+| PropertyValueAssignment      | OPTIONAL SET[1:?] of PropertyValueAssignment
+| Kind                         | LowOrderKinematicPairTypeEnum
+| LowerLimitActualRotationX    | OPTIONAL REAL
+| LowerLimitActualRotationY    | OPTIONAL REAL
+| LowerLimitActualRotationZ    | OPTIONAL REAL
+| LowerLimitActualTranslationX | OPTIONAL REAL
+| LowerLimitActualTranslationY | OPTIONAL REAL
+| LowerLimitActualTranslationZ | OPTIONAL REAL
+| UpperLimitActualRotationX    | OPTIONAL REAL
+| UpperLimitActualRotationY    | OPTIONAL REAL
+| UpperLimitActualRotationZ    | OPTIONAL REAL
+| UpperLimitActualTranslationX | OPTIONAL REAL
+| UpperLimitActualTranslationY | OPTIONAL REAL
+| UpperLimitActualTranslationZ | OPTIONAL REAL
+|===
+
+*_Attribute recommendations_*
+
+* *Kind*: the kind of pair. Where applicable, the following values shall be used:
++
+--
+[cols="a,a",options="header,unnumbered"]
+|===
+| Enumeration value | Explanation
+
+| cylindrical_pair
+| a pair that constrains the motion between two adjacent links to a translation along
+a common axis and a rotation about it.
+
+[%unnumbered]
+image::kind1-object-1.png[]
+
+Remark: both a rotational and a translational actuation may be specified. According
+to Part 105, the z-axes shall coincide, and the positive directions shall agree;
+both Rotation and Translation Lower/Up-perLimits may be specified (around/along the
+Z axis)
+
+| fully_constrained_pair ('fixed' in NX, 'rigid' in CATIA)
+| a pair that prevents any relative motion between two adjacent links. The two pair
+frames are always forced to coincide.
+
+Remark: no actuation may be specified. According to Part 105, no Lower/UpperLimit
+may be specified
+
+| planar_pair
+| a pair that constrains the motion between two adjacent links to translations along
+the x-axis and y-axis and a rotation about the z-axis. To measure the translations
+and the angle of rotation, a frame is defined on each of the links such that the
+x-, y-, and z-axes coincide, and the positive directions agree. The translations
+in x- and y-directions are defined as the displacements required to translate the
+origin of the first pair frame in positive direction of the x- and y-axes until it
+coincides with the origin of the second pair frame. The angle of rotation is defined
+as the angle required to rotate the x-axis of the first pair frame in positive direction
+around the common z-axis until its direction coincides with the direction of the
+x-axis of the second pair frame.
+
+[%unnumbered]
+image::kind1-object-2.png[]
+
+Remark: no actuation may be specified. According to Part 105, both rotation and Translation
+Lower/UpperLimits may be specified: around the Z axis (Rotation) and along the X
+and Y axis (Translation) (not supported by NX)
+
+| prismatic_pair ('slider' in NX)
+| a pair that constrains the motion between two adjacent links to a translation along
+a common axis. To measure the distance of translation a frame is defined on each
+of the links such that their corresponding coordinate axes coincide and their positive
+directions agree. The motion of the second link with respect to the first link is
+defined as the distance required to translate the xy-plane of the first pair frame
+in positive direction of the common z-axis until it coincides with the xy-plane of
+the second pair frame.
+
+[%unnumbered]
+image::kind1-object-3.png[]
+
+Remark: a translational actuation may be specified along the Z axis. According to
+Part 105, a Translation Lower/UpperLimit may be specified along the Z axis
+
+| revolute_pair
+| a pair that constrains the motion between two adjacent links to a rotation about
+a common axis. To measure the angle of rotation a frame is defined on each of the
+links such that local origins and the z-axes coincide, and their positive directions
+agree. The motion of the second link with respect to the first link is defined as
+the angle required to rotate the x-axis of the first pair frame in positive direction
+around the common z-axis until it matches the x-axis of the second pair frame.
+
+[%unnumbered]
+image::kind1-object-4.png[]
+
+Remark: a rotational actuation may be specified around the Z axis. According to Part
+105, a Rotation Lower/UpperLimit may be specified around the Z axis
+
+| spherical_pair
+| a pair that constrains the motion between two adjacent links to the rotation about
+three independent axes that intersect in a common point. To measure the three angles
+of rotation, a frame system is defined on each of the links such that the origins
+of the frames coincide. The three angles of rotation are defined as the yaw, pitch,
+and roll angles. They are required to rotate the x-, y-, and z-axes of the first
+pair frame until the axis directions of this frame coincide with the axis directions
+of the second pair frame.
+
+[%unnumbered]
+image::kind1-object-5.png[]
+
+Remark: no actuation may be specified. According to Part 105, Rotation Lower/UpperLimits
+may be specified around all 3 axis (not supported by NX)
+
+| spherical_pair_with_pin (not supported by CATIA nor NX)
+|
+
+[%unnumbered]
+image::kind1-object-6.png[]
+
+a pair that constrains the motion between two adjacent links to the rotation about
+two independent axes that intersect in a common point. It can be compared to the
+human elbows: the joint between upper arm and forearm. The forearm can rotate around
+the direction of the forearm and it can also rotate towards the upper arm. To measure
+the two angles of rotation, a frame system is defined on each of the links such that
+the origins of the frames coincide. The two angles of rotation are defined as the
+yaw and pitch angles. They are required to rotate the y-, and z-axes of the first
+pair frame until the axis directions of this frame coincide with the axis directions
+of the second pair frame.
+
+Remark: actuation may be specified in rotation around Y- and Z-axis. According to
+Part 105, Rotation Lower/UpperLimits may be specified around the Y and Z axis
+
+| Unconstrained_pair (not supported by NX and CATIA)
+| a pair that does not constrain the relative motion between two adjacent links.
+The unconstrained_pair may be helpful in early design stages or for kinematic analysis
+systems, because it allows to eliminate the constraints between two links without
+changing the topological structure.
+
+Remark: no actuation may be specified. According to Part 105, Lower/UpperLimit may
+be specified around/along all axes
+
+| universal_pair
+| a pair that constrains the motion between two adjacent links to two rotations about
+two intersecting axes.
+
+[%unnumbered]
+image::kind1-object-7.png[]
+
+Remark: actuation may be specified in rotation around X- and Z-axis. According to
+Part 105, a Rotation Lower/UpperLimit may be specified around the X and Z axis
+(not supported by CATIA and NX)
+
+| homokinetic_pair ('constant velocity' in NX, but not 'CV joint' in CATIA
+(image:kind1-object-inline.png[] is defined as 2 universal pairs having parallel ends))
+| A homokinetic_pair is a type of universal_pair, where the rotation of input axis
+and output axis are uniform.
+
+[%unnumbered]
+image::kind1-object-8.png[]
+
+Remark: actuation may be specified in rotation around X- and Z-axis. According to
+Part 105, a Rotation Lower/UpperLimit may be specified around the X and Z axis
+(not supported by CATIA)
+|===
+--
+
+* Depending on the Kind of kinematic pair, one or many of the following attributes
+pairs (lower/upper for X, Y or Z) can be set at a time (Lower or Upper have both
+to be set).
+
+** *LowerLimitActualRotationX*: the minimum value of rotation around the x-axis.
+The value of this attribute need not be specified.
+
+** *UpperLimitActualRotationX*: the maximum value of rotation around the x-axis.
+The value of this attribute need not be specified.
+
+** *LowerLimitActualRotationY*: the minimum value of rotation around the y-axis.
+The value of this attribute need not be specified.
+
+** *UpperLimitActualRotationY*: the maximum value of rotation around the y-axis.
+The value of this attribute need not be specified.
+
+** *LowerLimitActualRotationZ*: the minimum value of rotation around the z-axis.
+The value of this attribute need not be specified.
+
+** *UpperLimitActualRotationZ*: the maximum value of rotation around the z-axis.
+The value of this attribute need not be specified.
+
+** *LowerLimitActualTranslationX*: the minimum value of translation along the x-axis.
+The value of this attribute need not be specified.
+
+** *UpperLimitActualTranslationX*: the maximum value of translation along the x-axis.
+The value of this attribute need not be specified.
+
+** *LowerLimitActualTranslationY*: the minimum value of translation along the y-axis.
+The value of this attribute need not be specified.
+
+** *UpperLimitActualTranslationY*: the maximum value of translation along the y-axis.
+The value of this attribute need not be specified.
+
+** *LowerLimitActualTranslationZ*: the minimum value of translation along the z-axis.
+The value of this attribute need not be specified.
+
+** *UpperLimitActualTranslationZ*: the maximum value of translation along the z-axis.
+The value of this attribute need not be specified.
+
+*_Preprocessor Recommendations:_*
+
+* The value in **Lower**... shall be smaller than the value in **Upper**...
+
+* Both KinematicLinks of a LowOrderKinematicPair have to be defined within the same
+GeometricCoordinateSpace than the Mechanism itself.
+
+* The same GeometricCoordinateSpace shall be used for the Mechanism and the
+"notional solids centroid" assembly validation property defined in [242-PAS] 13.1.2
+of the assembly node on which the mechanism is defined.
+
+* The values 0 for rotation and 0 for translation means that the axis placement of
+the kinematic links are the same.
+
+* Multiple 360° are possible, negative values also => for example [-360, 1080]
+
+* The CATIA CV joint shall be mapped as the combination of two universal pairs
+(as mapped internally by CATIA).
+
+*_Postprocessor Recommendations:_*
+
+* If the universal pair is not supported by the target CAD system (for example NX),
+it shall be imported as the combination of two cylindrical pairs (between the cross
+and both brackets of the universal pair)
+
+Remark: depending on the legacy CAD system, not all Kinds are supported, and not
+all Limits are supported. For example, from CATIA, the AxisPlacements are calculated
+in such a way, that only Lower/UpperLimitActualRotationZ and Lower/UpperLimitActualTranslationZ
+are needed.
+
+[[sec_4.3.2]]
+==== Template "HighOrderKinematicPair"
+
+For a HighOrderKinematicLink, the motion constraint requires references to one or
+more surfaces or curves in order to be defined cinematically.
+
+[[fig-6]]
+.Template "HighOrderKinematicPair"
+image::figure-6.svg[]
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:Mechanism" uid="kin--0000000005FC5FC0--m">
+...
+            <Items>
+                <RepresentationItem uidRef="kin--0000000004634060--kpair"/>
+            </Items>
+...
+        </Representation>
+    <Representations>
+    <Items>
+...
+        <RepresentationItem xsi:type="n0:HighOrderKinematicPair" uid="kin--0000000004634060--kpair">
+            <Name>
+                <CharacterString>Plunger-Disc-Spring</CharacterString>
+            </Name>
+            <Actuation uid="act--0000000006D3B150">
+                <Name>
+                    <CharacterString>command #1</CharacterString>
+                </Name>
+                <Tz>bidirectional</Tz>
+            </Actuation>
+            <Link1 uidRef="kin--0000000004634060--kpair--klink--0"/>
+            <Link2 uidRef="kin--0000000004634060--kpair--klink--1"/>
+            <PairFrame1 uidRef="kin--0000000004634060--kpair--kframe--0"/>
+            <PairFrame2 uidRef="kin--0000000004634060--kpair--kframe--1"/>
+            <CurveOrSurface1 uidRef="cv--0000000006D3B150--ei"/>
+            <Kind>point_on_planar_curve_pair</Kind>
+            <Model1 uidRef="egm--0000000006D3B150"/>
+        </RepresentationItem>
+        <RepresentationItem xsi:type="n0:Curve" uid="cv--0000000006D3B150--ei">
+            <External uid="idal--0000000006D3B150--ei2" xsi:type="n0:ExternalItem">
+                <Id>
+                    <Identifier uid="idal--0000000006D3B150--132" id="#1234" idContextRef="org--0xbc66cf8"/>
+                </Id>
+                <Source>
+                    <DigitalFile uidRef="df--0000000006D3B150"/>
+                </Source>
+            </External>
+        </RepresentationItem>
+...
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--
+
+[[table-8]]
+."HighOrderKinematicPair" Attributes
+[cols="2",options="header"]
+|===
+| Entity HighOrderKinematicPair attributes | Attribute type
+
+| External                | OPTIONAL ExternalItem
+| Name                    | OPTIONAL DescriptorSelect
+| Actuation               | OPTIONAL ActuatedPair
+| Link1                   | KinematicLink
+| Link2                   | KinematicLink
+| PairFrame1              | AxisPlacement
+| PairFrame2              | AxisPlacement
+| PropertyValueAssignment | OPTIONAL SET[1:?] of PropertyValueAssignment
+| CurveOrSurface1         | ExternalCurveOrSurfaceSelect
+| CurveOrSurface2         | OPTIONAL ExternalCurveOrSurfaceSelect
+| Kind                    | HighOrderKinematicPairTypeEnum
+| LowerLimitPitch         | OPTIONAL REAL
+| LowerLimitRoll          | OPTIONAL REAL
+| LowerLimitYaw           | OPTIONAL REAL
+| Model1                  | ExternalGeometricModel
+| Model2                  | OPTIONAL ExternalGeometricModel
+| Orientation             | OPTIONAL BOOLEAN
+| Range1                  | OPTIONAL ExternalTrimmedCurveOrSurfaceSelect
+| Range2                  | OPTIONAL ExternalTrimmedCurveOrSurfaceSelect
+| UpperLimitPitch         | OPTIONAL REAL
+| UpperLimitRoll          | OPTIONAL REAL
+| UpperLimitYaw           | OPTIONAL REAL
+|===
+
+*_Attribute recommendations_*
+
+* *CurveOrSurface1*: the first curve or surface that coincide at the joint. Use the
+"Curve/Surface" template (see <<sec_4.1>>)
+
+* *CurveOrSurface2*: the second curve or surface that coincide at the joint. Use
+the "Curve/Surface" template (see <<sec_4.1>>). Depending on the value of 'Kind',
+the value of this attribute need not be specified.
+
+* *Kind*: the kind of pair. Where applicable, the following values shall be used:
++
+--
+[cols="a,a",options="header,unnumbered"]
+|===
+| Enumeration value | Explanation
+
+| linear_flexible_and_planar_curve_pair
+| the pair describes a linear flexible link that moves (slides) around a rotating
+curve where the rotation axis of the curve is perpendicular to the direction of the
+linear flexible link and the curve. Remark: Definition of Actuations needs to be
+clarified. According to Part 105, no lower/UpperLimits may be specified
+
+| point_on_surface_pair
+| the pair constrains the motion of two links such that a point defined on the second
+link always lies on a surface defined on the first link. The actual location of this
+point on the surface is called the contact point. The contact point specifies an
+origin of a frame called the contact frame. The local normal to the surface in the
+contact point coincides with the z-axis of the contact frame. The x-axis of the contact
+frame is parallel to the tangent to the iso-parameter line of the surface for the
+first surface parameter, which passes the contact point, and points into the direction
+where the first surface parameter increases.
+
+[%unnumbered]
+image::kind2-object-1.png[]
+
+Remark: no actuation may be specified. According to Part 105, lower/UpperLimits may
+be specified on Yaw, Pitch and Roll (not supported by NX)
+
+| point_on_planar_curve_pair
+| a pair that constrains the motion of two links such that a point defined on the
+second link always lies on a planar curve defined on the first link. The actual location
+of this point on the curve is called the contact point.
+
+[%unnumbered]
+image::kind2-object-2.png[]
+
+Remark: a rotational actuation may be specified. According to Part 105, lower/UpperLimits
+may be specified on Yaw, Pitch and Roll (not supported by NX)
+
+| planar_curve_pair
+| a pair that constrains the motion of two links along a planar curve on each of
+the links. Both curves lie in a common plane.
+
+[%unnumbered]
+image::kind2-object-3.png[]
+
+Remark: no actuation may be specified. According to Part 105, no Lower/UpperLimit
+may be specified
+
+| rolling_curve_pair (not supported by NX)
+| a kind of a planar_curve_pair that specifies the rolling motion between the curves
+on the two links.
+
+Remark: a rotational actuation may be specified. According to Part 105, no Lower/UpperLimit
+may be specified
+
+Symbol in NX (curve on curve?): image:kind2-object-inline.png[]
+
+| sliding_curve_pair ('curve on curve' in NX)
+| a kind of a planar_curve_pair that specifies the sliding motion between the curves
+on the two links.
+
+Remark: no actuation may be specified. According to Part 105, no Lower/UpperLimit
+may be specified
+
+| rolling_surface_pair (not supported in NX and CATIA)
+| a pair that specifies a rolling motion between the two contact surfaces on the
+two links.
+
+[%unnumbered]
+image::kind2-object-4.png[]
+
+Remark: no actuation may be specified. According to Part 105, lower/UpperLimit may
+be specified around one axis
+
+| sliding_surface_pair (not supported in NX and CATIA)
+| a pair that specifies a sliding motion between the two contact surfaces on the
+two links.
+
+[%unnumbered]
+image::kind2-object-4.png[]
+
+Remark: no actuation may be specified. According to Part 105, lower/UpperLimit may
+be specified around one axis
+|===
+--
+
+* Depending on the kind of kinematic pair, one or many of the following attribute
+pairs (lower/upper for roll, pitch or yaw) can be set at a time (Lower / Upper have
+both to be set).
+
+** *LowerLimitPitch*: the minimum value of the (Y) pitch angle. The value of this
+attribute need not be specified.
+
+** *UpperLimitPitch*: the maximum value of the (Y) pitch angle. The value of this
+attribute need not be specified.
+
+** *LowerLimitRoll*: the minimum value of the roll (Z) angle. The value of this attribute
+need not be specified.
+
+** *UpperLimitRoll*: the maximum value of the roll (Z) angle. The value of this attribute
+need not be specified.
+
+** *LowerLimitYaw*: the minimum value of the yaw (X) angle. The value of this attribute
+need not be specified.
+
+** *UpperLimitYaw*: the maximum value of the yaw (X) angle. The value of this attribute
+need not be specified.
+
+* *Model1*: the ExternalGeometricModel that contains curveOrSurface1
+
+* *Model2*: the ExternalGeometricModel that contains curveOrSurface2. Depending on
+the value of 'Kind', the value of this attribute need not be specified.
+
+* *Orientation*: a flag indicating axis-directions agreements. The value depends
+on the kind:
+
+** 'linear_flexible_and_planar_curve_pair', 'planar_curve_pair', 'sliding_curve_pair',
+'rolling_curve_pair': a flag indicating whether the x-axis-directions agree;
+
+** 'point_on_planar_curve_pair': a flag indicating whether the y-axis of the unrotated
+contact frame agrees with the z-axis of the pair frame on the first link;
+
+** 'rolling_surface_pair', 'sliding_surface_pair': an indication of whether the z-direction
+of the second surface agrees with the z-direction of the first surface.
+
+* *Range1*: the admissible range for the positional pair parameter value on CurveOrSurface1.
+The value of this attribute need not be specified.
+
+* *Range2*: the admissible range for the positional pair parameter value on CurveOrSurface2.
+Depending on the value of 'Kind', the value of this attribute may be specified.
+
+*_Preprocessor Recommendations:_*
+
+* In case only one Model/Curve/Surface is involved, it shall be mapped into Model1,
+CurveOrSurface1 and Range1.
+
+* The value in *Lower*... shall be smaller than the value in *Upper*...
+
+* Both KinematicLinks of a HighOrderKinematicPair have to be defined within the same
+GeometricCoordinateSpace than the Mechanism itself. Dito for the CurveOrSurface1/2
+and Model1/2.
+
+* The CurveOrSurface1/2 may be defined in distinct GeometricModels or within the
+GeometricModel of one of the parts.
+
+Remark: depending on the legacy CAD system, not all Kinds are supported, and not
+all Limits/Ranges are supported.
+
+[[sec_4.3.3]]
+==== Template "LowOrderKinematicPairWithMotionCoupling"
+
+This is a type of KinematicPair whose motion is constrained by simple translation
+or rotation and by one or more geometric parameters. This kind of Kinematic pair
+is used for gear, linear flexible pinion, rack pinion and screw pairs.
+
+_Remark_: a LowOrderKinematicPairWithMotionCoupling corresponds to a Gear, Cable,
+Rack or Screw joint in CATIA and NX
+
+[[fig-7]]
+.Template "LowOrderKinematicPairWithMotionCoupling"
+image::figure-7.svg[]
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax) for gear_pair
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:Mechanism" uid="kin--000000000BB93740--m">
+...
+            <Items>
+                <RepresentationItem uidRef="kin--0000000007EA8550--kpair"/>
+            </Items>
+            <Name>
+                <CharacterString>Ventiltrieb</CharacterString>
+            </Name>
+...
+        </Representation>
+    <Representations>
+    <Items>
+...
+        <RepresentationItem xsi:type="bom:LowOrderKinematicPairWithMotionCoupling" uid="kin--0000000007EA8550--kpair">
+            <Name>
+                <CharacterString>Plunger-Disc-Spring</CharacterString>
+            </Name>
+            <Actuation uid="act--kin--0000000007EA8550--kpair">
+                <Name>
+                    <CharacterString>command #1</CharacterString>
+                </Name>
+                <Rz>bidirectional</Rz>
+            </Actuation>
+            <Link1 uidRef="kin--0000000007EA8550--kpair--klink--0"/>
+            <Link2 uidRef="kin--0000000007EA8550--kpair--klink--1"/>
+            <PairFrame1 uidRef="kin--0000000007EA8550--kpair--kframe--0"/>
+            <PairFrame2 uidRef="kin--0000000007EA8550--kpair--kframe--1"/>
+            <GearRatio>0.5000000000</GearRatio>
+            <Kind>gear_pair</Kind>
+            <LowerLimitActualRotation>0.0000000000</LowerLimitActualRotation>
+            <UpperLimitActualRotation>360.0000000000</UpperLimitActualRotation>
+        </RepresentationItem>
+...
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax) for rack_and_pinion_pair
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:Mechanism" uid="kin--000000000C3F5180--m">
+...
+            <Items>
+                <RepresentationItem uidRef"kin--0000000008018840--kpair"/>
+            </Items>
+            <Name>
+                <CharacterString>Mechanism.1</CharacterString>
+            </Name>
+...
+        </Representation>
+    <Representations>
+
+    <Items>
+...
+        <RepresentationItem xsi:type="bom:LowOrderKinematicPairWithMotionCoupling" uid="kin--0000000008018840--kpair">
+            <Name>
+                <CharacterString>Plunger-Disc-Spring</CharacterString>
+            </Name>
+            <Actuation uid="act--kin--0000000008018840--kpair">
+                <Name>
+                    <CharacterString>command #1</CharacterString>
+                </Name>
+                <Tz>bidirectional</Tz>
+            </Actuation>
+            <Link1 uidRef="kin--0000000008018840--kpair--klink--0"/>
+            <Link2 uidRef="kin--0000000008018840--kpair--klink--1"/>
+            <PairFrame1 uidRef="kin--0000000008018840--kpair--kframe--0"/>
+            <PairFrame2 uidRef="kin--0000000008018840--kpair--kframe--1"/>
+            <GearRatio>15.0000000000</GearRatio>
+            <Kind>rack_and_pinion_pair</Kind>
+            <LowerLimitRackDisplacement>-100.000000000</LowerLimitRackDisplacement>
+            <UpperLimitRackDisplacement>100.000000000</UpperLimitRackDisplacement>
+        </RepresentationItem>
+...
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax) for screw_pair
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:Mechanism" uid="kin--000000000C0F70C0--m">
+...
+            <Items>
+                <RepresentationItem uidRef"kin--0000000008050310--kpair"/>
+            </Items>
+            <Name>
+                <CharacterString>Mechanism.1</CharacterString>
+            </Name>
+...
+        </Representation>
+    <Representations>
+    <Items>
+...
+        <RepresentationItem xsi:type="bom:LowOrderKinematicPairWithMotionCoupling" uid="kin--0000000008050310--kpair">
+            <Name>
+                <CharacterString>Plunger-Disc-Spring</CharacterString>
+            </Name>
+                <Actuation uid="act--kin--0000000008050310--kpair">
+            <Name>
+                <CharacterString>command #1</CharacterString>
+            </Name>
+            <Rz>bidirectional</Rz>
+            </Actuation>
+            <Link1 uidRef="kin--0000000008050310--kpair--klink--0"/>
+            <Link2 uidRef="kin--0000000008050310--kpair--klink--1"/>
+            <PairFrame1 uidRef="kin--0000000008050310--kpair--kframe--0"/>
+            <PairFrame2 uidRef="kin--0000000008050310--kpair--kframe--1"/>
+            <Kind>screw_pair</Kind>
+            <LowerLimitActualRotation>0.0000000000</LowerLimitActualRotation>
+            <Pitch>25.0000000000</Pitch>
+            <UpperLimitActualRotation>180.0000000000</UpperLimitActualRotation>
+        </RepresentationItem>
+...
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--
+
+[[table-9]]
+."LowOrderKinematicPairWithMotionCoupling" Attributes
+[cols="2",options="header"]
+|===
+| Entity LowOrderKinematicPairWithMotionCoupling attributes (additionally to KinematicPair) | Attribute type
+
+| Bevel                      | OPTIONAL PlaneAngleMeasure (REAL)
+| GearRatio                  | OPTIONAL REAL
+| HelicalAngle               | OPTIONAL PlaneAngleMeasure (REAL)
+| Kind                       | LowOrderKinematicPairWithMotionCouplingTypeEnum
+| LowerLimitActualRotation   | OPTIONAL PlaneAngleMeasure (REAL)
+| LowerLimitRackDisplacement | OPTIONAL LengthMeasure (REAL)
+| Pitch                      | OPTIONAL LengthMeasure (REAL)
+| Radius1                    | OPTIONAL LengthMeasure (REAL)
+| Radius2                    | OPTIONAL LengthMeasure (REAL)
+| UpperLimitActualRotation   | OPTIONAL PlaneAngleMeasure (REAL)
+| UpperLimitRackDisplacement | OPTIONAL LengthMeasure (REAL)
+|===
+
+*_Attribute recommendations_*
+
+* *Bevel*: the angle between the two x-axes. The value of this attribute need not
+be specified.
+
+* *GearRatio*: the gear ratio of the pair. The value of this attribute need not be
+specified.
+
+* *HelicalAngle*: the angle between the two y-axes. The value of this attribute need
+not be specified.
+
+* *Kind*: the kind of pair. Where applicable, the following values shall be used:
++
+--
+[cols="2",options="header,unnumbered"]
+|===
+| Enumeration value | Explanation
+
+| gear_pair
+| a pair that constrains the motion between two adjacent links to a rolling
+(and potentially sliding) motion of the second link (Link2) along the first link
+(Link1). To measure the motion of the second link with respect to the first link,
+a frame is defined on each of the links such that the origin lies in the center of
+the rolling circle of the respective link.
+
+[%unnumbered]
+image::kind3-object-1.png[]
+
+Remark: AP242 does not allow to define actuations on this type of pair, while this
+seems to be possible in CAD systems. Needs to be discussed when this is tested. According
+to Part 105, Lower/UpperLimits may be specified on the rotation; Radius1/2, Bevel,
+GearRatio and HelicalAngle are mandatory. Pitch may not be specified.
+
+| linear_flexible_and_pinion_pair
+
+('cable' image:kind3-inline-1.jpeg[] in NX and image:kind3-inline-2.png[] in CATIA)
+
+| a pair that consists of a linear flexible link that moves around a rolling pinion
+where the rotation axis of the pinion is perpendicular to the direction of the linear
+flexible link
+
+Remark: AP242 does not allow to define actuations on this type of pair, while this
+seems to be possible in CAD systems. Needs to be discussed when this is tested. According
+to Part 105, Radius1 is mandatory and no lower/Upper-Limits may be specified, nor
+Bevel, GearRatio(!?), HelicalAngle, Pitch, Radius2.
+
+| rack_and_pinion_pair
+
+| a pair that describes a pinion rolling on a rack where the rotation axis of the
+pinion (Link2) is perpendicular to the direction of the rack (Link1)
+
+[%unnumbered]
+image::kind3-object-2.png[]
+
+Remark: AP242 only allows defining rotational actuations, while some CAD systems
+also support translational actuations (alternatively to a rotational actuation).
+Needs to be discussed when this is tested. According to Part 105, either Radius1
+or GearRatio is mandatory (GearRatio = 2.PI.Radius1) and no lower/UpperLimits may
+be specified, nor Bevel, , HelicalAngle, Pitch, Radius2. If both Y axles have opposite
+directions, Radius1 shall not be specified and GearRatio shall have a negative value
+
+| screw_pair
+
+| a pair that constrains the motion between two adjacent links to a rotation about,
+and translation along, a common axis, where the translation is proportional to the
+rotation. The factor of proportionality is given by pitch which defines the translational
+displacement for one full rotation. The frames are defined on each of the links such
+that the z-axes coincide and the positive directions agree.
+
+[%unnumbered]
+image::kind3-object-3.png[]
+
+Remark: AP242 does not allow to define actuations on this type of pair, while this
+seems to be possible in CAD systems. Needs to be discussed when this is tested. According
+to Part 105, Pitch is mandatory and no lower/Upper-Limits may be specified, nor Bevel,
+GearRatio, HelicalAngle, Radius1/2. These restrictions also need to be discussed
+when this is tested.
+
+|===
+--
+
+* Depending on the kind of kinematic pair, one of the following attributes pairs
+(lower/upper for rotation or displacement) can be set at a time (Lower / Upper have
+both to be set).
+
+** *LowerLimitActualRotation*: the minimum value of the pair parameter of the first
+link. The value of this attribute need not be specified.
+
+** *UpperLimitActualRotation*: the maximum value of the pair parameter of the first
+link. The value of this attribute need not be specified.
+
+** *LowerLimitRackDisplacement*: the minimum value of the pair parameter for the
+rack. The value of this attribute need not be specified.
+
+** *UpperLimitRackDisplacement*: the maximum value of the pair parameter for the
+rack. The value of this attribute need not be specified.
+
+* *Pitch*: the pitch of the screw in the case that the kind is of type screw_pair.
+The value of this attribute need not be specified.
+
+* *Radius1*: the radius of the rolling circle of the first link. The value of this
+attribute need not be specified.
+
+* *Radius2*: the radius of the rolling circle of the second link. The value of this
+attribute need not be specified.
+
+*_Preprocessor Recommendations:_*
+
+* In case only one Pinion (for example in Rack and Pinion) is involved, it shall
+be mapped into Radius1.
+
+* The value in Lower... shall be smaller than the value in Upper....
+
+* Both KinematicLinks of a LowOrderKinematicPairWithMotionCoupling have to be defined
+within the same GeometricCoordinateSpace than the Mechanism itself.
+
+* Link1 and Link2 shall not reference the same instance of KinematicLink.
+
+* The unordered combination of Link1, Link2 shall be unique over all instances of
+KinematicPair
+
+* The choice of having Link1, Link2 for the one or the other part is significant:
+it shall describe the movement of Link2 relatively to Link1.
+
+* An ActuatedPair is the indication, along/around which axis the initial movement
+of Link2 relatively to Link1 shall occur.
+
+* If the CAD system need to decompose the pair with coupling as two low order pairs
+(like rack_and_pinion as a revolute pair to the pinion and a prismatic pair to the
+rack):
+
+** The prismatic pair shall be defined between the BaseLink of the Mechanism and
+the Rack (Link1).
+
+** The revolute pair shall be defined between the BaseLink of the Mechanism and the
+Pinions (Link2).
+
+* This is a workaround until a more accurate way is defined in Edition 4.
+
+Remark: depending on the legacy CAD system, not all kinds are supported, and not
+all Limits/Ranges are supported.
+
+[[sec_4.4]]
+=== Template "Mechanism"
+
+A Mechanism contains all constraints that describe the kinematics of a given assembly.
+
+[[fig-8]]
+.Template "Mechanism"
+image::figure-8.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:Mechanism" uid="kin--0000000005FC5FC0--m">
+            <Id id="Kurvengetriebe"/>
+            <Items>
+                <RepresentationItem uidRef="kin--0000000004633D60--kpair"/>
+                <RepresentationItem uidRef="kin--0000000004633EE0--kpair"/>
+                <RepresentationItem uidRef="kin--0000000004634060--kpair"/>
+            </Items>
+        </Representation>
+        <Representation xsi:type="n0:KinematicLink" uid="kin--0000000004633D60--kpair--klink--1">
+            <Id id="/NULL"/>
+            <Items>
+                <RepresentationItem uidRef="kin--0000000004633D60--kpair--kframe--0"/>
+            </Items>
+        </Representation>
+    <Representations>
+    <Items>
+        <RepresentationItem xsi:type="n0:LowOrderKinematicPair" uid="kin--0000000004633D60--kpair">
+...
+        </RepresentationItem>
+            <RepresentationItem xsi:type="n0:LowOrderKinematicPair" uid="kin--0000000004633EE0--kpair">
+...
+        </RepresentationItem>
+        <RepresentationItem xsi:type="n0:HighOrderKinematicPair" uid="kin--0000000004634060--kpair">
+...
+        </RepresentationItem>
+...
+        <RepresentationItem uid="kin--0000000004633D60--kpair--kframe--0" xsi:type="n0:AxisPlacement">
+            <Axis>-1.0000000000,0.0000000000,0.0000000000</Axis>
+            <Position>0.0000000000,-5.0000000000,15.0000000000</Position>
+            <RefDirection>0.0000000000,-1.0000000000,0.0000000000</RefDirection>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<Part uid="p--0000000012B9CF70">
+...
+    <Versions>
+        <PartVersion uid="pv--0000000012B9CF70--id1">
+...
+            <Views>
+                <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000012B9CF70--id1">
+...
+                    <KinematicMechanismAssociation uid="kin--0000000005FC5FC0--kma" xsi:type="n0:KinematicMechanismAssociation">
+                        <AssociatedMechanism uidRef="kin--0000000005FC5FC0--m"/>
+                        <BaseLink uidRef="kin--0000000004633D60--kpair--klink--1"/>
+                    </KinematicMechanismAssociation>
+                </PartView>
+            </Views>
+        </PartVersion>
+    </Versions>
+</Part>
+--
+
+[[table-10]]
+."Mechanism" Attributes
+[cols="2",options="header"]
+|===
+| Entity Mechanism attributes | Attribute type
+
+| ClassifiedAs                                 | OPTIONAL SET[1:?] of Classification
+| Description                                  | OPTIONAL DescriptorSelect
+| Id                                           | Id
+| Items                                        | SET[1:?] of KinematicPair
+| Name                                         | OPTIONAL DescriptorSelect
+| RepresentationTypes                          | OPTIONAL SET[1:?] of ClassSelect
+| RetentionPeriod                              | OPTIONAL SET[1:?] RetentionPeriod
+| VersionId                                    | OPTIONAL IdentifierSelect
+| RepresentationRelationship                   | OPTIONAL SET[1:?] OF RepresentationRelationship
+| ActivityAssignment                           | OPTIONAL SET[1:?] of ActivityAssignment
+| ApprovalAssignment                           | OPTIONAL SET[1:?] of ApprovalAssignment
+| DateAndPersonAssignment                      | OPTIONAL SET[1:?] of DateAndPersonAssignment
+| DatetimeAssignment                           | OPTIONAL SET[1:?] of DateTimeAssignment
+| EffectivityAssignment                        | OPTIONAL SET[1:?] of EffectivityAssignment
+| EventAssignment                              | OPTIONAL SET[1:?] of EventAssignment
+| FrozenAssignment                             | OPTIONAL SET[1:?] of FrozenAssignment
+| InformationUsageRightAssignment              | OPTIONAL SET[1:?] of InformationUsageRightAssignment
+| ModelPropertyAssignment                      | OPTIONAL SET[1:?] of ModelPropertyAssignment
+| OrganizationOrPersonInOrganizationAssignment | OPTIONAL SET[1:?] of OrganizationOrPersonInOrganizationAssignment
+| PropertyDefinitionAssignment                 | OPTIONAL SET[1:?] of PropertyDefinitionAssignment
+| PropertyValueAssignment                      | OPTIONAL SET[1:?] of PropertyValueAssignment
+| SecurityClassificationAssignment             | OPTIONAL SET[1:?] of SecurityClassificationAssignment
+| SuppliedObjectRelationship                   | OPTIONAL SET[1:?] of SuppliedObjectRelationship
+| TimeIntervalAssignment                       | OPTIONAL SET[1:?] of TimeIntervalAssignment
+| MechanismState                               | OPTIONAL SET[1:?] of MechanismState
+|===
+
+*_Attribute recommendations_*
+
+* *ClassifiedAs*: the classifications of the Mechanism. The value of this attribute
+shall be 'master mechanism' (normal case) or 'imported dressup mechanism'
+(in case of <<sec_4.6>>) or 'local dressup mechanism' for a dressup if defined locally
+on the master mechanism (special case of <<sec_4.7>> where both 'master mechanism'
+and 'local dressup mechanism' reference to the same assembly node via AssociatedTo.
+
+* *Description*: if a dressup is defined on this mechanism, the name of the dressup,
+otherwise: need not be specified. Use "Description" template (see [242-PAS] 4.6.7).
+
+* *Id*: the identifier or set of identifiers for the Mechanism. Use "Identifier"
+template (see [242-PAS] 4.6.6).
+
+* *Items*: the set of KinematicPairs of the Mechanism
+
+* *Name*: the words or set of words by which the Mechanism is known. The value of
+this attribute need not be specified. Use "Description" template (see [242-PAS] 4.6.7).
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the Mechanism. Use the
+"PropertyAssignment" template (see [242-PAS] 6.2).
+
+* Other attributes than these are not covered by these Recommended Practices; their
+use is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+[[table-11]]
+."KinematicMechanismAssociation" Attributes
+[cols="2",options="header"]
+|===
+| Entity KinematicMechanismAssociation attributes | Attribute type
+| AssociatedMechanism | Mechanism
+| BaseLink            | KinematicLink
+|===
+
+*_Attribute recommendations_*
+
+* *AssociatedMechanism*: the Mechanism. Use "Mechanism" template (see <<sec_4.4>>).
+
+* *BaseLink*: a KinematicLink that plays the role of a base (fixed part(s)) for the
+Mechanism. Preprocessor Recommendations:
+
+* Each Mechanism shall have a unique Baselink. If the sending systems supports multiple
+fixed parts belonging to different KinematicLinks, one of the KinematicLinksl be
+mapped as BaseLink and the other ones shall be constrained to it via KinematicPairs
+of kind fully_constrained_pair.
+
+* The KinematicLink referenced by BaseLink shall be involved as Link1 (or Link2)
+of at least one KinematicPair associated to the Mechanism with an AxisPlacement as
+PairFraime1 (or PairFrame2) [strike]#being an identity matrix#
+
+* According to the issue created on ISO Jira as TCSC410303-817, all the Occurrences
+referenced by the KinematicLinks of the KinematicPairs of the Mechanism shall be
+component parts of the assembly structure on which the Mechanism is defined (AssociatedTo).
+
+* All the KinematicPairs of a Mechanism have to be defined within the same GeometricCoordinateSpace
+than the Mechanism itself.
+
+* Therefore, it is also recommended that the length unit and the angle unit used
+are the same throughout the kinematic structure of the mechanism, and be same as
+the length unit used for the assembly structure and the geometry itself.
+
+* According [242-PAS] 6.1, the angle unit used for the Lower/UpperLimits of KinematicPairs
+shall be defined in GeometricCoordinateSpace.Units, while the LengthUnit can be overtaken
+from the one defined in ExchangeContext.DefaultUnit rather than being defined again
+in the GeometricCoordinateSpace.
+
+* It is not recommended to exchange kinematic constraints based on single bodies
+within a CAD model, since these cannot be supported with the current mapping.
+
+[[sec_4.5]]
+=== Mechanism Structure
+
+Most CAD systems require that the assembly nodes involved in KinematicPair may not
+have further KinematicPairs between their components:
+
+[[fig-9]]
+.Violation of rigidity rule within an assembly involved in a KinematicPair
+image::figure-9.jpeg[]
+
+Exceptions are so-called 'flexible assemblies' where each occurrence may have a different
+shape (currently out of scope, even if described in [242-PAS] 7.1 regarding Flexible
+Parts) and defining a separate mechanism for the whole assembly node or a subset
+of it (currently out of scope).
+
+. In simple cases:
++
+--
+* In NX each rigid group contains only one occurrence of an assembly node or single
+part and can be mapped to a KinematikLink => the number of rigid groups is the number
+of moving parts/assemblies.
+
+* In CATIA the mechanism can be built upon of the original BoM Structure
+--
+
+*_Preprocessor Recommendations:_*
+
+Since according to the [242-PAS] 7.1, each assembly component shall have its own
+[underline]#Occurrence# for each usage, the relevant occurrences from the BoM structure
+shall be duplicated to Occurrences in the Mechanism structure:
+
+* the 3D positioning of the components of a complex rigid group within the new assembly
+nodes shall be copied from the AxisPlacements used for their placement within the
+Mechanism (flat structure). Doing so, no 3D positioning (identity matrix) is necessary
+for the new assembly nodes within the top assembly node of the mechanism structure.
+
+* the 3D positioning of simple rigid groups within the top assembly node of the mechanism
+structure shall be copied from the AxisPlacements used for their placement within
+the Mechanism (flat structure).
+
+* each occurrence from the BoM structure and its corresponding occurrence in the
+Mechanism structure shall be related via an OccurrenceRelationship having
+RelationType = 'kinematic definition'. Relating shall refer to the occurrence in
+the Mechanism structure and Related to the occurrence in the BoM structure.
+
+* The Mechanism structure shall be only a flat structure
+
+* In case of bidirectional exchange between CATIA and NX, CATIA shall export each
+assembly node (as well as the top assembly node) of the kinematic mechanism structure
+with the following classification 'kinematic mechanism structure' in Part.ClassifiedAs.
+The Part.Id of the assembly nodes (except the top assembly node) shall be mapped
+to KinematicLink.Id (i.e. the name of the rigid group). The Part.Id of the top assembly
+node shall be mapped to Mechanism.Id (i.e. the name of the kinematic mechanism).
+
+* A CAD system like NX shall export each assembly node mapped for a complex rigid
+group, as well as the top assembly node shall have the following classification
+'kinematic mechanism structure'. The name of the rigid groups shall be mapped to
+KinematicLink.Id (not '/NULL').
+
+*_Postprocessor Recommendations:_*
+
+[[fig-10]]
+.Simple case: rigid groups contain only one part/assembly
+image::figure-10.jpeg[]
+
+Remark: a single part / assembly node occurrence shall not be associated to multiple
+rigid groups, neither directly nor indirectly (through intermediate assembly nodes).
+This is indeed possible in NX but may lead to a conflict.
+
+. In complex cases, rigid groups (like in NX) or additional assembly nodes
+(like in CATIA) are required to contain only those components of the assembly that
+shall move according to the same kinematic law (i.e. that a rigid among each other).
+All these rigid groups or assemblies build a flat structure called here the Kinematic
+Mechanism structure.
+
+[[fig-11]]
+.Complex case: rigid groups made of more than one part/assembly
+image::figure-11.jpeg[]
+
+Since a KinematicLink shall be associated to only one part/assembly occurrence, these
+rigid groups cannot be mapped as usual, but rather as an additional assembly node
+(like in CATIA) on which the KinematicLink can apply.
+
+The flat structure mentioned above shall be mapped by a dedicated top assembly node
+having all the (original and additional) assembly nodes + single parts associated
+to KinematicLinks as its components.
+
+With other words, as soon as one complex rigid group is present, the component of
+each simple rigid groups shall be mapped as childs of this top assembly node.
+
+From/To NX, the Kinematic Mechanism structure is only mapped to/from AP242. There
+ist no necessity to map it as additional assembly structure in NX.
+
+[[fig-12]]
+.Complex case: use of additional assembly nodes
+image::figure-12.jpeg[]
+
+All the components (direct or indirect via sub-assemblies) of the components of the
+additional assembly node introduced for the rigid group are implicitly fully constrained
+to each other (rigid).
+
+Kinematic pairs are only allowed between the components of the additional assembly
+node.
+
+All the assembly nodes and single parts from the BoM Structure that are not built
+into the Kinematic Mechanism structure do not move at all.
+
+In some CAD systems (like NX) using the concept of rigid groups, the Mechanism always
+has implicitly the same initial position than in the BoM structure.
+
+*_Preprocessor Recommendations:_*
+
+Since according to the [242-PAS] 7.1, each assembly component shall have its own
+Occurrence for each usage, the relevant occurrences from the BoM structure shall
+be duplicated to Occurrences in the Mechanism structure:
+
+* the 3D positioning of the components of a complex rigid group within the new assembly
+nodes shall be copied from the AxisPlacements used for their placement within the
+Mechanism (flat structure). Doing so, no 3D positioning (identity matrix) is necessary
+for the new assembly nodes within the top assembly node of the mechanism structure.
+
+* the 3D positioning of simple rigid groups within the top assembly node of the mechanism
+structure shall be copied from the AxisPlacements used for their placement within
+the Mechanism (flat structure).
+
+* each occurrence from the BoM structure and its corresponding occurrence in the
+Mechanism structure shall be related via an OccurrenceRelationship having
+RelationType = 'kinematic definition'. Relating shall refer to the occurrence in
+the Mechanism structure and Related to the occurrence in the BoM structure.
+
+* The Mechanism structure shall be only a flat structure
+
+* In case of bidirectional exchange between CATIA and NX, CATIA shall export each
+assembly node (as well as the top assembly node) of the kinematic mechanism structure
+with the following classification 'kinematic mechanism structure' in Part.ClassifiedAs.
+The Part.Id of the assembly nodes (except the top assembly node) shall be mapped
+to KinematicLink.Id (i.e. the name of the rigid group). The Part.Id of the top assembly
+node shall be mapped to Mechanism.Id (i.e. the name of the kinematic mechanism).
+
+* A CAD system like NX shall export each assembly node mapped for a complex rigid
+group, as well as the top assembly node shall have the following classification
+'kinematic mechanism structure'. The name of the rigid groups shall be mapped to
+KinematicLink.Id (not '/NULL').
+
+*_Postprocessor Recommendations:_*
+
+* a CAD system that doesn't support complex rigid groups (like CATIA) shall import
+at least the mechanism structure and ignore the OccurrenceRelationships having
+RelationType = 'kinematic definition'
+
+* a CAD system that supports complex rigid groups (like NX) shall build the rigid
+groups as following:
+
+** One for each KinematikLink (overtaking the KinematikLink.Id for the name of the
+rigid group)
+
+** If the Assembly Node is not built into the BoM Structure and if for each component,
+an OccurrenceRelationship with RelationType 'kinematic definition' exists, do not
+map the Assembly Node itself but associate its components (occurrences) referenced
+by Relating<-OccurrenceRelationship.Relates (created during export from NX) to the
+rigid group.
+
+* *The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)*
+
+T.B.S. (out of Siemens example)
+
+. In some CAD systems (like CATIA), the Kinematic Mechanism structure can be defined
+and maintained independently from the BoM structure. Therefore, it may have its own
+3D positioning => the Mechanism may have another initial position than in the BoM
+structure.
+
+[[fig-13]]
+.Complex case: different initial position in BoM and Mechanism Structures
+image::figure-13.jpeg[]
+
+*_Preprocessor Recommendations:_*
+
+Since the conversion of the 3D positioning within the Mechanism structure (transformation
+matrices used to position the 'points of contact' CartesianPoints of the KinematicLinks)
+so that it fits to the initial position of the BoM Structure (conform to NX) can
+be very complex:
+
+* A CAD system like CATIA shall export only the mechanism structure (not the BoM
+structure) so that a CAD system like NX can build rigid groups out of it. In this
+case, the CATIA mechanism structure becomes the BoM structure in NX. Otherwise, the
+BoM structure shall be imported in NX as a distinct structure, without kinematics
+(as it is in CATIA).
+
+[[sec_4.6]]
+=== Template "Import Mechanism"
+
+A Mechanism defined on a given assembly node A1 may be imported on another assembly
+node A2 placed (within the product structure) above A1. The original mechanism is
+called the master mechanism, while the other is called the imported mechanism. All
+the kinematic constraints of the master mechanism may be used by the imported dressup
+mechanism (but may only be modified in the master mechanism).
+
+This feature is especially used for dressups (which reuse the kinematic pairs defined
+in the master mechanism on a part occurrence of A1 and associate them to occurrences
+of further parts or assemblies built beyond the A2.
+
+[[fig-14]]
+.Template "Import Mechanism"
+image::figure-14.svg[]
+
+In the special case where the dressup mechanism is defined on the local Mechanism,
+both are defined on the same assembly node A1. The original mechanism is called the
+master mechanism, while the other is called the local dressup mechanism. All the
+kinematic constraints of the master mechanism may be used by the dressup mechanism
+(but may only be modified in the master mechanism).
+
+[[fig-15]]
+.Template "Import Mechanism" Special Case for Local Dressup
+image::figure-15.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+        <Representation xsi:type="n0:Mechanism" uid="kin--0000000006039F00--m">
+...
+            <Id id="kin--0000000006039F00--m"/>
+...
+            <RepresentationRelationship uid="kin--0000000006039F00--mrel" xsi:type="n0:GeneralGeometricRepresentationRelationship">
+                <Definitional>true</Definitional>
+                <Related uidRef="kin--0000000006039F00--m2"/>
+                <RelationType>import</RelationType>
+            </RepresentationRelationship>
+        </Representation>
+    <Representations>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--
+
+*_Preprocessor Recommendations:_*
+
+* The master and the imported/local dressup mechanism usually do not share the same
+instance of GeometricCartesianSpace, since the BaseLink of each mechanism are usually
+defined in different coordinate spaces.
+
+* For a given mechanism (master, local or imported), only one dressup shall be defined.
+A mechanism may be imported in different assembly nodes (each of them having one
+and only one dressup).
+
+* In the special case of a 'local dressup mechanism', the dressup if defined locally
+on the master mechanism (special case of 4.7 where both 'master mechanism' and
+'local dressup mechanism' reference to the same assembly node via AssociatedTo
+
+[[sec_4.7]]
+=== Template "Kinematic Dressup"
+
+A Dressup enables to associate fully constrained pairs of part occurrences involved
+in a mechanism with part or assembly occurrences not involved in a mechanism.
+For each dressup association, two KinematicLinks and a LowKinematicPair of kind
+fully_constrained_pair is specified.
+
+Normally the kinematic is defined within a master Mechanism (involving a minimum
+number of parts having simplified wired geometry) and used on the same assembly node
+('local') or imported on another assembly node placed above in the product structure
+(see <<sec_4.5>>) => in this case, the dressup links are defined within the local
+or imported dressup mechanism. Doing so, the performance of kinematics is improved
+within the CAD systems.
+
+[%unnumbered]
+image::figure-u1.png[]
+
+But a dressup may be defined within one mechanism, if the Kinematic pairs involving
+one part occurrence shall apply in the same way to several further parts or assemblies.
+
+[%unnumbered]
+image::figure-u2.png[]
+
+In the following CATIA window, an example is shown how for each kinematic Link of
+the master mechanism (chosen from the select box place above the two lists), one
+or multiple part/assembly occurrences of the assembly (on which the dressup mechanism
+is attached) may be chosen (left list) and added to the right list. All these selected
+part occurrences are fully constrained with the above Kinematic Link:
+
+[%unnumbered]
+image::figure-u3.jpeg[]
+
+[[fig-16]]
+.Template "KinematicDressup"
+image::figure-16.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+<Representation xsi:type="n0:Mechanism" uid="kin--0000000006039F00--m">
+...
+    <Id id="kin--0000000006039F00--m"/>
+...
+    <RepresentationRelationship uid="kin--0000000006039F00--mrel" xsi:type="n0:GeneralGeometricRepresentationRelationship">
+        <Definitional>true</Definitional>
+        <Related uidRef="kin--0000000006039F00--m2"/>
+        <RelationType>import</RelationType>
+    </RepresentationRelationship>
+</Representation>
+        <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+<Classification uid="cla--im">
+    <Class>
+        <ClassString>imported dressup mechanism</ClassString>
+    </Class>
+</Classification>
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+<Representation xsi:type="n0:Mechanism" uid="kin--0000000006039F00--m2">
+    <ClassifiedAs>
+        <Classification uidRef="cla--im"/>
+    </ClassifiedAs>
+    <ContextOfItems uidRef="ccs--origin"/>
+    <Id id="Kurvengetriebe"/>
+    <Items>
+        <RepresentationItem uidRef="kin--0000000006039F00--m2--kpair1"/>
+    </Items>
+...
+    <Name>
+        <CharacterString>Training Dressup</CharacterString>
+    </Name>
+</Representation>
+    <Representations>
+    <Items>
+        <RepresentationItem xsi:type="n0:LowOrderKinematicPair" uid="kin--0000000006039F00--m2--kpair1">
+            <Name>
+                <CharacterString>Plunger-Disc-Spring</CharacterString>
+            </Name>
+            <Link1 uidRef="kin--00000000129AA190--17--1"/>
+            <Link2 uidRef="kin--00000000124E1D30--21--1"/>
+            <PairFrame1 uidRef="kin--00000000129AA190--17--1--klfp--dummy"/>
+            <PairFrame2 uidRef="kin--00000000124E1D30--21--1--klfp--dummy"/>
+            <Kind>fully_constrained_pair</Kind>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+<Representation xsi:type="n0:KinematicLink" uid="kin--0000000006039F00--klfp--m2">
+    <Description>
+        <CharacterString>Fixed Part for &gt;Training Dressup&lt;</CharacterString>
+    </Description>
+    <Id id="kin--0000000006039F00--klfp--id--m2"/>
+    <Items>
+        <RepresentationItem uidRef="kin--0000000006039F00--klfp--dummy--m2"/>
+    </Items>
+</Representation>
+    <Representations>
+    <Items>
+        <RepresentationItem uid="kin--0000000006039F00--klfp--dummy--m2" xsi:type="n0:AxisPlacement">
+            <Axis>0.0000000000,0.0000000000,1.0000000000</Axis>
+            <Position>0.0000000000,0.0000000000,0.0000000000</Position>
+            <RefDirection>1.0000000000,0.0000000000,0.0000000000</RefDirection>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+<Representation xsi:type="n0:KinematicLink" uid="kin--00000000129AA190--17--1">
+    <Id id="kin--00000000129AA190--17--1--id"/>
+    <Items>
+    </Items>
+</Representation>
+    <Representations>
+    <Items>
+        <RepresentationItem uid="kin--00000000129AA190--17--1--klfp--dummy" xsi:type="n0:AxisPlacement">
+            <Axis>0.0000000000,0.0000000000,1.0000000000</Axis>
+            <Position>0.0000000000,0.0000000000,0.0000000000</Position>
+            <RefDirection>1.0000000000,0.0000000000,0.0000000000</RefDirection>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<RepresentationContext uid="ccs--origin" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+<Representation xsi:type="n0:KinematicLink" uid="kin--00000000124E1D30--21--1">
+    <ContextOfItems uidRef="ccs--origin"/>
+    <Id id="kin--00000000124E1D30--21--1--id"/>
+    <Items>
+    </Items>
+</Representation>
+    <Representations>
+    <Items>
+        <RepresentationItem uid="kin--00000000124E1D30--21--1--klfp--dummy" xsi:type="n0:AxisPlacement">
+            <Axis>0.0000000000,0.0000000000,1.0000000000</Axis>
+            <Position>0.0000000000,0.0000000000,0.0000000000</Position>
+            <RefDirection>1.0000000000,0.0000000000,0.0000000000</RefDirection>
+        </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--
+
+*_Preprocessor Recommendations:_*
+
+* Link1 references a new instance of KinematicLink that refers to the Occurrence
+of part that has a simplified wired geometry
+
+* Link2 references a new instance of KinematicLink that refers to the Occurrence
+of the part with full geometry
+
+* All the Occurrences referenced over Link1 shall be component parts of the assembly
+structure of Mechanism#1.AssociatedTo.
+
+* All the Occurrences referenced over Link2 shall be component parts or assembly
+nodes of the assembly structure of Mechanism#2.AssociatedTo.
+
+* Since only one dressup may be defined for a given mechanism (local or imported)
+at a given assembly node, the name of the dressup may be mapped to Mechanism.Description.
+
+* Since all the kinematic pairs defined within a dressup mechanism are fully constrained,
+the BaseLink can be chosen out of any of them.
+
+* In the special case of a 'local dressup mechanism', the BaseLink of the dressup
+shall be the same as the BaseLink of the local master mechanism
+
+[[sec_4.8]]
+=== Template "LinkMotionAlongPath"
+
+A LinkMotionAlongPath is a type of GeometricRepresentation for the definition of
+parameter or time coordinated movements of one or several links along paths in space.
+
+Remark: a LinkMotionAlongPath corresponds to an Animation in CATIA and to a set of
+FrameSequences in PLMXML.
+
+[[fig-17]]
+.Templates "LinkMotionAlongPath", "KinematicPathDefinedByNodes" and "PointToPointPath"
+image::figure-17.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[[table-12]]
+."LinkMotionAlongPath" Attributes
+[cols="2",options="header"]
+|===
+| Entity LinkMotionAlongPath attributes | Attribute type
+| ClassifiedAs                                  | OPTIONAL SET[1:?] of Classification
+| Description                                   | OPTIONAL DescriptorSelect
+| Id                                            | Id
+| Items                                         | SET[1:?] of KinematicPathDefinedByNodes
+| Name                                          | OPTIONAL DescriptorSelect
+| RepresentationTypes                           | OPTIONAL SET[1:?] of ClassSelect
+| RetentionPeriod                               | OPTIONAL SET[1:?] RetentionPeriod
+| VersionId                                     | OPTIONAL IdentifierSelect
+| RepresentationRelationship                    | OPTIONAL SET[1:?] OF RepresentationRelationship
+| ActivityAssignment                            | OPTIONAL SET[1:?] of ActivityAssignment
+| ApprovalAssignment                            | OPTIONAL SET[1:?] of ApprovalAssignment
+| DateAndPersonAssignment                       | OPTIONAL SET[1:?] of DateAndPersonAssignment
+| DatetimeAssignment                            | OPTIONAL SET[1:?] of DateTimeAssignment
+| EffectivityAssignment                         | OPTIONAL SET[1:?] of EffectivityAssignment
+| EventAssignment                               | OPTIONAL SET[1:?] of EventAssignment
+| FrozenAssignment                              | OPTIONAL SET[1:?] of FrozenAssignment
+| InformationUsageRightAssignment               | OPTIONAL SET[1:?] of InformationUsageRightAssignment
+| ModelPropertyAssignment                       | OPTIONAL SET[1:?] of ModelPropertyAssignment
+| OrganizationOrPersonInOrganizationAssignment  | OPTIONAL SET[1:?] of OrganizationOrPersonInOrganizationAssignment
+| PropertyDefinitionAssignment                  | OPTIONAL SET[1:?] of PropertyDefinitionAssignment
+| PropertyValueAssignment                       | OPTIONAL SET[1:?] of PropertyValueAssignment
+| SecurityClassificationAssignment              | OPTIONAL SET[1:?] of SecurityClassificationAssignment
+| SuppliedObjectRelationship                    | OPTIONAL SET[1:?] of SuppliedObjectRelationship
+| TimeIntervalAssignment                        | OPTIONAL SET[1:?] of TimeIntervalAssignment
+| TimeUnit                                      | OPTIONAL Unit
+| LinkMotionDecompositionRelationship           | OPTIONAL SET[1:?] OF LinkMotionDecompositionRelationship
+| LinkMotionRelationship                        | OPTIONAL SET[1:?] OF LinkMotionRelationship
+|===
+
+*_Attribute recommendations_*
+
+* *Description*: the reason for the creation of the LinkMotionAlongPath.
+The value of this attribute need not be specified. Use "Description" template
+(see [242-PAS] 4.6.7).
+
+* *Id*: the identifier or set of identifiers for the LinkMotionAlongPath.
+Use "Identifier" template (see [242-PAS]).
+
+* *Items*: the set of KinematicPathDefinedByNodes that that constitute the motion
+path.
+
+* *Name*: the words or set of words by which the LinkMotionAlongPath is known.
+The value of this attribute need not be specified. Use "Description" template
+(see [242-PAS] 4.6.7).
+
+* *PropertyValueAssignment*: to assign a PropertyValue to the Motion. Use the "PropertyAssignment"
+template (see [242-PAS] 6.2).
+
+* *TimeUnit*: the unit for measures of time related to this motion definition.
+The value of this attribute need not be specified. Use "Unit" template (see [242-PAS]).
+
+* *LinkMotionRelationship*: the associated GeometricModels involved by this Motion.
+See template "Full kinematic positioning representation" in <<sec_4.12>>.
+
+* Other attributes than these are not covered by these Recommended Practices; their
+use is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+*_Preprocessor Recommendations:_*
+
+* The LinkMotionAlongPath(s) associated to an AssemblyDefinition shall be defined
+within the same GeometricCoordinateSystem than the AssemblyDefinition.
+
+* The LinkMotionAlongPaths associated to the same AssemblyDefinition and sharing
+one of many KinematicPathDefinedByNodes shall have the same TimeUnit.
+
+* If the AssemblyDefinition has a GeometricModel attached to it, this geometry is
+not part of the motion, except it is explicitly added to the motion via the full
+kinematic positioning (see next sections). Therefore, there is no obligation to define
+the AssemblyDefinition and the PlacementStart in the same GeometricCoordinateSystem.
+
+* The AssemblyDefinition associated to the LinkMotionAlongPaths shall be a common
+top-level node of all parts/geometries that are defined within the paths of the motion.
+
+* Multiple LinkMotionAlongPaths can be defined on one AssemblyDefinition (typically
+alternative/variants to each other).
+
+* The AxisPlacement of all the PointToPointPaths of a KinematicPathDefinedByNodes
+shall be in the same GeometricCoordinateSystem.
+
+* TimeUnit may be left unset. In this case, no speed indication is given to the motion,
+but just the relative motion of the paths to each other => the unit chosen to run
+the motion shall be the same for all paths.
+
+[[table-13]]
+."MotionModelAssociation" Attributes
+[cols="2",options="header"]
+|===
+| Entity MotionModelAssociation attributes | Attribute type
+| AssociatedModel | MotionModelSelect
+|===
+
+*_Attribute recommendations_*
+
+* *AssociatedModel*: the LinkMotionAlongPath.
+
+[[sec_4.9]]
+=== KinematicPathDefinedByNodes
+
+A KinematicPathDefinedByNodes is a type of RepresentationItem that is a parameter
+or time coordinated path in space along which motion shall take place. The path is
+defined by a start position and orientation in space at a particular parameter or
+time and a list of segments to traverse through.
+
+Remark: a KinematicPathDefinedByNodes corresponds to a Channel in CATIA and to a
+FrameSequence in PLMXML.
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[[table-14]]
+."KinematicPathDefinedByNodes" Attributes
+[cols="2",options="header"]
+|===
+| Entity KinematicPathDefinedByNodes attributes | Attribute type
+| External                     | OPTIONAL ExternalItem
+| Name                         | OPTIONAL DescriptorSelect
+| ModelPropertyAssignment      | OPTIONAL SET[1:?] of ModelPropertyAssignment
+| PropertyDefinitionAssignment | OPTIONAL SET[1:?] of PropertyDefinitionAssignment
+| PropertyValueAssignment      | OPTIONAL SET[1:?] of PropertyValueAssignment
+| PlacementStart               | AxisPlacement
+| Segments                     | LIST [1:?] OF PathSegment
+| TStart                       | REAL
+|===
+
+*_Attribute recommendations_*
+
+* *PropertyValueAssignment*: to assign a KinematicPathDefinedByNodes to the Motion.
+Use the "PropertyAssignment" template (see [242-PAS] 6.2).
+
+* *PlacementStart*: the AxisPlacement that defines the reference coordinate system
+and, thus, the location and orientation of the start-point of the KinematicPathDefinedByNodes.
+Use "AxisPlacement" definition within the "GeometricModel" template (see [242-PAS]).
+
+* *Segments*: the ordered list of PathSegment objects that the KinematicPathDefinedByNodes
+consists of. The travel along the KinematicPathDefinedByNodes starts at the first
+element in the list. Use "PointToPointPath" template (see <<sec_4.10>>).
+
+* *TStart*: the parameter value that represents at which time the travel along the
+KinematicPathDefinedByNodes begins.
+
+* Other attributes than these are not covered by these Recommended Practices; their
+use is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+*_Preprocessor Recommendations:_*
+
+* Multiple KinematicPathDefinedByNodes can be defined on one LinkMotionAlongPaths
+(to see the orchestrated motion of several paths).
+
+* All the KinematicPathDefinedByNodes associated to a LinkMotionAlongPath shall be
+in the same GeometricCoordinateSystem as the LinkMotionAlongPath
+
+* The AxisPlacement (StartPlacement) is the absolute placement of the part within
+the AssemblyDefinition. It is computed out of its relative placement in the static
+assembly structure.
+
+* TStart shall be zero or greater and shall be expressed in the (optional) TimeUnit.
+
+* The motion is expected to start at the time 0 and to end at the highest TEnd of
+all Paths.
+
+* Each Path may have a different TStart and their highest TEnd do not need to have
+the same value.
+
+[[sec_4.10]]
+=== Template "PointToPointPath"
+
+A PathSegment is a portion of a complete kinematic path and describes the movement
+of a link from a previous position and orientation to a new position and orientation
+in space. A PathSegment is either a CircularPath, a LinearPath or a PointToPointPath.
+For the moment, only PointToPointPaths are in scope of this document.
+
+Remark: a PointToPointPath corresponds to a Channel Step in CATIA and to a FrameStep
+in PLMXML.
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[[table-15]]
+."PointToPointPath" Attributes
+[cols="2",options="header"]
+|===
+| Entity PointToPointPath attributes | Attribute type
+| PlacementEnd | AxisPlacement
+| TEnd         | REAL
+| Transition   | TransitionCodeEnum
+|===
+
+*_Attribute recommendations_*
+
+* *PlacementEnd*: the AxisPlacement to which the parameters of the PathSegment refer.
+It is the location and orientation of the end-point of the PathSegment. Use "AxisPlacement"
+definition within the "GeometricModel" template (see [242-PAS]).
+
+* *TEnd*: the parameter value that represents the time of the end location of the
+travel for this PathSegment
+
+* *Transition*: the type of smoothness of the motion along the path. Where applicable,
+the following values shall be used:
+
+[cols="2",options="header,unnumbered"]
+|===
+| Enumeration value | Explanation
+| cont same gradient                | the motion occurs continuously with a constant gradient
+| cont same gradient same curvature | gradient and curvature of the motion are constant
+| continuous                        | the motion is continuous
+| discontinuous                     | the position between the path segments is not defined
+|===
+
+For the moment, the use of the value 'discontinuous' is recommended.
+
+*_Preprocessor Recommendations:_*
+
+* The PlacementEnd shall be defined in the same GeometricCoordinateSystem than the
+PlacementStart of the KinematicPathDefinedByNodes => incremental positioning
+(in which each Segment has its own GeometricCoordinateSystem and the rotation/translation
+of a given segment builds on the GeometricCoordinateSystem of the predecessor segment)
+is not supported.
+
+* The AxisPlacement (EndPlacement) is the absolute placement of the part within the
+AssemblyDefinition. It is computed out of its relative placement in the static assembly
+structure.
+
+* In order to tell that a path shall be immobile during a given time interval, the
+KinematicPathDefinedByNodes.PlacementStart and the Segments[1].PlacementEnd, resp.
+the Segments[ix].PlacementEnd and Segments[ix+1].PlacementEnd shall be identical.
+
+* The segments in the list must have increasing TEnds: Segments[1].Tend > TStart
+resp. Segments[ix+1].Tend > Segments[ix].Tend => endless loops are not supported
+(can be activated within the viewer that runs the motion).
+
+* If the source system supports Segments having different duration, they shall be
+converted to segments all having the same duration.
+
+*_Postprocessor Recommendations:_*
+
+* If the target system requires that each Segment has its own GeometricCoordinateSystem
+and is positioned in the GeometricCoordinateSystem of its predecessor Segment (so-called
+'incremental' positioning), the PlacementEnds have to be transformed into the appropriate
+GeometricCoordinateSystems.
+
+[[sec_4.11]]
+=== Simplified Kinematic Positioning Representation
+
+This enables to relate the Kinematic path to the part (or to a SpecificOccurrence
+of this part) in the case no GeometricModel is involved.
+
+[[fig-18]]
+.Template "ProductStructureKinematicPathAssociation"
+image::figure-18.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[[table-16]]
+."ProductStructureKinematicPathAssociation" Attributes
+[cols="2",options="header"]
+|===
+| Entity ProductStructureKinematicPathAssociation attributes | Attribute type
+
+| AssociatedMotionRepresentation | LinkMotionAlongPath
+| AssociatedMotionPath           | KinematicPathdefinedByNode
+| SubStructure                   | OPTIONAL SpecifiedOccurrence
+|===
+
+*_Attribute recommendations_*
+
+* *AssociatedMotionRepresentation*: the LinkMotionAlongPath that specifies a motion
+path. Use "LinkMotionAlongPath" template (see <<sec_4.8>>).
+
+* *AssociatedMotionPath*: the KinematicPathDefinedByNodes object that is being transformed.
+Use "KinematicPathDefinedByNodes" template (see <<sec_4.9>>).
+
+* *SubStructure*: the SpecifiedOccurrence to which the kinematic path applies.
+The value of this attribute need not be specified. Use "SpecifiedOcurrence" template
+(see [242-PAS]).
+
+*_Preprocessor Recommendation:_*
+
+* If SubStructure is unset, the kinematic path applies to the SingleOccurrence attached
+as 'Related' to the NextAssemblyOccurrenceUsage) in which the current
+ProductStructureKinematicPathAssociation is embedded.
+
+If set, the kinematic path applies to one particular SpecifiedOccurrence of one of
+its components.
+
+* ProductStructureKinematicPathAssociation.AssociatedMotionRepresentation<-AssociatedModel{MotionModelAssociation}->AssociatedTo
+and ProductStructureKinematicPathAssociation.AssociatedTo shall reference the same
+AssemblyDefinition.
+
+[[sec_4.12]]
+=== Full Kinematic Positioning Representation
+
+This enables to relate the Kinematic path to the part (or to a SpecificOccurrence
+of this part) in the case a GeometricModel is involved.
+
+[[fig-19]]
+.Template "ProductStructureLinkMotionAssociation"
+image::figure-19.svg[]
+
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[[table-17]]
+."ProductStructureLinkMotionAssociation" Attributes
+[cols="2",options="header"]
+|===
+| Entity ProductStructureLinkMotionAssociation attributes | Attribute type
+| AssociatedMotion | LinkMotionRelationship
+| SubStructure     | OPTIONAL SpecifiedOccurrence
+|===
+
+*_Attribute recommendations_*
+
+* *AssociatedMotion*: the LinkMotionRelationship that specifies the GeometricModel
+and the motion path.
+
+* *SubStructure*: the SpecifiedOccurrence to which the kinematic path applies.
+The value of this attribute need not be specified. Use "SpecifiedOcurrence" template
+(see [242-PAS]).
+
+[[table-18]]
+."LinkMotionRelationship" Attributes
+[cols="2",options="header"]
+|===
+| Entity LinkMotionRelationship attributes | Attribute type
+
+| ClassifiedAs           | OPTIONAL SET[1:?] of Classification
+| Description            | OPTIONAL DescriptorSelect
+| Id                     | OPTIONAL Id
+| Related                | ComposedOrExternalGeometricModelSelect
+| RelationType           | OPTIONAL ClassSelect
+| TransformationOperator | LinkMotionTransformation
+| EffectivityAssignment  | OPTIONAL SET[1:?] of EffectivityAssignment
+|===
+
+*_Attribute recommendations_*
+
+* *Description*: the text or the set of texts that provide further information about
+the LinkMotionRelationship: need not be specified. Use "Description" template
+(see [242-PAS] 4.6.7).
+
+* *Id*: the identifier or set of identifiers for the LinkMotionRelationship: need
+not be specified. Use "Identifier" template (see [242-PAS] 4.6.6).
+
+* *Related*: the GeometricModel.
+
+* *RelationType*: the meaning of the relationship. Use ClassString type if one of
+the values below is used, otherwise use "Class" template (see [242-PAS] 4.6.4): need
+not be specified.
+
+* *TransformationOperator*:: the LinkMotionTransformation that specifies the parameter
+or time dependent transformation of the link geometry within the LinkMotionAlongPath.
+
+* Other attributes than these are not covered by these Recommended Practices; their
+use is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+[[table-19]]
+."LinkMotionTransformation" Attributes
+[cols="2",options="header"]
+|===
+| Entity LinkMotionTransformation attributes | Attribute type
+| TransformItem1 | AxisPlacement
+| TransformItem2 | KinematicPathDefinedByNodes
+|===
+
+*_Attribute recommendations_*
+
+* *TransformItem1*: the AxisPlacement that is the operator of the transformation.
+
+* *TransformItem2*: the KinematicPathDefinedByNodes object that is being transformed.
+
+*_Preprocessor Recommendation:_*
+
+* ProductStructureLinkMotionAssociation.AssociatedMotion and ProductStructureLinkMotionAssociation.AssociatedTo shall reference to the same AssemblyDefinition.
+
+* The AxisPlacement for TransformItem1 shall be in the same GeometricCoordinateSystem
+than the KinematicPathDefinedByNodes referenced by TransformItem2
+
+* The AxisPlacement for TransformItem1 shall have neither a rotation nor a translation
+component.
+
+* If SubStructure is unset, the kinematic path applies to the SingleOccurrence attached
+as 'Related' to the AssemblyOccurrenceRelationship (NextAssemblyOccurrenceUsage)
+in which the current ProductStructureLinkMotionAssociation is embedded. If set, the
+kinematic path applies to one particular SpecifiedOccurrence of one of its components.
+
+* The GeometricModel for LinkMotionRelationship.Related can be either an ExternalGeometricModel
+(of a piece part) or a ComposedGeometricModel (of an assembly). It has to be one
+of the GeometricModels associated via DefiningGeometry or via AuxiliaryGeometry to
+the PartView/AssemblyDefinition where the SingleOccurrence/SpecifiedOccurrence belongs
+to.
+
+Therefore, the GeometricCoordinateSystem of the GeometricModel maybe different from
+the GeometricCoordinateSystem of the LinkMotionAlongPath, but this has no effect
+since the positioning of the GeometricModel is done via the PlacementStart.
+
+[[sec_4.13]]
+=== Kinematic Statistics and Validation Properties
+
+As the development and testing of Kinematic capabilities is just starting, no established
+statistics for testing or validation properties are available yet. It is a task for
+the test rounds in the involved implementor forums to define and improve these.
+
+This section is intended to gather initial ideas for such statistics and properties,
+and to facilitate the discussion of these across the two groups.
+
+NOTE: like in [242-PAS] 6.2, It is recommended that all the properties attached to
+an object are spread over two instances of PropertyValueAssignment. One instance
+shall collect the properties that describe the object
+(having PropertyValueAssignment.ClassifiedAs='<object> properties'); the other instance
+shall collect the properties that describe the validation properties of the same
+object (having PropertyDefinition.PropertyType='kinematics validation property' and
+PropertyValueAssignment.ClassifiedAs='validation properties').
+
+NOTE: For some of the proposed validation properties, it is necessary to assign properties
+to some Relationship or specific objects (like PathSegment,
+ProductStructureKinematicPathAssociation). It is currently unclear if and how this
+can be supported in the AP242 Domain Model XML schema (see <<sec_1.1.2>>).
+
+[[sec_4.13.1]]
+==== Statistics and Validation Properties for Kinematic Motion
+
+[[sec_4.13.1.1]]
+===== Number of Kinematic Motions
+
+For each assembly part having Motions, calculate the number of Kinematic Motions
+by counting the MotionModelAssociations in the STEP file. These define alternative/variant
+motions.
+
+For use as a validation property, store the result in a property called 'number of
+kinematic motions', similar to 'number of children', attached to the AssemblyDefinition.
+
+As all properties that are counts, this is intended as a completeness check.
+
+A value 0 shall be omitted and no validation property mapped.
+
+[[sec_4.13.1.2]]
+===== Number of Kinematic Paths per Motion
+
+For each LinkMotionAlongPath, calculate the number of Kinematic Paths by counting
+the instances of KinematicPathDefinedByNodes orchestrated within the same Motion.
+
+For use as a validation property, store the result in a property called 'number of
+kinematic paths', attached to the LinkMotionAlongPath. A value 0 shall not be omitted
+and shall be mapped as validation property.
+
+[[sec_4.13.1.3]]
+===== Number of Steps per Kinematic Path
+
+For each KinematicPathByNodes, calculate the number of steps by counting the instances
+of PointToPointPath.
+
+For use as a validation property, store the result in a property called 'number of
+kinematic steps', attached to the KinematicPathDefinedByNodes.
+
+A value 0 shall not be omitted and shall be mapped as validation property.
+
+[[sec_4.13.1.4]]
+===== Volume of the related geometric model
+
+Total volume of the moving parts within the assembly node linked to the ProductStructureKinematicPathAssociation or ProductStructureLinkMotionAssociation. This is intended to ensure that the right parts of the assembly are moving, similar to the "affected geometry" validation property for PMI.
+
+An issue has been created on ISO Jira as TCSC410303-836 to assign a property value
+to ProductStructureKinematicPathAssociation and ProductStructureLinkMotionAssociation.
+
+[[sec_4.13.1.5]]
+===== Centroid and Length of the Notional Kinematic Path Polyline
+
+The "notional kinematic path polyline" is a virtual polyline, built from the
+KinematicPathDefinedByNodes as follows: For each axis system of the path, compute
+the point (10, 10, 10) and join all these points according to the path order.
+This definition is inspired by the definition of the notional centroid for assembly
+validation properties. It seems simple to compute and representative for the motion.
+
+For use as validation properties,
+
+* store the result in a property (as length measure) called 'length of notional kinematic
+path polyline', attached to the LinkMotionAlongPath
+
+* store the result in a property (as cartesian point) called 'centroid of notional
+kinematic path polyline', attached to the LinkMotionAlongPath
+
+Additionally, the Centroid of the part/assembly moved by the motion could be computed
+for each PathSegment. For use as a validation property, store the result in a property
+(as cartesian point) called 'centroid of motioned part/assembly', attached to the
+PathSegment.
+
+An issue has been created on ISO Jira as TCSC410303-836 to assign a property value
+to PathSegment.
+
+[[sec_4.13.2]]
+==== Statistics and Validation Properties for Kinematic Mechanisms
+
+These validation properties shall be mapped similarly to the assembly validation
+properties defined in the section 13.1 in [242-PAS].
+
+The PropertyDefinition.PropertyType shall be 'kinematics validation property' and
+the PropertyDefinition.Id shall be 'quality property'.
+
+If an object has several validation properties (for example number of children and
+some kinematics validation property), both PropertyValues shall be associated to
+the same PropertyValueAssignment (with Class 'validation properties').
+
+[[sec_4.13.2.1]]
+===== Number of Kinematic Mechanisms
+
+For each assembly part having Mechanisms, calculate the number of Mechanisms by counting
+the instances of KinematicMechanismAssociations. These define alternative/variant
+mechanisms and may all apply together.
+
+For use as a validation property, store the result in a property called 'number of
+kinematic mechanisms', attached to the AssemblyDefinition
+
+A value 0 shall be omitted and no validation property mapped.
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<Part uid="ID_62">
+...
+    <Versions>
+        <PartVersion uid="ID_64">
+...
+            <Views>
+                <PartView uid="ID_65" xsi:type="bom:AssemblyDefinition">
+                    <InitialContext uidRef="ID_60"/>
+                    <ShapeDependentProperty uid="ID_106" xsi:type="bom:CentreOfMass">
+                        <DefinedIn uidRef="ID_108"/>
+                        <Id id="notional solids centroid"/>
+                        <Role>
+                            <ClassString>assembly validation property</ClassString>
+                        </Role>
+                        <CentrePoint uidRef="ID_107"/>
+                    </ShapeDependentProperty>
+                    <PropertyValueAssignment uid="ID_66">
+                        <AssignedPropertyValues>
+...
+                            <PropertyValue uid="ID_59-1" xsi:type="bom:NumericalValue">
+                                <Definition>
+                                    <PropertyDefinition uidRef="ID_57-1"/>
+                                </Definition>
+                                <Name>
+                                    <CharacterString>number of kinematic mechanisms</CharacterString>
+                                </Name>
+                                <Unit uidRef="ID_x17d1fa886a0"/>
+                                <ValueComponent>6</ValueComponent>
+                            </PropertyValue>
+                        </AssignedPropertyValues>
+                        <ClassifiedAs>
+                            <Classification uidRef="ID_58"/>
+                        </ClassifiedAs>
+                    </PropertyValueAssignment>
+...
+                    <ViewOccurrenceRelationship uid="ID_73" xsi:type="bom:NextAssemblyOccurrenceUsage">
+...
+                </PartView>
+            </Views>
+...
+        </PartVersion>
+    </Versions>
+</Part>
+<PropertyDefinition uid="ID_57">
+    <Id id="quality property"/>
+    <PropertyType>
+        <ClassString>assembly validation property</ClassString>
+    </PropertyType>
+</PropertyDefinition>
+
+<Unit uid="ID_x17d1fa886a0">
+    <Kind>
+        <ClassString>unspecified</ClassString>
+    </Kind>
+    <Name>
+        <ClassString>each</ClassString>
+    </Name>
+    <Quantity>
+        <ClassString>number of elements</ClassString>
+    </Quantity>
+</Unit>
+
+<Classification uid="ID_58">
+    <Class>
+        <ClassString>validation properties</ClassString>
+    </Class>
+    <Role>kind of properties</Role>
+</Classification>
+
+<PropertyDefinition uid="ID_57-1">
+    <Id id="quality property"/>
+    <PropertyType>
+        <ClassString>kinematics validation property</ClassString>
+    </PropertyType>
+</PropertyDefinition>
+--
+
+[[sec_4.13.2.2]]
+===== Number of Kinematic Pairs per Mechanism
+
+For each Mechanism, calculate the number of Low/High Order Kinematic Pairs by counting
+the instances of LowOrderKinematicPair and of LowOrderKinematicPairWithMotionCoupling
+combined within the same mechanism.
+
+For use as a validation property, store the result in two properties called 'number
+of low order kinematic pairs' and 'number of high order kinematic pairs', attached
+to the Mechanism.
+
+A value 0 shall not be omitted and shall be mapped as validation property.
+
+[[sec_4.13.2.3]]
+===== Number of Moving KinematicLinks per Mechanism
+
+For each Mechanism, calculate the number of moving parts by counting the instances
+of KinematicLink involved via KinematicPairs within the same mechanism (except the
+one used as KinematicMechanismAssociation.BaseLink, see <<sec_4.4>>).
+
+If each KinematicLink is associated to one (Single/Specified)Occurrence, since one
+Occurrence shall be associated at most to one KinematicLink per Mechanism (see <<sec_4.2>>),
+these define also the number of moving parts/assemblies. But in case KinematicLinks
+are associate to multiple (Single/Specified)Occurrence (see complex case of rigid
+groups in <<sec_4.5>>), even more parts/assemblies will be moving.
+
+For use as a validation property, store the result in a property called 'number of
+moving KinematicLinks', attached to the Mechanism.
+
+Here an example of a wrong import (the kinematic pairs are created on the single
+parts P3/P5 instead of on an assembly A1) where this validation property helps detect
+the problem:
+
+[%unnumbered]
+image::figure-u4.jpeg[]
+
+A value 0 shall not be omitted and no validation property mapped.
+
+[[sec_4.13.2.4]]
+===== Number of Actuations per Mechanism
+
+For each Mechanism, calculate the number of actuations over all KinematicPairs, by
+counting those attributes (Rx/y/z and Tx/y/z) in KinematicPair.Actuation that have
+a non-zero value (see <<sec_4.3>>). This captures the pairs where an initial movement
+can occur.
+
+For use as a validation property, store the result in a property called 'number of
+actuations', attached to the Mechanism.
+
+A value 0 shall not be omitted and shall be mapped as validation property.
+
+[[sec_4.13.2.5]]
+===== Number of KinematicPairs for each kind of KinematicPair per Mechanism
+
+For each Mechanism, calculate the number of KinematicPairs for each kind of KinematicPair
+according to the recommended values for LowOrderKinematicPair.Kind, HighOrderKinematicPair.Kind
+and LowOrderKinematicPairWithMotionCoupling.Kind.
+
+The name of the validation property shall be overtaken from the attribute Kind (revolute_pair,
+spherical_pair, ...), for example 'number of revolute_pairs', 'number of spherical_pairs',
+...).
+
+A value 0 shall be omitted and shall not be mapped as validation property.
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+--
+<RepresentationContext uid="ccs--origin" xsi:type="bom:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+...
+        <Representation xsi:type="bom:Mechanism" uid="kin--00000198446F1EF0--m">
+        <Id id="/NULL"/>
+        <Items>
+...
+        </Items>
+        <Name>
+...
+        </Name>
+        <PropertyValueAssignment uid="ID_66-2">
+            <AssignedPropertyValues>
+                <PropertyValue uid="ID_59-2" xsi:type="bom:NumericalValue">
+                    <Definition>
+                        <PropertyDefinition uidRef="ID_57-1"/>
+                    </Definition>
+                    <Name>
+                        <CharacterString>number of low order kinematic pairs</CharacterString>
+                    </Name>
+                    <Unit uidRef="ID_x17d1fa886a0"/>
+                    <ValueComponent>16</ValueComponent>
+                </PropertyValue>
+                <PropertyValue uid="ID_59-3" xsi:type="bom:NumericalValue">
+                    <Definition>
+                        <PropertyDefinition uidRef="ID_57-1"/>
+                    </Definition>
+                    <Name>
+                        <CharacterString>number of high order kinematic pairs</CharacterString>
+                    </Name>
+                    <Unit uidRef="ID_x17d1fa886a0"/>
+                        <ValueComponent>0</ValueComponent>
+                </PropertyValue>
+                <PropertyValue uid="ID_59-4" xsi:type="bom:NumericalValue">
+                    <Definition>
+                        <PropertyDefinition uidRef="ID_57-1"/>
+                    </Definition>
+                    <Name>
+                        <CharacterString>number of moving parts</CharacterString>
+                    </Name>
+                    <Unit uidRef="ID_x17d1fa886a0"/>
+                    <ValueComponent>12</ValueComponent>
+                </PropertyValue>
+                <PropertyValue uid="ID_59-5" xsi:type="bom:NumericalValue">
+                    <Definition>
+                        <PropertyDefinition uidRef="ID_57-1"/>
+                    </Definition>
+                    <Name>
+                        <CharacterString>number of actuations</CharacterString>
+                    </Name>
+                    <Unit uidRef="ID_x17d1fa886a0"/>
+                    <ValueComponent>2</ValueComponent>
+                </PropertyValue>
+                <PropertyValue uid="ID_59-6" xsi:type="bom:NumericalValue">
+                    <Definition>
+                        <PropertyDefinition uidRef="ID_57-1"/>
+                    </Definition>
+                    <Name>
+                        <CharacterString>number of revolute_pairs</CharacterString>
+                    </Name>
+                    <Unit uidRef="ID_x17d1fa886a0"/>
+                    <ValueComponent>2</ValueComponent>
+                </PropertyValue>
+...
+            </AssignedPropertyValues>
+            <ClassifiedAs>
+                <Classification uidRef="ID_58"/>
+            </ClassifiedAs>
+        </PropertyValueAssignment>
+    </Representation>
+...
+</Representations>
+<Items>
+...
+</Items>
+<DimensionCount>3</DimensionCount>
+</RepresentationContext>
+--

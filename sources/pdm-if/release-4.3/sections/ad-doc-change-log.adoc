@@ -1,0 +1,96 @@
+
+[appendix,obligation="informative"]
+== Document Change Log
+
+=== Changes to Release 1.0
+
+* Removal of creation information recommendation in section 1.1.1,
+
+* Removal of creation information recommendation in section 1.1.2,
+
+* Addition of Document Identification (section 5),
+
+* Addition of File Identification (section 6),
+
+* Addition of Authorization - Person and Organization (section 13.1),
+
+* Addition of Authorization - Approval (section 13.2).
+
+=== Changes to Release 2.0
+
+* See Closed Issues in the associated PDM Schema Usage Guide Issue Table
+
+=== Changes to Release 3.0
+
+* Addition of approval cycle descriptions and approval_relationship in section 13.2.2,
+
+* Moved sections 2.4 and 2.5 (relating shape to product structure) to sections 4.4 and 4.5,
+
+* Added section 2 (specific part type classification),
+
+* Added section 6 (specific document type classification),
+
+* Added section 12 (alias identification),
+
+* Added section 13.3 (date, time, and event reference),
+
+* Added section 14 (configuration and effectivity information),
+
+* Added section 15 (engineering change and work management).
+
+=== Changes to Release 4.0
+
+* Added section 16 (measure and units),
+
+* Additions to section 4 (drawings, parts lists, and item find number),
+
+* Modifications to section 9 (document properties),
+
+* Numerous updates and fixes (refer to issue log).
+
+=== Changes to Release 4.2
+
+* Generally referenced PDM schema version 1.2 instead of PDM schema version 1.1
+
+* Added section describing scope for approvals
+
+* Added section describing project dates
+
+* Added section describing the assignment of activities to projects
+
+* Added explanatory text to section describing shape_aspect and the usage of shape_representation
+
+* Numerous updates and fixes (refer to issue log).
+
+=== Changes to Release 4.3
+
+* Added explanatory text to sections describing the linkage of shape_representation to product_data
+
+* Added explanatory text to describe that portions of shape can either represent the shape completely or just partial geometry
+
+* Added section to describe the splitting of shape into multiple shape representations
+
+* Added section to describe additional geometric model structures like alternate geometry or auxiliary geometry
+
+* Reworked section on find numbers and drawing find numbers
+
+* Added section on additional document properties
+
+* Improved statement on the assignment of external files to product data
+
+* Added explanatory text to describe can also be associated with versioned_action_request, executed_action or action_method
+
+* Modified text on document assignment role to allow for further role names than 'informative' and 'mandatory'
+
+* Improved explanatory text for document relationship type 'transformation'
+
+* Added explanatory text to describe the different handling of approval dates for single approval instance with multiple people 
+signing off on the approval and for approval cycles with more than one approval instance
+
+* Added explanatory text to describe the assignment of an organization to an approval for other roles than sign-off
+
+* Added explanatory text to describe the association of work requests with properties
+
+* Added explanatory text to describe the assignment of actions to product versions and product configuration_effectivities
+
+* Added explanatory text to describe the association of sub-activities to a work more precisely.

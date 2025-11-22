@@ -1,0 +1,560 @@
+
+[[sec-10]]
+== ((Document and File Association with Product Data))
+
+In 'Document as Product' documents and external files may be associated with product
+data. This association is done in a consistent way using an applied reference with
+a specified role. The applied reference is realized structurally by the PDM Schema
+entities document and applied_document_reference.
+
+When associating a managed 'Document as Product' to product data, the document master
+is linked to the applied reference constructs using the additional entity document_product_equivalence.
+This linkage may be made at the level of the base identification, the document version,
+or the document representation view definition. The recommended level from which
+a document master should reference other product data is the document version.
+
+External files may also be associated with product data, in a way that is structurally
+consistent with that used for documents, using the entity applied_document_reference.
+
+[[sec-10.1]]
+=== ((Document Reference))
+
+In 'Document as Product' documents may be associated with product data by reference
+in a specified role. The base document identification, the document version, or the
+document representation definition may serve as the point of assignment for a document
+master to be associated with other product data. It is generally recommended to make
+a document reference from the level of document version.
+
+Reference of a managed document to product data is accomplished using the entities
+document_product_equivalence, document, document_type, and applied_document_reference.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes essential to support the requirements of document
+association with other product data are shown in <<diam-42>>.
+
+[[diam-42]]
+.Document Association to Product Data Instance Diagram
+image::diam-42.svg[]
+
+==== ((document_product_equivalence))
+
+This entity is a subtype of document_product_association relating a document to a
+'product'. It asserts that the related product (or product_definition_formation or
+product_definition) in this case represents an element of a document master that
+is assigned as a reference to some other product data. The related_product attribute
+may refer to an instance of the entity product, product_definition_formation, or
+product_definition by way of the select type product_or_definition_or_formation.
+This provides the possibility to assign it to some other product data as a reference
+when used with the related entities document and applied_document_reference.
+
+*_Attributes_*
+
+* The *_name_* attribute characterizes the nature of this relationship.
+
+* The *_description_* attribute is optional.
+
+* The *_related_product_* attribute references the portion of the document master
+that is being assigned.
+
+* The *_relating_document_* attribute has a document entity in a document_reference
+to some product data.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_product_equivalence | Attribute Population | Remarks
+
+| name | type: label = string 'equivalence' |
+| description | type: text = string | OPTIONAL
+| related_product | type:product_or_definition_or_formation (select)
+| specifies the component of the document master that is the point attribute will
+reference the subtype document_file
+| relating_document | type: entity = document |
+|===
+
+*_Preprocessor Recommendations:_* This entity should be used only when the requirement
+exists to associate a 'Document as Product' with product data. If the 'Document as
+Product' is not associated with product data, then this entity should not be instantiated.
+
+The relating_document attribute always has a document entity as its value. Additional
+constraints apply to the document_type entity related to this document by the kind
+attribute. These prescribe a value for the product_data_type attribute of this document_type
+entity, correlated with the following select type values of the relating_document:
+
+* Product => 'configuration_controlled_document'
+
+* Product_definition_formation=> 'configuration_controlled_document_version'
+
+* Product_definition => 'configuration_controlled_document_definition'
+
+Of these possible options for assignment, it is recommended to assign the 'configuration
+controlled document version' to product data. When assigned as a reference to a part
+master identification, it is recommended to assign the document version (product_definition_formation)
+to the view definition (product_definition) within the part master.
+
+*_Postprocessor Recommendations:_* When importing an instance of this entity, postprocessors
+should recognize that the related_product attribute references a 'Document as Product'.
+The relating_document attribute references an instance of document that exists to
+allow assignment of the 'Document as Product' to product data.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((document))
+
+This entity is only instantiated as itself when used as the relating_document in
+a document_product_equivalence relationship. In this role, the document entity is
+equated with the document master, and works together with the applied_document_reference
+to support the assignment of managed documents to product data in the STEP PDM Schema.
+
+*_Attributes_*
+
+* The *_kind_* attribute references a document_type entity.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document | Attribute Population | Remarks
+
+| id          | type: identifier = string    | Not to be used for valid user data.
+| name        | type: label = string         |
+| description | type: text = string          | OPTIONAL
+| kind        | type: entity = document_type
+| The product_data_type attribute on this referenced entity is constrained by the
+entity document_product_equivalence
+|===
+
+*_Preprocessor Recommendations:_* The document entity is only to be instantiated
+as itself in this role within the document_product_equivalence. In this case, the
+document identification is represented by the product master - the attributes on
+the document entity should not be used for identification of the managed document.
+It is not instantiated as itself, but as the subtype document_file when used to represent
+the identification of an external file reference (see <<sec-7.1>>).
+
+*_Postprocessor Recommendations:_* The document entity is only a structural element
+in the assignment of a managed document to product data, along with the entity applied_document_reference. Identification of the managed document is represented by the product master entities according to the 'Document as Product' approach.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((document_type))
+
+This entity is required for each instance of the entity document. In the given context,
+this entity is used to indicate that the related document objects are under configuration
+control. This corresponding usage of document_type is not to be used for a specific
+document object classification.
+
+*_Attributes_*
+
+* The *_product_data_type_* attribute describes the type of product data represented
+by the document entity.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_type | Attribute Population | Remarks
+
+| product_data_type | type: identifier = string |
+|===
+
+*_Preprocessor Recommendations:_* In this use for document master identification,
+the attribute product_data_type is constrained by the entity document_product_equivalence
+to take one of the following values: 'configuration_controlled_document',
+'configuration_controlled_document_version', or 'configuration_controlled_document_definition'.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[sec-10.1.4]]
+==== ((applied_document_reference))
+
+This entity is a subtype of document_reference. It supports the assignment of documents
+to elements of product data within the select type document_reference_item. Notably,
+documents may be assigned to the part master view definition (product_definition)
+or to an individual occurrence of a part definition usage in an assembly structure
+(product_definition_relationship). Likewise, documents can be associated by
+versioned_action_request, executed_action or action_method. For additional information,
+see versioned_action_request <<sec-15.1.1.1>>, executed_action <<sec-15.2.2.1>> or
+action_method <<sec-15.1.1.5>>.
+
+*_Attributes_*
+
+* The *_source_* attribute is inherited from the supertype document_reference
+
+* The *_items_* attribute indicates the elements of product data referenced by the
+managed document.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_document_reference | Attribute Population | Remarks
+
+| Source            | type: label = text                    |
+| Assigned_document | type: entity = document
+| This referenced instance is the only case where the document entity is instantiated
+as itself, and not the subtype document_file.
+| Items             | type: document_reference_item= select | SET [1:?]
+|===
+
+*_Preprocessor Recommendations:_* The inverse attribute role requires the associated
+entities role_association and object_role be instantiated related to this entity.
+Preprocessors should support as a minimum the assignment of document to the product_definition
+representing a part view definition.
+
+*_Postprocessor Recommendations:_* Postprocessors should as a minimum recognize the
+assignment of document to the product_definition representing a part view definition.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((role_association))
+
+This entity provides the item_with_role with a named role string. This is the method
+to add a role attribute to referenced entities that do not have one defined.
+
+*_Attributes_*
+
+* The *_item_with_role_* attribute references the role_select type.
+
+* The *_role_* attribute references an instance of the entity object_role.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY role_association | Attribute Population | Remarks
+
+| item_with_role | type: role_select = select |
+| role           | type: entity = object_role |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((object_role))
+
+This entity assigns a role to the associated document reference. For example two
+generic roles that may be used are 'mandatory' and 'informative'. Other role names
+are allowed when additional knowledge is required that provides specific semantics
+as to the role of the association between the document and the particular product
+data. Some of these additional role names are defined in the STEP APs. The two generic
+role names defined as examples are:
+
+* 'mandatory' means the assignment of the document to the product data is in a mandatory
+relationship - the document must be taken into account to understand the complete
+product information.
+
+* 'informative' means the assignment of the document to the product data is an optional
+relationship - the document may be considered for additional information, but is
+not required or enforced.
+
+*_Attributes_*
+
+* The *_name_* attribute indicates the name of the role.
+
+* The *_description_* attribute is optional.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY object_role | Attribute Population | Remarks
+
+| Name        | type: label = string 'mandatory', 'informative', other
+| Other string values are valid based on requirements found in the APs that utilize
+the PDM schema
+| Description | type: text = string | OPTIONAL
+
+|===
+
+*_Preprocessor Recommendations:_* The name attribute should have the value 'mandatory'
+or 'informative' if the required semantics to be captured is to indicate if the associated
+document reference is required or optional, respectively. APs using the PDM schema
+may have other values for the name attribute that the preprocessor will need to handle.
+
+*_Postprocessor Recommendations:_* The postprocessor should interpret name attribute
+as 'mandatory' or 'informative' when the required semantics being exchanged is to
+indicate if the associated document reference is required or optional, respectively.
+APs using the PDM schema may have other values for the name attribute that the postprocessor
+will need to handle.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-44]]
+.exchange file segment for document association to product data
+[source]
+--
+#70=PRODUCT('MP-03-2','my part',$,(#60));
+#80=PRODUCT_DEFINITION_FORMATION('03','3rd modification',#70);
+#90=PRODUCT_DEFINITION('/NULL',$,#80,#50);
+...
+#360=DOCUMENT_PRODUCT_EQUIVALENCE('equivalence',$,#370,#280);
+#370=DOCUMENT('','',$,#380);
+#380=DOCUMENT_TYPE('configuration controlled document version');
+#390=APPLIED_DOCUMENT_REFERENCE(#370,'',(#90));
+#400=ROLE_ASSOCIATION(#410,#390);
+#410=OBJECT_ROLE('mandatory',$);
+--
+
+[[sec-10.2]]
+=== ((External File Reference))
+
+External files may also be associated with product data in a way that is consistent
+but simpler than that used for documents.While the requirement to assign documents
+to various product data is basically supported by three additional entities: document_product_equivalence,
+document, and applied_document_reference, external files need only the applied_document_reference
+entity to be related as a reference to other product data.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of external
+file association to product data are illustrated in <<diam-43>>.
+
+[[diam-43]]
+.External File Association to Product Data Instance Diagram
+image::diam-43.svg[]
+
+==== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-45]]
+.exchange file segment for external file association to product data
+[source]
+--
+#70=PRODUCT('MP-03-2','my part',$,(#60));
+#80=PRODUCT_DEFINITION_FORMATION('03','3rd modification',#70);
+#90=PRODUCT_DEFINITION('/NULL',$,#80,#50);
+...
+#120=DOCUMENT_TYPE('geometry');
+#130=DOCUMENT_FILE('measure file id','measure data',$,#120,'',$);
+#140=APPLIED_DOCUMENT_REFERENCE(#130,'',(#90));
+#150=OBJECT_ROLE('informative',$);
+#160=ROLE_ASSOCIATION(#150,#140);
+#170=DOCUMENT_REPRESENTATION_TYPE('digital',#130);
+--
+
+=== ((Constrained Document or File Reference))
+
+Constraints may be specified on the association of documents or files with product
+data, in order to distinguish a portion of the entire document or file that applies
+in the reference.
+
+==== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of constrained
+document or file association to product data are illustrated in <<diam-44>>.
+
+[[diam-44]]
+.Constrained Document Association to Product Data Instance Diagram
+image::diam-44.svg[]
+
+==== ((document_usage_constraint))
+
+This entity identifies a portion of a document that is applicable for a given usage.
+
+*_Attributes_*
+
+* The *_source_* attribute references the complete document or file of which a portion
+is distinguished.
+
+* The *_subject_element_* attribute describes the portion or element of the complete
+document.
+
+* The *_subject_element_value_* attribute conveys a specific value of the subject_element.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_usage_constraint | Attribute Population | Remarks
+
+| source                | type: entity = document | May be document_file in the case of an external file reference
+| subject_element       | type: label = string    |
+| subject_element_value | type: text = string     |
+|===
+
+*_Preprocessor Recommendations:_* The subject_element should identify the relevant
+portion or section of the document that is applicable. The subject_element_value
+describes how the subject_element is to be interpreted.
+
+*_Postprocessor Recommendations:_* Postprocessors should interpret the subject_element
+as an indication of the relevant portion of the entire document.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((applied_document_usage_constraint_assignment))
+
+This entity is a subtype of document_usage_constraint_assignment. It supports the
+constrained assignment of a document to product data. A constrained assignment identifies
+only a portion of the entire document that is relevant in the assignment.
+
+*_Attributes_*
+
+* The *_assigned_document_usage_* attribute references the associated document_usage_constraint.
+
+* The *_role_* attribute identifies the role of the assignment.
+
+* The *_items_* attribute references the product data to which the partial document
+is assigned.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY applied_document_usage_constraint_assignment | Attribute Population | Remarks
+
+| assigned_document_usage | type: entity = document_usage_constraint |
+| role                    | type: entity = document_usage_role       |
+| items                   | type: documents_reference_item = select  |
+|===
+
+*_Preprocessor Recommendations:_* There are no specific preprocessor recommendations.
+
+*_Postprocessor Recommendations:_* There are no specific postprocessor recommendations.
+
+*_Related Entities:_* There are no specific related entities.
+
+==== ((document_usage_role))
+
+This entity identifies the role of the constrained document assignment.
+
+*_Attributes_*
+
+* The *_name_* attribute identifies the role of the document assignment.
+
+* The *_description_* attribute is optional.
+
+[cols="3",options="header,unnumbered"]
+|===
+| ENTITY document_usage_role | Attribute Population | Remarks
+
+| name        | type: label = string 'mandatory', 'informative', other
+| Other string values are valid based on requirements found in APs that utilize the
+PDM schema.
+| description | type: text = string | OPTIONAL
+|===
+
+*_Preprocessor Recommendations:_* The name attribute should have the value 'mandatory'
+or 'informative' if the required semantics to be captured is to indicate if the associated
+document reference is required or optional, respectively. APs using the PDM schema
+may have other values for the name attribute that the preprocessor will need to handle.
+
+*_Postprocessor Recommendations:_* The postprocessor should interpret name attribute
+as 'mandatory' or 'informative' when the required semantics being exchanged is to
+indicate if the associated document reference is required or optional, respectively.
+APs using the PDM schema may have other values for the name attribute that the postprocessor
+will need to handle.
+
+*_Related Entities:_* There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-46]]
+.exchange file segment for constrained document association to product data
+[source]
+--
+#180=DOCUMENT_TYPE('geometry');
+#190=DOCUMENT_FILE('plot_1','plot data',$,#180,'', $);
+#200=DOCUMENT_USAGE_CONSTRAINT(#190,'sheet','one');
+#210=DOCUMENT_USAGE_ROLE('informative',$);
+#220=APPLIED_DOCUMENT_USAGE_CONSTRAINT_ASSIGNMENT(#200,#210,(#90));
+#230=DOCUMENT_REPRESENTATION_TYPE('physical',#190);
+--
+
+The following section combines the above-discussed concepts and segments in a complete
+example. The concepts instantiated in the example are illustrated in <<fig-11>>.
+
+[[fig-11]]
+.Schematic Overview of Complete Document and File Example
+image::figure-11.svg[]
+
+===== The Instance Model: EXPRESS entities and attributes
+
+The EXPRESS entities and attributes used to support the requirements of constrained
+document or file association to product data are illustrated in <<diam-44;and!diam-45;and!diam-46;and!diam-47;and!diam-48>>.
+
+[[diam-45]]
+.Part Master Instance Diagram
+image::diam-45.svg[]
+
+[[diam-46]]
+.External File Reference to Part View Definition Instance Diagram
+image::diam-46.svg[]
+
+[[diam-47]]
+.Constrained External File Reference to Part View Definition Instance Diagram
+image::diam-47.svg[]
+
+[[diam-48]]
+.Document and Constituent File Association Instance Diagram
+image::diam-48.svg[]
+
+===== The Instance Model: STEP exchange file format (<<ISO_10303,part=21>> syntax)
+
+[[ex-47]]
+.exchange file for complete document and file identification and association
+[source]
+--
+ISO-10303-21; HEADER;
+FILE_DESCRIPTION(('pdm_schema data', 'pdm_schema'), '2;1'); FILE_NAME('C:document_xample.stp', '1999-5-20 T12:39:1', (''), (), '',
+'', ''); FILE_SCHEMA(('PDM_SCHEMA {1.2}'));
+ENDSEC;
+
+DATA;
+/* Entities #10 - #20 define part master data*/
+/* To the product_definition #90 is a life cycle specific view on*/
+/* that part to which documents and external files*/
+/* are assigned in the following sections of this file */
+#30=PRODUCT_DEFINITION_CONTEXT_ROLE('',$);
+#40=APPLICATION_CONTEXT('mechanical design');
+#45=APPLICATION_PROTOCOL_DEFINITION('version 1.2','pdm_schema',2000,#40);
+#50=PRODUCT_DEFINITION_CONTEXT('part definition',#40,'design');
+#60=PRODUCT_CONTEXT('',#40,'');
+#70=PRODUCT('MP-03-2','my part',$,(#60));
+#80=PRODUCT_DEFINITION_FORMATION('03','3rd modification',#70);
+#90=PRODUCT_DEFINITION('/NULL',$,#80,#50);
+#100=PRODUCT_DEFINITION_CONTEXT_ASSOCIATION(#90,#50,#30);
+#110=PRODUCT_RELATED_PRODUCT_CATEGORY('part',$,(#70));
+
+/* Entities #120 to #170 model the assignment of*/
+/* digital file data to the product_definition #90 */
+#120=DOCUMENT_TYPE('geometry');#130=DOCUMENT_FILE('m1','',$,#120,'',$);
+#140=APPLIED_DOCUMENT_REFERENCE(#130,'',(#90));
+#150=OBJECT_ROLE('informative',$);
+#160=ROLE_ASSOCIATION(#150,#140);
+#170=DOCUMENT_REPRESENTATION_TYPE('digital',#130);
+
+/* Entities #180 to #230 model the assignment of hardcopy document
+*/
+/* data to the product_definition #90*/
+/* This assignment is partial, i.e., in addition the information is */
+/* conveyed that only sheet one of the hardcopy (plots) shall be*/
+/* logically assigned*/
+#180=DOCUMENT_TYPE('geometry');
+#190=DOCUMENT_FILE('p1','',$,#180,'',$);
+#200=DOCUMENT_USAGE_CONSTRAINT(#190,'sheet','one');
+#210=DOCUMENT_USAGE_ROLE('informative',$);
+#220=APPLIED_DOCUMENT_USAGE_CONSTRAINT_ASSIGNMENT(#200,#210,(#90));
+#230=DOCUMENT_REPRESENTATION_TYPE('physical',#190);
+
+/* Entities #240 to #350 model a managed document (document*/
+/* as product) For this document two versions are specified*/
+/*(#280 and #330)To version 3.2 (#330) two files (#320, #340)*/
+/* that constitute the document are defined */
+#240=APPLICATION_CONTEXT('');
+#250=PRODUCT_DEFINITION_CONTEXT('digital document definition',#240,'');
+#260=PRODUCT_CONTEXT('',#240,'');
+#270=PRODUCT('doc_4711','packaging guide', 'packaging guideline for part',(#260));
+#280=PRODUCT_DEFINITION_FORMATION('ver3.1','version 3.1',#270);
+#290=PRODUCT_DEFINITION('id of digital document','digital document for representing guideline ver3.1',#280,#250);
+#300=PRODUCT_RELATED_PRODUCT_CATEGORY('document',$,(#270));
+#310=DOCUMENT_TYPE('unspecified');
+#320=DOCUMENT_FILE('t1','',$,#310,'',$);
+#330=PRODUCT_DEFINITION_FORMATION('ver3.2','version 3.2',#270);
+#340=DOCUMENT_FILE('l1','','file with logo for the guide',#310,'',$);
+#350=PRODUCT_DEFINITION_WITH_ASSOCIATED_DOCUMENTS('rep_id_3.2','representation of version 3.2',#330,#250,(#340,#320));
+
+/* Entities #360 to #410 establish the association of the*/
+/* managed document version #280 (packaging guide) with the view*/
+/* of the part modeled via product_definition #90 */
+#360=DOCUMENT_PRODUCT_EQUIVALENCE('equivalence',$,#370,#280);
+#370=DOCUMENT('','',$,#380);
+#380=DOCUMENT_TYPE('configuration controlled document version');
+#390=APPLIED_DOCUMENT_REFERENCE(#370,'',(#90));
+#400=ROLE_ASSOCIATION(#410,#390);
+#410=OBJECT_ROLE('mandatory',$);
+
+ENDSEC;
+END-ISO-10303-21;
+--
