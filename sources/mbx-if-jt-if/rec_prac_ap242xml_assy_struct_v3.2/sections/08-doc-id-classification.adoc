@@ -1,0 +1,1097 @@
+[[cls-8]]
+== Document Identification and Classification
+
+The scope of this section corresponds to <<CAX-IF-PSUG,section=5>> and
+<<CAX-IF-PSUG,section=6>>.
+
+A Document in the context of ISO 10303-4442 is a managed document. This means, it is under
+revision control, and various representations of a document version may be distinguished. The
+DocumentVersion represents the minimum identification of a managed document under revision
+control. A document representation definition may optionally be associated with one or more
+constituent external files that make up the contents of the document.
+
+Similar to Parts, the identification of Documents in the AP242 Domain Model consists of three
+concepts:
+
+* Document Master Identification:
+
+** Document identification has specific requirements to assign documents to other
+product data, and to optionally associate with the constituent external file(s) that make up
+a specific document representation view definition;
+
+* Context Information,
+
+** Document identification has different context information than Part identification;
+
+* Type Classification
+
+** Document identification has a different type classification than Part identification.
+
+These three concepts are represented by attributes of the three elements of the Document
+template; see <<cls-8.1>> for details.
+
+An external file is not managed independently by the system - there is usually no revision
+control or any representation definitions of external files. Version identification may
+optionally be associated with an external file, but this is for information only and is not
+used for managed revision control.
+
+If a file is under configuration control, it shall be represented as a constituent of a
+document definition view/representation. Thus, it is actually the managed document that is
+under direct configuration control; the file is only indirectly under configuration control.
+A change to the file results in a change to the managed document (i.e., a new version). The
+changed file becomes a constituent of a view/representation definition of the new document
+version. A simple external reference alone is not configuration controlled; it is just an
+external file reference to product data. See also <<cls-11.1>> for association of unmanaged
+files.
+
+Documents may be associated with product data in a specified role using DocumentAssignment
+to represent some relationship between a document and other elements of product data.
+Constraints may be specified on this association, in order to distinguish an applicable
+portion of an entire document or file in the association. This linkage may be made at the
+level of the base identification of the document, the document version, or the document
+representation view definition. The recommended level from which a document master should
+reference other product data is the document version. See <<cls-11>> for details.
+
+The following types of data may in general be assigned to a Document in the
+context of ISO 10303-4442 to characterize it further:
+
+* ActivityMethod, Approval, Certification, Contract, DateTimeString,
+Document, DocumentVersion, DocumentDefinition, File, Effectivity,
+InformationUsageRight, Project, RequirementView,
+SecurityClassification, and WorkRequest.
+
+These recommended practices for assembly structures, however, only cover relationships to the
+following concepts:
+
+* DateTimeString, Document, DocumentVersion, DocumentDefinition, File, and
+SecurityClassification.
+
+For document classification the AP242 Domain Model distinguishes -- as for Parts - the
+following two approaches:
+
+* Type classification
+
+** An identified document may be placed into one or several of the following categories:
+'catalogue', 'manual' or 'specification'. These values are set in the attribute
+Document.DocumentTypes; see <<cls-8.1.1>>.
+
+* General classification
+
+** Documents may need to be classified according to a classification
+system with explicit reference to classification criteria and related properties.
+For example, design documents may be classified according to level of design and
+to type of product. Such classification is enabled by the attribute Document.ClassifiedAs;
+see <<cls-8.1.1>>. Thus, a Document may be linked to an extensive and already existing
+classification system.
+
+[[cls-8.1]]
+=== Template "Document"
+
+The Document template supports -- similar to the Part template (see <<cls-5.1>>) -
+the ability to uniquely
+identify a Document, its meta data and its properties. It consists in the AP242 Domain Model
+of three structurally distinct data types as also shown in <<fig-50>>:
+
+* Document,
+* DocumentVersion and,
+* DocumentDefinition.
+
+The general recommendations given for Part identification apply also to the Document
+identification, except where differences are noted.
+
+Base document identification is always associated with at least one document version.
+Multiple document versions of a base document identification may be related together to
+represent document version history.
+
+DocumentDefinition is used to define a view of a particular representation of a document
+version. A document version does not have to have an associated document representation
+definition.
+
+The view definition of a document version is used for association of document properties, to
+build document structures, and to associate a document with the set of constituent external
+files that make it up.
+
+Document, DocumentVersion and DocumentDefinition shall be written to the XML-file using
+containment. The information elements in the white area on the left side of <<fig-50>> are
+root elements and are, thus, outside of this containment block.
+
+[[fig-50]]
+.Template "Document"
+image::img79.png[]
+
+[[cls-8.1.1]]
+==== Document
+
+The Document entity represents the document master base information.
+This entity collects all
+information that is common among the different versions and views of the document. The
+document number is strictly an identifier. It should not be used as a 'smart string' with
+some parseable internal coding scheme, e.g., to identify version or classification
+information.
+
+The Document number identifier shall be unique within the scope of the business process of
+the information exchange. This is typically not a problem when the Document is only used
+within a single company. For external use, the identification must be interpreted as unique
+within that broader domain. Processors may need to evaluate more than one string (i.e., more
+than only Document.id) to establish unique identification of the Document. The "Identifier"
+template provides a combination of parameters including Identifier.idRoleRef and
+Identifier.idContextRef that make Document identification unique.
+
+The following XML-snippet is an example from a physical file that is in accordance
+to <<fig-50>>.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Document uid="doc--000000001EAAE870">
+  <DocumentTypes>
+    <ClassString>geometry</ClassString>
+  </DocumentTypes>
+  <Id>
+    <Identifier uid="docid--000000001EAAE870--id7" id="nut" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+  <Name>
+    <CharacterString>/NULL</CharacterString>
+  </Name>
+  <Versions>
+    <DocumentVersion uid="dv--000000001EAAE870">
+      <Id id="/NULL"/>
+      <Views>
+        <DocumentDefinition uid="ddd--000000001EAAE870" xsi:type="n0:DigitalDocumentDefinition">
+          <Id id="/NULL"/>
+          <Files>
+            <DigitalFile uidRef="df--000000001EAAE870"/>
+          </Files>
+        </DocumentDefinition>
+      </Views>
+    </DocumentVersion>
+  </Versions>
+</Document>
+----
+
+[[tab-56]]
+."Document" Attributes
+[cols="a,a",options=header]
+|===
+| Entity Document attributes
+| Attribute type
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| DocumentTypes
+| SET[1:?] of ClassSelect
+
+| Id
+| IdentifierSelect
+
+| Name
+| DescriptorSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| Versions
+| SET[1:?] of DocumentVersion
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[DocumentRelationship]
+| span:gray[OPTIONAL SET[1:?\] of DocumentRelationship]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *ClassifiedAs*: the classifications of the Document. The value of this attribute need not
+be specified. Use "Classification" template (see <<cls-4.6.5>>).
+
+* *Description*: an expanded name or text that provides further information about the
+Document. The value of this attribute need not be specified. Use Description template
+(see <<cls-4.6.7>>).
+
+* *DocumentTypes*: the category of a Document. Use ClassString type if one of the values
+below is used, otherwise use "Class" template (see <<cls-4.6.4>>). As defined in the ISO
+AP242 specification, when applicable, the value of this element shall be one or several of
+the following:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| DocumentTypes
+| Explanation
+
+| 'catalogue'
+| the Document represents a catalogue.
+
+If associated to an object, it is the catalogue in which the associated object is listed
+
+| 'manual'
+| the Document represents a handbook.
+
+If associated to an object, it is the handbook that is supplied for the associated object
+
+| 'specification'
+| the Document represents a specification.
+
+If associated to an object, it specifies the considerations that lead to the design finally chosen for the associated object
+
+| 'primary geometry'
+| The document file represents one or many shape models in the highest quality available for this part
+
+| 'secondary geometry'
+| The document file represents one of many shape models in a format derived from the primary geometry, for example a standard format or a tessellated format or only the external shape (without inner geometry)
+
+| 'NC data'
+| The document file represents numerical control data
+
+| 'FE data'
+| The document file represents finite element data
+
+| 'sample data'
+| The document file represents measured data
+
+| 'process plan'
+| The document file represents process planning data
+
+| 'check plan'
+| The document file represents quality control planning data
+
+| 'drawing'
+| The document file represents a technical drawing
+
+| 'structured product data'
+| The document file contains product meta data and data related to product structure. This value shall be used for nested external references, when the referenced document relates to another Domain Model XML file (see <<cls-9.3>>)
+|===
+--
+
+* *Id*: the identifier or set of identifiers for the Document, the document number. The
+referenced Identifier element shall have valid values for elements Identifier.idRoleRef and
+Identifier.idContextRef. Use "Identifier" template (see <<cls-4.6.6>>).
+
+* *Name*: the words or set of words by which the Document is known. Use "Description"
+template (see <<cls-4.6.7>>).
+
+* *Versions*: the related releases of the Document; a Document shall have at
+least one DocumentVersion.
+
+* *_PropertyValueAssignment:_* to assign a PropertyValue to the Document. Use the
+"DocumentFileProperty" template (see <<cls-10.5>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation_*:
+
+A part shall have at most one Document of type 'primary geometry'. In most cases, this will
+be the native CAD geometry. A part may have none or many Documents of type 'secondary
+geometry'; for example one containing a standard format, one containing the tessellated
+geometry, one containing only the external shape, etc...
+
+What 'primary' and 'secondary' actually means is defined by the originating PDM system. There
+are exchange scenarios where only 'secondary geometry' will be exchanged, e.g. when for a
+Part where the native ('primary') is available in the sending system, only a derived format
+is sent to a supplier or customer.
+
+*_Postprocessor Recommendation_*:
+
+Documents of type 'primary geometry' and 'secondary geometry' are alternates to define the
+part, while all the other document types ('drawing', 'specification'...) are complementary
+to the geometry.
+
+If the postprocessor has to choose one geometry to process (for example CAD processors),
+'primary geometry' shall be the first choice. If no primary, but only secondary geometry is
+provided, the secondary shall be chosen.
+
+[NOTE,type=remark]
+====
+It is not recommended to rely on
+PartView.DefiningGeometry to find the primary geometry, since it is optional.
+====
+
+[[cls-8.1.2]]
+==== DocumentVersion
+
+A DocumentVersion is a release of a Document. It represents the identification of a specific
+version of the base Document identification. A particular DocumentVersion is always
+related to exactly one Document. This is why, in XML it is embedded within a Document
+element.
+
+*_Preprocessor Recommendations:_*
+
+* Though not required, it is recommended to assign at least one view definition to each
+document version. A valid exception to this general rule is the exchange of versions
+that represent an entire version history; in this case only the most recent version is
+required to have an associated view definition.
+
+* For the purpose of the typical PDM data exchange use case of these recommended
+practices, multiple versions of each document and multiple
+DigitalDocumentDefinitions of each version may be exchanged.
+
+An example of DocumentVersion instantiation is in the XML-snippet in <<cls-8.1.1>>.
+
+[[tab-57]]
+."DocumentVersion" Attributes
+[cols="a,a",options=header]
+|===
+| Entity DocumentVersion attributes
+| Attribute type
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| Views
+| OPTIONAL SET[1:?] of DocumentDefinition
+
+| ActivityAssignment
+| OPTIONAL SET[1:?] of ActivityAssignment
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| ApprovalAssignment
+| OPTIONAL SET[1:?] of ApprovalAssignment
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| DatetimeAssignment
+| OPTIONAL SET[1:?] of DateTimeAssignment
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| DocumentVersionRelationship
+| OPTIONAL SET[1:?] of DocumentVersionRelationship
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| OrganizationOrPersonInOrganizationAssignment
+| OPTIONAL SET[1:?] of OrganizationOrPersonInOrganizationAssignment
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_ActivityAssignment_*: the Activities associated to the DocumentVersion. The value of this
+attribute need not be specified. Use "Activity" template (see Recommended Practices for
+AP242 Domain Model XML Change Management for details)).
+
+* *ApprovalAssignment*: the level of acceptance of the DocumentVersion. The value of
+this attribute need not be specified. Use "Approval" template (see <<cls-4.6.17>>).
+
+* *ClassifiedAs*: the classifications of the DocumentVersion. The value of this attribute
+need not be specified. Use "Classification" template (see <<cls-4.6.5>>).
+
+* *DatetimeAssignment*: the date and time of the creation or update of the
+DocumentVersion. The value of this attribute need not be specified. Use "DateTime"
+template (see <<cls-4.6.11>>).
+
+* *Description*: the reason for the creation of the version. The value of this attribute need
+not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* *Id*: the identifier or set of identifiers for the DocumentVersion, the
+document version number. Use IdentifierString type or "Identifier" template
+(see <<cls-4.6.6>>).
+
+** *_Preprocessor Recommendations:_* If an organization does not version
+documents, it is recommended that the id attribute contains the string '/NULL' to
+indicate that no version information is relevant or intended. In this case only a single
+DocumentVersion shall be assigned to the Document.
+
+** *_Postprocessor Recommendations:_* If the value of the id attribute for a
+DocumentVersion is the string '/NULL', postprocessors should use this as an indication
+that the sending system or business process does not support versioning of Documents.
+
+* *DocumentVersionRelationship*: a DocumentVersion of the same Document or of a
+different Document with a specific relation to the DocumentVersion according to the
+DocumentVersionRelationship.RelationType attribute. The value of this attribute need not be
+specified. Use "DocumentVersionRelationship" template (see <<cls-8.3>>).
+
+* *OrganizationOrPersonInOrganizationAssignment*: an organization or person in
+organization with a specific relation to the DocumentVersion according to the
+OrganizationOrPersonInOrganizationAssignment.role attribute. The value
+of this attribute need not be specified. Use "PersonInOrganization" template
+(see <<cls-4.6.19>>).
+
+* *Views*: the set of DocumentDefinition objects defined for the DocumentVersion.
+
+** In general, each DocumentVersion is recommended to have an associated
+DocumentDefinition representing one of its view definitions. In restricted cases, a
+DocumentVersion without a definition may be used to enhance information about
+another related, fully defined version. In the following specific case a
+DocumentVersion may be exchanged without an associated DocumentDefinition:
+
+*** When version history (sequence relationship) is represented - only the
+most recent version is required to have an assigned DocumentDefinition.
+If there is no DocumentDefinition associated with the previous versions,
+only basic information about the sequence of previous versions is exchanged as additional
+information about the current DocumentVersion that is the focus of the data exchange.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-8.1.3]]
+==== DocumentDefinition
+
+The DocumentDefinition entity denotes the definition of a particular view of a
+representation of a DocumentVersion. There may be more than one document representation
+definition associated with a single document version. The representation view definition of
+a document version is used for association of document properties, to build document
+structures, and to associate a document with the set of constituent external files that make
+it up. The entity DocumentDefinition supports property association and document structure.
+The subtype DigitalDocumentDefinition is used to associate a representation of a document
+version with the set of constituent files that make it up. See <<cls-8.2>> for
+identification of external files and for associating external files to documents.
+
+*_Preprocessor Recommendations:_*
+
+* The use of DocumentDefinition entities is not strictly required by rules in the AP242
+Domain Model, but it is strongly recommended. All DocumentVersion entities should always
+have at least one associated DocumentDefinition, except in the case of the exchange of pure
+version history information.
+
+* If a PDM system does not distinguish between DocumentVersion and DocumentDefinition,
+only one DocumentDefinition shall be mapped (having id as unset).
+
+*_Postprocessor Recommendations:_*
+
+* the general behavior for evaluating ContentProperty, CreationProperty, FormatProperty and
+SizeProperty shall be 'only for information' and shall not cause the postprocessor to stop
+processing if the given content, creation system, format or size is not supported by the
+postprocessor. The postprocessor shall load and import the files correctly.
+
+An example of a DocumentDefinition instantiation is in the XML-snippet in <<cls-8.1.1>>.
+
+[[tab-58]]
+."(Digital)DocumentDefinition" Attributes
+[cols="a,a",options=header]
+|===
+| Entity (Digital)DocumentDefinition attributes
+| Attribute type
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| DocumentContent
+| OPTIONAL ContentProperty
+
+| DocumentCreation
+| OPTIONAL CreationProperty
+
+| DocumentFormat
+| OPTIONAL SET[1:?] OF FormatProperty
+
+| DocumentSize
+| OPTIONAL SizeProperty
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| span:gray[InZone]
+| span:gray[OPTIONAL SET[1:?\] of InZone]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[BreakdownVersionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of BreakdownVersionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| DocumentDefinitionRelationship
+| OPTIONAL SET[1:?] of DocumentDefinitionRelationship
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+
+| (only for DigitalDocumentDefinition) Files
+| OPTIONAL SET[1:?] of DigitalFiles
+|===
+
+*_Attribute recommendations_*
+
+* *ClassifiedAs*: the classifications of the DocumentDefinition. The value of this attribute
+does not need to be specified. Use "Classification" template (see <<cls-4.6.5>>).
+
+* *Description*: text or the set of texts that provide further information about the
+DocumentDefinition. The value of this attribute does not need to be specified. Use
+"Description" template (see <<cls-4.6.7>>).
+
+* *DocumentContent*: the characteristics of the content of the document represented by
+DocumentDefinition. The value of this attribute does not need to be specified. Use
+"ContentProperty" template (see <<cls-10.2>>).
+
+* *DocumentCreation*: further details of the creation of the document represented by
+DocumentDefinition. The value of this attribute does not need be specified. Use
+"CreationProperty" template (see <<cls-10.3>>).
+
+* *DocumentFormat*: the format of the document represented by DocumentDefinition. The
+value of this attribute does not need be specified. Use "FormatProperty"
+template (see <<cls-10.1>>).
+
+* *DocumentSize*: the size of the document represented by DocumentDefinition. The value
+of this attribute need not be specified. Use "SizeProperty" template (see <<cls-10.4>>).
+
+* *Id*: the identifier or set of identifiers for the DocumentDefinition. The value of this
+attribute need not be specified. Use IdentifierString type or "Identifier" template (see
+<<cls-4.6.6>>).
+
+** *_Preprocessor Recommendations:_* There is no standard mapping for the id
+attribute of DocumentDefinition; however, the value should be unique relative
+to other DocumentDefinitions related to the same DocumentVersion. The id attribute
+shall not be 'overloaded' to include, for example, life-cycle or organizational
+information; this is generally not recommended for the AP242 Domain Model. This
+attribute should contain a unique identifier for the DocumentDefinition -
+no additional semantics are associated with this attribute.
+
+** *_Postprocessor Recommendations:_* Postprocessors do not need to expect any
+semantics from the id attribute; it is a pure identifying string. The id value --
+possibly composed of several values according to the "Identifier" template - should
+be unique relative to other the identifiers of other DocumentDefinition
+related to the same DocumentVersion.
+
+* *Name*: the words or set of words by which the DocumentDefinition is known. The value
+of this attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* *_DocumentDefinitionRelationship:_* to relate to another document. Use the
+"DocumentDefinitionRelationship" template (see <<cls-8.2>>).
+
+* *_PropertyValueAssignment:_* to assign a PropertyValue to the DocumentDefinition. Use
+the "DocumentFileProperty" template (see <<cls-10.5>>).
+
+* *_Files_* (in case of DigitalDocumentDefinition): to assign one or many DigitalFiles to the
+DocumentDefinition. Use the "DigitalFile" template (see <<cls-9.1>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* 'Files' shall reference only one file. in order to manage the versioning of each of them
+as a distinct document within the PDM system. In case of model splitting or alternate models,
+please refer to the special cases explained in <<cls-11.2>>.
+
+* In case a DigitalDocumentDefinition has no file, it is recommended to let 'Files' unset,
+rather than to map a DocumentDefinition without subtype or a DigitalDocumentDefinition
+referencing a dummy DigitalFile having no Id and (File)Locations.
+
+*_Postprocessor Recommendations:_*
+
+* A DigitalFile having no Id/(File)Locations shall be interpreted as a
+DigitalDocumentDefinition having no 'Files'.
+
+[[cls-8.2]]
+=== Template "DocumentDefinitionRelationship"
+
+This relationship enables to relate two DocumentDefinitions of the same document version:
+
+[[fig-51]]
+.Template "DocumentDefinitionRelationship"
+====
+[%unnumbered]
+image::img80.png[]
+
+[%unnumbered]
+image::img81.png[]
+
+or of different documents:
+
+[%unnumbered]
+image::img82.png[]
+====
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Document uid="doc--000000001EB04CF0">
+...
+  <Id>
+    <Identifier uid="docid--000000001EB04CF0--id2" id="plate" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <DocumentVersion uid="dv--000000001EB04CF0">
+...
+      <Id id="A.1"/>
+      <Views>
+        <DocumentDefinition uid="ddd--000000001EB04CF0" xsi:type="n0:DigitalDocumentDefinition">
+          <Id id="/NULL"/>
+          <DocumentDefinitionRelationship uid="ddr--1">
+            <Related uidRef="ddd--000000001EB04CF0--2"/>
+            <RelationType>
+              <ClassString>sequence</ClassString>
+            </RelationType>
+          </DocumentDefinitionRelationship>
+...
+        </DocumentDefinition>
+        <DocumentDefinition uid="ddd--000000001EB04CF0--2" xsi:type="n0:DigitalDocumentDefinition">
+          <Id id="/NULL"/>
+...
+        </DocumentDefinition>
+      </Views>
+...
+    </DocumentVersion>
+  </Versions>
+</Document>
+----
+
+[[tab-59]]
+."DocumentDefinitionRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity DocumentDefinitionRelationship attributes
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[IdentifierSelect]
+
+| Related
+| DocumentDefinition
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type if one of the
+values below is used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the
+ISO AP242 Specification, where applicable, the following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| RelationType
+|
+
+| 'addition'
+| The business object specifies that the related document provides supplementary or collateral information with regard to the information provided by the relating document
+
+| 'copy'
+| The business object defines a relationship where the related DocumentDefinition is a copy of the relating DocumentDefinition
+
+| 'decomposition'
+| The business object defines a relationship where the related DocumentDefinition is one of potentially more sub documents of the relating DocumentDefinition
+
+| 'derivation'
+| The business object defines a relationship where the related DocumentDefinition is derived from the relating DocumentDefinition
+
+| 'peer'
+| The business object specifies that the related document provides required information with regard to that provided by the relating document. The peer document is essential for a complete understanding
+
+| 'reference'
+| The business object defines a relationship where the related document is referenced from the relating
+
+| 'sequence'
+| The business object defines a logical sequence where the related DocumentDefinition comes after the relating DocumentDefinition
+
+| 'substitution'
+| The business object defines a relationship where the related DocumentDefinition replaces the relating DocumentDefinition
+
+| 'translation'
+| The DocumentDefinitionRelationship specifies that the related document is generated through a translation process from the relating document
+|===
+--
+
+* *_Related_*: the other object of *DocumentDefinition* that is part of the relationship
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-8.3]]
+=== Template "DocumentVersionRelationship"
+
+Used to relate several versions of the same document:
+
+[[fig-52]]
+.Template "DocumentVersionRelationship"
+====
+[%unnumbered]
+image::img83.png[]
+
+or of different documents.
+
+[%unnumbered]
+image::img84.png[]
+====
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Document uid="doc--0000000017D374A0">
+...
+  <Versions>
+    <DocumentVersion uid="dv--0000000017D374A0">
+...
+      <DocumentVersionRelationship uid="dvr--1234">
+        <Related uidRef="dv--000000001EB04CF0"/>
+        <RelationType>
+          <ClassString>sequence</ClassString>
+        </RelationType>
+      </DocumentVersionRelationship>
+...
+    </DocumentVersion>
+  </Versions>
+</Document>
+----
+
+[[tab-60]]
+."DocumentVersionRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity DocumentVersionRelationship attributes
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| Related
+| DocumentVersion
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type if one of the
+values below is used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the
+ISO AP242 Specification, where applicable, the following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| RelationType
+|
+
+| 'derivation'
+| The business object defines a deriving relationship where the related DocumentVersion is based on the relating DocumentVersion which is an earlier version of the same or of a different Document
+
+| 'hierarchy'
+| The business object defines a hierarchical relationship where the related DocumentVersion is a subordinate version of the relating DocumentVersion
+
+| 'sequence'
+| The business object defines a version sequence where the relating DocumentVersion is the preceding version of the related DocumentVersion that is the following version. For a given DocumentVersion there shall be at most one DocumentVersionRelationship of this relationType referring to this DocumentVersion as 'relating' and at most one DocumentVersionRelationship of this relationType referring as 'related'.
+
+The Document associated to the Relating/Related DocumentVersions shall be the same.
+
+| 'supplied document'
+| The business object defines a relationship between two DocumentVersion objects (both exchanged in the same XML file) representing the same object in different organizational contexts
+|===
+--
+
+* *_Related_*: the other object of *DocumentVersion* that is part of the relationship
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.

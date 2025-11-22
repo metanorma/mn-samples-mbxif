@@ -1,0 +1,98 @@
+[[annex-C]]
+[bibliography]
+== Reference Documents
+
+This recommended practices document is based on and derived from various other documents,
+schemas, and technical presentations. Those resources are listed below:
+
+* [[[AP242,AP242 Ed.3]]],
+span:title[AP242 Ed.3 Domain Model XML / EXPRESS Schema]
+span:date[2021-05-11]
+span:version[N10590]
+
+* [[[step-242-CFG,242-CFG]]],
+span:title[Recommended Practices for STEP AP242 Edition 3 Domain Model XML Configuration Management]
+
+* [[[AP242-PMI,AP242-PMI]]],
+span:title[Recommended Practices for STEP AP242 Edition 4 Domain Model XML Product Manufacturing Information (PMI)]
+
+* [[[PID,PID]]],
+span:title[Recommended Practices for Persistent IDs for Design Iteration and Downstream Exchange]
+
+* [[[AP242-BO,AP242-BO]]],
+span:title[Model Usage Guidance for STEP AP242 BO Model CAD Exchange (DOC)],
+span:version[0.2],
+span:date[2012-07-16],
+span:surname[Darré], span:initials[F.]
+span:surname[Fournier], span:initials[A.]
+
+* [[[AP242-XML,AP242-XML]]],
+span:title[STEP AP242 XML Nested Assembly Approach (PPT)]
+span:date[2014-02-24]
+span:surname[Ungerer], span:initials[M.]
+span:surname[Hirel], span:initials[G.]
+
+* [[[AP242-IS,AP242-IS]]],
+span:title[AP242 BO Model IS - Simplified Shape Association and Transformation (PPT)]
+span:date[2014-02-24]
+span:surname[Ungerer], span:initials[M.]
+
+* [[[CAx-IF-RP,Geometric and Assembly Validation Properties]]],
+span:title[Geometric and Assembly Validation Properties]
+span:version[4.6];
+span:date[2023-04-21]
+span:uri[https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_gvp_v46.pdf]
+
+* [[[CAX-IF-ER, External References]]],
+span:title[External References],
+span:version[3.1];
+span:date[2014-01-20]
+span:uri[https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_ext_ref_v31.pdf]
+
+* [[[CAX-IF-UDA, User Defined Attributes]]],
+span:title[User Defined Attributes],
+span:version[1.8];
+span:date[2021-02-18]
+span:uri[https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_user_def_attributes_v18.pdf]
+
+* [[[CAX-IF-SFC, STEP File Compression]]],
+span:title[STEP File Compression],
+span:version[1.3];
+span:date[2023-04-12]
+span:uri[https://www.mbx-if.org/home/wp-content/uploads/2024/05/rec_prac_file_compression_v13.pdf]
+
+* [[[CAX-IF-PSUG, PDM Schema Usage Guide]]],
+span:title[PDM Schema Usage Guide],
+span:version[4.3];
+span:date[2002-01]
+span:uri[https://www.mbx-if.org/home/wp-content/uploads/2024/05/pdmug_release4_3.pdf]
+
+* [[[CAX-IF-AS, Alternative Shapes]]],
+span:title[Alternative Shapes],
+span:version[0.2];
+span:date[2021-11-23]
+span:uri[https://www.mbx-if.de/cax/cax_recommPractice.php]
+
+* [[[LOTAR,LOTAR]]],
+span:title[LOTAR Part 115 "Explicit CAD Assembly Structure"]
+
+* [[[VDA4956,VDA 4956-1]]],
+span:title[VDA Recommendation 4956-1 "Assembly Data Exchange"],
+span:uri[http://www.prostep.org/fileadmin/freie_downloads/Empfehlungen-Standards/VDA/VDA_4956-1_Product-Data-Management_1.0.pdf].
+
+* [[[JT-AB,JT Application Benchmark]]],
+span:title[JT Application Benchmark 2013-2018 Experiences]
+
+* [[[MIL-STD-31000A,MIL-STD-31000A]]],
+span:title[MIL-STD-31000A], span:uri[http://model-based-enterprise.org/mil-standards.html]
+
+* [[[JT-CHG,JT Content Harmonization Guideline]]],
+span:title[JT Content Harmonization Guideline],
+span:version[5.0],
+span:date[2019-11-06]
+
+* [[[LOTAR200,LOTAR Part 200-1]]],
+span:title[LOTAR Part 200-1: Technical Specification "Product Structure Validation" (TS-9300-200-1)]
+span:uri[https://lotar-international.org/wp-content/uploads/2020/05/TS-9300-200-1_R2.2.pdf]
+
+* [[[ISO13584-42,ISO 13584-42]]]

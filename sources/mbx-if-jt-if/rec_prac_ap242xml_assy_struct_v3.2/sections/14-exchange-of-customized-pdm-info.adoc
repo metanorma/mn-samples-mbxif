@@ -1,0 +1,555 @@
+[[cls-14]]
+== Exchange of Customized PDM Information
+
+This section describes how, additionally to the standard objects, structures and properties
+defined in the previous sections, the customized objects, structures and properties defined
+in the PDM system may be exchanged.
+
+[[cls-14.1]]
+=== Supported Customization Features of the PDM Systems
+
+Current PDM system offer a wide range of customization features. General concepts such as
+the definition of specialized objects, attributes and relationships, can easily be mapped to
+the AP242 Domain Model and exchanged between the different systems. The following sections
+provide an introduction to managing these concepts.
+
+There are, however, concepts where it is currently not clear if and how they can be mapped
+not only to the AP242 Domain Model, but also between different PDM systems. Enumerations,
+sequences and formulas are a few examples.
+
+These advanced concepts will be worked on based on user requirements and added to future
+releases of these Recommended Practices when an agreed solution has been found.
+
+[[cls-14.2]]
+=== Customized Objects & Structures
+
+[[cls-14.2.1]]
+==== Without the use of property groups
+
+All the AP242 Domain Model entities have an attribute 'ClassifiedAs', which may reference one
+or many instances of Classification (for more details, refer to <<cls-4.6.5>>).
+
+*_Preprocessor Recommendations:_*
+
+In case an object or structure is customized, its name shall be mapped to a Class (not a
+ClassString) defined in an ExternalClassSystem called 'customized part type' (for Parts),
+'customized document type' (for Documents), 'customized work request type' (for
+WorkRequests), customized work order type' (for WorkOrders or 'customized activity type'
+(for Activities). This class shall be referenced through ClassifiedAs via an instance of
+Classification with Role='customized type'.
+
+The idContextRef of the Class and ExternalClassSystem references the organization from which
+the customization is coming from.
+
+It is not recommended to use the attributes Part.PartTypes and Document.DocumentTypes for
+this purpose. PartTypes/DocumentTypes shall contain recommended or individual values that
+indicate what kind of part/document it is, but not the name of customized PDM type.
+
+If the PDM customization defines herarchies of customized types, like for example:
+
+[source%unnumbered]
+----
+PDMIFPart_MB
+  PDMIFElectricalPart_MB
+    PDMIFCapacitor_MB
+    ...
+  PDMIFMechanicalPart_MB
+    PDMIFMechStandardPart_MB
+    ...
+----
+
+it is recommended that only the leaf class gets referenced by ClassifiedAs.
+
+The mapping of this hierarchy via ClassificationRelationship is currently out of
+scope of this document.
+
+PropertyValue.Name shall be unique within all PropertyValues assigned by a
+PropertyValueAssignment.
+
+*_Postprocessor Recommendations:_*
+
+The properties of each customized object/structure shall be mapped to properties of the
+corresponding (standard or customized) object/structure of the target PDM system.
+
+If PropertyValue.Name is not unique within a PropertyValueAssignment, an error shall be
+returned and the duplicate PropertyValue shall be ignored.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<ExternalClassSystem uid="ecs--cpp">
+  <Id>
+    <Identifier uid="cpp--id" id="customized part type" idRoleRef="C__5" id-ContextRef="O__3"
+  </Id>
+</ExternalClassSystem>
+
+<Class uid="cpp--pdmifmb">
+  <DefinedIn uidRef="ecs--cpp"/>
+  <Id id="PDMIFPart_MB"/>
+</Class>
+
+<Classification uid="cl--pdmifmb">
+    <Class>
+      <Class uidRef="cpp--pdmifmb"/>
+    </Class>
+  <Role>customized type</Role>
+</Classification>
+
+<Part uid="p--0000000017086CB0">
+  <ClassifiedAs>
+    <Classification uidRef="cl--pdmifmb"/>
+  </ClassifiedAs>
+...
+</Part>
+----
+
+[[cls-14.2.2]]
+==== With the use of property groups
+
+NOTE: Some concepts in this section, namely the definition and transfer of property groups,
+are included for completeness but have not yet been tested. Hence, these definitions might
+change in the future.
+
+Some PDM systems like 3DExperience or Teamcenter group the customized properties in
+so-called Extension or Form objects.
+
+Several extensions/forms may occur, if many groups of property are involved (for example
+energy consumption property group, water consumption property group and hazardous waste mass
+measure property group).
+
+An extension/form may occur multiple times, if the same group of property is needed multiple
+times, for example the approval information (role, who, from several actors).
+
+The same extension/from may be used by several PDM object types (part, document, ...)
+
+Some customized properties may be defined in the customized subtype of the PDM object (called
+'Type' in the following picture).
+
+[[fig-93]]
+.Use of extensions/forms in PDM systems
+image::img125.png[]
+
+*_Preprocessor Recommendations:_*
+
+* Refer to the mapping defined in <<cls-14.2.1>> for Classification, Class and
+ExternalClassSystem to map the customized PDM object (may be any object on which a
+PropertyValueAssignment is recommended, for example a part, a document, etc...).
+
+* For each extension/form related to this PDM object:
+** Create a PropertyValueAssignment having a unique Id (maybe the name of the
+extension/form + #1, #2, etc... if the same extension/form is used multiple times
+on the same PDM object)
+
+* additionally to the PropertyValueAssignment for the customized properties directly stored
+within the PDM object or stored in a default extension/form: this
+PropertyvalueAssignment has no Id
+
+* Within a property group, properties of kind Date, Approval or Person/Organization shall
+be assigned to the PropertyValueAssignment that maps the group.
+
+[[fig-94]]
+.Example of property groups on a Part having properties on the PartView.
+image::img126.png[]
+
+*_Postprocessor Recommendations:_*
+
+* The groups of properties are only for information. The target system may group
+the properties in another way than the source system.
+
+* If the target system does not support groups of properties, they can be ignored during
+import => all PropertyValueAssignments of type 'part properties' shall be processed.
+
+* If the user scenario requires that the original groups of properties are not lost during
+bidirectional exchange even if the target system does not support groups of properties,
+the postprocessor shall at least save this schema information (not necessary at value
+level) in order to re-export the original groups of properties.
+
+* If PropertyValue.Name is not unique because two property groups have the same
+property name, the target system shall be able to distinguish the values of these properties
+having the same name.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+This example maps a Part with:
+
+* Three properties called `'PDMIFPartVers_Tol'`, `'PDMIFPartVers_Range'` and
+`'PDMIFPartVers_String'` on a subtype of part called `'PDMIFPartType'`
+
+* Three properties called `'PDMIFPartVers_Numerical'`, `'PDMIFPartVers_Real'` and
+`'PDMIFPartVers_Integer'` on an Extension/Form called `'PDMIFForm1'`
+
+* Three properties `'PDMIFPartVers_Boolean'`, `'PDMIFPartVers_ValueList'` and
+`'PDMIFPartVers_ValueSet'` on an Extension/Form called `'PDMIFForm2'`
+
+All the other instances of `'PDMIFPartType'` within the same AP242 XML file would reference
+the same instance of Classification/Class and its PropertyValues would reference the same
+instances of PropertyDefinition (grouped in the three groups mentioned above).
+
+Other instances of Part belonging to another subtype of part would reference another instance
+of Classification/Class with other PropertyDefinitions, except for those properties coming
+from the same Extensions/Forms than in `'PDMIFPartType'`.
+
+[source%unnumbered,xml]
+----
+<ExternalClassSystem uid="ID_240">
+  <Id>
+    <Identifier uid="ID_241" id="customized part type" idRoleRef="C__7" id-ContextRef="O__3"> </Identifier>
+  </Id>
+</ExternalClassSystem>
+<ExternalClassSystem uid="ID_381">
+  <Id>
+    <Identifier uid="ID_382" id="customized document type" idRoleRef="C__7" idContextRef="O__3"> </Identifier>
+  </Id>
+</ExternalClassSystem>
+...
+<Class uid="ID_242">
+  <ClassAttribute uid="ca_1">
+    <AttributeDefinition uidRef="ID_g1"/>
+    <Id id="PDMIFPartType"/>
+  </ClassAttribute>
+  <ClassAttribute uid="ca_2">
+    <AttributeDefinition uidRef="ID_g2"/>
+    <Id id="PDMIFForm1"/>
+  </ClassAttribute>
+  <ClassAttribute uid="ca_3">
+    <AttributeDefinition uidRef="ID_g3"/>
+    <Id id="PDMIFForm2"/>
+  </ClassAttribute>
+  <DefinedIn uidRef="ID_240"/>
+  <Id id="PDMIFPartType"/>
+</Class>
+...
+<PropertyDefinition uid="PD__35">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>system property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyDefinition uid="ID_57_1">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+...
+<Classification uid="Cl__36">
+  <Class>
+    <ClassString>part properties</ClassString>
+  </Class>
+  <Role>kind of properties</Role>
+</Classification>
+<Classification uid="ID_243">
+  <Class>
+    <Class uidRef="ID_242"/>
+  </Class>
+  <Role>customized type</Role>
+</Classification>
+...
+<Part uid="Pa__4">
+  <ClassifiedAs>
+    <Classification uidRef="ID_243"/>
+  </ClassifiedAs>
+...
+  <Versions>
+    <PartVersion uid="PVe__9">
+...
+      <Views>
+        <PartView uid="PV__13" xsi:type="n0:AssemblyDefinition">
+...
+          <PropertyValueAssignment uid="PVA__33">
+            <AssignedPropertyValues>
+              <PropertyValue uid="ID_159" xsi:type="n0:ValueWithTolerances">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_57_1"/>
+                </Definition>
+                <Name>
+                  <CharacterString>PDMIFPartVers_Tol</CharacterString>
+                </Name>
+...
+        </PropertyValue>
+        <PropertyValue uid="ID_162" xsi:type="n0:ValueRange">
+          <Definition>
+            <PropertyDefinition uidRef="ID_57_2"/>
+          </Definition>
+          <Name>
+            <CharacterString>PDMIFPartVers_Range</CharacterString>
+          </Name>
+...
+        </PropertyValue>
+        <PropertyValue uid="ID_165" xsi:type="n0:StringValue">
+          <Definition>
+            <PropertyDefinition uidRef="ID_57_3"/>
+          </Definition>
+          <Name>
+            <CharacterString>PDMIFPartVers_String</CharacterString>
+          </Name>
+        <ClassifiedAs>
+          <Classification uidRef="Cl__36"/>
+        </ClassifiedAs>
+      </PropertyValueAssignment>
+      <PropertyValueAssignment uid="PVA__33-1">
+        <AssignedPropertyValues>
+          </PropertyValue>
+          <PropertyValue uid="ID_166" xsi:type="n0:NumericalValue">
+            <Definition>
+              <PropertyDefinition uidRef="ID_57_4"/>
+            </Definition>
+            <Name>
+              <CharacterString>PDMIFPartVers_Numerical</CharacterString>
+            </Name>
+...
+          </PropertyValue>
+          <PropertyValue uid="ID_167" xsi:type="n0:NumericalValue">
+            <Definition>
+              <PropertyDefinition uidRef="ID_57_5"/>
+            </Definition>
+            <Name>
+              <CharacterString>PDMIFPartVers_Real</CharacterString>
+            </Name>
+...
+          </PropertyValue>
+          <PropertyValue uid="ID_168" xsi:type="n0:NumericalValue">
+            <Definition>
+              <PropertyDefinition uidRef="ID_57_6"/>
+            </Definition>
+            <Name>
+              <CharacterString>PDMIFPartVers_Integer</CharacterString>
+            </Name>
+          <ClassifiedAs>
+            <Classification uidRef="Cl__36"/>
+          </ClassifiedAs>
+          <Id id="PDMIFForm1"/>
+        </PropertyValueAssignment>
+        <PropertyValueAssignment uid="PVA__33-1">
+          <AssignedPropertyValues>
+            </PropertyValue>
+            <PropertyValue uid="ID_169" xsi:type="n0:NumericalValue">
+              <Definition>
+                <PropertyDefinition uidRef="ID_57_7"/>
+              </Definition>
+              <Name>
+                <CharacterString>PDMIFPartVers_Boolean</CharacterString>
+              </Name>
+...
+            </PropertyValue>
+            <PropertyValue uid="ID_170" xsi:type="n0:ValueList">
+              <Definition>
+                <PropertyDefinition uidRef="ID_57_8"/>
+              </Definition>
+              <Name>
+                <CharacterString>PDMIFPartVers_ValueList</CharacterString>
+              </Name>
+...
+            </PropertyValue>
+            <PropertyValue uid="ID_171" xsi:type="n0:ValueSet">
+              <Definition>
+                <PropertyDefinition uidRef="ID_57_9"/>
+              </Definition>
+              <Name>
+                <CharacterString>PDMIFPartVers_ValueSet</CharacterString>
+              </Name>
+...
+            </PropertyValue>
+            <PropertyValue uid="SV__34" xsi:type="n0:StringValue">
+              <Definition>
+                <PropertyDefinition uidRef="PD__35"/>
+              </Definition>
+              <Name>
+                <CharacterString>project</CharacterString>
+              </Name>
+...
+            </PropertyValue>
+          </AssignedPropertyValues>
+          <ClassifiedAs>
+            <Classification uidRef="Cl__36"/>
+          </ClassifiedAs>
+          <Id id="PDMIFForm2"/>
+        </PropertyValueAssignment>
+        </PartView>
+      </Views>
+...
+    </PartVersion>
+  </Versions>
+...
+</Part>
+----
+
+[[cls-14.3]]
+=== Customized Properties
+
+*_Preprocessor Recommendations:_*
+
+The customized properties of a customized object or structure shall be mapped as described in
+the <<cls-12>> using the value 'customized PDM property' for PropertyDefinition.PropertyType.
+
+They are defined in the customized PDM object or structure, either as classification
+properties (like in SAP) or as subtype of the standard PDM object/structure (like in
+Teamcenter, Windchill, ...) or as additional properties of the standard PDM object/structure
+(like in Aras).
+
+Customized properties of type Date can be mapped beside the standard date properties
+(<<cls-4.6.11>>) with Role=<name of the customized date property>.
+
+Dito for Persons (<<cls-4.6.18>>) and PersonInOrganizations (<<cls-4.6.19>>):
+using OrganizationOrPersonInOrganizationAssignment with dedicated role = <name
+of the customized person or organization
+property. The use of DateAndPersonAssignment is not recommended.
+
+Dito for Approvals (<<cls-4.6.17>>): using ApprovalAssignment with dedicated role =
+<name of the customized approval property>.
+
+In order to exchange a lifecycle workflow, i.e. the supported approval status transitions
+(often defined as a graph in the PDM systems), the use of ApprovalRelationship with
+RelationType='workflow successor' is recommended. An approval may have zero, one
+or multiple predecessors/successors.
+
+If more than one lifecycle workflow is exchanged (for example one for Parts and one for
+Documents, or even one for CAD Documents and one for non-CAD Documents), the Approvals of
+each workflow shall be assigned to a distinct ExternalClassSystem.
+
+Here is an example:
+
+[source%unnumbered,xml]
+----
+<ExternalClassSystem uid="ecs--lc-part">
+  <Id>
+    <Identifier uid="fd--lc-part-id1" id="part lifecycle" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+</ExternalClassSystem>
+<Class uid="cl--lc-part-1">
+  <DefinedIn uidRef="ecs--lc-part"/>
+  <Id id="part lifecycle value 1"/>
+</Class>
+<Class uid="cl--lc-part-2">
+  <DefinedIn uidRef="ecs--lc-part"/>
+  <Id id="part lifecycle value 2"/>
+</Class>
+
+<Approval uid="app--1">
+  <Description>
+    <CharacterString>disposition</CharacterString>
+  </Description>
+  <Status>
+    <Class uidRef="cl--lc-part-1"/>
+  </Status>
+</Approval>
+
+<Approval uid="app--2">
+  <Description>
+    <CharacterString>disposition</CharacterString>
+  </Description>
+  <Status>
+    <Class uidRef="cl--lc-part-2"/>
+  </Status>
+</Approval>
+----
+
+The following values shall be used if a customized property has an empty value:
+
+* ''.for STRING properties
+* [''] for Set/List properties
+* 2147483647 (MAX_LONG) for INTEGER or REAL properties with unit
+* 1970-01-01T00:00:00 for Date properties
+* UNKNOWN for Boolean Properties
+* '/NULL' for Approval, Organization and Person properties
+
+Only the customized properties having a value (even empty) shall be exchanged and shall be
+imported/updated in the target system. Unset customized properties shall not be exchanged and
+shall not be updated in the target system.
+
+Some PLM systems (Out of the Box) do not differentiate properly between unset values and
+empty values in customized properties of kind. In this case:
+
+* unset string properties may be imported/exported as empty string values
+* unset boolean properties may be imported/exported as FALSE
+
+Removed customized properties (update from a non-unset value to an unset value) shall be
+mapped as a DeltaChangeActivity of type DeleteElement (see <<cls-9.5.2>>). For example:
+
+[source%unnumbered,xml]
+----
+<DeltaChange uid="dc-1">
+  <ChangeActivities>
+    <DeltaChangeActivity uid="dca-1" xsi:type="bom:DeleteElement">
+      <PreviousDesignObject>
+        <PropertyValue uidRef="ID_1708"/>
+      </PreviousDesignObject>
+    </DeltaChangeActivity>
+    <DeltaChangeActivity uid="dca-2" xsi:type="bom:DeleteElement">
+      <PreviousDesignObject>
+        <ApprovalAssignment uidRef="ID_1738"/>
+      </PreviousDesignObject>
+    </DeltaChangeActivity>
+    <DeltaChangeActivity uid="dca-3" xsi:type="bom:DeleteElement">
+      <PreviousDesignObject>
+        <DateTimeAssignment uidRef="ID_1727"/>
+      </PreviousDesignObject>
+    </DeltaChangeActivity>
+    <DeltaChangeActivity uid="dca-3" xsi:type="bom:DeleteElement">
+      <PreviousDesignObject>
+        <OrganizationOrPersonInOrganizationAssignment uidRef="ID_1728"/>
+      </PreviousDesignObject>
+    </DeltaChangeActivity>
+  </ChangeActivities>
+...
+</DeltaChange>
+----
+
+Assignments to empty customized properties of kind Approvals shall be exchanged as a
+dummyApproval having an Approval.Status='/NULL'.
+
+Assignments to empty customized properties of kind Person/Organizations
+shall be exchanged as a dummy PersonInOrganization having Organization.Id='/NULL'
+and Person.LastName='/NULL'.
+
+In case of Part and Document, to simplify the postprocessors:
+
+* the customized DateTimeAssignments, ApprovalAssignments and
+OrganizationOrPersonInOrganizationAssignments shall be associated to
+the PartVersion or DocumentVersion (and not to PartView or DocumentDefinition),
+just as described in the <<cls-5.1.2;and!cls-8.1.2>>.
+
+* the customized PropertyAssignments shall be associated to the PartView or
+DocumentDefinition (and not to PartVersion or DocumentVersion), just as described in the
+<<cls-5.1.3;and!cls-8.1.3>>.
+
+In case the sender PDM system has distinct part/document master/version objects, customized
+PropertyAssignments, DateTimeAssignments, ApprovalAssignments and
+OrganizationOrPersonInOrganizationAssignments shall only be
+associated to Part/Document if they apply to all
+PartVersions or DocumentVersions
+
+Since the object Occurrence (SingleOccurrence, SpecifiedOccurrence, ...) is not a distinct
+object in most PDM systems, but rather mapped together with the ViewOccurrenceRelationship
+(as NextAssemblyOccurrenceUsage), no customized properties shall be associated to the
+Occurrences. If needed, they should be all associated to the NextAssemblyOccurrenceUsage
+
+*_Postprocessor Recommendations:_*
+
+Each relevant customized property shall be mapped to the corresponding (standard or
+customized) property of the target PDM system.
+
+If the target PDM system does not support multi-value properties (ValueSet/ValueList),
+ValueLimit, ValueRange, ValueWithtolerances or LimitsAndFits, these properties shall be
+either ignored or splitted into simple properties by the postprocessor.
+
+DateTimeAssignments, ApprovalAssignments and
+OrganizationOrPersonInOrganizationAssignments associated to PartView
+or DocumentDefinition may be ignored. PropertyAssignments
+associated to PartVersion or DocumentVersion also.
+
+If some customized PropertyAssignments, DateTimeAssignments, ApprovalAssignments or
+OrganizationOrPersonInOrganizationAssignments are associated to
+Part/Document, but the target PDM system hasn't got distinct part/document master/version
+objects, they shall be mapped only to those PartVersions or DocumentVersions that are
+coming along with this part/document in the XML file.
+
+Customized properties associated to object Occurrence (SingleOccurrence,
+SpecifiedOccurrence, ...) shall be mapped as if they were associated to the corresponding
+NextAssemblyOccurrenceUsage
+
+For the special case, where some customized properties need to be exchanged on
+PartViewRelationship, see <<cls-7.4>> for more details how to map and interprete them.

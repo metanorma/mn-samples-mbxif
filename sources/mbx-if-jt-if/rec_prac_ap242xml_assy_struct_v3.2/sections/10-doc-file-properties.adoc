@@ -1,0 +1,629 @@
+[[cls-10]]
+== Document and File Properties
+
+[[cls-10.1]]
+=== Template "FormatProperty"
+
+The `FormatProperty` entity is the specification of characteristics of a File or of a
+DocumentDefinition that specify the format of the object.
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-73]]
+.Template "FormatProperty"
+image::img105.png[]
+
+[[tab-69]]
+."FormatProperty" Attributes
+[cols="a,a",options=header]
+|===
+| Entity FormatProperty
+| Attribute type
+
+| CharacterCode
+| OPTIONAL ClassSelect
+
+| DataFormat
+| OPTIONAL ClassSelect
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[SizeFormat]
+| span:gray[OPTIONAL RectangularSize]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+|===
+
+*_Attribute recommendations_*
+
+* *_CharacterCode:_* the computer application used to create the DigitalFile. The value of
+this attribute need not be specified. Use ClassString type if one of the values below is
+used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the ISO AP242
+Specification, where applicable, the following values shall be used:
++
+---
+[%unnumbered,cols="a,a",options=header]
+|===
+| CharacterCode | Explanation
+
+| 'binary'
+| The document contains data in binary format
+
+| 'IEC 61286'
+| The coded character set used to encode the document data according to IEC 61286
+
+| 'ISO 646'
+| The coded character set used to encode the document data according to ISO 646;
+
+NOTE: The character set in ISO 646 is identical to the character set commonly known as ASCII
+
+| 'ISO 6937'
+| The coded character set used to encode the document data is according to ISO/IEC 6937
+
+| 'ISO 8859-1'
+| The coded character set used to encode the document data according to ISO 8859-1;
+
+NOTE: The character set in ISO 8859-1 is identical to the character set commonly known as LATIN-1. This is the default for STEP Part 21 files.
+
+| 'compressed ISO 8859-1'
+| The coded character set used to encode the document data according to ISO 8859-1, where the file was compressed using the PKZip 2.04g format footnoteblock:[f1]
+
+| 'UTF-8'
+| The coded character set used to encode the document data according to to UTF-8.
+
+NOTE: The character set in UTF-8 is the default encoding for XML files, including STEP Domain Model XML files.
+
+| 'compressed UTF-8'
+| The coded character set used to encode the document data according to UTF-8, where the file was compressed using the PKZip 2.04g format footnoteblock:[f1]
+
+| 'ISO 10646'
+| The coded character set used to encode the document data according to ISO/IEC 10646.
+|===
+
+[[f1]]
+[NOTE]
+--
+If the respective compressed files are STEP files per the Recommended Practices for STEP
+File compression (see <<annex-C>>), the file reference shall always point to the
+uncompressed file. Thus, the FormatProperty should also state the original format, and not
+the compressed version. The PKZip format definition is available at
+https://www.pkware.com/documents/APPNOTE/APPNOTE-6.2.0.txt
+--
+---
+
+* *_DataFormat_*: the convention that was used to structure the information in the
+characterized object. Use ClassString type if one of the values below is used, otherwise use
+"Class" template (see <<cls-4.6.4>>). According to the ISO AP242 Specification, where
+applicable, the following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| DataFormat
+| Explanation
+
+| 'DXF'
+| The document contains data in Drawing Exchange File format
+
+| 'IGES'
+| The document contains data in Initial Graphics Exchange Specification format
+
+| 'ISO 10303-203', +
+'STEP AP203'
+| Eventually followed by the release number (E2, E3): The document contains data in ISO 10303-203 Part21 format
+
+| 'ISO 10303-214', +
+'STEP AP214'
+| Eventually followed by the release number (E2,E3): The document contains data in ISO 10303-214 Part21 format
+
+| 'STEP AP214 CC06'
+| The document contains data in ISO 10303-214 Part21 format according to Conformance Class 06 (product structure only, the file contains no geometry, but references to external geometry files)
+
+| 'TIFF CCITT GR4'
+| The document contains data in TIFF CCITT GR4 format
+
+| 'VDAFS'
+| The document contains data in VDAFS format
+
+| 'VOXEL'
+| The document contains data in VOXEL format
+
+| 'CAD'
+| The document contains native CAD data. When used, the Document Creation Property (see <<cls-10.3>>) shall be used to convey specifics on the originating CAD system
+|===
+--
+
+*_Preprocessor Recommendations:_*
+
+* DataFormat shall be always set, since a FormatProperty without DataFormat has no
+added value.
+
+* In case of a non-native proprietary format (for example CATIA CGR), the DataFormat
+shall refer to a Class and ExternalClassSystem (see "Class" template <<cls-4.6.4>>).
++
+--
+Additionally, the following values are recommended, where applicable:
+
+[%unnumbered,options=header,cols="a,a"]
+|===
+| DataFormat
+| Explanation
+
+| 'ISO 10303-242', +
+'STEP AP242'
+| The document contains data in ISO 10303-242 Part 21 format
+
+| 'ISO 10303-242 Domain Model XML'
+| The document contains data in ISO 10303-242 XML format
+
+| 'ISO 14306 JT'
+| The document contains data in ISO 14306 JT format
+
+| MS Word
+| Microsoft Word
+
+| MS_Excel
+| Microsoft Excel
+
+| MS Powerpoint
+| Microsoft Powerpoint
+
+| MS Outlook
+| Microsoft Outlook
+
+| MS Access
+| Microsoft Access
+
+| MS Project
+| Microsoft Project
+
+| full text
+| ASCII text
+
+| GIF
+| Graphics Interchange Format
+
+| HPGL
+| Hewlett-Packard Graphics Language
+
+| HTML
+| ISO/IEC 15445 HyperText Markup Language
+
+| JPEG
+| ISO/IEC 10918 JPEG
+
+| PDF
+| ISO 32000-1 Portable Document Format
+
+| TIFF
+| ISO 12639 Tagged Image File Format
+|===
+--
+
+* *_Description_*: the text or the set of texts that provides further information about the
+FormatProperty. The value of this attribute need not be specified. Use "Description"
+template (see <<cls-4.6.7>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<FormatProperty uid="ffp--AP242DOMAINMODEL">
+  <CharacterCode>
+    <ClassString>UTF-8</ClassString>
+  </CharacterCode>
+  <DataFormat>
+    <ClassString>ISO 10303-242 Domain Model XML</ClassString>
+  </DataFormat>
+</FormatProperty>
+----
+
+[[cls-10.2]]
+=== Template "ContentProperty"
+
+The `ContentProperty` entity is the specification of characteristics precising the
+content of a File or of a DocumentDefinition.
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-74]]
+.Template "ContentProperty"
+image::img106.png[]
+
+[[tab-70]]
+."ContentProperty" Attributes
+[cols="a,a",options=header]
+|===
+| Entity ContentProperty
+| Attribute type
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| DetailLevel
+| OPTIONAL DescriptorSelect
+
+| GeometryTypes
+| OPTIONAL SET[1:?] of Classification
+
+| span:gray[Languages]
+| span:gray[OPTIONAL SET[1:?\] of Language]
+
+| span:gray[RealWorldScale]
+| span:gray[OPTIONAL NumericalValue]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provides further information about the
+ContentProperty. The value of this attribute need not be specified. Use "Description"
+template (see <<cls-4.6.7>>).
+
+* *_DetailLevel_*: the level of detail that the DigitalFile provides. The value of this
+attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>). The
+following recommended values for this attribute are derived from MIL-STD-31000A (see
+reference in <<annex-C>>):
++
+--
+[%unnumbered,options=header,cols="a,a"]
+|===
+| DetailLevel
+| Explanation
+
+| 'conceptual level'
+| Conceptual level data relates to elements defining design concepts in graphic form, and includes appropriate information required for analysis and evaluation of those concepts. The data may consist of simple sketches/models, artist renderings and/or basic textual data
+
+| 'developmental level'
+| Developmental level data relates to elements providing sufficient data to support the analysis of a specific design approach, the fabrication of prototype material for test or experimentation, and limited production by the original design organization or with assistance from the original design organization
+
+| 'production level'
+| Production level data relates to elements providing the design, engineering, manufacturing, inspection, packaging and quality assurance provisions information enabling the procurement or manufacture of an item. The level of detail shall be sufficient for a competent manufacturer to produce an item, which duplicates the physical, interface, and functional characteristics of the original product, without additional design engineering effort or recourse to the current design activity. Production data shall reflect the approved, tested, and accepted configuration of the defined delivered item
+|===
+--
+
+* *_GeometryTypes:_* details of the context of the creation of the DigitalFile. The value of
+this attribute need not be specified. As far as applicable, one or several of the values
+given below can be used. Use "Classification" template (see <<cls-4.6.5>>). Use ClassString
+type for Classification.Class if one of the values below is used:
++
+--
+*If the DigitalFile contains the geometry of a part:*
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| GeometryTypes
+| Explanation
+
+| 'wireframe geometry'
+| The document contains a three-dimensional model with precise definitions of wireframes or independent curves, meaning these curves are not edge curves of higher topological elements
+
+| 'surface geometry'
+| The document contains a three-dimensional shape with with precise definitions of independent surfaces, meaning these surfaces are not faces of solids
+
+| 'solid geometry'
+| The document contains a three-dimensional shape model in advanced boundary representation
+
+| 'exact geometry'
+| The document contains a precise three-dimensional B-Rep model made of either wireframe, surface and/or solid geometry. This value can be used if the PDM system doesn't get more details about the kind of B-Rep geometry from the CAD system.
+
+| 'tessellated geometry'
+| The document contains a simplified shape representation that may consist of curves, surfaces and/or solids
+
+| '2D drawing'
+| The document contains a technical drawing. The drawing may have been derived from a 3D model
+
+| 'PMI presentation'
+| The document contains Product and Manufacturing Information in a human-readable form, e.g. as 3D annotations
+
+| 'PMI representation'
+| The document contains Product and Manufacturing Informatrion in a semantic, machine-interpretable form
+
+| 'implicit composite'
+| The document contains the implicit definition of a composite part as zero-thickness faces (plies) with boundaries and tacking order (laminate table)
+
+| 'explicit composite'
+| The document contains the explicit representation of a solid composite part. This value is typically used together with 'tessellated geometry'.
+|===
+
+STEP geometry files as well as many native formats typically contain either exact
+geometry (STEP B-Rep, or native CAD format such as e.g. CATPart from CATIA), or
+tessellated geometry (STEP Tessellated, or derived CAD format such as e.g. CGR from
+CATIA), though they may contain both in some cases. Other native or neutral formats,
+such as e.g. JT, usually combine exact and tessellated geometry into one file. In any
+case, the references files need to be characterized appropriately to ensure the correct
+file for the current use case or application will be provided.
+
+*If the DigitalFile contains another AP242 Domain Model XML file (see "nested" / "fully shattered" section below):*
+
+[%unnumbered,options=header,cols="a,a"]
+|===
+| GeometryTypes
+| Explanation
+
+| 'assembly'
+| The document contains an assembly structure with reference to the assembled components and their transformation matrices
+
+| 'assembly with mating elements'
+| The document contains an assembly structure including the mating components only, such as screws or rivets, with exact positioning information. This assembly representation is intended to be overlayed with the assembly structure for the main components
+|===
+--
+
+* Note that the AP242 Standard gives a different list of recommended values for
+DetailLevel and GeometryTypes. These have, however, been taken over from earlier
+versions of AP214 and AP203 without further review and are deemed outdated. Hence it
+was agreed by the CAx-IF to include an updated list that better describes the
+characteristics of information typically exchanged.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Classification uid="gtc--1">
+  <Class>
+    <ClassString>surface geometry</ClassString>
+  </Class>
+  <Role>geometry type</Role>
+</Classification>
+<Classification uid="gtc--3">
+  <Class>
+    <ClassString>solid geometry</ClassString>
+  </Class>
+  <Role>geometry type</Role>
+</Classification>
+<File xsi:type="n0:DigitalFile" uid="df-000000001E720B30">
+  <FileContent uid="fc-1">
+    <DetailLevel>
+      <CharacterString>development level</CharacterString>
+    </DetailLevel>
+    <GeometryTypes>
+      <Classification uidRef="gtc--1"/>
+      <Classification uidRef="gtc--3"/>
+    </GeometryTypes>
+  </FileContent>
+...
+</File>
+----
+
+[[cls-10.3]]
+=== Template "CreationProperty"
+
+The `CreationProperty` entity is the specification of characteristics of a File or of a
+DocumentDefinition. It specifies the context of the creation of the object.
+
+*_Postprocessor Recommendation:_*
+
+* A CreationProperty shall be created if the file extension is not unique (for example '.prt'
+may be a Creo file or an NX file)
+
+*_Postprocessor Recommendation:_*
+
+* If no CreationProperty is available, the file extension within File.Id or ExternalItem.Id
+shall be evaluated.
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-75]]
+.Template "CreationProperty"
+image::img107.png[]
+
+[[tab-71]]
+."CreationProperty" Attributes
+[cols="a,a",options=header]
+|===
+| Entity CreationProperty
+| Attribute type
+
+| CreatingInterface
+| OPTIONAL STRING
+
+| CreatingSystem
+| STRING
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[OperatingSystem]
+| span:gray[OPTIONAL STRING]
+|===
+
+*_Attribute recommendations_*
+
+* *_CreatingInterface_*: the computer application used to create the DigitalFile. The value
+of this attribute need not be specified. If the same preprocessor is used to create the AP242
+XML data and the referenced file, CreatingInterface will be redundant to
+Header.PreprocessorVersion. In case of a native format, this
+attribute shall be left unset.
+
+* *_CreatingSystem_*: the computer application or the machine that was used to generate the
+DocumentDefinition or File (for example CATIA V5R19).
+
+[NOTE,type=remark]
+====
+If the data is mapped to AP242 XML and the referenced file are coming from the same
+system, CreatingSystem will be redundant to Header.OriginatingSystem.
+====
+
+* *_Description_*: the text or the set of texts that provides further information about the
+CreationProperty. The value of this attribute need not be specified. Use "Description"
+template (see <<cls-4.6.7>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<CreationProperty uid="fcp--V5">
+  <CreatingInterface>COM/FOX V6.1.4</CreatingInterface>
+  <CreatingSystem>CATIA V5 B25 SP0 HF0</CreatingSystem>
+</CreationProperty>
+----
+
+[[cls-10.4]]
+=== Template "SizeProperty"
+
+The `SizeProperty` entity is the specification of the size of a File or of a
+DocumentDefinition.
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-76]]
+.Template "SizeProperty"
+image::img108.png[]
+
+[[tab-72]]
+."SizeProperty" Attributes
+[cols="a,a",options=header]
+|===
+| Entity SizeProperty
+| Attribute type
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| FileSize
+| OPTIONAL ValueWithUnit
+
+| span:gray[PageCount]
+| span:gray[OPTIONAL ValueWithUnit]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provides further information about the
+SizeProperty. The value of this attribute need not be specified. Use "Description"
+template (see <<cls-4.6.7>>).
+
+* *_FileSize_*: the size of a digitally stored document. The value of this attribute need
+not be specified. Use "NumericalValue" template (see <<cls-4.6.9>>). Since the semantic is
+handled here by the attribute naming, use PropertyDefinitionString='file size' for
+FileSize.Definition and leave NumericalValue.Name unset.
+
+*_Preprocessor Recommendation:_*
+
+* The usage of ValueRange, ValueLimit, ValueWithTolerances and LimitsAndFits
+for FileSize is not recommended.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--000000003">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>byte</ClassString>
+   </Name>
+  <Prefix>
+    <ClassString>kilo</ClassString>
+  </Prefix>
+  <Quantity>
+    <ClassString>data size</ClassString>
+  </Quantity>
+</Unit>
+<File xsi:type="n0:DigitalFile" uid="df--000000001E720B30">
+...
+  <FileSize uid="fsp--1">
+    <FileSize uid="fspp--1" xsi:type="n0:NumericalValue">
+      <Definition>
+        <PropertyDefinitionString>file size </PropertyDefinitionString>
+      </Definition>
+      <Unit uidRef=" u--000000003"/>
+      <ValueComponent>2.3</ValueComponent>
+    </FileSize>
+  </FileSize>
+...
+----
+
+[[cls-10.5]]
+=== Template "DocumentFileProperty"
+
+In the same way that in <<CAX-IF-PSUG,section=9>> and
+<<CAX-IF-PSUG,section=9.7>>, the aim of this
+section is to specify how to attach a property to a document or a file.
+
+The PropertyValueAssignment entity represents the attachement of the DocumentDefinition or
+File to the value represented via the "NumericalValue" (see <<cls-4.6.9>>), "StringValue"
+templates (see <<cls-4.6.10>>), ValueRange (see <<cls-4.6.11>>), ValueWithTolerances (see
+<<cls-4.6.12>>), ValueList (see <<cls-4.6.13>>) or ValueSet (see <<cls-4.6.15>>).
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-77]]
+.Template "DocumentFileProperty"
+image::img109.png[]
+
+List of attributes and recommendation are similar to the PropertyAssignment template defined
+in <<cls-6.2>>.
+
+*_Preprocessor Recommendations:_* It is recommended that all the document properties use the
+same PropertyValueAssignment .The value "document properties" shall be used for ClassString
+in attribute PropertyValueAssignment.ClassifiedAs.Class.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<File xsi:type="n1:DigitalFile" uid="df--000000001E5A89F0">
+...
+  <PropertyValueAssignment uid="pva--000000001E5A89F0-id1">
+    <AssignedPropertyValues>
+      <PropertyValue uid="pv--000000001E5A89F0-id1" xsi:type="n1:StringValue">
+        <Definition>
+          <PropertyDefinition uidRef="pd--000000320"/>
+        </Definition>
+        <Name>
+          <CharacterString>checksum</CharacterString>
+        </Name>
+        <ValueComponent>
+          <CharacterString>1582054665</CharacterString>
+        </ValueComponent>
+      </PropertyValue>
+    </AssignedPropertyValues>
+    <ClassifiedAs>
+      <Classification uidRef="cla--pp"/>
+    </ClassifiedAs>
+  </PropertyValueAssignment>
+</File>
+
+<PropertyDefinition uid="pd--000000320">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>system property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+
+<Classification uid="cla--pp">
+  <Class>
+    <ClassString>document properties</ClassString>
+  </Class>
+  <Role>kind of properties</Role>
+</Classification>
+----

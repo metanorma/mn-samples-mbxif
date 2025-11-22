@@ -1,0 +1,791 @@
+[.preface]
+== metanorma-extension
+
+=== user-css
+
+[source]
+----
+.gray { color: gray }
+----
+
+=== document history
+
+[source,yaml]
+----
+- date:
+  - type: updated
+    value: 2015-02-13
+  edition: "1.0"
+  amend:
+    - description: Initial Release
+- date:
+  - type: updated
+    value: 2016-05-20
+  edition: "1.1"
+  amend:
+    - description: Updated descriptions of DataContainer, Subtyping and Header Object; updated Templates ExchangeContext, Class, Identifier
+      location:
+      - section=4
+    - description: New section on PartVersionRelationship
+      location:
+      - section=5
+    - description: Updated description for assignment of Units and use of Classification
+      location:
+      - section=6
+    - description: Added descriptions for DefiningGeometry and "Part Overloading"; improved several descriptions
+      location:
+      - section=7
+    - description: Improved definition of DocumentType; new section DocumentDefinitionRelationship
+      location:
+      - section=8
+    - description: Improved descriptions; new section FileRelationship
+      location:
+      - section=9
+    - description: Updated recommendations for CreationProperty
+      location:
+      - section=10
+    - description: Updated descriptions to include Model Splitting / Sharing and Alternate Models, for CAx as well as PDM mapping
+      location:
+      - section=11
+    - description: Improved description for attribute types
+      location:
+      - section=12
+    - description: Updates description for classification of attributes
+      location:
+      - section=13
+- date:
+  - type: updated
+    value: 2017-06-30
+  edition: "1.2"
+  amend:
+    - description: Updated instantiation diagrams for Class / String; improved illustration of XML embedding
+      location:
+      - whole
+    - description: Refined Scope statements
+      location:
+      - section=2
+    - description: Case handling in Attributes
+      location:
+      - section=4.1
+    - description: Updated attributes for Version ID
+      location:
+      - section=4.2
+    - description: Updated XML examples and attribute recommendations
+      location:
+      - section=4.6
+    - description: Added PartViewRelationship; updated Property Value Assignment; added Multiple Part Versions and Relationships; added support for Supplier Part Number
+      location:
+      - section=5.1
+    - description: Clarification for use of ShapeElement
+      location:
+      - section=6
+    - description: Refined descriptions for CartesianPoint and GeometricCoordinateSpaces
+      location:
+      - section=6.1
+    - description: Added Definition of Property Types; renamed PartProperty to PropertyAssignment
+      location:
+      - section=6.2
+    - description: Added clarifications for Centroid and MomentsOfInertia
+      location:
+      - section=6.3
+    - description: Added clarification for creation of occurrences; added PartViewRelationship
+      location:
+      - section=7
+    - description: Updated recommendations for SingleOccurrence
+      location:
+      - section=7.1
+    - description: Revised RotationMatrix attribute recommendations
+      location:
+      - section=7.3
+    - description: Updated NextAssemblyOccurrenceUsage
+      location:
+      - section=7.4
+    - description: Multiple DocumentVersions and -Definitions
+      location:
+      - section=8.1
+    - description: Added DocumentVersionRelationship
+      location:
+      - section=8.3
+    - description: File & Document Structure updates
+      location:
+      - section=9
+    - description: Added clarifications to the use of nested files and removal of PDM representation
+      location:
+      - section=9.3
+    - description: Extended list of values for non-CAD documents; update FileFormat Property recommendations; added clarifications to the use of compression
+      location:
+      - section=10.1
+    - description: Updated Property Assignment
+      location:
+      - section=10.4
+    - description: Revision based on PDM-IF Discussions; Clarification for use of ShapeElement
+      location:
+      - section=12
+    - description: Added 'general property' to PropertyDefinition.Id
+      location:
+      - section=12.2
+    - description: Re-wrote attribute definition for values without unit
+      location:
+      - section=12.5
+    - description: Added attribute table for CentreOfMass; clarifications for Centroid
+      location:
+      - section=13
+    - description: Added explanation for order of elements
+      location:
+      - annex=A.1.5
+    - description: Updated list of BugZilla Issues
+      location:
+      - annex=B
+    - description: Updated Reference Document Versions
+      location:
+      - annex=C
+    - description: Unit 'each' for QuantifiedOccurrence
+      location:
+      - annex=E.3
+- date:
+  - type: updated
+    value: 2018-10-30
+  edition: "2.0"
+  amend:
+    - description: |
+        *Update for AP242-TC*
+        
+        *See section 2.3 for Implementation differences to AP242-IS*
+      location:
+      - whole
+    - description: Added recommendation for unique attributes
+      location:
+      - section=4.2.1
+    - description: Updated recommendations for Unit prefixes
+      location:
+      - section=4.6.3
+    - description: Updated 'identifier' information for exchange context
+      location:
+      - section=4.6.6
+    - description: Updated Attribute Recommendations
+      location:
+      - section=4.6.9
+      - section=4.6.10
+      - section=4.6.14
+    - description: Added EffectivityAssignment to PartVersion
+      location:
+      - section=5.1.2
+    - description: Replaced textual Definitions; moved example for multiple ids from section 4.6.6; added second example
+      location:
+      - section=5.1.6
+    - description: Updated Pre-Processor Recommendations for Single-Occurrence and added EffectivityAssignment
+      location:
+      - section=7.1
+    - description: Updated Post-Processor Recommendations
+      location:
+      - section=8.1.1
+    - description: Updated Post-Processor Recommendations
+      location:
+      - section=9.3
+    - description: Updated Pre- and Post-Processor Recommendations
+      location:
+      - section=9.4
+    - description: Updated Attribute Recommendations
+      location:
+      - section=12.2
+      - section=12.5
+    - description: Updated Definitions and Figures 59-64
+      location:
+      - section=13.1
+    - description: New Section 14 for Exchange of Customized PDM Information
+    - description: New Section 15 for CAx-PDM Interoperability
+- date:
+  - type: updated
+    value: 2019-12-20
+  edition: "2.1"
+  amend:
+    - description: |
+        *Public Release – Update for AP242 TC*
+      location:
+      - whole
+    - description: Introduction of the MBx Interoperability Forum (MBx-IF)
+      location:
+      - section=1.1.2
+      - section=1.2
+    - description: Updated scope statement
+      location:
+      - section=2.2
+    - description: Update for the handling of empty valued multi-language strings
+      location:
+      - section=4.2.1
+    - description: Updated recommendations for ExchangeContext
+      location:
+      - section=4.6.1
+    - description: Updated recommendations for Identifier
+      location:
+      - section=4.6.6
+    - description: Replaced previous section with support for multiple language; updated recommendations
+      location:
+      - section=4.6.7
+    - description: Added support for alternate part relationships
+      location:
+      - section=5.1.1
+    - description: Added support of ActivityAssignment
+      location:
+      - section=5.1.2
+      - section=7.1
+    - description: Added support 'alternative' PartVersionRelationship
+      location:
+      - section=5.1.5
+    - description: Clarified required unit definitions
+      location:
+      - section=6.1
+    - description: Added support of Activity properties
+      location:
+      - section=6.2
+    - description: Added support for alternate part relationships; Updated recommendations for uniqueness of occurrence IDs
+      location:
+      - section=7.1
+    - description: Added support of AssemblyViewRelationshipSubstitutions
+      location:
+      - section=7.4
+    - description: New Template "AlternatePartRelationship"
+      location:
+      - section=7.5
+    - description: New Template "AssemblyOccurrenceRelationshipSubstitution"
+      location:
+      - section=7.6
+    - description: New Template "AssemblyViewRelationshipSubstitution"
+      location:
+      - section=7.7
+    - description: Added support of unset DigitalFile.Locations
+      location:
+      - section=9.1
+    - description: Updated figures with use of AuxiliaryGeometry
+      location:
+      - section=11.1
+      - section=11.2
+    - description: Updated figures for PropertyDefinition.Id
+      location:
+      - section=12.2
+      - section=12.4
+    - description: Updated the recommendations for transferring values without units
+      location:
+      - section=12.5
+    - description: Figure 65 updated PropertyDefinition.Id
+      location:
+      - section=12.6
+    - description: Update format of validation property 'number of children'
+      location:
+      - section=13.1.1
+- date:
+  - type: updated
+    value: 2020-09-30
+  edition: "2.2"
+  amend:
+    - description: |
+        *Public Release – Update for AP242 TC*
+      location:
+      - whole
+    - description: Added support for TC patch schema
+      location:
+      - section=1.1.2
+    - description: Updated base identifiers
+      location:
+      - section=4.2.1
+    - description: Updated recommendations for uniqueness of IDs
+      location:
+      - section=4.3
+    - description: Refined postprocessor recommendations
+      location:
+      - section=4.6.1
+    - description: Updated unit definitions
+      location:
+      - section=4.6.3
+    - description: Updated to support 'make or buy'
+      location:
+      - section=4.6.4
+      - section=4.6.5
+    - description: Updated identifier attributes and recommendations
+      location:
+      - section=4.6.6
+    - description: Updated preprocessor recommendation
+      location:
+      - section=4.6.8
+    - description: Updated to support 'make or buy'
+      location:
+      - section=5.1.2
+    - description: Added PartView.ShapeElement
+      location:
+      - section=5.1.3
+    - description: Added support 'alternative' PartVersionRelationship and updated recommendations
+      location:
+      - section=5.1.5
+    - description: Updated attributes recommendations
+      location:
+      - section=6.1
+      - section=6.2
+    - description: Added SpecifiedOccurrence.PropertyValueAssignment
+      location:
+      - section=7.2
+    - description: Updates based on testing feedback
+      location:
+      - section=7.4
+      - section=7.5
+      - section=7.6
+      - section=7.7
+    - description: Restructured for Alternate and Substitute parts
+      location:
+      - section=7.5
+    - description: Updated diagrams
+      location:
+      - section=8.2
+      - section=8.3
+    - description: Adapted definitions for multiple IDs
+      location:
+      - section=9.3
+    - description: Extended definitions for alternate models
+      location:
+      - section=11.2
+    - description: Figure 58 updated PropertyDefinition.Id
+      location:
+      - section=12.2
+    - description: Updated diagrams
+      location:
+      - section=12.2
+      - section=12.4
+      - section=12.6
+    - description: Figure 62 updated PropertyDefinition.Id
+      location:
+      - section=12.4.1
+    - description: Figure 63 updated PropertyDefinition.Id
+      location:
+      - section=12.4.2
+    - description: Figure 64 updated PropertyDefinition.Id
+      location:
+      - section=12.4.3
+    - description: Figure 65 updated PropertyDefinition.Id
+      location:
+      - section=12.6
+- date:
+  - type: updated
+    value: 2021-11-23
+  edition: "3.0"
+  amend:
+    - description: |
+        *Public Release – Update for AP242 Edition 2 Domain Model*
+        
+        *See sections 2.4 for Implementation changes vs. AP242 Ed.1 TC*
+      location:
+      - whole
+    - description: |
+        Updated references from AP242 Ed.1 TC BO Model to AP242 Ed.2 Domain Model
+        
+        Some 0 chapter references fixed
+      location:
+      - whole
+    - description: URL of Domain Model corrected
+      location:
+      - section=1.1.2
+      - section=4.1.6
+    - description: |
+        remark how to find the Ed. 2 MR Domain Model XSD if not published yet by the ISO Section 2.4: new section outlining requiremed implementation changes compared to AP242 Ed.1 TC
+      location:
+      - section=1.1.2
+    - description: Added Preprocessor Recommendation for OrganizationOrPersonInOrganizationAssignment.Role
+      location:
+      - section=3.6.14
+    - description: Updated schema references
+      location:
+      - section=4.1.6
+      - section=4.1.7
+    - description: Added 'Role' to attribute recommendations
+      location:
+      - section=4.1.12
+    - description: Added handling of unset optional attributes during import
+      location:
+      - section=4.2.3
+    - description: Added uniqueness rule applying to objects having Id and VersionId.
+      location:
+      - section=4.3
+    - description: Added recommendation to handle explicit configurations
+      location:
+      - section=4.6.1
+    - description: Enhancement and harmonization of the usage of Classification.Role + XML examples updated throughout the document; 'VDA reference mechanism' added as Classification.Role
+      location:
+      - section=4.6.5
+    - description: Added recommendation for setting Occurrence.Id for multiple identifiers
+      location:
+      - section=4.6.6
+      - section=5.1.6
+    - description: Added recommendations for the use of PredefinedApplicationDomainEnum
+      location:
+      - section=4.6.8
+    - description: Attribute DeterminationMethod added
+      location:
+      - section=4.6.9
+    - description: Added recommendations for the use of PropertyDefinitionEnum
+      location:
+      - section=4.6.9
+      - section=4.6.10
+    - description: Rework of the handling of ValueWithUnit.Definition and .Name for DigitalFile.FileSize and NextAssemblyViewUsage.Quantity
+      location:
+      - section=4.6.9
+      - section=7.4
+      - section=10.4
+    - description: Added Postprocessor Recommendation for DateTime;additional recommendation regarding date/time format
+      location:
+      - section=4.6.11
+    - description: New sections 4.6.11, 4.6.12, 4.6.13 and 4.6.15 for the handling of ValueRange, ValueWithTolerances, ValueList and ValueSet
+    - description: Added object DateAndPersonOrganization; Added File.VersionId, PropertyDefinition.VersionId, Class.Version.Id; Added recommendation for the use of Role='sequence' for PartVersionRelationship, DocumentVersionRelationship and FileRelationship.
+      location:
+      - section=4.6.20
+    - description: Added recommendations for the use of PartCategoryEnum
+      location:
+      - section=5.1.1
+    - description: |  
+        PartVersionRelationship: update in mapping table; update in postprocessor recommendation; update of the uniqueness rules
+      location:
+      - section=5.1.5
+    - description: Added 'ShapeDependentProperty' to recommendations
+      location:
+      - section=6.1.3
+    - description: Usage of ValueRange, ValueWithTolerances, ValueList and ValueSet added
+      location:
+      - section=6.2
+      - section=10.5
+    - description: Additional recommendation regarding properties with value 0, empty string or empty ValueList/ValueSet
+      location:
+      - section=6.2
+    - description: Updated recommendations on 'Placement' new picture to illustrate the cross-reference between multiple geometries and multiple placements
+      location:
+      - section=7.1
+    - description: Updated figure 28 & XML example
+      location:
+      - section=7.3.2.2
+    - description: Added recommendations for 'AssemblyViewRelationshipSubstitution'; mapping of FindNumber/PositionNumber added; updated uniqueness rule of NextAssemblyViewUsage.Id
+      location:
+      - section=7.4
+    - description: | 
+        AssemblyOccurrenceRelationshipSubstitution: added alternative proposal as comment; AssemblyOccurrenceRelationshipSubstitution: update in postprocessor recommendation + computing of the AVPs; update of the uniqueness rules
+      location:
+      - section=7.5.2
+    - description: | 
+        NextAssemblyViewUsages PartVersionRelationship update in postprocessor recommendation; NextAssemblyViewUsages: computing of the AVPs + non-obligation to define NextAssemblyOccurrenceUsages for each NextAssemblyViewUsage; new rule regarding the Id of the Relating/Related NextAssemblyViewUsages of a AssemblyViewRelationshipSubstitution; update of the uniqueness rules
+      location:
+      - section=7.5.3
+    - description: |
+        Added 'Document.PropertyValueAssignment' to recommendations
+        
+        Definition of some recommended values for DocumentTypes edited
+      location:
+      - section=8.1.1
+    - description: Added 'FileLocations' to recommendations added recommendations for the use of DigitalFile.FileLocations and DigitalFile.Locations.Source
+      location:
+      - section=9.1
+    - description: Updated recommendation regarding the consistency of ExternalGeometricModel.ExternalFile new comment regarding the external reference of ShapeElements; new comment regarding the naming of the nested files; added handling of NextAssemblyViewUsage for 'nested' files; handling of special characters for naming nested files added
+      location:
+      - section=9.3
+    - description: Corrected figures regarding 'ClassifiedAs'; handling of AlternatePartRelationship for nested and for incremental exchange; update of the file naming rules for nested files
+      location:
+      - section=9.3
+      - section=9.4
+    - description: Changes regarding incremental exchange
+      location:
+      - section=9.4
+    - description: New section 9.6 with planned activities for the support of External Element References (EER)
+    - description: FormatProperty.DataFormat recommended mandatory Ed. 2 TC replaced by Ed. 3
+      location:
+      - section=10.1
+    - description: CartesianPoint added for ExternalShapeReference.PropertyValue; added PropertyDefinition.DefinedIn (EWIS-IF)
+      location:
+      - section=12.2
+    - description: Usage of PropertyDefinitionString updated
+      location:
+      - section=12.2
+      - section=12.5
+    - description: Added PropertyDefinitionRelationship
+      location:
+      - section=12.3
+    - description: Grouping of attributes removed since redundant with section 0
+    - description: ValueRange, ValueWithTolerances, ValueList and ValueSet added in pictures
+      location:
+      - section=12.4
+    - description: Section 12.7 removed
+      location:
+      - section=12.7
+    - description: Update regarding the units of Notional Solids Centroid Position, regarding the precision expected by validating the data and typo in the diagram.
+      location:
+      - section=13.1.2
+    - description: Added mapping of customized extensions/forms as property groups + new value for PropertyDefinition.PropertyType in section 12.2
+      location:
+      - section=14.2
+    - description: Updated based on ISO 10303-4442:2019
+      location:
+      - annex=A
+    - description: Added postprocessor handling of non unique property value names of different property groups
+      location:
+      - section=0
+    - description: Changes regarding the handling of empty customized properties
+      location:
+      - section=14.3
+    - description: Overwork of consistency rules for tracking relationships.
+      location:
+      - section=15.4
+    - description: Typo corrected /ANY replaced by /NULL
+      location:
+      - section=16.2
+    - description: Update of the description of the alphabetical ordering of the XML elements
+      location:
+      - section=A.1.5
+    - description: Support of ValueList and multi-dimensional aggregate PropertyValues update
+      location:
+      - section=A.1.5.3
+    - description: Incorporation of the values for Unit.Quantity
+      location:
+      - annex=E
+    - description: Unit 'degree' added
+      location:
+      - section=E.2.1
+    - description: Unit 'percent' added
+      location:
+      - section=E.3.3
+    - description: Unit 'ratio' added
+      location:
+      - section=E.3.4
+    - description: Figures 58, 61, 67 to 69 updated
+- date:
+  - type: updated
+    value: 2022-11-18
+  edition: "3.1"
+  amend:
+    - description: |
+        *Public Release – Update for AP242 Edition 2 Domain Model*
+        
+        *See sections 2.4 for Implementation changes vs. AP242 Ed.1 TC*
+      location:
+      - whole
+    - description: |
+        Over all the document: correct the XML examples using Unit.Quantity
+      location:
+      - whole
+    - description: Update Ed3 Domain Model URL to official value from the ISO
+      location:
+      - section=1.1.2
+      - section=4.1.6
+    - description: Change of CentreOfMass.CentrePoint from IS to TC added
+      location:
+      - section=2.3
+    - description: Postprocessor recommendation added not to interprete alternative NAVUs/NAOUs as being cumulated in case the target system does not support substitutions.
+      location:
+      - section=4.6.5
+      - section=7.5.2
+      - section=7.5.3
+    - description: Add recommendation that the ValueList/Set element shall have the same Unit (in case of NumericalValue)
+      location:
+      - section=4.6.13
+      - section=4.6.15
+    - description: Proposal to change the usage of relating and Related for nesting reasons => to be discussed...
+      location:
+      - section=5.1.5
+    - description: Relating/related inversed in PartVersionRelationship and GeometricalRelationship for mirrored parts
+      location:
+      - section=5.1.5
+      - section=7.7
+    - description: IdentifierSet replaced by 'multiple Identifiers', since IdentifierSet is used only for non-Id attributes => nowhere recommended
+      location:
+      - section=5.1.6
+      - section=13.3.1.6
+    - description: ClassifiedAs='alternative' added to better distinguish between the main view/occurrence usage and the alternative ones
+      location:
+      - section=7.1
+      - section=7.4
+      - section=7.5.2
+      - section=7.5.3
+    - description: Handling of `xsi:type="n0:SpecifiedOccurrence"`.
+      location:
+      - section=7.1
+      - section=7.2
+    - description: Updated diagram for SpecifiedOccurrence
+      location:
+      - section=7.2
+    - description: Edit recommendation to allow multiple PartViewRelationships between the same parent and child; add recommendation to concatenate NextAssemblyViewUsage.Id into NextAssemblyOccurrenceUsage.Id in case multiple PartViewRelationships exist between the same parent and child; new JIRA ticket created to relate the NAVUs and the NAOUs + several editorial change
+      location:
+      - section=7.4
+    - description: Update of the overview tables
+      location:
+      - section=7.5
+    - description: New Section 7.7 for mirrored parts
+      location:
+      - section=7.7
+    - description: RelationType 'mirrored' added
+      location:
+      - section=7.7.2
+    - description: Use of PartVersion.Id for the file name not longer recommended; example diagrams for the nesting of alternate and substitute parts; example diagram for the nesting in case of SpecifiedOccurrences; recommendation to handle non-processed nested files + use of relative paths added
+      location:
+      - section=9.3
+    - description: Mapping of Part/Document.Name, PartTypes and DocumentTypes for nested files and incremental exchange
+      location:
+      - section=9.3
+      - section=9.4
+    - description: Update of recommended values for DetailLevel and GeometryTypes; update of recommended value 'exact geometry' and in general explanation for GeometryTypes; new comment to remove LOD
+      location:
+      - section=10.2
+    - description: CAD-related limitations of UDAs introduced
+      location:
+      - section=12
+    - description: Add handling of customized PDM properties to the scope of CAx data exchange (tested by the CAx-IF)
+      location:
+      - section=12.2
+    - description: Add recommendation to leave PropertyValue.Definition unset for the value elements of a ValueList/ValueSet => XML examples edited in section 4.6.13 and 4.6.15
+      location:
+      - section=12.2
+    - description: Removed (Group of attribute values)
+      location:
+      - section=12.4
+    - description: Review comment added to clarify if UDAs on geometry level should be kept out of this recommendation practices, since mapped to Part 21 within CAx Data Exchange... Dito for Geometry Validation Properties (Section 13.2)
+      location:
+      - section=13.2
+    - description: GVPs removed
+      location:
+      - section=13.2
+    - description: |
+        New Section 13.3: LOTAR Product Structure Validation Properties; update of the XPath examples + overworking of the specification
+      location:
+      - section=13.3
+    - description: Update in mapping of extensions due to issue with uniqueness of PropertyDefinition.Id
+      location:
+      - section=0
+    - description: Training mode removed
+      location:
+      - section=14.3
+    - description: Added mapping difference between Id/VersionId attributes and other attributes of kind IdentifierSelect
+      location:
+      - section=A.1.9
+    - description: New issue numbers after switch from PDES Inc. Bugzilla to ISO Jira
+      location:
+      - annex=B
+- date:
+  - type: updated
+    value: 2023-12-22
+  edition: "3.2.01"
+  amend:
+    - description: |
+        *Public Release – Update for AP242 Edition 3 Domain Model*
+        
+        *See sections 2.5 for Implementation changes vs. AP242 Ed.2*
+      location:
+      - whole
+    - description: Update of ISO release number
+      location:
+      - section=2.3
+      - section=2.4
+      - section=4.1.7
+    - description: Update handling of idContextRef for embedded objects
+      location:
+      - section=4.6.6
+    - description: LocalizedString.uid now recommended as mandatory (prerequisite for AP242 Edition 4 EER mechanism)
+      location:
+      - section=4.6.7
+    - description: |
+        New Section 4.6.7.1: added handling of string attributes that have a different value depending on the IdentificationContext (like Part.Name)
+      location:
+      - section=4.6.7.1
+    - description: Adding of ValueLimit to section 4.6.9
+      location:
+      - section=4.6.9
+    - description: Adding of attribute "Qualifiers"; for upward compatibility reasons, recommend to support also PropertyDefinitionString during import; add recommendation how to interprete PropertyDefinitionString
+      location:
+      - section=4.6.9
+      - section=4.6.15
+    - description: |
+        New section 4.6.13: LimitsAndFits
+      location:
+      - section=4.6.13
+    - description: Reference to section 14.3 added in case of customized PDM properties of kind Date, Approval or PersonInOrganization
+      location:
+      - section=4.6.16
+      - section=4.6.18
+      - section=4.6.19
+    - description: |
+        New Section 4.6.21: ValueFormatTypeQualifier for the handling of property qualifiers (Edition 4); added use of ValueFormatTypeQualifier for customized properties of kind DateTimeAssignment, ApprovalAssignment or OrganizationOrPersonInOrganizationAssignment
+      location:
+      - section=4.6.21
+    - description: Special handling of additional 'Related' Parts after archiving/releasing the 'Relating' Part
+      location:
+      - section=5.1.5
+    - description: Harmonization of the definition of RelationType in PartVersionRelationship and GeometricalRelationship (now matches the sample test data)
+      location:
+      - section=5.1.5
+      - section=7.7.2
+    - description: |
+        Enhanced recommendation for the consistency of RepresentationContext.Items with RepresentationContext.Representations.Items; (GeometricModel): recommendation added to use only the subtypes of GeometricModel; recommendation added regarding the consistency between PartView.GeometricModel, Ge ometricModel.Items and the ShapeElement.RepresentedGeometry defined on a part (relevant for the PMIs); recommendation added for the reuse of RepresentationItems in different GeometricModels; adding of 'External' in the context of PMIs
+      location:
+      - section=6.1
+    - description: New recommendation for ExternalGeometricModel.Items (for Edition 4)
+      location:
+      - section=6.1.1
+    - description: Update of the recommendation for the use of the subtypes of ExternalGeometricModel (relevant for the PMI use case in AP242 Edition 4)
+      location:
+      - section=6.1.2
+    - description: |
+        Removed section 6.3: GeneralShapeDependentProperty
+    - description: Added handling of NextAssemblyOccurrenceUsage.Id
+      location:
+      - section=7.1
+    - description: GeneralGeometricRepresentationRelationship added for the mapping of Flexible Parts.
+      location:
+      - section=7.3.3
+      - section=7.8.2
+    - description: Replacement of left/right by original/mirrored
+      location:
+      - section=7.7
+    - description: |
+        New Section 7.8: Flexible Parts
+      location:
+      - section=7.8
+    - description: Added handling of document without file
+      location:
+      - section=8.1.3
+    - description: Handling of empty Locations/FileLocations added; added handling of multiple versions of the same DigitalFile
+      location:
+      - section=9.1
+    - description: New preprocessor recommendation about consistency of ExchangeContext.IdentificationContext over all nested files.
+      location:
+      - section=9.3
+    - description: |
+        New section 9.3.1: nested handling of Relationships
+      location:
+      - section=9.3.1
+    - description: Handling of incremental exchange on other objects than Part and Document New section 9.5 Delta Exchange (updated on the 7.6.23)
+      location:
+      - section=9.4.1
+    - description: Add handling of multiple identifiers in case of incremental exchange and delta exchange (analog nested files)
+      location:
+      - section=9.4.1
+      - section=9.5
+    - description: |
+        New Section 9.6: External Element References (EER) from Part 15 Edition 2 (for AP242 Edition 4)
+      location:
+      - section=9.6
+    - description: Recommendation added to non-referenced DigitalFiles
+      location:
+      - section=11.1
+      - section=11.2
+    - description: Added handling of multiple versions of the same PropertyDefinition; PropertyType='semantic text' added for PMIs
+      location:
+      - section=12.2
+    - description: Removed (attributes at shape level)
+      location:
+      - section=12.4.3
+    - description: Updates and additional precisions about the AHash computation; removal of unit in the computation of the AHash and details added about handling of significant digits
+      location:
+      - section=13.3
+    - description: Adding of the uniqueness of the PropertyValue.Name over all PropertyValues assigned by a PropertyValueAssignment
+      location:
+      - section=14.2.1
+    - description: Update regarding the mapping of date/approval/person/organization properties within a property group
+      location:
+      - section=0
+    - description: Handling of customized properties updated to unset (using DeltaChange mechanism)
+      location:
+      - section=14.3
+    - description: New issue numbers after switch from PDES Inc. Bugzilla to ISO Jira
+      location:
+      - annex=B
+----

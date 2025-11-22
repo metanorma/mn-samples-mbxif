@@ -1,0 +1,124 @@
+[[cls-16]]
+== CAx-PDM Compatibility Guide
+
+Due to the two different focusses of CAx systems and PDM systems, two mapping flavors have
+been described in chapter0.
+
+Hence, it is important for CAx systems to be able to read AP242 XML Files from a PDM system
+and vice versa. This chapter gives some good practices to avoid most common problems.
+
+In addition to the general advises given in <<cls-4.2.1>> (Entities and Attributes not
+supported by the Preprocessor), in <<cls-4.2.2>> (Entities and Attributes not supported by
+the Postprocessor) and up to <<cls-4.5>>, here are some typical challenges for the exchange
+between CAx and PDM systems.
+
+[[cls-16.1]]
+=== CAx system to read a file coming from a PDM system
+
+[underline]#Dealing with multiple PartViews within a PartVersion#
+
+Since according <<cls-5.1.2>>, the PartView.initialContext.applicationDomain shall contain a
+unique value over all PartView, the PartView having the value 'mechanical design' in
+applicationDomain shall be evaluated.The other ones can be ignored (exception: Composites
+Parts, see <<cls-5.1.2>>).
+
+[underline]#Dealing with multiple PartVersions within a Part:#
+
+The product structure in AP242 is relating a particular version of an assembly with a
+particular version of its component parts. Therefore, it is sufficient to choose one of the
+versions of the top node and to traverse top-down the assembly structure (ignoring the other
+part versions).
+
+If several versions of a component part are referenced in a (sub-)assembly, the version with
+the highest index that has geometry defined for it shall be chosen.
+
+[underline]#Dealing with multiple documents:#
+
+As stated in the <<cls-8.1.1>>: multiple documents may be provided for each part by the PDM
+system. The CAx system shall always choose the document having DocumentTypes='primary
+geometry'. If no primary, but only secondary geometry is provided, the secondary shall be
+chosen.
+
+If Document.DocumentTypes is set neither to primary nor to secondary geometry, some CAx
+postprocessors might choose the first DocumentAssignment, or the one that points to a
+known/support format (either by looking at FileFormat or at the suffix of the filename, but
+this is quite hazardous.
+
+Of course, non-CAx documents shall never be exchanged as primary nor secondary geometry,
+and only one document per part shall be marked as primary or secondary geometry (except for
+alternate models, see below).
+
+[NOTE,type=remark]
+====
+It is not recommended to rely on PartView.DefiningGeometry to find the primary
+geometry, since it is optional.
+====
+
+[underline]#Dealing with multiple files:#
+
+Model splitting (as defined in <<cls-11.2>>) may be supported as if each splitted model was a
+disctinct part.
+
+Model sharing (as defined in <<cls-11.2>>) should be recognized so that the same CAx model is
+not being duplicated for each part it is used in.
+
+Alternate models (as defined in <<cls-11.2>>) may be supported, but like with configuration
+management data (see below), all the models will be cumulated although only one of
+them is built at a time.
+
+[underline]#Dealing with QuantifiedOccurrence:#
+
+QuantifiedOccurrence with a quantity value 1 and unit 'each' can be handled like a
+SingleOccurrence.
+
+QuantifiedOccurrence with an integer quantity value other than 1 and unit 'each' shall be
+mapped using as many SingleOccurrence as the quantity says. In such cases, maybe no 3D
+placement is provided (NextAssemblyOccurrenceUsage.Placement has no value) => use Identity
+matrix. In all cases, the real 3D placement is not provided by the PDM system...
+
+QuantifiedOccurrence with a unit other than 'each' or a quantity value other
+than an integer shall be ignored.
+
+[underline]#Dealing with configuration management data:#
+
+If the product structure has been provided with configuration management (effectivities),
+they will be ignored by the CAx system, but it means a 150% product structure will be loaded
+in the CAx system => many alternative components will be built at the same time, which is
+actually OK for this scenario.
+
+[underline]#Dealing with PDM properties and with CAD user defined attributes:#
+
+Those PropertyValueAssignments recognized using PropertyValue.Name and/or
+PropertyDefinition.PropertyType (especially 'user defined attribute') and supported by
+the CAx system will get imported. The other ones can be ignored.
+
+[underline]#Dealing with organizational data:#
+
+Id, version, name, description, approval status, creator/last modifier, creation/last
+modification date, etc... may be imported as user defined attributes (if supported) or
+ignored (except Part.Id).
+
+If the CAx system cannot store multiple identifiers, refer to the Postprocessor
+Recommendation in <<cls-4.6.6>>.
+
+If the CAx system does not support multiple languages for attributes of type Description,
+refer to the Postprocessor Recommendation in <<cls-4.6.7>>.
+
+[underline]#Dealing with incremental exchange (as defined in <<cls-9.4>>):#
+
+This shall be explicitly avoided during the PDM export, since the CAx postprocessor will
+probably have no mechanisms to merge this data with previously sent data...
+
+[[cls-16.2]]
+=== PDM system to read a file coming from a CAx system
+
+[underline]#Dealing with kinematics or composites data:#
+
+If such information is not supported by the PDM system, it shall be ignored or mapped
+together with the geometry of the CAx files into the target format of the CAx files.
+
+[underline]#Dealing with '/NULL':#
+
+As stated in <<cls-4.2.1>>, PartVersion.Id='/NULL' means that the CAx system does not support
+versioning information. In this case, the PDM import shall decide to create a new version of
+the part or to reuse the highest existing version...

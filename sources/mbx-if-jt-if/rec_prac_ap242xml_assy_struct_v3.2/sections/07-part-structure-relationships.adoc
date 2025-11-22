@@ -1,0 +1,3378 @@
+[[cls-7]]
+== Part Structure and Relationships
+
+The aim of this section is to map a multi-level assembly, possibly containing multiple
+individual occurrences of the same component, and to position (orientation and location) each
+occurrence in 3D relatively to its usage in the next higher assembly. It does this in the
+same way that <<CAX-IF-PSUG,section=4.2>> accomplishes it.
+
+For this reason, the use of PartViewRelationship is not recommended (except in special cases
+described in <<cls-7.4>>), since (according to <<AP242-IS,chapter=4.2.3>>):
+
+[quote]
+____
+In the part view based assembly structure concept, a specific part occurrence can be
+identified by a single PartViewRelationship object, i.e. part occurrences can exists only in
+the context of an assembly structure, whereas in the part occurrences based assembly
+structure concept, part occurrences can exists independent of an assembly that uses the
+product occurrences as constituents.
+____
+
+NOTE: Occurrences are usually not created manually by themselves. A user creates a link
+(usage) between two part views or assembly definitions; the occurrence gets created
+automatically in the process. Occurrences not used by any other element shall not be
+exchanged.
+
+From the three possible kinds of occurrences in AP242 Domain Model (derived from the abstract
+supertype 'Occurrence'), only these two are in scope of this document:
+
+* SingleOccurrence: has no owned attributes, but enables to position (orientation and
+location) each occurrence in 3D
+
+* SpecifiedOccurrence: enable to distinct between multiple individual occurrences of the same
+component. This may i.e. be used to map kinematic constraints or instance styling (which
+are both not yet in scope of this document).
+
+The further subtype of Occurrence (QuantifiedOccurrence) is used in the area of BoM systems
+(not in scope of this document).
+
+[[cls-7.1]]
+=== Template "SingleOccurrence"
+
+This is the normal case, where the usages of a component are only documented within their next
+higher assembly.
+
+[[fig-27]]
+.Template "SingleOccurrence"
+image::img44.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000017086CB0">
+  <Id>
+    <Identifier uid="pid--0000000017086CB0--id1" id="as1" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017086CB0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017086CB0--id1">
+...
+          <ViewOccurrenceRelationship uid="pvvid--000000001E5A89F0--10" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001E5A89F0--10"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+...
+          </ViewOccurrenceRelationship>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+<Part uid="p--000000001E5A89F0">
+  <Id>
+    <Identifier uid="pid--000000001E5A89F0--id2" id="plate" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E5A89F0--id2">
+...
+      <Views>
+        <PartView uid="pvv--000000001E5A89F0--id2">
+...
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--000000001E5A89F0--10">
+            <Id id="plate.1"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+*_Preprocessor Recommendations:_*
+
+The usage of SingleOccurrence is necessary to position each occurrence in 3D.
+
+If a single level or multiple level assembly structure contains multiple usages of the same
+component part, a distinct instance of SingleOccurrence shall be created for each usage of
+this component. In some PDM systems, each instance of SingleOccurrence referenced via
+NextAssemblyOccurrenceUsage by an assembly part shall have a unique Id. All of them shall be
+defined under the PartView/AssemblyDefinition of the component part and they shall be
+referenced only once via NextAssemblyOccurrenceUsage.Related. Doing so, each usage can be
+described via its own properties.
+
+QuantifiedOccurrence shall not be used in a CAx context. Where multiple occurrences are
+needed, use multiple instances of SingleOccurrence.
+
+It is not recommended to use the supertypes of NextAssemblyOccurrenceUsage
+like ViewOccurrenceRelationship or AssemblyOccurrenceRelationship.
+
+The Occurrence referenced by "Related" shall not belong to the part where the
+NextAssemblyOccurrenceUsage is defined, nor to any assembly that builds this part (so-called
+circular/cyclic link in the product structure).
+
+It is not recommended to instantiate SingleOccurrence without this Occurrence being referenced
+by a NextAssemblyOccurrenceUsage.
+
+*_Postprocessor Recommendations:_*
+
+If a SingleOccurrence is encountered which is not referenced by any
+NextAssemblyOccurrenceUsage, it shall be ignored.
+
+[[tab-38]]
+."NextAssemblyOccurrenceUsage" Attributes
+[cols="a,a",options=header]
+|===
+| Entity NextAssemblyOccurrenceUsage
+| Attribute type
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| span:gray[MaterialIdentification]
+| span:gray[OPTIONAL SET[1:?\] of MaterialIdentification]
+
+| Related
+| Occurrence
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SurfaceCondition]
+| span:gray[OPTIONAL SET[1:?\] of SurfaceCondition]
+
+| ActivityAssignment
+| OPTIONAL SET[1:?] of ActivityAssignment
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| EffectivityAssignment
+| OPTIONAL SET[1:?] of EffectivityAssignment
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| Placement
+| OPTIONAL SET[1:?\] OF TransformationAndAssociationSelect
+
+| AssemblyOccurrenceRelationshipSubstitution
+| OPTIONAL SET[1:?] of AssemblyOccurrenceRelationshipSubstitution
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| ProductStructureKinematicPathAssociation
+| OPTIONAL SET[1:?] OF ProductStructureKinematicPathAssociation
+
+| ProductStructureLinkMotionAssociation
+| OPTIONAL SET[1:?] OF ProductStructureLinkMotionAssociation
+|===
+
+*_Attribute recommendations_*
+
+* *ClassifiedAs:* the classifications of the NextAssemblyOccurrenceUsage. The value of
+this attribute need not be specified. Use "Classification" template (see <<cls-4.6.5>>) with
+value 'alternative' if referenced by AssemblyOccurrenceRelationshipSubstitution.Related (see
+<<cls-7.5.2>>).
+
+* *_Description_*: the text or the set of texts that provide further information about the
+Assembly structure link. The value of this attribute need not be specified. Use "Description"
+template.
+
+* *_Id_*: the identifier or set of identifiers for the NextAssemblyOccurrenceUsage. The value
+of this attribute need not be specified. One possible use case is to map the internal system
+identifier in case this relationship is a business object in the PDM system.
+
+* *_Related_*: Reference to a SingleOccurence of the component part built into the assembly
+part.
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type. Mandatory value:
+'next assembly occurrence'.
+
+* *_ActivityAssignment:_* the Activities associated to the SingleOccurrence. The value of this
+attribute need not be specified. Use "Activity" template (see Recommended Practices for
+AP242 Domain Model XML Change Management for details).
+
+* *_EffectivityAssignment:_* to assign (optionally) one or multiple Effectivities to the usage
+of the Part referenced by NextAssemblyOccurrenceUsage.Related. Use the
+"EffectivityAssignment" template (see Recommended Practices for AP242 Domain Model
+Configuration Management for details).
+
+* *_PropertyValueAssignment:_* adds the value of a property to the
+NextAssemblyOccurrenceUsage. Use "PropertyAssignment" template (see <<cls-6.2>>)
+
+* *_Placement_*: specifies the transformation information which is used to locate and orient
+the constituents (PartView.DefiningGeometry and optionally also the
+PartView.AuxiliaryGeometries)
+in the coordinate space of the AssemblyDefinition. Placement shall be
+embedded CartesianTransformations (when using the recommended simplified
+positioning representation, see <<cls-7.3.1>>) or references to
+GeometricRepresentationRelationshipWithPlacementTransformations,
+GeometricRepresentationRelationshipWithCartesianTransformations or
+GeometricRepresentationRelationshipWithSameCoordinateSpaces
+(when using the non-recommended full positioning representations, see <<cls-7.3.2>>).
+
+* *_AssemblyOccurrenceRelationshipSubstitution:_* to assign (optionally) that this
+NextAssemblyOccurrenceUsage may be substituted for another
+NextAssemblyOccurrenceUsage. For more details, refer to <<cls-7.5.2>>.
+
+* *_ProductStructureKinematicPathAssociation_*: to assign (optionally) one or multiple
+Kinematic Motions to the Part referenced by. NextAssemblyOccurrenceUsage.Related.
+Use the "ProductStructureKinematicPathAssociation" template (see Recommended
+Practices for AP242 Domain Model XML Kinematics for details).
+
+* *_ProductStructureLinkMotionAssociation:_* to assign (optionally) one or multiple
+Kinematic Motions to the Part referenced by. NextAssemblyOccurrenceUsage.Related. Use
+the "ProductStructureLinkMotionAssociation" template (see Recommended Practices
+for AP242 Domain Model XML Kinematics for details).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[tab-39]]
+."SingleOccurrence" Attributes
+[cols="a,a",options=header]
+|===
+| Entity SingleOccurrence
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| DefiningGeometry
+| OPTIONAL GeometricModel
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| KinematicLinkToOccurrenceAssociation
+| OPTIONAL SET[1:?] of KinematicLinkToOccurrenceAssociation
+
+| span:gray[MaterialIdentification]
+| span:gray[OPTIONAL SET[1:?\] of MaterialIdentification]
+
+| Occurrence
+| OPTIONAL SET[1:?] of SpecifiedOccurrence
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| span:gray[ShapeDependentProperty]
+| span:gray[OPTIONAL SET[1:?\] of ShapeDependentProperty]
+
+| span:gray[ShapeElement]
+| span:gray[OPTIONAL SET[1:?\] of ShapeElement]
+
+| span:gray[SurfaceCondition]
+| span:gray[OPTIONAL SET[1:?\] of SurfaceCondition]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[BreakdownVersionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of BreakdownVersionAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OccurrenceRelationship]
+| span:gray[OPTIONAL SET[1:?\] of OccurrenceRelationship]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_DefiningGeometry:_* the *_GeometricModel_* that contains the shape information. The
+value of this attribute shall not be specified, except in case of a flexible part where the
+geometry of the part deviates from the one defined on PartView.DefiningGeometry level
+for this particular occurrence.
+
+* *_Description_*: the text or the set of texts that provides further information about the
+SingleOccurrence. The value of this attribute need not be specified. Use "Description"
+template.
+
+* *_Id:_* stores the Identifier for the SingleOccurrence (in some PDM systems, it shall be
+unique over all Occurrences directly referenced via NextAssemblyOccurrenceUsage by
+an assembly part). Use IdentifierString type.
+
+* *KinematicLinkToOccurrenceAssociation*: the KinematicLinks associated to this
+occurrence in mechanisms (see Recommended Practices for AP242 Domain Model XML
+Kinematics for details)
+
+* *Occurrence*: the specific occurrences of this occurrence in a product structure. Use
+SpecifiedOccurrence template in <<cls-7.2>>.
++
+--
+[NOTE,type=remark]
+====
+This attribute is of type SpecifiedOccurrence so it is not necessary (but allowed) to mention
+`xsi:type="n0:SpecifiedOccurrence"`.
+====
+--
+
+* *_PropertyValueAssignment:_* adds the value of a property to the SingleOccurrence. Use
+"PropertyAssignment" template (see <<cls-6.2>>)
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations_*:
+
+* When using one of the full positioning representations, each SET element within
+'Placement' shall be cross-referenced by PartView.DefiningGeometry and
+PartView.AuxiliaryGeometry of the child part, so it is clear which Placement applies to which
+Geometry.
+
+[[fig-28]]
+.Cross-reference of Defining/AuxiliaryGeometry and NextAssemblyOccurrenceUsage.Placement
+image::img45.png[]
+
+* When using the simplified positioning representation, there is no way to associate each
+Geometry to each Placement => there shall be only one Placement of kind
+CartesianTransformation and this Placement shall apply to all Geometries (defining and
+auxiliary).
+
+*_Postprocessor Recommendations:_*
+
+* In case the target PDM requires that the Occurrence.Id is unique over all Occurrences
+directly referenced via NextAssemblyOccurrenceUsage by an assembly part, the
+Occurrence.Id shall be made unique, for example by adding a unique suffix like _1, _2, _3, ...
+
+* Although it is recommended to attach the properties via PropertyValueAssignment
+to NextAssemblyOccurrenceUsage and not to SingleOccurrence, during import, since
+Properties may be attached to SpecifiedOccurrences, it is recommended to evaluate both
+NextAssemblyOccurrenceUsage.PropertyValueAssignment
+and SingleOccurrence.PropertyValueAssignment.
+
+[[cls-7.2]]
+=== Template "SpecifiedOccurrence"
+
+In order to distinguish a specific occurrence of a component in an assembly of more than two
+hierarchical levels, the SpecifiedOccurrence entity is used additionally to the
+SingleOccurrence mentioned above.
+
+For example, a Train assembly contains many wagons. The Wagon again contains a sub-assembly
+Bogie, which again contains an Axle, etc... The requirement is to individually identify the
+front axle of the second bogie of the fifth wagon of the train, for example.
+
+This is achived by having a hierarchy of SpecifiedOccurrences.
+
+[[fig-29]]
+.Example structure for multi-level assembly
+image::img46.png[]
+
+[[fig-30]]
+.Template "SpecifiedOccurrence"
+image::img47.png[]
+
+NOTE: Due to the complexity of the picture, the attributes of SpecifiedOccurrence Description
+(reference the "Description" template) and "Id" (as IdentifierString) are not mentioned here.
+The same applies for the attributes of NextAssemblyOccurrenceUsage: Description ("Description
+template") and RelationType (ClassString).
+
+Through the chain of SpecifiedOccurrences, it is possible to compute the 3D position of each
+occurrence.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[[tab-40]]
+."SpecifiedOccurrence" Attributes
+[cols="a,a",options=header]
+|===
+| Entity SpecifiedOccurrence
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| DefiningGeometry
+| OPTIONAL GeometricModel
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| KinematicLinkToOccurrenceAssociation
+| OPTIONAL SET[1:?] of KinematicLinkToOccurrenceAssociation
+
+| span:gray[MaterialIdentification]
+| span:gray[OPTIONAL SET[1:?\] of MaterialIdentification]
+
+| span:gray[ShapeDependentProperty]
+| span:gray[OPTIONAL SET[1:?\] of ShapeDependentProperty]
+
+| span:gray[ShapeElement]
+| span:gray[OPTIONAL SET[1:?\] of ShapeElement]
+
+| Occurrence
+| OPTIONAL SET[1:?] of SpecifiedOccurrence
+
+| span:gray[SurfaceCondition]
+| span:gray[OPTIONAL SET[1:?\] of SurfaceCondition]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[BreakdownVersionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of BreakdownVersionAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OccurrenceRelationship]
+| span:gray[OPTIONAL SET[1:?\] of OccurrenceRelationship]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| UpperUsage
+| Occurrence
+|===
+
+*_Attribute recommendations_*
+
+* *_DefiningGeometry:_* the GeometricModel that contains the shape information.
+See <<cls-6.1>> for details of instantiating a GeometricModel and linking it to a PartView.
+The value of this attribute need not be specified, except if the geometry of the related part
+is overloaded (see below).
+
+* *_Description_*: the text or the set of texts that provides further information about the
+SpecifiedOccurrence. The value of this attribute need not be specified. Use "Description"
+template.
+
+* *_Id:_* stores the Identifier for the SpecifiedOccurrence (in some PDM systems, shall be
+unique over all Occurrences defined under this PartView). Use IdentifierString type.
+
+* *Occurrence*: the specific occurrences of this occurrence in a product structure. Only
+necessary in case the intermediate SpecificOccurrences are mapped (like on <<fig-32>>:
+Instantiation with all the intermediate SpecifiedOccurrences).
++
+--
+[NOTE,type=remark]
+====
+This attribute is of type SpecifiedOccurrence so it is not necessary
+(but allowed) to mention `xsi:type="n0:SpecifiedOccurrence"`.
+====
+--
+
+* *KinematicLinkToOccurrenceAssociation*: the KinematicLinks associated to this
+occurrence in mechanisms (see Recommended Practices for AP242 Domain Model XML
+Kinematics for details)
+
+* *_PropertyValueAssignment:_* adds the value of a property to the SpecifiedOccurrence.
+Use "PropertyAssignment" template (see <<cls-6.2>>)
+
+* *_UpperUsage:_* the Occurrence in which the related instance is used. This Occurrence
+shall be the immediate upper level instance or another SpecifiedOccurrence
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* To overload the position of the part (for example if the position depends on the load to be
+supported by the product), a dedicated instance of NextAssemblyOccurrenceUsage shall
+contain the deviating positioning (Placement) and reference via 'Related' an instance of
+SpecifiedOccurrence (instead of SingleOccurrence).
+
+* To overload the geometry of the part, depending on its SpecifiedOccurrence, the
+deviating geometry shall be referenced via SpecifiedOccurrence.DefiningGeometry.
+
+* It is not mandatory to instantiate all intermediate SpecifiedOccurrences if not needed:
+
+[[fig-31]]
+.Instantiation without the intermediate SpecifiedOccurrences
+image::img48.png[]
+
+[[fig-32]]
+.Instantiation with all the intermediate SpecifiedOccurrences
+image::img49.png[]
+
+Instantiating all intermediate SpecifiedOccurrences provides a clear containment along the
+
+"Definition" attribute:
+
+* S1 inherits all attributes from Screw
+* W1/S1 inherits from S1
+* A1/W1/S1 inherits from W1/S1
+* B1/A1/W1/S1 inherits from A1/W1/S1
+* G1/B1/A1/W1/S1 inherits from B1/A1/W1/S1
+
+*_Postprocessor Recommendations:_*
+
+* Instances of NextAssemblyOccurrenceUsage that reference a SpecifiedOccurrence via
+'Related' shall only be interpreted if the target system supports the overloading of the
+position of parts
+
+* SpecifiedOccurrence.DefiningGeometry shall only be interpreted if the target system
+supports the overloading of the geometry.
+
+[[cls-7.3]]
+=== Full / Simplified Positioning Representation
+
+The scope of this section corresponds to <<CAX-IF-PSUG,section=3.4>>.
+
+In addition to the usual (geometrical) way of mapping the 3D positioning within an assembly
+structure, a more compact (especially in XML) and simple way has been defined in AP242. This
+section describes all possible ways.
+
+*_Preprocessor Recommendations:_*
+
+As long as no critical precision issues occur (especially caused by the multiplication of
+several relative positioning matrices containing large numbers in deep assembly structures),
+either relative or absolute 3D positioning can be used.
+
+Since large numbers cause computers to truncate decimal digits, the depth of such assembly
+structure shall be limited in the case of relative positioning, or absolute positioning
+should be used. In the latter case, all intermediate assembly nodes between the top node and
+the assemblies/components associated to an absolute positioning should be positioned via an
+identity matrix, or share the same coordinate space.
+
+Absolute positioning of multiple usages of components requires the use of SpecifiedOccurrence
+(see previous section) and is therefore not recommended.
+
+The use of mirroring in the 3D transformation from a component part in an assembly part is not
+allowed. See more about mirroring in <<cls-7.7>>.
+
+The vectors within the RotationMatrix of a CartesianTransformation and the Axis/RefDirection
+of an AxisPlacement shall be orthogonal to each other.
+
+NOTE: Transformation matrices exchanged using this Domain model are not guaranteed to be
+orthogonal, since compared to the definition of axis2_placement_3d in Part 42, the definition
+of AxisPlacement in the Domain Model is missing one step in the calculation intended to ensure
+the orthogonality of axis and refDirection. Hence, special attention is needed to define them
+as orthogonal from the beginning. Otherwise, in the case of multi-level assembly the
+concatenation of the transformation matrices may result in inconsistent or incorrect results
+between exchange partners
+
+The simplified positioning representation is recommended whenever the assembly nodes have
+no geometry. It is a shortcut to avoid instantiating GeometricModel if there is none. If
+there is a GeometricModel, it has to be referenced by the RepresentationRelationship and to
+point to a GeometricCoordinateSpace => the simplified positioning representation is not
+usable.
+
+The implicit or explicit representation is recommended whenever the assembly nodes have
+geometry, since from a pure CAD point of view, each Geometry has his own
+GeometricCoordinateSpace.
+
+This recommendation applies independently from the fact that nested or monolithic mapping is
+used (see <<cls-9.3>>), since the reference to nested nodes ist not geometry but AP242 XML.
+The only point is: does the assembly node own a geometry file or not.
+
+[[cls-7.3.1]]
+==== Template "Simplified Positioning Representation"
+
+The only instance needed here is a CartesianTransformation.
+
+*_Preprocessor Recommendations:_*
+
+* Unlike for the full positioning representations, the use of a GeometricCoordinateSpace is
+not necessary here.
+
+* Since this mapping does not support the explicit mapping of a unit (for the elements of
+the translation vector), a DefaultUnit shall be defined in ExchangeContext and all
+translation vectors shall be given according to this unit.
+
+*_Postprocessor Recommendations:_*
+
+* None.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[[fig-33]]
+.Template "Simplified Positioning Representation"
+====
+[%unnumbered]
+image::img50.png[]
+
+[%unnumbered]
+image::img51.png[]
+====
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000017085F00">
+  <Id>
+    <Identifier uid="pid--0000000017085F00--id3" id="bracket_asm" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017085F00--id3">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017085F00--id3">
+...
+          <ViewOccurrenceRelationship uid="pvvid--000000001E6E14B0--14" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001E6E14B0--14"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <CartesianTransformation uid="cto--000000001E6E14B0--14">
+                <RotationMatrix>2.83808309622E-16 -1.48711849984E-5 0.999999999889 7.14623103897E-14 -0.999999999889 -1.48711849984E-5 1.0 7.146231460233355E-14 -2.82745580352E-16</RotationMatrix>
+                <TranslationVector>7451.5038 127.065 -443.85</TranslationVector>
+              </CartesianTransformation>
+            </Placement>
+          </ViewOccurrenceRelationship>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[tab-41]]
+."CartesianTransformation" Attributes
+[cols="a,a",options=header]
+|===
+| Entity CartesianTransformation
+| Attribute type
+
+| RotationMatrix
+| String
+
+| Scale
+| Real
+
+| TranslationVector
+| String
+|===
+
+*_Attribute recommendations_*
+
+* *_RotationMatrix:_* 3x3 Matrix with the values: `xx xy xz yx yy yz zx zy zz`
+
+** `xx xy xz` represent the X axis direction of the transformation target.
+** `yx yy yz` represent the Y axis direction of the transformation target.
+** `zx zy zz` represent the Z axis direction of the transformation target.
+
+* *_Scale:_* According to the AP242 ISO specification, the scale factor
+shall be omitted or set to 1.0.
+
+* *_TranslationVector:_* 3-dimensional vector with the following values: `x y z`
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[fig-34]]
+.Instantiation example if Part #2 has geometry
+image::img52.png[]
+
+[[cls-7.3.2]]
+==== Full Positioning Representations
+
+In all these mapping alternatives, the assembly and the component node are associated to a
+subtype of GeometricModel and the 3D Positioning information is mapped in a subtype of
+RepresentationRelationship that references both GeometricModels.
+
+Here some common recommendations and entities applying to all mapping alternatives:
+
+*_Preprocessor Recommendations:_*
+
+The GeometricModel associated to the Assembly node shall be of kind
+ComposedGeometricModel, while
+
+The GeometricModel associated to the Component node shall be of kind:
+
+* ExternalGeometricModel if it is a simple part and has its own geometry, defined in a digital
+file (see section File Reference)
+
+* ComposedGeometricModel if it is an assembly node
+
+The use of GeometricModel itself (without a subtype) as well as the use of further subtypes of
+GeometricModel (i.e. TransformedGeometricModel) is not recommended.
+
+The use of the subtypes of ExternalGeometricModel is optional (like in the EXPRESS schema,
+since ExternalGeometricModel is not an ABSTRACT SUPERTYPE), and shall be interpreteted
+purely as 'for information purpose only' by the postprocessor. There are several easons for
+this:
+
+* Many file formats allow for the combination of different geometric representations of the
+same model, e.g. precise B-Rep and tessellated, or solid and surface model, within the same
+file.
+
+** the ONEOF constraint defined in the EXPRESS schema between the subtypes doesn't
+apply all the time
+
+* Some of the subtypes are not supported by the converters (for example
+ExternalCurveSweptSolidShapeRepresentation).
+
+* Since currently most converters do not evaluate the Creation_Property, Format_Property,
+File_Type_Property during import, but rather try to load the file
+
+** it is likely they will also not evaluate the subtypes of ExternalGeometricModel
+
+* It may be quite an effort to add this to the converters, with a rather low added value
+
+In case of a relative 3D positioning, it is not recommended to reuse the same instance of
+GeometricCoordinateSpace for both geometric models, since each of them has its own coordinate
+space.
+
+If necessary an adjustment to refDirection has to be made to maintain orthogonality to the
+axis direction. If axis or refDirection are omitted, these directions are taken from the
+geometric coordinate system.
+
+Although GeometricModel is defined as XML RootObject, it should be always associated to one
+and only one PartView or Occurrence via DefinedGeometry.
+
+If an ExternalGeometricModel is defined for an Occurrence (flexible part), this
+ExternalGeometricModel
+shall be involved in the GeometricRepresentationRelationshipWithPlacementTransformation
+or the GeometricRepresentationRelationshipWithCartesianTransformation
+that involves this Occurrence, and not the ExternalGeometricModel defined via
+PartView.DefiningGeometry.
+
+The GeometricModel referenced by "Related" shall not belong to the part where the
+GeometricModelRelationship is defined, nor to any assembly that builds this part
+(so-called cycle in the product structure).
+
+*_Postprocessor Recommendations:_*
+
+To derive the Y vector from the Axis (Z) and RefDirection (X) of an AxisPlacement, please
+refer to the <<annex-D>> (Conversion from Implicit to Explicit Transformation Information)
+taken over from the PDM Usage Guide.
+
+The subtypes of ExternalGeometricModel shall be interpreted purely as 'for information purpose
+only'. Do not rely on them for processing the file and do not stop processing in case the
+given subtype is not supported (the file shall be loaded anyway and an error produced only if
+it couldn't be processed).
+
+[[cls-7.3.2.1]]
+===== Implicit Transformation
+
+In this case, the RepresentationRelationship is of kind
+GeometricRepresentationRelationshipWithPlacementTransformation.
+
+*_Preprocessor Recommendations:_*
+
+* The AxisPlacement of the Component (Origin) shall contain '0 0 0' for Position and no
+value. for Axis and RefDirection.
+
+* The use of further subtypes of RepresentationItem (apart of AxisPlacement)
+is not recommended.
+
+* In case of relative 3D positioning, each GeometricModel should reference
+its own instance of GeometricCartesianSpace.
+
+[[fig-35]]
+.Full Positioning Representation with Implicit Transformation
+image::img53.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000020AB6290">
+  <Id>
+    <Identifier uid="pid--0000000020AB6290--id5" id="nut and bolt" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000020AB6290--id5">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000020AB6290--id5">
+...
+          <ViewOccurrenceRelationship uid="pvvid--000000001AA415B0--18" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001AA415B0--18"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <RepresentationRelationship uidRef="ctrafo--0000000013DF75A0--18"/>
+            </Placement>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="pvvid--000000001AA41A00--19" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001AA41A00--19"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <RepresentationRelationship uidRef="ctrafo--0000000013DF75A0--19"/>
+            </Placement>
+          </ViewOccurrenceRelationship>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+<RepresentationContext uid="ccs--origin-nut-and-bolt" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--0000000020AB6290" xsi:type="n0:ComposedGeometricModel">
+      <Id id="nut and bolt"/>
+      <Items>
+        <RepresentationItem uidRef="repi--000000001AA41A00--18--2"/>
+        <RepresentationItem uidRef="repi--000000001AA41A00--19--2"/>
+      </Items>
+      <RepresentationRelationship uid="ctrafo--0000000013DF75A0--18" xsi:type="n0:GeometricRepresentationRelationshipWithPlacementTransformation">
+        <Definitional>true</Definitional>
+        <Related uidRef="egm--000000001AA415B0"/>
+        <Origin uidRef="repi--000000001AA415B0--18"/>
+        <Target uidRef="repi--000000001AA41A00--18--2"/>
+      </RepresentationRelationship>
+      <RepresentationRelationship uid="ctrafo--0000000013DF75A0--19" xsi:type="n0:GeometricRepresentationRelationshipWithPlacementTransformation">
+        <Definitional>true</Definitional>
+        <Related uidRef="egm--000000001AA41A00"/>
+        <Origin uidRef="repi--000000001AA41A00--19"/>
+        <Target uidRef="repi--000000001AA41A00--19--2"/>
+      </RepresentationRelationship>
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem uid="repi--000000001AA41A00--18--2" xsi:type="n0:AxisPlacement">
+      <Axis>0.999999999889,-1.48711849984E-005,-2.82745580352E-016</Axis>
+      <Position>7451.5038,127.065,-443.85</Position>
+      <RefDirection>2.83808309622E-016,7.14623103897E-014,1.</RefDirection>
+    </RepresentationItem>
+    <RepresentationItem uid="repi--000000001AA41A00--19--2" xsi:type="n0:AxisPlacement">
+      <Axis>1.000000 0.000000 0.000000</Axis>
+      <Position>-33.000000 0.000000 0.000000</Position>
+      <RefDirection>0.0 0.0 0.0</RefDirection>
+    </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<Part uid="p--000000001AA415B0">
+  <Id>
+    <Identifier uid="pid--000000001AA415B0--id6" id="bolt" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001AA415B0--id6">
+...
+      <Views>
+        <PartView uid="pvv--000000001AA415B0--id6">
+          <DefiningGeometry uidRef="egm--000000001AA415B0"/>
+...
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--000000001AA415B0--18">
+            <Id id="bolt.1"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationContext uid="ccs--origin-bolt" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--000000001AA415B0" xsi:type="n0:ExternalGeometricModel">
+      <Id id="bolt.stp"/>
+      <Items>
+        <RepresentationItem uidRef="repi--000000001AA415B0--18"/>
+      </Items>
+      <ExternalFile uidRef="df--000000001AA415B0"/>
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="repi--000000001AA415B0--18">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<Part uid="p--000000001AA41A00">
+  <Id>
+    <Identifier uid="pid--000000001AA41A00--id7" id="nut" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001AA41A00--id7">
+...
+      <Views>
+        <PartView uid="pvv--000000001AA41A00--id7">
+          <DefiningGeometry uidRef="egm--000000001AA41A00"/>
+...
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--000000001AA41A00--19">
+            <Id id="nut.1"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationContext uid="ccs--origin-nut" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--000000001AA41A00" xsi:type="n0:ExternalGeometricModel">
+      <Id id="nut.stp"/>
+      <Items>
+        <RepresentationItem uidRef="repi--000000001AA41A00--19"/>
+      </Items>
+      <ExternalFile uidRef="df--000000001AA41A00"/>
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="repi--000000001AA41A00--19">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+----
+
+[[tab-42]]
+."GeometricRepresentationRelationshipWithPlacementTransformation" Attributes
+[cols="a,a",options=header]
+|===
+| Entity GeometricRepresentationRelationshipWithPlacementTransformation
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definitional
+| BOOLEAN
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| Related
+| ComposedGeometricModel or ExternalGeometricModel
+
+| Origin
+| AxisPlacement
+
+| Target
+| AxisPlacement
+|===
+
+*_Attribute recommendations_*
+
+* *_Definitional_*: according to a WHERE rule in the EXPRESS model, shall be always TRUE
+(makes the related GeometricModel part of the definition of the relating GeometricModel).
+
+* *_Description_*: the text or the set of texts that provides further information
+about the RepresentationRelationship. The value of this attribute need
+not be specified. Use "Description" template.
+
+* *_Related_*: Reference to the ComposedGeometricModel or ExternalGeometricModel of the
+component part built into the assembly part
+
+* *_Origin_*: Reference to the corresponding instance of AxisPlacement
+associated to the related ComposedGeometricModel or
+ExternalGeometricModel of the component part built
+into the assembly part. It is recommended to define an identity
+matrix within this AxisPlacement
+
+* *_Target_*: Reference to the corresponding instance of AxisPlacement
+associated to the relating ComposedGeometricModel of the assembly part
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-7.3.2.2]]
+===== Explicit Transformation
+
+In this case, the RepresentationRelationship is of kind
+GeometricRepresentationRelationshipWithCartesianTransformation.
+
+*_Preprocessor Recommendations:_*
+
+The AxisPlacement of the Component (Related) shall contain '0 0 0' for Position and no value.
+for Axis and RefDirection.
+
+The use of further subtypes of RepresentationItem (apart of AxisPlacement for the component
+part and CartesianTransformation for the assembly part) is not recommended.
+
+As specified in the EXPRESS data model via a WHERE rule, each GeometricModel
+shall reference its own instance of GeometricCartesianSpace.
+
+[[fig-36]]
+.Full Positioning Representation with Explicit Transformation
+image::img54.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000020AB6290">
+  <Id>
+    <Identifier uid="pid--0000000020AB6290--id5" id="nut and bolt" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000020AB6290--id5">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000020AB6290--id5">
+...
+          <ViewOccurrenceRelationship uid="pvvid--000000001AA415B0--18" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001AA415B0--18"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <RepresentationRelationship uidRef="ctrafo--0000000013DF75A0--18"/>
+            </Placement>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="pvvid--000000001AA41A00--19" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001AA41A00--19"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <RepresentationRelationship uidRef="ctrafo--0000000013DF75A0--19"/>
+            </Placement>
+          </ViewOccurrenceRelationship>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+<RepresentationContext uid="ccs--origin-nut-and-bolt" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--0000000020AB6290" xsi:type="n0:ComposedGeometricModel">
+      <Id id="nut and bolt"/>
+      <RepresentationRelationship uid="ctrafo--0000000013DF75A0--18" xsi:type="n0:GeometricRepresentationRelationshipWithCartesianTransformation">
+        <Definitional>true</Definitional>
+        <Related uidRef="egm--000000001AA415B0"/>
+        <Transformation uid="repi--000000001AA41A00--18--2" xsi:type="n0:CartesianTransformation">
+          <RotationMatrix>2.83808309622E-16 -1.48711849984E-5 0.999999999889 7.14623103897E-14 -0.999999999889 -1.48711849984E-5 1.0 7.146231460233355E-14 -2.82745580352E-16</RotationMatrix>
+          <TranslationVector>7451.5038 127.065 -443.85</TranslationVector>
+        </Transformation>
+      </RepresentationRelationship>
+      <RepresentationRelationship uid="ctrafo--0000000013DF75A0--19" xsi:type="n0:GeometricRepresentationRelationshipWithCartesianTransformation">
+        <Definitional>true</Definitional>
+        <Related uidRef="egm--000000001AA41A00"/>
+        <Transformation uidRef="repi--000000001AA41A00--19--2"/>uid="repi--000000001AA41A00--19--2" xsi:type="n0:CartesianTransformation">
+          <RotationMatrix>1.000000 0.000000 0.000000 0.000000 1.000000 0.000000 0.000000 0.000000 1.000000</RotationMatrix>
+          <TranslationVector>-33.000000 0.000000 0.000000</TranslationVector>
+        </Transformation>
+      </RepresentationRelationship>
+    </Representation>
+  </Representations>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<Part uid="p--000000001AA415B0">
+  <Id>
+    <Identifier uid="pid--000000001AA415B0--id6" id="bolt" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001AA415B0--id6">
+...
+      <Views>
+        <PartView uid="pvv--000000001AA415B0--id6">
+          <DefiningGeometry uidRef="egm--000000001AA415B0"/>
+...
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--000000001AA415B0--18">
+            <Id id="bolt.1"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationContext uid="ccs--origin-bolt" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--000000001AA415B0" xsi:type="n0:ExternalGeometricModel">
+      <Id id="bolt.stp"/>
+      <Items>
+        <RepresentationItem uidRef="repi--000000001AA415B0--18"/>
+      </Items>
+      <ExternalFile uidRef="df--000000001AA415B0"/>
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="repi--000000001AA415B0--18">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<Part uid="p--000000001AA41A00">
+  <Id>
+    <Identifier uid="pid--000000001AA41A00--id7" id="nut" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001AA41A00--id7">
+...
+      <Views>
+        <PartView uid="pvv--000000001AA41A00--id7">
+          <DefiningGeometry uidRef="egm--000000001AA41A00"/>
+...
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--000000001AA41A00--19">
+            <Id id="nut.1"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationContext uid="ccs--origin-nut" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--000000001AA41A00" xsi:type="n0:ExternalGeometricModel">
+      <Id id="nut.stp"/>
+      <Items>
+        <RepresentationItem uidRef="repi--000000001AA415B0--18"/>
+      </Items>
+      <ExternalFile uidRef="df--000000001AA415B0"/>
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="repi--000000001AA41A00--19">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+----
+
+[[tab-43]]
+."GeometricRepresentationRelationshipWithCartesianTransformation" Attributes
+[cols="a,a",options=header]
+|===
+| Entity GeometricRepresentationRelationshipWithCartesianTransformation
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definitional
+| BOOLEAN
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| Related
+| ComposedGeometricModel or ExternalGeometricModel
+
+| Transformation
+| CartesianTransformation
+|===
+
+*_Attribute recommendations_*
+
+* *_Definitional_*: always TRUE (makes the related GeometricModel part of the definition of
+the relating GeometricModel).
+
+* *_Description_*: the text or the set of texts that provides further information
+about the RepresentationRelationship. The value of this attribute need not be specified.
+Use "Description" template.
+
+* *_Related_*: Reference to the ComposedGeometricModel or ExternalGeometricModel of the
+component part built into the assembly part
+
+* *_Transformation_*: Reference to the corresponding instance of CartesianTransforamtion
+associated to the relating ComposedGeometricModel of the assembly part
+
+* Other attributes than these are not covered by this document; their use is discouraged
+as it would depend on mutual agreements between data exchange partners.
+
+[[cls-7.3.2.3]]
+===== Same Coordinate Space
+
+In this case, the RepresentationRelationship is of kind
+GeometricRepresentationRelationshipWithSameCoordinateSpace.
+
+It can only apply to identify 3D transformations (identity matrix).
+
+*_Preprocessor Recommendations:_*
+
+The AxisPlacement of the Component (Related) and of the Assembly (Relating) shall contain '0
+0 0' for Position and no value. for Axis and RefDirection.
+
+The use of further subtypes of RepresentationItem (apart of AxisPlacement for the component
+part and for the assembly part) is not recommended.
+
+As specified in the EXPRESS data model via a WHERE rule, unlike the two previous mapping
+alternatives, in this case the upper and lower GeometricModel shall share the same instance of
+GeometricCartesianSpace.
+
+[[fig-37]]
+.Full Positioning Representation with Same Coordinate Space
+image::img55.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000020AB6290">
+  <Id>
+    <Identifier uid="pid--0000000020AB6290--id5" id="nut and bolt" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000020AB6290--id5">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000020AB6290--id5">
+...
+          <ViewOccurrenceRelationship uid="pvvid--000000001AA415B0--18" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001AA415B0--18"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <RepresentationRelationship uidRef="ctrafo--0000000013DF75A0--18"/>
+            </Placement>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="pvvid--000000001AA41A00--19" xsi:type="n0:NextAssemblyOccurrenceUsage">
+            <Related uidRef="pi--000000001AA41A00--19"/>
+            <RelationType>
+              <ClassString>next assembly occurrence</ClassString>
+            </RelationType>
+            <Placement>
+              <RepresentationRelationship uidRef="ctrafo--0000000013DF75A0--19"/>
+            </Placement>
+          </ViewOccurrenceRelationship>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationContext uid="ccs--origin-nut-and-bolt" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--0000000020AB6290" xsi:type="n0:ComposedGeometricModel">
+    <Id id="nut and bolt"/>
+    <Items>
+      <RepresentationItem uidRef="repi--000000001AA41A00--18--2"/>
+      <RepresentationItem uidRef="repi--000000001AA41A00--19--2"/>
+    </Items>
+    <RepresentationRelationship uid="ctrafo--0000000013DF75A0--18" xsi:type="n0:GeometricRepresentationRelationshipWithSameCoordinateSpace">
+      <Definitional>true</Definitional>
+      <Related uidRef="egm--000000001AA415B0"/>
+    </RepresentationRelationship>
+    <RepresentationRelationship uid="ctrafo--0000000013DF75A0--19" xsi:type="n0:GeometricRepresentationRelationshipWithSameCoordinateSpace">
+      <Definitional>true</Definitional>
+      <Related uidRef="egm--000000001AA41A00"/>
+    </RepresentationRelationship>
+  </Representation>
+  <Representation uid="egm--000000001AA415B0" xsi:type="n0:ExternalGeometricModel">
+    <Id id="bolt.jt"/>
+    <Items>
+      <RepresentationItem uidRef="repi--000000001AA415B0--18"/>
+    </Items>
+    <ExternalFile uidRef="df--000000001AA415B0"/>
+    </Representation>
+    <Representation uid="egm--000000001AA41A00" xsi:type="n0:ExternalGeometricModel">
+         <Id id="nut.jt"/>
+      <Items>
+        <RepresentationItem uidRef="repi--000000001AA41A00--19"/>
+      </Items>
+      <ExternalFile uidRef="df--000000001AA41A00"/>
+    </Representation>
+  </Representations>
+  <Items>
+    <RepresentationItem uid="repi--000000001AA41A00--18--2" xsi:type="n0:AxisPlacement">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+    <RepresentationItem uid="repi--000000001AA41A00--19--2" xsi:type="n0:AxisPlacement">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="repi--000000001AA415B0--18">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+    <RepresentationItem xsi:type="n0:AxisPlacement" uid="repi--000000001AA41A00--19">
+      <Position>0.0 0.0 0.0</Position>
+    </RepresentationItem>
+  </Items>
+  <DimensionCount>3</DimensionCount>
+</RepresentationContext>
+
+<Part uid="p--000000001AA415B0">
+  <Id>
+    <Identifier uid="pid--000000001AA415B0--id6" id="bolt" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001AA415B0--id6">
+...
+      <Views>
+        <PartView uid="pvv--000000001AA415B0--id6">
+          <DefiningGeometry uidRef="egm--000000001AA415B0"/>
+...
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--000000001AA415B0--18">
+            <Id id="bolt.1"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<Part uid="p--000000001AA41A00">
+  <Id>
+    <Identifier uid="pid--000000001AA41A00--id7" id="nut" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+</Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001AA41A00--id7">
+...
+      <Views>
+        <PartView uid="pvv--000000001AA41A00--id7">
+          <DefiningGeometry uidRef="egm--000000001AA41A00"/>
+...
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi--000000001AA41A00--19">
+            <Id id="nut.1"/>
+          </Occurrence>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[tab-44]]
+."GeometricRepresentationRelationshipWithSameCoordinateSpace" Attributes
+[cols="a,a",options=header]
+|===
+| Entity GeometricRepresentationRelationshipWithSameCoordinateSpace
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definitional
+| BOOLEAN
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| Related
+| ComposedGeometricModel or ExternalGeometricModel
+|===
+
+*_Attribute recommendations_*
+
+* *_Definitional_*: always TRUE (makes the related GeometricModel part of the definition of
+the relating GeometricModel).
+
+* *_Description_*: the text or the set of texts that provides further information
+about the RepresentationRelationship. The value of this attribute need not be
+specified. Use "Description" template.
+
+* *_Related_*: Reference to the ComposedGeometricModel or ExternalGeometricModel
+of the component part built into the assembly part
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-7.3.3]]
+==== General Geometric Representation Relationship
+
+Beside the existing subtypes of RepresentationRelationship defined in the previous sections,
+GeneralGeometricRepresentationRelationship shall support any other relationships between
+GeometricRepresentations.
+
+[[fig-38]]
+.General Geometric Representation Relationship
+image::img56.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<RepresentationContext uid="ccs--1" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation xsi:type="n0:Mechanism" uid="kin--0000000006039F00--m">
+...
+      <Id id="kin--0000000006039F00--m"/>
+...
+      <RepresentationRelationship uid="kin--0000000006039F00--mrel" xsi:type="n0:GeneralGeometricRepresentationRelationship">
+        <Definitional>false</Definitional>
+        <Related uidRef="kin--0000000006039F00--m2"/>
+        <RelationType>import</RelationType>
+      </RepresentationRelationship>
+    </Representation>
+...
+  </Representations>
+...
+</RepresentationContext>
+----
+
+[[tab-45]]
+."General Geometric Representation Relationship" Attributes
+[cols="a,a",options=heaader]
+|===
+| Entity GeneralGeometricRepresentationRelationship
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definitional
+| BOOLEAN
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| Related
+| ComposedGeometricModel or ExternalGeometricModel
+
+| RelationType
+| ClassSelect
+|===
+
+*_Attribute recommendations_*
+
+* *_Definitional_*: always FALSE in case of RelationType='import' or 'local' (the imported or
+local dressup Mechanism is not part of the definition of the master Mechanism) and
+always TRUE in case of RelationType='decomposition (the single GeometricModels are
+part of the definition of the overall GeometricModel).
+
+* *_Description_*: the text or the set of texts that provides further information
+about the RepresentationRelationship. The value of this attribute need not be specified.
+Use "Description" template.
+
+* *_Related_*: Reference to the decomposed GeometricModel (in case of
+RelationType='decomposition' or to the imported/local dressup Mechanism (in case
+of RelationType='import' or 'local')
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type if one of the values
+below is used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the ISO AP242
+Specification, where applicable, the following values shall be used:
++
+--
+[%unnumbered,cols="a,a",options=header]
+|===
+| RelationType |
+
+| 'decomposition'
+| The business object defines a relationship where the related GeometricModel is one of potentially more sub models of the relating GeometricModel
+
+| 'import'
+| The business object defines a relationship where the related dressup Mechanism imports all aspects of the relating master Mechanism
+
+| 'local'
+| The business object defines a relationship where the related dressup Mechanism is locally defined on the relating master Mechanism
+
+| 'alternate shape'
+| The business object defines a relationship where the relating GeometricModel defines an Alternative Instance Shape of the related GeometricModel (for example in case of Flexible Part, see <<cls-7.8>>)
+|===
+--
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-7.4]]
+=== Template "PartViewRelationship"
+
+These are the special cases, where the use of PartViewRelationship and its
+subtypes is recommended:
+
+* to relates different views of a complex product structure (see <<cls-15.2>>)
+
+* to map a mirroring 3D placement of a part that reuses the geometry of another part
+(see <<cls-7.7>>)
+
+* where some properties need to be exchanged on PartViewRelationship or its subtypes
+
+* where the quantity to be stored in NextAssemblyViewUsage deviates from the number
+of Occurrences given by NextAssemblyOccurrenceUsage
+
+* where part usage substitution rules shall be mapped between NextAssemblyViewUsages
+(so-called AssemblyViewRelationshipSubstitutions, see <<cls-7.5.3>>)
+
+* where NextAssemblyViewUsage.Id (so-called FindNumber or Position number) shall be
+exchanged to bind multiple occurrences having the same function
+
+Having multiple NextAssemblyViewUsages between the same parent and child is not supported
+by all PDM systems. However, in certain use cases, the unique FindNumber/Position is used to
+support multiple usages of the same child part, for example for mounting reasons (3 identical
+screws are used to mount one thing together and 4 further of these screws are used to mount
+another thing together, all of them defined as childs within one assembly node)
+
+The use of the other subtypes of PartViewRelationship, if not described in other templates,
+is not recommended (not in scope of this document).
+
+*_Preprocessor Recommendations:_*
+
+Some PDM systems have an object to aggregate all the usages of a component in the next
+assembly node (with quantity N) and another object to map each usage of the component (with
+an occurrence.id and a 3D position matrix). The quantity n can deviate from the sum of the
+occurrences, for example expressingthe intent to use that many occurrences but not all
+occurrences are established yet.
+
+If multiple NextAssemblyViewUsages exist between the same parent and child, it is recommended
+to concatenate the NextAssemblyViewUsage.Id into the NextAssemblyOccurrenceUsage.Id so that
+those Occurrences involved in one NextAssemblyViewUsage can be identified.
+
+*_Postprocessor Recommendations:_*
+
+If the target PDM system has also an aggregation object as defined above, it may import the
+properties associated to the NextAssemblyViewUsageobjects (but only the properties and not
+the assembly structure defined below it) as well as the NextAssemblyViewUsage.quantity (as
+'target' quantity, independently of the number of NextAssemblyOccurrenceUsages attached to
+the is part.
+
+If such an aggregation object is not provided in the target system, of if it gets created
+automatically out of the sum of all NextAssemblyOccurrenceUsages, the postprocessor shall
+ignore the NextAssemblyViewUsage.
+
+In both cases, the NextAssemblyViewUsages and the NextAssemblyOccurrenceUsages shall
+not be interpretated in addition to each other; otherwise, an assembly with too many
+components would be imported.
+
+The postprocessor shall recognize multiple NextAssemblyViewUsages between the same
+parent and child, and (if the target system doesn't support it) merge all of them to one
+during import.
+
+To enable to combine NextAssemblyViewUsages and NextAssemblyOccurrenceUsages with
+the appropriate semantic, ISO Jira Tasks
+https://sd.iso.org/jira-pilot/browse/TCSC410303-1398[TCSC410303-1398]
+and TCSC410303-661 have been submitted.
+
+[[fig-39]]
+.Template "PartViewRelationship" for properties
+image::img57.png[]
+
+[[fig-40]]
+.Template "PartViewRelationship" for quantity (+ properties)
+image::img58.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<PropertyDefinition uid="i1067">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<Part uid="p--0000000017086CB0">
+  <Id>
+    <Identifier uid="pid--0000000017086CB0--id1" id="as1" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017086CB0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017086CB0--id1">
+...
+          <PartViewRelationship uid="pvrid--000000001E5A89F0--10">
+            <Related uidRef="pvv--000000001E5A89F0--id2"/>
+            <RelationType>
+              <ClassString>only for properties</ClassString>
+            </RelationType>
+            <PropertyValueAssignment uid="i1769">
+              <AssignedPropertyValues>
+              <PropertyValue uid="i1771" xsi:type="n0:StringValue">
+                <Definition>
+                  <PropertyDefinition uidRef="i1067"> </PropertyDefinition>
+                </Definition>
+                <Name>
+                  <CharacterString>lineNumber</CharacterString>
+                </Name>
+                <ValueComponent>
+                  <CharacterString>40</CharacterString>
+                </ValueComponent>
+...
+              </AssignedPropertyValues>
+            </PropertyValueAssignment>
+...
+          </PartViewRelationship>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+<Part uid="p--000000001E5A89F0">
+  <Id>
+    <Identifier uid="pid--000000001E5A89F0--id2" id="plate" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E5A89F0--id2">
+...
+      <Views>
+        <PartView uid="pvv--000000001E5A89F0--id2">
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[tab-46]]
+."PartViewRelationship" Attributes
+[options=header,cols="a,a"]
+|===
+| Entity PartViewRelationship
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| span:gray[InterfaceConnection]
+| span:gray[OPTIONAL SET[1:?\] of InterfaceConnection]
+
+| span:gray[MaterialIdentification]
+| span:gray[OPTIONAL SET[1:?\] of MaterialIdentification]
+
+| Related
+| PartView
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SurfaceCondition]
+| span:gray[OPTIONAL SET[1:?\] of SurfaceCondition]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provide further information about the
+Assembly structure link. The value of this attribute need not be specified. Use "Description"
+template.
+
+* *_Id:_* stores the Identifier for the PartViewRelationship (if set, shall be unique over all
+PartViewRelationship directly referenced by an assembly part). The value of this attribute
+need not be specified. Use IdentifierString type.
+
+* *_Related_*: Reference to a PartView of the component part built into the assembly part.
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type. Recommended
+values are:
++
+--
+[%unnumbered,options=header,cols="a,a"]
+|===
+| RelationType
+|
+
+| 'next assembly view'
+| The quantity to be stored in NextAssemblyViewUsage deviates from the number of Occurrences given by NextAssemblyOccurrenceUsage (see above in this section), or some substitute parts are defined via AssemblyViewRelationshipSubstitution (see <<cls-7.5.3>>)
+
+According to the definition of NextAssemblyViewUsage (subtype of PartViewRelationship), only this value of RelationType is allowed (DERIVE attribute with fix value)
+
+| 'only for properties'
+| Some properties are exchanged along the assembly structure on PartViewRelationship level
+
+| 'mirrored'
+| The subtype GeometricalRelationship is used for mirroring (see <<cls-7.7>>)
+
+| 'tracking'
+| The PartViewRelationship relates different views of a complex product structure (see <<cls-15.2>>)
+|===
+
+According to the above recommendation not to use multiple PartViewRelationships
+between the same parent and child, properties and substitutes for example shall be mapped
+on the same instance. In such a case, use 'next assembly view' as soon as
+NextAssemblyViewUsage is engaged.
+--
+
+* *_PropertyValueAssignment:_* adds the value of a property to the PartViewRelationship.
+Use "PropertyAssignment" template (see <<cls-6.2>>)
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000017086CB0">
+  <Id>
+    <Identifier uid="pid--0000000017086CB0--id1" id="as1" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017086CB0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017086CB0--id1">
+...
+          <PartViewRelationship xsi:type="n0:NextAssemblyViewUsage" uid="pvrid--000000001E5A89F0--10">
+            <Related uidRef="pvv--000000001E5A89F0--id2"/>
+            <RelationType>
+              <ClassString>next assembly view</ClassString>
+            </RelationType>
+...
+            <Quantity uid="i1770" xsi:type="n0:NumericalValue">
+              <Definition>
+                <PropertyDefinitionString>quantity</PropertyDefinitionString>
+              </Definition>
+              <Unit uidRef="i1231"></Unit>
+              <ValueComponent>1.</ValueComponent>
+            </Quantity>
+          </PartViewRlationship>
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<Unit uid="i1231">
+  <Name>
+    <ClassString>each</ClassString>
+  </Name>
+</Unit>
+
+<Part uid="p--000000001E5A89F0">
+  <Id>
+    <Identifier uid="pid--000000001E5A89F0--id2" id="plate" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E5A89F0--id2">
+...
+      <Views>
+        <PartView uid="pvv--000000001E5A89F0--id2">
+...
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[tab-47]]
+."NextAssemblyViewUsage" Attributes
+[cols="a,a",options=header]
+|===
+| Entity NextAssemblyViewUsage
+| Attribute type (additionaly to PartViewRelationship)
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| span:gray[MaterialIdentification]
+| span:gray[OPTIONAL SET[1:?\] of MaterialIdentification]
+
+| Related
+| PartView
+
+| RelationType
+| ClassSelect
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+
+| AssemblyViewRelationshipSubstitution
+| OPTIONAL SET[1:?] of AssemblyViewRelationshipSubstitution
+
+| span:gray[DefiningGeometry]
+| span:gray[OPTIONAL GeometricModel]
+
+| LocationIndicator
+| OPTIONAL IdentifierSelect
+
+| Quantity
+| OPTIONAL ValueWithUnit
+
+| span:gray[ShapeDependentProperty]
+| span:gray[OPTIONAL SET[1:?\] of ShapeDependentProperty]
+
+| span:gray[ShapeElement]
+| span:gray[OPTIONAL SET[1:?\] of ShapeElement]
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *ClassifiedAs:* the classifications of the NextAssemblyViewUsage. The value of this
+attribute need not be specified. Use "Classification" template (see <<cls-4.6.5>>) with value
+'alternative' if referenced by AssemblyViewRelationshipSubstitution.Related
+(see <<cls-7.5.3>>).
+
+* *AssemblyViewRelationshipSubstitution:* to assign (optionally) that this
+NextAssemblyViewUsage may be substituted for another NextAssemblyViewUsage. For more
+details, refer to <<cls-7.5.3>>.
+
+* *_LocationIndicator_*: the text that identifies this usage of the component in the assembly
+in a diagram, list, chart, or on a physical piece of equipment. The value of this attribute
+need not be specified Use IdentifierString type.
+
+* *_Quantity:_* the ValueWithUnit
+that defines the amount of this usage of the component in
+the assembly. The value of this attribute need not be specified. Use NumericalValue
+template. Since the semantic is handled here by the attribute naming, use
+PropertyDefinitionString='quantity'
+for Quantity.Definition (see <<cls-4.6.9>>) and leave NumericalValue.Name unset.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_*
+
+* The usage of ValueRange, ValueLimit, ValueWithTolerances and LimitsAndFits for
+Quantity is not recommended.
+
+[[cls-7.5]]
+=== Alternate and Substitute Parts
+
+This chapter describes the handling of alternate and substitute parts.
+
+This table gives an overview of all alternate/substitute mechanisms, as well as their support
+by the PDM systems:
+
+[[tab-48]]
+.Overview of all Alternate mechanisms
+image::img59.png[]
+
+[[tab-49]]
+.Overview of all View Usage Substitution mechanisms
+====
+[%unnumbered]
+image::img60.png[]
+
+[%unnumbered]
+image::img61.png[]
+====
+
+[[tab-50]]
+.Overview of all Occurrence Usage Substitution mechanisms
+====
+[%unnumbered]
+image::img62.png[]
+
+[%unnumbered]
+image::img63.png[]
+====
+
+It helps to understand in the following sections why it might be necessary to map between them
+(if the source or target PDM system does not support it), and why effectivities, 3D placements
+and properties should be the same for the base part and all its alternate/substitute parts.
+
+[[cls-7.5.1]]
+==== Template "AlternatePartRelationship"
+
+An AlternatePartRelationship specifies that any version of the alternate part, may be used in
+place of any version of the base part, regardless of its usages and of its versions. The
+relationship established by the AlternatePartRelationship is not symmetric: if part B is an
+alternate part for part A, part A is not implied to be an alternate part for part B.
+
+Here are some additional semantical aspects defined in the AP242 ISO document:
+
+NOTE: If a part is an alternate for another part, it is understood that there is no interest
+in keeping track of which part, the base or any alternates specified, is used as a particular
+instance of the base part within a part structure.
+
+NOTE: An organization may track design changes for a base part and establish effectivity
+conditions for the use of that base part in various assemblies to be manufactured. The use of
+an alternate part implies that an organization does not specify any particular version of the
+alternate part nor establish effectivities relating to it.
+
+NOTE: This concept usually refers to form, fit, function, and quality. Additional properties
+such as performance, noise, endurance, or reliability may also be considered as a
+prerequisite for the replacement
+
+[example]
+Two bolts of the same size are parts. One bolt has a square head and the other has a hexagonal
+head. The two bolts are considered equivalent with respect to form, fit, and function: they
+both have sufficiently close physical shape, they take up the same space when used, and they
+both serve to fasten two things together. Thus, one of these two bolts could be considered to
+be an alternate part for the other bolt.
+
+*_Preprocessor Recommendations:_*
+
+* If the alternate relationship shall apply between two part versions, use template
+PartVersionRelationship with relationType 'alternative' (see <<cls-5.1.5>>).
+
+* The relating and the related Parts shall be different objects.
+
+* The value of PartTypes for the base and alternate part shall be the same.
+
+* If the relation is symmetric in the source PDM system, then a reverse-relationship shall
+state that it applies in both directions.
+
+* If there are more than one alternate part involved, a 'star' structure from the base part
+to each alternate part shall be mapped (this star maps the semantic, that there is a base
+part and a number of alternate parts. All the alternate parts are on the same semantical
+level, but not on the same semantical level than the base part.
+
+* Alternate parts shall have no revision effectivities and their usages shall have no
+occurrence effectivities, since the ones defined on the base part also apply to the alternate
+parts.
+
+* The combination of the base part and the alternate part shall be unique.
+
+*_Postprocessor Recommendations:_*
+
+* If the target system does not support AlternatePartRelationship, but only
+PartVersionRelationship (see <<cls-5.1.5>>), it shall duplicate it between all versions of
+the base Part and all versions of the alternate Part that are mentioned in the XML file and
+map each of them as PartVersionRelationship.
+If no part versions are mentioned, the newest part version shall be considered.
+
+[[fig-41]]
+.Template "AlternatePartRelationship"
+image::img64.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--000000001EAA8110">
+...
+  <Versions>
+...
+  </Versions>
+  <PartRelationship uid="apr--1" xsi:type="n0:AlternatePartRelationship">
+    <Related uidRef="p--0000000017D36B80"/>
+    <RelationType>
+      <ClassString>alternate</ClassString>
+    </RelationType>
+    <Criteria>
+      <CharacterString>test</CharacterString>
+    </Criteria>
+  </PartRelationship>
+</Part>
+
+<Part uid="p--0000000017D36B80">
+...
+</Part>
+----
+
+[[tab-51]]
+."AlternatePartRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity AlternatePartRelationship
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| Related
+| Part
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| Criteria
+| OPTIONAL MultiLingualStringSelect
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provide further information about the
+AlternatePartRelationship. The value of this attribute need not be specified. Use
+"Description" template.
+
+* *_Id:_* stores the Identifier for the AlternatePartRelationship. The value of this
+attribute need not be specified. Use IdentifierString type.
+
+* *_Related_*: Reference to an alternate Part.
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type. Mandatory value:
+'alternate'.
+
+* *_Criteria:_* the word or set of words describing the requirements that are covered by both
+the base part and the alternate part and therefore are the basis for the statement
+regarding the capability of replacing the base part by the alternate par. Use "Description"
+template.
+
+* *_PropertyValueAssignment:_* adds the value of a property to the
+AlternatePartRelationship. Use "PropertyAssignment" template (see <<cls-6.2>>)
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[cls-7.5.2]]
+==== Template "AssemblyOccurrenceRelationshipSubstitution"
+
+An AssemblyOccurrenceRelationshipSubstitution specifies that one
+NextAssemblyOccurrenceUsage may be substituted by another
+NextAssemblyOccurrenceUsage. This relationship is
+not symmetric: if the one NextAssemblyOccurrenceUsage is a
+substitution for another NextAssemblyOccurrenceUsage,
+this does not imply the other way around.
+
+The subjects of the substitution are the related Occurrence objects (i.e. occurrence of
+parts) of both NextAssemblyOccurrenceUsage objects.
+
+The relating AssemblyDefinition shall be the same in both
+NextAssemblyOccurrenceUsage objects.
+
+Occurrence effectivities and the 3D placement associated to both NextAssemblyOccurrenceUsage
+objects should be identical or the substitute NextAssemblyOccurren-ceUsage should have none
+of them.
+
+In some PDM systems which relate the base NextAssemblyOccurrenceUsage directly to the
+substitute parts => there is only one NextAssemblyOccurrenceUsage and also no way to store
+properties on the substitute parts occurences. In such a case, the properties should be the
+same or there should be none of them.
+
+An AssemblyOccurrenceRelationshipSubstitution for which the first
+NextAssemblyOccurrenceUsage refers to an occurrence of a part which
+is an assembly involves that the entire part structure of the substituted
+part may be used in place of the first part and its part structure.
+
+This concept usually refers to form, fit, function, and quality.
+Additional properties such as performance, noise, endurance, or reliability may also be
+considered as a prerequisite for the replacement.
+
+As defined in <<cls-13.1>>, the assembly validation properties shall consider all the
+NextAssemblyOccurrenceUsages, no matter if some of them are defined
+as a substitution or if Effectivities apply to them.
+
+*_Preprocessor Recommendations:_*
+
+* The *relating* and the *related* NextAssemblyOccurrenceUsage shall be different objects.
+
+* For better interpretation by the postprocessor, which Part occurrence is the main one and
+which ones are the alternatives, it is recommended to set
+NextAssemblyOccurrenceUsage.ClassifiedAs to 'alternative' for the occurrence referenced by
+AssemblyOccurrenceRelationshipSubstitution.Relating.
+
+* If the relation is symmetric in the source PDM system, then a reverse-relationship shall
+state that it applies in both directions.
+In this case, NextAssemblyOccurrenceUsage ClassifiedAs='alternative' shall be set only
+in one direction.
+
+* If there are more than one substitute part involved, a 'star' structure from the base part
+to each substitute part shall be mapped (this star maps the semantic, that there is a base
+part and a number of substitute parts. All the substitute parts are on the same semantical
+level, but not on the same semantical level than the base part.
+
+* The combination of the base Part and the substitute Part shall be unique.
+
+* The substitute Part Ocurrences may have a different 3D placement, but this may not be
+supported by all target systems.
+
+*_Postprocessor Recommendation:_*
+
+* If the target system does not support AssemblyOccurrenceRelationshipSubstitution, but
+only AssemblyViewRelationshipSubstitution (see <<cls-7.5.3>>), it shall create a usage
+substitution relationship for all occurrences having the same occurrence substitution
+rule and do so for each different substitution rule.
+
+* If the target system supports neither AssemblyViewRelationshipSubstitution nor
+AssemblyOccurrenceRelationshipSubstitution,
+the alternative NextAssemblyOccurrenceUsages (those having
+ClassifiedAs='alternative' and/or being referenced by
+AssemblyOccurrenceRelationshipSubstitution.Related) shall not be
+interpretated in addition to each other; otherwise, an assembly
+with too many components would be imported.
+
+* If the 3D placement of the alternative Part Occurrences are different, and this is
+not supported by the target system, an error should be returned.
+
+[[fig-42]]
+.Template "AssemblyOccurrenceRelationshipSubstitution"
+image::img65.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Classification uid="pcs--alt">
+  <Class>
+    <ClassString>alternative</ClassString>
+  </Class>
+  <Role>alternative</Role>
+</Classification>
+
+<Part uid="p--0000000017D374A0">
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017D374A0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017D374A0--id1">
+...
+          <ViewOccurrenceRelationship uid="pvvid--0000024E5E5F3870--1987" xsi:type="bom:NextAssemblyOccurrenceUsage">
+...
+            <AssemblyOccurrenceRelationshipSubstitution uid="aors--0000024E5E5F3870--1987-1">
+              <Id id="10"/>
+              <Related uidRef="pvvid--0000024E5E5F3870-2--1987"/>
+            </AssemblyOccurrenceRelationshipSubstitution>
+            <AssemblyOccurrenceRelationshipSubstitution uid="aors--0000024E5E5F3870--1987-2">
+              <Id id="20"/>
+              <Related uidRef="pvvid--0000024E5E5F3870-3--1987"/>
+            </AssemblyOccurrenceRelationshipSubstitution>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="pvvid--0000024E5E5F3870-2--1987" xsi:type="bom:NextAssemblyOccurrenceUsage">
+            <ClassifiedAs>
+              <Classification uidRef="pcs--alt"/>
+            </ClassifiedAs>
+...
+            <AssemblyOccurrenceRelationshipSubstitution uid="aors--0000024E5E5F3870-2--1987-1">
+              <Id id="101"/>
+              <Related uidRef="pvvid--0000024E5E5F3870--1987"/>
+            </AssemblyOccurrenceRelationshipSubstitution>
+          </ViewOccurrenceRelationship>
+          <ViewOccurrenceRelationship uid="pvvid--0000024E5E5F3870-3--1987" xsi:type="bom:NextAssemblyOccurrenceUsage">
+            <ClassifiedAs>
+              <Classification uidRef="pcs--alt"/>
+            </ClassifiedAs>
+...
+            <AssemblyOccurrenceRelationshipSubstitution uid="aors--0000024E5E5F3870-3--1987-1">
+              <Id id="201"/>
+              <Related uidRef="pvvid--0000024E5E5F3870--1987"/>
+            </AssemblyOccurrenceRelationshipSubstitution>
+          </ViewOccurrenceRelationship>
+...
+        <AssemblyType>
+          <ClassString>design assembly</ClassString>
+        </AssemblyType>
+      </PartView>
+      </Views>
+...
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[tab-52]]
+."AssemblyOccurrenceRelationshipSubstitution" Attributes
+[cols="a,a",options=header]
+|===
+| Entity AssemblyOccurrenceRelationshipSubstitution
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| Related
+| NextAssemblyOccurrenceUsage
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provide further information about the
+AssemblyOccurrenceRelationshipSubstitution. The value of this attribute need not be specified.
+Use "Description" template.
+
+* *_Id:_* stores the Identifier for the AssemblyOccurrenceRelationshipSubstitution. The value
+of this attribute need not be specified. Use IdentifierString type.
+
+* *_Related_*: Reference to a substitution NextAssemblyOccurrenceUsage.
+
+* *_PropertyValueAssignment:_* adds the value of a property to the
+AssemblyOccurrenceRelationshipSubstitution. Use "PropertyAssignment" template
+(see <<cls-6.2>>)
+Other attributes than these are not covered by these Recommended Practices; their
+use is discouraged as it would depend on mutual agreements between data exchange
+partners.
+
+[[cls-7.5.3]]
+==== Template "AssemblyViewRelationshipSubstitution"
+
+An AssemblyViewRelationshipSubstitution specifies that one PartViewRelationship
+may be substituted by another PartViewRelationship.
+This relationship is not symmetric: if the one PartViewRelationship is a
+substitution for another PartViewRelationship, this does not impliy the
+other way around.
+
+The subjects of the substitution are the related View objects (i.e. applying to the
+usage (i.e. all occurrences) of a component part in a given assembly part) of both
+PartViewRelationship objects.
+
+The relating AssemblyDefinition shall be the same in both PartViewRelationship objects.
+
+View Effectivities associated to both PartViewRelationship objects should be identical or the
+substitute PartViewRelationship should have none of them.
+
+In some PDM systems which relate the base NextAssemblyViewUsage directly to the substitute
+parts => there is only one NextAssemblyViewUsage and also no way to store properties on the
+substitute parts views. In such a case, the properties should be the same or there should be
+none of them.
+
+An AssemblyViewRelationshipSubstitution for which the first PartViewRelationship refers to a
+usage of a part which is an assembly involves that the entire part structure of the
+substituted part may be used in place of the first part and its part structure.
+
+This concept usually refers to form, fit, function, and quality. Additional properties such as
+performance, noise, endurance, or reliability may also be considered as a
+prerequisite for the replacement.
+
+[[fig-43]]
+.Template "AssemblyViewRelationshipSubstitution"
+image::img66.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Classification uid="pcs--alt">
+  <Class>
+    <ClassString>alternative</ClassString>
+  </Class>
+  <Role>alternative</Role>
+</Classification>
+
+<Part uid="p--0000000017D374A0">
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017D374A0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017D374A0--id1">
+...
+          <PartViewRelationship uid="pvrid--0000024E5E5F3870--1995" xsi:type="bom:NextAssemblyViewUsage">
+...
+            <AssemblyViewRelationshipSubstitution uid="avrs--0000024E5E5F3870--1995-1">
+              <Id id="1"/>
+              <Related uidRef="pvrid--0000024E5E5F3870-2--1995"/>
+            </AssemblyViewRelationshipSubstitution>
+            <AssemblyViewRelationshipSubstitution uid="avrs--0000024E5E5F3870--1995-2">
+              <Id id="2"/>
+              <Related uidRef="pvrid--0000024E5E5F3870-3--1995"/>
+            </AssemblyViewRelationshipSubstitution>
+...
+          </PartViewRelationship>
+          <PartViewRelationship uid="pvrid--0000024E5E5F3870-2--1995" xsi:type="bom:NextAssemblyViewUsage">
+            <ClassifiedAs>
+              <Classification uidRef="pcs--alt"/>
+            </ClassifiedAs>
+...
+            <AssemblyViewRelationshipSubstitution uid="avrs--0000024E5E5F3870--1995-3">
+              <Id id="11"/>
+              <Related uidRef="pvrid--0000024E5E5F3870--1995"/>
+            </AssemblyViewRelationshipSubstitution>
+...
+          </PartViewRelationship>
+          <PartViewRelationship uid="pvrid--0000024E5E5F3870-3--1995" xsi:type="bom:NextAssemblyViewUsage">
+            <ClassifiedAs>
+              <Classification uidRef="pcs--alt"/>
+            </ClassifiedAs>
+...
+            <AssemblyViewRelationshipSubstitution uid="avrs--0000024E5E5F3870--1995-4">
+              <Id id="21"/>
+              <Related uidRef="pvrid--0000024E5E5F3870--1995"/>
+            </AssemblyViewRelationshipSubstitution>
+...
+          </PartViewRelationship>
+...
+        <AssemblyType>
+      <ClassString>design assembly</ClassString>
+    </AssemblyType>
+  </PartView>
+</Views>
+...
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+[[tab-53]]
+."AssemblyViewRelationshipSubstitution" Attributes
+[cols="a,a",options=header]
+|===
+| Entity AssemblyViewRelationshipSubstitution
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| Related
+| NextAssemblyViewUsage
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| PropertyValueAssignment
+| OPTIONAL SET[1:?] of PropertyValueAssignment
+
+| span:gray[RequirementAssignment]
+| span:gray[OPTIONAL SET[1:?\] of RequirementAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provide further information about the
+AssemblyViewRelationshipSubstitution. The value of this attribute need not be specified. Use
+"Description" template.
+
+* *_Id:_* stores the Identifier for the AssemblyViewRelationshipSubstitution. The value of
+this attribute need not be specified. Use IdentifierString type.
+
+* *_Related_*: Reference to a substitution NextAssemblyViewUsage. For more details, refer
+to <<cls-7.4>>.
+
+* *_PropertyValueAssignment:_* adds the value of a property to the
+AssemblyViewRelationshipSubstitution. Use "PropertyAssignment" template (see <<cls-6.2>>)
+
+* Other attributes than these are not covered by this document; their use is discouraged
+as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_*
+
+* The relating and the related PartViewRelationships shall be different objects.
+
+* For better interpretation by the postprocessor, which Part View Usage is the main one
+and which ones are the alternatives, it is recommended to set
+NextAssemblyViewUsage.ClassifiedAs to 'alternative' for the View Usage referenced by
+AssemblyViewRelationshipSubstitution.Relating.
+
+* If the relation is symmetric in the source PDM system, then a reverse-relationship shall
+state that it applies in both directions.
+In this case, NextAssemblyViewUsage ClassifiedAs='alternative' shall be set only in one
+direction.
+
+* If there are more than one substitute part involved, a 'star' structure from the base part
+to each substitute part shall be mapped (this star maps the semantic, that there is a base
+part and a number of substitute parts. All the substitute parts are on the same semantical
+level, but not on the same semantical level than the base part.
+
+* The combination of the base Part and the substitute Part shall be unique within the direct
+childs of an assembly node.
+
+* The NextAssemblyViewUsage.RelationType shall be set to 'next assembly view' (see
+<<cls-7.4>>).
+
+* The substitute Part View Usages may have a different quantity, but this may not be
+supported by all target systems.
+
+As defined in <<cls-13.1>>, the assembly validation properties shall not consider the
+NextAssemblyViewUsages since they have no placement. Only the NextAssemblyOccurrenceUsages are
+relevant to compute them.
+
+As defined in <<cls-7.4>>, the same assembly structure shall not be defined redundantly using
+NextAssemblyOccurrenceUsages and NextAssemblyViewUsage, but the use of
+NextAssemblyViewUsages is necessary to map AssemblyViewRelationshipSubstitutions.
+There is no obligation to define NextAssemblyOccurrenceUsages for each NextAssemblyViewUsage,
+neither for the base part nor for the substitute part of a
+AssemblyViewRelationshipSubstitution.
+
+*_Postprocessor Recommendation:_*
+
+* If the target system does not support AssemblyViewRelationshipSubstitution, it shall
+duplicate it between all occurrences of the base Part usage and distinct occurrences of
+the substitute Part usage that are mentioned in the XML file and map each of them as
+AssemblyOccurrenceRelationshipSubstitution (see <<cls-7.5.2>>).
+
+* If the target system supports neither AssemblyViewRelationshipSubstitution nor
+AssemblyOccurrenceRelationshipSubstitution,
+the alternative NextAssemblyViewUsages (those having ClassifiedAs='alternative' and/or being
+referenced by  AssemblyViewRelationshipSubstitution.Related) shall not be interpretated in
+addition to each other; otherwise, an assembly with too many components would be imported.
+
+* If the quantity or the 3D placement of the alternative Part View Usages are different, and
+this is not supported by the target system, an error should be returned.
+
+[[cls-7.6]]
+=== Template "OccurrenceRelationship"
+
+An `OccurrenceRelationship` is a relationship between two `Occurrence` objects.
+
+[[tab-54]]
+."OccurrenceRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity OccurrenceRelationship
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| Related
+| Occurrence
+
+| RelationType
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[CertificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of CertificationAssignment]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provide further information about the
+Assembly structure link. The value of this attribute need not be specified. Use "Description"
+template.
+
+* *_Id:_* stores the Identifier for the `OccurrenceRelationship`.
+The value of this attribute need not be specified. Use IdentifierString type.
+
+* *_Related_*: Reference to an `Occurrence` that is the consumed object in the relationship
+(example AsDesigned, and the `Relating` is the AsPlanned)
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type. Mandatory value:
+'tracking' (see <<cls-15>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities_*: There are no specific related entities.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain ModelXML syntax)
+
+Example with XML code of OccurrenceRelationship
+
+[source%unnumbered,xml]
+----
+<PartView uid="PV__39">
+  <InitialContext uidRef="VC__9"/>
+  <Occurrence uid="SO__46" xsi:type="n0:SingleOccurrence">
+    <Id id="PROPELLER.1"/>
+    <OccurrenceRelationship uid="PVR__600387">
+      <Description>
+        <CharacterString>Tracking objects usage</CharacterString>
+      </Description>
+      <Related uidRef="SO__229"/>
+      <RelationType>
+        <ClassString>tracking</ClassString>
+      </RelationType>
+    </OccurrenceRelationship>
+  </Occurrence>
+...
+----
+
+[[cls-7.7]]
+=== Template "Mirrored Part"
+
+A mirrored part is an opposite-hand part derived from an original part. This section
+describes how to keep the derivation relationship (so-called associativity), so that when
+the original part gets changed, the changes can be detected and overtaken on the
+opposite-hand part.
+
+[[fig-44]]
+.Example of mirrored part
+image::img67.png[]
+
+According to the PDM Schema Usage Guide: mirroring (and scaling) is forbidden along the
+assembly structure (transformation matrix determinant shall be always +1), because in a bill
+of materials, any Part modified this way can never be the same Part as the original (try
+mounting a left-side fender on the right side of a car...).
+
+"fully" mirrored Parts may be mapped as
+
+. two CAD files. In this case, the "derived CAD file" references the geometry of the
+"original CAD file" (multi model link or similar). This is the most frequent case, for
+example supported by 3DExperience.
+
+. one CAD file. In this case the opposite-hand part references the common geometry together
+with a mirroring matrix
+
+Out of scope:
+
+* "partially" mirrored Parts are mapped as tho disctinct CAD files where all or a portion of
+the geometry of the original CAD file is referenced from the "derived CAD file", while
+some further geometry is specific to the original/derived CAD file. Example: the left side
+fender is mirrored as right side fender and the gas cap is added to the right side geometry.
+
+* Mirrored parts may be non-associative to the original parts. In this case, they have been
+derived once and stored as an own part like a standalone copy. Changes to the original
+part have no effect on the copy. Such parts shall be exchanged as normal parts, this
+section is not relevant for them.
+
+* Some systems support the mirroring of whole assemblies, but currently this is not allowed
+at most companies.
+
+* Supply package may be imported as a single part with multiple geometries => the
+handling of mirrored parts within such a supply package is not in scope.
+
+If the original Part is changed (new revision [underline]#with new CAD model#), the mirrored
+Part also has to be updated (new revision).
+
+*_Preprocessor Recommendations:_*
+
+* If the original Part is exchanged, exchanging the mirrored Part is not necessary
+
+* If the mirrored Part is exchanged, exchanging the original Part is necessary
+
+*_Postprocessor Recommendations:_*
+
+* If some target systems only allow mirroring using distinct CAD models, a mirroring
+using a common CAD model shall be transformed during import: the second CAD
+model shall be generated out of the incoming CAD model and mirroring matrix,
+maintaining the associativity via a multi model link.
++
+--
+[%unnumbered]
+image::img68.png[]
+--
+
+* Another possibility is to create a dummy part and mirror it within the right Part (which
+become a pseudo assembly). The dummy part is not a BoM Part (otherwise a
+mirroring matrix would not be allowed).
++
+--
+[%unnumbered]
+image::img69.png[]
+--
+
+* If some target systems only allow mirroring using a common CAD model, a mirroring
+using distinct CAD models shall be transformed during import: the multi model link
+information shall be extracted from the mirrored CAD model and mapped as mirroring
+matrix between the opposite-hand part and the geometry of the original part.
++
+--
+[NOTE,type=remark]
+====
+Doing so, since the mirrored CAD model gets discarded, any further information
+placed in the mirrored CAD model will get lost.
+====
+
+[%unnumbered]
+image::img70.png[]
+--
+
+*_Pre-/Postprocessor Recommendations_*:
+
+* If the source company does not wish to propagate the associativity to the partner
+company, or of the target system does not support this associativity, a non-associative
+mirrored copy of the geometry shall be created during export or during import.
+
+[%unnumbered]
+image::img71.png[]
+
+[%unnumbered]
+image::img72.png[]
+
+[[cls-7.7.1]]
+==== Mirroring using distinct CAD models
+
+The CAD level mirroring (via multi model link or similar) is mapped within the geometry
+files and not on Domain Model level, however it is recommended to map the fact that the
+opposite-hand part is derived from an original part as a PartVersionRelationship having
+RelationType='mirrored' (see <<cls-5.1.5>>). Doing so, changes in the geometry of the
+original part can be propagated within the mirrored part, for example by loading the
+mirrored part into the CAD system (this will fetch the geometry changes of the original
+part) and storing it under a new PartVersion.
+
+[[cls-7.7.2]]
+==== Mirroring using a common CAD model
+
+Like for the assembly structure (see <<cls-7.3>>), in addition to the usual (geometrical)
+way of mapping the 3D positioning, a more compact (especially in XML) and simple way has been
+defined in AP242. This section describes both possible ways.
+
+A JIRA issue TCSC410303-659 has been created to correct the definition of
+GeometricalRelationship.Placement.
+
+[[tab-55]]
+."GeometricalRelationship" Attributes
+[cols="a,a",options=header]
+|===
+| Entity GeometricalRelationship
+| Attribute type (additionaly to PartViewRelationship)
+
+| Placement
+| TransformationSelect
+|===
+
+*_Attribute recommendations_*
+
+* *_Relating:_* the PartView of the mirrored part.
+
+* *_Related:_* the PartView of the original part.
+
+* *_RelationType_*: the meaning of the relationship. Use ClassString type if one of the
+values below is used, otherwise use "Class" template (see <<cls-4.6.4>>). Where applicable,
+the following values shall be used:
++
+--
+[cols="a,a",options=header]
+|===
+| RelationType
+|
+
+| 'mirrored'
+| The business object defines a relationship where the relating PartView is mirrored from the related (original) PartView
+|===
+--
+
+* *_Placement:_* The CartesianTransformation or the
+GeometricRepresentationRelationshipWithCartesianTransformation
+that defines a mirroring transformation consisting of rotation and
+translation to be applied to the relating PartView in order to
+define the location
+and the orientation within the context of the related PartView.
+Translation, rotation, and
+mirroring, i.e., inversion, is included; scaling is not included.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if the mirroring is defined via a symmetry plane within the source system, not the
+symmetry plane shall be exchanged, but the corresponding mirroring matrix + translation
+placement.
+
+*_Postprocessor Recommendations:_*
+
+* Rather than importing the mirroring matrix, it might be imported as a symmetry plane within
+the target system, if this is the internal way to manage mirroring.
+
+[[cls-7.7.2.1]]
+===== Template "Simplified Mirroring Positioning Representation"
+
+The only instance needed here is a CartesianTransformation.
+
+*_Preprocessor Recommendations:_*
+
+* Unlike for the full positioning representations, the use of a GeometricCoordinateSpace is
+not necessary here.
+
+* Since this mapping does not support the explicit mapping of a unit (for the elements of
+the translation vector), a DefaultUnit shall be defined in ExchangeContext and all
+translation vectors shall be given according to this unit.
+
+* Since mirroring of assemblies is out of scope, the original and the mirrored parts shall
+not be of type AssemblyDefinition.
+
+*_Postprocessor Recommendations:_*
+
+* None.
+
+[[fig-45]]
+.Template "Simplified Mirroring Positioning Representation"
+image::img73.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+T.B.S.
+
+[[cls-7.7.2.2]]
+===== Template "Full Mirroring Positioning Representation"
+
+In all these mapping alternative, the original and the mirrored parts are associated to a
+subtype of GeometricModel and the 3D Positioning information is mapped in a subtype of
+RepresentationRelationship that references both GeometricModels.
+
+See <<cls-7.3.2>> for the recommendation details. Here only the use of
+GeometricRepresentationRelationshipWithCartesianTransformation is recommended.
+
+[[fig-46]]
+.Template "Full Mirroring Positioning Representation"
+image::img74.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+T.B.S.
+
+[[cls-7.8]]
+=== Template "Flexible Part"
+
+Flexible Parts are parts that are deformed in the assembly process, such as an O-ring, a
+rubber gasket, a radiator hose or an electric wire.
+
+[[fig-47]]
+.Example of a Flexible Part
+====
+[%unnumbered]
+image::img75.png[]
+
+[%unnumbered]
+image::img76.png[]
+====
+
+According to <<CAX-IF-AS>>, Flexible Parts are one
+of the use cases for having Alternative Instance Shapes in an Assembly.
+
+Flexible Parts may be alternatively mapped as
+
+. Several Parts. In this case, the Parts that define each alternative shape shall have a
+reference to the non-installed Part.
+
+. One part. In this case, each Occurrence shall have its own GeometricModel.
+
+In both cases, each installation (with its geometry) has to be uniquely
+identified in the PDM system.
+
+Out of scope:
+
+* Definition of _assembly-level geometrical features_ which modify the shape of the
+subsequent parts. A typical example is an assembly of two solid plates with a hole through
+both of them defined at the assembly level. This means the hole does not exist in the
+original part definition and it may be in different relative locations on the plate for each
+of the two usages.
+
+* Definition of moving assemblies (no matter if containing flexible parts or not) having a
+different placement of their assembly components depending on the instance installation.
+
+If the geometry of the non-installed Part is changed (new revision
+[underline]#with new CAD model#),
+
+* In case of 1., a new revision of all the alternative shape Parts shall be created
+* In case of 2., the GeometricModels that define each alternative shape also have to be
+updated.
+
+*_Preprocessor Recommendations:_*
+
+* In case of 1.:
+
+** If the non-installed Part is exported (new of updated), all the alternative shape Parts
+relevant for the partner shall also be exported (with their derivation relationship
+
+** If an Assembly using an alternative shape Part is exported, the non-installed Part
+shall also be exported in order to keep the derivation relationship between them.
+
+* In case of 2.:
+
+** Since all alternative shapes are stored on the same part, all the alternative
+GeometricModels that are relevant for the partner shall also be exported together with the
+part.
+
+*_Postprocessor Recommendations:_*
+
+* Mapping of 2. to 1.: if some target systems only allow flexible parts using several parts,
+the GeometricModels defined on occurrence level shall be transformed to distinct parts
+during import. If the transformation matrices are defined on RepresentationRelationship
+level, they shall be mapped instead on NextAssemblyOccurrenceUsage level. If
+SpecifiedOccurrences are involved, the transformation matrices defined on NAOU level
+between the root assembly of the SpecifiedOccurrence path and the direct parent assembly
+have to be considered while computing the transformation matrix on NAOU to the direct
+parent assembly.
+
+* Mapping from 1. to 2.: if some target systems only allow flexible parts on occurrence
+level, all the Parts containing an alternative shape shall be transformed to
+GeometricModels on Single/SpecifiedOccurrence level. Here the
+RepresentationRelationshipPlacements may be derived from the
+NextAssemblyOccurrenceUsage.Placements.
+
+[[cls-7.8.1]]
+==== Flexible Parts mapped as distinct Parts
+
+Even if no associativity (like for mirrored parts, where updating the geometry of the
+original part causes the geometry of the mirrored part to be automatically updated) is
+supported between the non-installed part and the installed parts, it is recommended to map
+the fact that the installed part is derived from the non-installed part as a
+PartVersionRelationship having RelationType='alternate shape' (see <<cls-5.1.5>>). Doing so,
+changes in the geometry of the non-installed part can be detected and an action initiated to
+overtake this change within each installed part.
+
+*_Preprocessor Recommendations:_*
+
+* The uninstalled part may be built into an assembly via NextAssemblyViewUsage
+(since having no 3D positioning, for logistic BoM purpose)
+but shall not be built in any assembly via
+NextAssemblyOccurrenceUsage (for DMU purpose).
+
+* For certain Users, the Part.Id of the flexible parts may be derived from the Part.Id
+on the non-installed part.
+
+[[cls-7.8.2]]
+==== Flexible Parts mapped as GeometricModels on Occurrence level
+
+According to the <<cls-7.1>>: If the transformation matrix of the alternate shape is defined
+within the [underline]#next# parent assembly, each alternate shape shall be mapped to
+SingleOccurrence.DefiningGeometry.
+
+Additionally, it is recommended to map the fact that the installed geometry is derived from
+the non-installed geometry as a GeneralGeometricRepresentationRelationship
+having RelationType='alternate shape' (see <<cls-7.3.3>>).
+Doing so, changes in the non-installed geometry can
+be detected and an action initiated to overtake this change within each installed geometry.
+
+[[fig-48]]
+.Example of alternative instance shapes based on SingleOccurrences
+image::img77.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+T.B.S.
+
+According to the <<cls-7.2>>: if the transformation matrix of the alternate shape is defined
+within an assembly over [underline]#multiple assembly structure levels#, the alternate shape
+shall be mapped to SpecifiedOccurrence.DefiningGeometry
+
+In this case, according to the Full Positioning Representation defined in <<cls-7.3.2>>:
+
+* The assembly that builds the SpecifiedOccurrence and the SpecificedOccurrence itself both
+are associated to a subtype of GeometricModel and the 3D Positioning information is
+mapped in a subtype of RepresentationRelationship that relates both GeometricModels.
+
+** The GeometricModel that references the alternative shape (via
+SpecifiedOccurrence.DefiningGeometry) shall be an ExternalGeometricModel.
+
+** The GeometricModel that is associated to the AssemblyDefinition via
+DefiningGeometry shall be a ComposedGeometricModel.
+
+** Each alternative shape within the assembly shall be mapped as a
+GeometricRepresentationRelationshipWithPlacementTransformation
+or a GeometricRepresentationRelationshipWithCartesianTransformation
+(not GeometricRepresentationRelationshipWithSameCoordinateSpace).
+
+** RepresentationRelationship.Relating shall reference the ComposedGeometricModel
+
+** RepresentationRelationship.Related shall reference the ExternalGeometricModel
+
+* Even if GeometricRepresentationRelationshipWithPlacementTransformation
+is used, no mirroring matrix shall be given.
+
+* According to <<cls-11.2>>, the non-installed geometry shall be mapped as Document with
+DocumentTypes='primary geometry'.
+
+* According to <<cls-16.1>>, the non-installed geometry may be also optionally mapped using
+PartView.DefiningGeometry.
+
+When viewing the assembly in a CAD viewer, the GeometricModel defined in
+SingleOccurrence/SpecifiedOccurrence.DefiningGeometry
+'overwrites' the one defined on PartView level.
+
+[[fig-49]]
+.Example of alternative instance shapes based on SpecifiedOccurrences
+image::img78.png[]
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+T.B.S.

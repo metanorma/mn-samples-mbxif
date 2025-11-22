@@ -1,0 +1,799 @@
+[[cls-6]]
+== Part Properties
+
+[[cls-6.1]]
+=== Template "GeometricModel"
+
+The aim of this section is to specify the method for attaching a shape to a part and linking
+this shape to an external file.
+
+The GeometricModel entity represents the shape of the Part through the PartView and the
+ExternalGeometricModel subtype entity allow a DigitalFile to be attached to the shape.
+
+Even if GeometricModel is not an ABSTRACT supertype, it is recommended to always use one
+of its subtypes. The different usage of the subtypes are detailed in the <<cls-6.1.1>>.
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-25]]
+.Template "GeometricModel"
+image::img42.png[]
+
+[[tab-32]]
+."GeometricModel" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY GeometricModel
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| Items
+| SET[1:?] of RepresentationItem
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| span:gray[RepresentationTypes]
+| span:gray[OPTIONAL SET[1:?\] of ClassSelect]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[VersionId]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[RepresentationRelationship]
+| span:gray[OPTIONAL SET[1:?\] of RepresentationRelationship]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[ModelExtent]
+| span:gray[OPTIONAL REAL]
+
+| span:gray[ModelProperty]
+| span:gray[OPTIONAL SET[1:?\] of ModelProperty]
+|===
+
+*_Attribute recommendations_*
+
+* *_Description_*: the text or the set of texts that provides further information about the
+GeometricModel. The value of this attribute need not be specified. Use "Description" template
+(see <<cls-4.6.7>>).
+
+* The *_Id_* attribute is the text that represents an identifying name or code. Use
+IdentifierString.
+
+* The *_Items_* attribute is the SET of elements representing the different kind of
+representation item attached to a shape. Reference to AxisPlacement (see below),
+CartesianPoint (see <<cls-13.1.2>> for examples), KinematicPair element or subtypes of
+DetailedGeometricModelItem (AdvancedFace, Edge, Curve, Point, ...) involved in PMIs.
+
+* *_Name_*: the words or set of words by which the GeometricModel is known. The value of
+this attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* In the future PMI area of Edition 4: for a given part, all the RepresentationItems
+referenced by ShapeElement.RepresentedGeometry shall be included
+into GeometricModel.Items and this GeometricModel shall be directly or indirectly
+(via GeometricRepresentationRelationship) be referenced by PartView.DefiningGeometry
+(see <<cls-5.1.3>>).
+
+[[tab-33]]
+."GeometricCoordinateSpace" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY GeometricCoordinateSpace
+| Attribute Type
+
+| span:gray[Accuracies]
+| span:gray[OPTIONAL SET[1:?\] of MeasureQualification]
+
+| Id
+| IdentifierSelect
+
+| Units
+| OPTIONAL SET[1:?] of Unit
+
+| Representations
+| OPTIONAL SET[1:?] of Representation
+
+| Items
+| OPTIONAL SET[1:?] of Items
+
+| DimensionCount
+| Integer
+|===
+
+*_Attribute recommendations_*
+
+* The *_Id_* attribute is the text that represents an identifying name or code. Use
+IdentifierString type.
+
+* *_Units:_* the various units in which any values are expressed. The same length unit is
+applied to each coordinate direction. Only one unit of a kind shall be specified. The value of
+this attribute need not be specified except if the length unit deviates from the
+ExchangeContext.DefaultUnit.
+
+* The *_Representations_* attribute is the SET of elements representing the different kind of
+representations defined in the Coordinate Space. Reference to GeometricModel (see
+<<cls-6.1>>), KinematicLink or Mechanism element.
+
+* The *_Items_* attribute is the SET of elements representing the different kind of
+representation items in the Coordinate Space. Reference to AxisPlacement (see below),
+CartesianPoint (see <<cls-13.1.2>> for examples), KinematicPair or any further
+RepresentationItems.
+
+* The *_DimensionCount_* attribute specifies the dimensionality.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[NOTE,type=remark]
+====
+The recommendation of the AP242 ARM specification: "In the case where geometric
+elements are defined in the GeometricCoordinateSpace, there shall be at least two units
+specified, the length unit and the plane angle unit" does not apply in general (see below).
+====
+
+*_Preprocessor Recommendations:_*
+
+* In case of relative positioning, each Geometry shall be associated to its own
+GeometricCoordinateSpace.
+
+* The value of GeometricCoordinateSpace.Items shall be the sum of:
+
+** all the Items referenced directly by GeometricCoordinateSpace.Representations
+(like GeometricModels).Items
+
+** and those referenced indirectly. For example:
+
+*** in the Kinematic area via KinematicPathDefinedByNodes.Segments, ...
+*** in the Composite area via Polar.Placement, Curve11.GuideCurves, GeometricSet.Elements, ...
+*** or in the future PMI area of Edition 4 via CameraModel3d.ViewWindow,
+Callout.Contents, ...)
+
+* The RepresentationItems referenced by ShapeElement.RepresentedGeometry for one
+ExternalGeometricModel may be reused in other ExternalGeometricModels within the
+same GeometricCoordinateSpace, but not within another GeometricCoordinateSpace.
+One use case is for GeometricModels that are defined as alternatives to describe one
+part (DefiningGeometry, AuxiliaryGeometry), for example Brep and tessellated, in the
+case the RepresentationItem has the same identifier in both GeometricModels.
+
+* The length unit used in the positioning (implicit/explicit transformation) and in the
+ExternalGeometricModel shall be the same.
+
+* The use of GeometricCoordinateSpace.Units is necessary only in either of the following
+cases:
+
+** no default length unit is given in the ExchangeContext
+
+** the length unit of a particular assembly node deviates from the default length unit
+(so-called 'mixed-unit assembly')
+
+** angles are defined (for example for Lower/UpperLimits of KinematicPairs).
+
+* If elements with different length or angle units are required, they each have to have their
+own GeometricCoordinateSpace
+
+* The GeometricCoordinateSpace.DimensionCount must be greater than 0.
+
+*_Postprocessor Recommendations:_*
+
+* The default length unit defined in ExchangeContext applies to all positioning information
+as well as within the ExternalGeometricModels, except if on the level of an assembly
+node another length unit is specified in ExternalGeometricModel.Units.
+
+[[tab-34]]
+."AxisPlacement" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY AxisPlacement
+| Attribute Type
+
+| External
+| OPTIONAL ExternalItem
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| Axis
+| OPTIONAL String
+
+| Position
+| OPTIONAL String
+
+| RefDirection
+| OPTIONAL String
+|===
+
+*_Attribute recommendations_*
+
+* *External*: the reference to an ExternalItem, i.e. indirectly to a DigitalFile where the
+RepresentationItem can be found). It's recommended to set this attribute only if the
+AxisPlacement is defined in an external geometric model via PartView.ShapeElement (see
+<<cls-5.1.3>>) but for example not if only used within a GeometricRepresentationRelationship
+to position an ExternalGeometricModel within an assembly. Use template "DigitalFile" (see
+<<cls-9.1>>).
+
+* *_Name_*: the words or set of words by which the AxisPlacement is known. The value of this
+attribute need not be specified. Use of CharacterString element.
+
+* *_Axis_*: the relative x, y and z value specifying the direction of the local Z axis of the
+AxisPlacement. The value of this attribute need not be specified.
+An issue has been created in ISO Jira Task TCSC410303-1307 in order to add this
+statement (coming from AP214): If Axis is not provided, then Axis shall be assumed to have
+the value (0, 0, 1).
+
+* *_Position:_* the absolute x, y and z value (in the GeometricCoordinateSpace they are
+defined in) specifying the origin position of the AxisPlacement.
++
+--
+Although changed to optional in Edition 4, this attribute shall be specified.
+
+[NOTE,type=remark]
+====
+As stated in the ISO 10303-4442 documentation, the coordinates in each
+AxisPlacement are absolute in the GeometricCoordinateSpace there are defined in. The
+combination of two AxisPlacements in a
+GeometricRepresentationrelationshipWithPlacementTransformation
+provides a relative placement.
+====
+
+An issue has been created in ISO Jira Task TCSC410303-1307 in order to add this
+statement (coming from AP214):
+
+[NOTE,type=remark]
+====
+If both Axis and RefDirection are not provided, the AxisPlacement describes a
+pure translation without rotation.
+====
+--
+
+* *_RefDirection_*: the relative x, y and z value specifying the reference direction for the
+local X axis of the AxisPlacement. The value of this attribute need not be specified.
+An issue has been created in ISO Jira Task TCSC410303-1307 in order to add this
+statement (coming from AP214): If RefDirection is not provided then RefDirection shall be
+assumed to have the value (1, 0, 0)
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* If a RefDirection is given, it shall be specified so that it is orthogonal to the Axis.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[tab-35]]
+."CartesianPoint" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY CartesianPoint
+| Attribute Type
+
+| span:gray[External]
+| span:gray[OPTIONAL ExternalItem]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Coordinates
+| LIST [2:3] of LengthMeasure
+|===
+
+*_Attribute recommendations_*
+
+* *_Name_*: the words or set of words by which the CartesianPoint is known. The value of this
+attribute need not be specified. Use of CharacterString element.
+
+* *_Coordinates:_* is a list, the individual elements of this list are defined below:
+
+** coordinates[1]: The first coordinate of the CartesianPoint location.
+
+** coordinates[2]: The second coordinate of the CartesianPoint location.
+
+** coordinates[3]: The third coordinate of the CartesianPoint location.
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* The third coordinate will not exist in the case of a two-dimensional point.
+
+* The CartesianPoint is defined by its coordinates in a rectangular Cartesian coordinate
+system.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+...
+  <PartView uid="pvv--000000001AA415B0--id6">
+    <DefiningGeometry uidRef="egm--000000001AA415B0"/>
+    ...
+  </PartView>
+...
+  <RepresentationContext uid="ccs--origin-bolt" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+      <Representation uid="egm--000000001AA415B0" xsi:type="n0:ExternalGeometricModel">
+        <Id id="bolt.stp"/>
+        <Items>
+          <RepresentationItem uidRef="repi--000000001AA415B0--18"/>
+        </Items>
+        <ExternalFile uidRef="df--000000001AA415B0"/>
+      </Representation>
+    </Representations>
+    <Items>
+      <RepresentationItem xsi:type="n0:AxisPlacement" uid="repi--000000001AA415B0--18">
+        <Position>0.0 0.0 0.0</Position>
+      </RepresentationItem>
+    </Items>
+    <DimensionCount>3</DimensionCount>
+  </RepresentationContext>
+----
+
+[[cls-6.1.1]]
+==== ExternalGeometricModel / ComposedGeometricModel
+
+The ExternalGeometricModel / ComposedGeometricModel entities are subtype of the
+GeometricModel.
+
+[[tab-36]]
+."ComposedGeometricModel" / "ExternalGeometricModel" Attributes
+[cols="a,a",options=header]
+|===
+| Entity ComposedGeometricModel / ExternalGeometricModel (additionally to GeometricModel)
+| Attribute type
+
+| Items (in case of ComposedGeometricModel)
+| SET[1:?] of AxisPlacementOrTransformationSelect
+
+| Items (in case of ExternalGeometricModel)
+| SET[1:?] of DetailedGeometricModelItem
+
+| RepresentationRelationship
+| OPTIONAL SET[1:?] of RepresentationRelationship
+
+| ActivityAssignment
+| OPTIONAL SET[1:?] of ActivityAssignment
+
+| ExternalFile (only for ExternalGeometricModel)
+| DigitalFile
+
+| span:gray[ParameterValues (only for ExternalGeometricModel)]
+| span:gray[OPTIONAL SET[1:?\] OF PropertyValue]
+|===
+
+*_Attribute recommendations_*
+
+* *_RepresentationRelationship:_* add for each element stored in 'Items' an instance of
+RepresentationRelationship to the ComposedGeometricModel.
+This attribute shall not be used in the case of an ExternalGeometricModel, but shall be
+used in the case of a ComposedGeometricModel.
+
+* *_ActivityAssignment:_* the Activities associated to the GeometricModel. The value of this
+attribute need not be specified. Use "Activity" template (see Recommended Practices for
+AP242 Domain Model XML Change Management for details).
+
+* *_ExternalFile:_* the DigitalFile that contains the externally defined geometry information.
+Use "DigitalFile" template (see <<cls-9.1>>)
+
+* The other attributes are either not covered by these Recommended Practices, or it is not
+recommended to use them for the purpose of these Recommended Practices.
+
+* In addition, all attributes and attribute recommendations for GeometricModel apply.
+
+The use of the attribute ExternalGeometricModel.ExternalFile is described in <<cls-9.3>>.
+
+*_Preprocessor Recommendations:_* .All DetailedGeometricModelItem in .Items shall have a
+value in .External, except AxisPlacements that are defined within the stpx file,
+for example to position the geometry within an assembly.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+...
+  <RepresentationContext uid="ccs--origin-bolt" xsi:type="n0:GeometricCoordinateSpace">
+    <Id id="/NULL"/>
+    <Representations>
+      <Representation uid="egm--000000001AA415B0" xsi:type="n0:ExternalGeometricModel">
+      <Id id="bolt.stp"/>
+      <Items>
+        <RepresentationItem uidRef="repi--000000001AA415B0--18"/>
+      </Items>
+...
+    </Representation>
+...
+  </Representations>
+...
+</RepresentationContext>
+----
+
+[[cls-6.1.2]]
+==== The subtypes of ExternalGeometricModel
+
+The Domain Model allows further specification of which type of geometry is contained in an
+external model. For this purpose, a number of subtypes of ExternalGeometricModel are defined.
+
+These subtypes do not add any additional attributes; they carry the additional information in
+their name. The subtypes of ExternalGeometricModel are:
+
+* ExternalAdvancedBrepShapeRepresentation,
+* ExternalCsgShapeRepresentation,
+* ExternalCurveSweptSolidShapeRepresentation,
+* ExternalEdgeBasedWireframeShapeRepresentation,
+* ExternalElementaryBrepShapeRepresentation,
+* ExternalFacetedBrepShapeRepresentation,
+* ExternalGeometricallyBoundedSurfaceShapeRepresentation,
+* ExternalGeometricallyBoundedWireframeShapeRepresentation,
+* ExternalManifoldSurfaceShapeRepresentation,
+* ExternalShellBasedWireframeShapeRepresentation,
+* ExternalTessellatedShapeRepresentation
+
+are optional (since ExternalGeometricModel is not defined as ABSTRACT) and mutually
+exclusive (ONEOF)
+
+*_Preprocessor Recommendations:_*
+
+* Since these subtypes are all defined in the DomainModel capability
+CompositeStructuralShapeAndStructure, they shall be only used within this context.
+For non-composite parts, it
+is recommended to use only the supertype ExternalGeometricModel.
+
+*_Postprocessor Recommendations:_*
+
+* If some of the subtypes are not supported by the converter, the general behavior for the
+supertype ExternalGeometricModel shall apply, and the subtypes shall not cause the
+postprocessor to stop processing. The postprocessor shall load and import the file correctly.
+
+[[cls-6.2]]
+=== Template "PropertyAssignnment"
+
+In the same way than in <<CAX-IF-PSUG,section=3.1>>, the aim of this
+section is to specify how to attach a property to a part.
+
+The PropertyValueAssignment entity represents the attachment of the PartView to the value
+represented via the "NumericalValue" (see <<cls-4.6.9>>),
+"StringValue" templates (see <<cls-4.6.10>>), ValueRange (see <<cls-4.6.11>>),
+ValueWithTolerances (see <<cls-4.6.12>>), ValueList (see <<cls-4.6.13>>)
+or ValueSet (see <<cls-4.6.15>>).
+
+*_Preprocessor Recommendations:_*
+
+* It is recommended that all the part properties use the same PropertyValueAssignment.
+
+[%discrete]
+==== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-26]]
+.Template "PropertyAssignment"
+image::img43.png[]
+
+[[tab-37]]
+."PropertyAssignment" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY PropertyValueAssignment
+| Attribute Type
+
+| AssignedPropertyValues
+| SET[1:?] of PropertyValue
+
+| ClassifiedAs
+| OPTIONAL SET[1:?] of Classification
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[Role]
+| span:gray[OPTIONAL ClassSelect]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[AssignmentObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of AssignmentObjectRelationship]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[PropertyValueAssignmentRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignmentRelationship]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[ValueAssignmentContext]
+| span:gray[OPTIONAL PropertyDefinitionAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_AssignedPropertyValues_* attribute is the SET of element references representing
+the properties attached to the Part. Use "NumericalValue" (see <<cls-4.6.9>>),
+"StringValue" templates (see <<cls-4.6.10>>),
+ValueRange (see <<cls-4.6.11>>), ValueWithTolerances (see <<cls-4.6.12>>),
+ValueList (see <<cls-4.6.13>>) or ValueSet (see <<cls-4.6.15>>).
+
+* The *ClassifiedAs* attribute shall be represented by the template "Classification"
+(see <<cls-4.6.5>>). Use the following values for Classification.Class:
+
+[%unnumbered,options=header,cols="a,a"]
+|===
+| ClassString
+| Explanation
+
+| 'validation properties'
+| the AssignedPropertyValues are ot type validation properties associated to a PartView according to <<cls-13>>
+
+| 'part master properties'
+| the AssignedPropertyValues are ot type part properties associated to a Part according to <<cls-5.1.1>>
+
+| 'part properties'
+| the AssignedPropertyValues are ot type part properties associated to a PartView, PartViewRelationship, NextAssemblyOccurrenceUsage, SpecifiedOccurrence, AlternatePartRelationship, PartVersionRelationship, AssemblyOccurrenceRelationshipSubstitution or AssemblyViewRelationshipSubstitution according to the current section or <<cls-5.1.3>> (PartView), <<cls-7.4>> (PartViewRelationship), <<cls-7.1>> (NAOU), <<cls-7.2>> (SpecifiedOccurrence), <<cls-7.5.1>> (AlternatePartRelationship), <<cls-5.1.5>> (PartVersionRelationship), <<cls-7.5.2>> (AssemblyOccurrenceRelationshipSubstitution) or <<cls-7.5.3>> (AssemblyViewRelationshipSubstitution)
+
+| 'document master properties'
+| the AssignedPropertyValues are ot type document properties associated to a Document according to <<cls-8.1.1>>.
+
+| 'document properties'
+| the AssignedPropertyValues are ot type document properties associated to a DocumentDefinition or DigitalFile according to <<cls-8.1.3;and!cls-9.1>>
+
+| 'work request properties'
+| the AssignedPropertyValues are ot type activity properties associated to a WorkRequest (see Recommended Practices for AP242 Domain Model XML Change Management for details)
+
+| 'work order properties'
+| the AssignedPropertyValues are ot type activity properties associated to a WorkOrder according to section (see Recommended Practices for AP242 Domain Model XML Change Management for details)
+
+| 'activity properties'
+| the AssignedPropertyValues are ot type activity properties associated to an Activity or ActivityAssignment according to section (see Recommended Practices for AP242 Domain Model XML Change Management for details)
+|===
+
+Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* It is recommended that all the properties attached to a Part (i.e. its PartView or
+AssemblyDefinition) are spread over two instances of PropertyValueAssignment. One instance shall
+collect the properties that describe the Part; the other instance shall collect the properties that
+describe the validation properties of the same Part.
+
+* Properties with a '' string, value 0 or List/Set having no elements shall be omitted if these
+values don't have a specific semantic. An example is the validation properties of kind 'number
+of ...': the value 0 has a specific semantic, telling there are no instances of the counted
+elements.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Classification uid="ID_63">
+  <Class>
+    <ClassString>part properties</ClassString>
+  </Class>
+  <Role>kind of properties</Role>
+</Classification>
+<Classification uid="ID_217">
+  <Class>
+    <ClassString>validation properties</ClassString>
+  </Class>
+  <Role>kind of properties</Role>
+</Classification>
+
+<Part uid="p--0000000017D374A0">
+...
+  <Versions>
+    <PartVersion uid="pv--0000000017D374A0--id1">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--0000000017D374A0--id1">
+...
+          <PropertyValueAssignment uid="ID_170">
+            <AssignedPropertyValues>
+              <PropertyValue uid="ID_156" xsi:type="n0:NumericalValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_154"/>
+                </Definition>
+                <Name>
+                  <CharacterString>PDMIFPartReal_xxx</CharacterString>
+                </Name>
+                <Unit uidRef="ID_155"/>
+                <ValueComponent>5.678000000000000E+00</ValueComponent>
+              </PropertyValue>
+              <PropertyValue uid="ID_164" xsi:type="n0:StringValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_163"/>
+                </Definition>
+                <Name>
+                  <CharacterString>PDMIFPartInt_xxx</CharacterString>
+                </Name>
+                <ValueComponent>
+                  <CharacterString>2</CharacterString>
+                </ValueComponent>
+              </PropertyValue>
+...
+            </AssignedPropertyValues>
+            <ClassifiedAs>
+              <Classification uidRef="ID_63"/>
+            </ClassifiedAs>
+          </PropertyValueAssignment>
+          <PropertyValueAssignment uid="ID_225">
+            <AssignedPropertyValues>
+              <PropertyValue uid="ID_224" xsi:type="n0:NumericalValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_216"/>
+                </Definition>
+                <Name>
+                  <CharacterString>number of children</CharacterString>
+                </Name>
+                <Unit uidRef="ID_x543008816"/>
+                <ValueComponent>4</ValueComponent>
+              </PropertyValue>
+            </AssignedPropertyValues>
+            <ClassifiedAs>
+              <Classification uidRef="ID_217"/>
+            </ClassifiedAs>
+          </PropertyValueAssignment>
+...
+        </PartView>
+      </Views>
+...
+    </PartVersion>
+  </Versions>
+</Part>
+
+<PropertyDefinition uid="ID_154">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyDefinition uid="ID_163">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyDefinition uid="ID_216">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>assembly validation property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+----

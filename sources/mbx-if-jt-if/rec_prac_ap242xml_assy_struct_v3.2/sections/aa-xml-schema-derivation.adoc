@@ -1,0 +1,940 @@
+[[annex-A]]
+[appendix]
+== XML Schema derivation from Domain Model EXPRESS Schema
+
+This annex is derived from Annex B of *ISO/TS 10303-4442:2022* '*Domain model: Managed*
+*model based 3D engineering domain model*', which is part of ISO 10303-242 edition 3.
+
+Especially examples have been added for the purpose of these recommended practices. To
+separate such additions clearly from the text of the standard, the added text in these
+Recommended Practices is formatted in italics.
+
+[[cls-A.1]]
+=== General concepts
+
+This section describes the general concepts for the derivation of the XML Schema from the
+corresponding Domain Model in SysML. These concepts where used to create the XML Schema
+
+Definition from the SysML model using dedicated transformation scripts _and the
+configuration directives of ISO 10303-15 as well as to derive the EXPRESS Schema using the
+configuration directives of ISO 10303-16_.
+
+[[cls-A.1.1]]
+==== Naming conventions
+
+In general, the XML name derived from a SysML model identifier is the SysML model identifier
+modified with following rules:
+
+* Names of XML elements and attributes shall be written using upper camel case.
+
+* For identifiers that will be represented by XML element attributes, lower camel case shall
+be used
+
+* This convention requires removing underscore characters "_" from Domain Model names.
+
+_The structure of the SysML model is preserved in XML:_
+
+* _No changes in cardinality_
+* _One SysML instance is represented by one XML instance_
+
+** _No aggregation of several SysML objects into one XML element_
+** _No splitting of one SysML object into several XML elements_
+
+* _Reverting the direction of associations is allowed:_
+
+** _Does not violate the principle of structure preservation_
+
+[[cls-A.1.2]]
+==== Mapping of SysML blocks data types
+
+For each SysML block data type declaration (equivalent to an EXPRESS entity) the XML Schema
+contain the definition of a new complex type corresponding to that SysML block data type.
+
+[source%unnumbered,xml]
+----
+<xsd:complexType name="PartVersion">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseObject">
+      <xsd:sequence>
+        <!-- the attributes of the entity -->
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+----
+
+_For each SysML attribute appearing in the entity declaration, the ComplexType shall contain
+one corresponding element._
+
+_By default, each complexType is based on cmn:BaseObject (defined in common.xsd)._
+
+_For each entity data type that does not inherit from another entity data type, the
+complexType is based on cmn:BaseRootObject (defined in common.xsd). The BaseRootObjects
+occur as top level elements in the DataContainer and cannot be contained by any other
+element._
+
+[source%unnumbered,xml]
+----
+<xsd:complexType name="Part">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseRootObject">
+      <xsd:sequence>
+----
+
+_In addition to the declaration of simple data types SysML allows the specification of
+objects as subtypes of other objects. This establishes an inheritance relationship
+(subtype/supertype) and, through successive subtype/supertype relationships, an inheritance
+graph in which every instance of a subtype is also an instance of its supertype(s). An
+object declared by using inheritance relationships with supertypes is said to be a complex
+object._
+
+[source%unnumbered,xml]
+----
+<xsd:complexType name="ActualActivity">
+  <xsd:complexContent>
+    <xsd:extension base="Activity">
+      <xsd:sequence>
+        <!-- the attributes of the entity -->
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+----
+
+_A complex object inherits not only the SysML attributes and rules appearing in the SysML
+declarations of all of its supertypes, but also all the SysML attributes and rules they
+inherit. So subtype objects are specialisations of any of their supertypes, where a
+specialisation means a more constrained form of the original declaration. The mapping of
+complex objects use the technique of derivation by extension for those objects that do not
+inherit from multiple supertypes. When a complex object is derived by extension, its
+effective content model is the content model of the base object plus the content model
+specified in the object derivation._
+
+SysML allows the declaration of entities that are not intended to be directly instantiated.
+For each SysML object declared to be ABSTRACT, the Schema shall contain an _XML_ element
+declaration corresponding to the SysML object. The XML element shall be declared to be
+abstract so it cannot be used in a XML instance document.
+
+There are some exceptions to the mapping described above that do not require one-to-one
+mapping between SysML object and XML Schema ComplexType:
+
+* SysML blocks that have an equivalent that is already defined in XML Schema, e.g.,
+dateTime, duration, language;
+
+* Utilizing XML Schema constructs rather than one-to-one mapping, e.g. multilanguage support.
+
+[[cls-A.1.3]]
+==== Mapping of named data types
+
+For each defined SysML object with a final underlying type of STRING, INTEGER, REAL, NUMBER
+or BOOLEAN the XML schema contains a new element using the corresponding built-in types of
+XML schema.
+
+[[cls-A.1.4]]
+==== Mapping of SELECT data types
+
+In EXPRESS, a SELECT data type has a select list where each item shall be an entity data
+type or a defined data type. In SysML, it corresponds to an abstract block, each select
+being a subtype of the abstract select block. _SELECT data types that are used in SysML are
+mostly created as cmn:Reference XML data types. In some cases (like in
+AxisPlacementOrTransformationSelect for AxisPlacement and CartesianTransformation, or in
+ClassSelect for ClassString) some elements of the SELECT type are mapped by containment.
+Therefore it is not always needed to create SELECT type definitions. In order to make
+resolving of cmn:Reference and containments for SELECT types possible_ for each SELECT type
+an XML Schema Group definition shall be created. It shall contain the list of items that
+belong to the given SELECT type. Groups might be used for validation purposes.
+
+[source%unnumbered,xml]
+----
+<xsd:group name="TransformationSelect">
+  <xsd:choice>
+    <xsd:element name="CartesianTransformation" type="CartesianTrans-formation"/>
+    <xsd:element name="GeometricRepresentationRelationship" type="cmn:Reference"/>
+  </xsd:choice>
+</xsd:group>
+----
+
+[[cls-A.1.5]]
+==== Mapping of Block properties
+
+For each SysML explicit property of a SysML block data type declaration the corresponding
+ComplexType in the XML Schema Definition shall contain an element definition. For the
+following explicit properties, id, idRoleRef, idContextRef, considered as simple semantics,
+XML attributes shall be used. _In case of SysML attributes that have simple semantics (e.g.,
+name, description, role, relationType, versionId etc.), XML elements shall be used._
+
+_There are four main cases of SysML attribute mappings:_
+
+* _Single attribute_
+** _by containment_
+** _by reference_
+
+* _Aggregation attribute_
+** _by containment_
+** _by reference._
+
+The order of elements is fixed - this shall be implemented by XML Schema sequence grouping.
+
+_The order of the elements in the XSD is defined as following:_
+
+* _alphabetic, with some rare exceptions_
+.. _first the local attributes (built-in XML types, references and of type Id and
+Description) in alphabetical order_
+.. _then the local embedded objects, also in alphabetic order. Examples for local embedded
+objects are Occurrence and MaterialIdentification in PartView, ShapeElement in Occurrence,
+ElementDelivery in Activity_
+.. _then the assignments and relationships (also mapped as embedded objects), also in
+alphabetical order_
+
+* _the inherited attributes come first (top-down from the supertype hierarchy), the local
+attributes at the very end_
+
+[example]
+====
+_Entity A_
+
+_Entity B, subtype of A_
+
+_Entity C, subtype of B_
+
+_Attributes of C:_
+
+* _Inherited attributes from A in alphabetical order_
+* _Embedded objects from A in alphabetical order_
+* _Assignments and Relationship objects from A in alphabetical order_
+* _Inherited attributes from B in alphabetical order_
+* _Embedded objects from B in alphabetical order_
+* _Assignments and Relationship objects from B in alphabetical order_
+* _Local attributes of C in alphabetical order_
+* _Local embedded objects of C in alphabetical order_
+* _Assignments and Relationship objects from C in alphabetical order_
+====
+
+The name of the XML element shall be the name of the SysML element written in upper camel
+casing style
+
+SysML block properties that are mapped to XML attributes shall be written in lower camel
+case.
+
+If the EXPRESS attribute is declared to be OPTIONAL, then the minOccurs pattern of the XML
+element shall be declared to be "0".
+
+[source%unnumbered,xml]
+----
+<xsd:complexType name="Activity">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseRootObject">
+      <xsd:sequence>
+        <xsd:element name="Requestor" type="DateAndPersonOrganization" minOccurs="0"/>
+----
+
+The type of the XML element shall be declared according to the data type of the SysML
+property.
+
+For each inverse property of a SysML block data type declaration, the associated complexType
+shall contain an XML element declaration corresponding to the SysML block property. The name
+of the XML element shall be the name of the data type of the SysML inverse attribute. The
+type of the XML element shall be declared according to the data type of the block inverse
+property.
+
+The re-declaration of block properties shall have no effect on XML schema declaration.
+
+[[cls-A.1.5.1]]
+===== SysML property types corresponding to XML complex type
+
+The XML element corresponding to a SysML property whose data type is a SysML block data type
+shall be mapped in one of following ways:
+
+* for a SysML PartProperty, the XSD element type shall be the name of a complexType defined
+in XML Schema. When instantiated in XML the data representing the element will be
+represented by containment inside its parent element.
+
+* For a SysML ReferenceProperty, the Xsd element type shall be defined as type="uidRef".
+When instantiated the uidRef shall reference the uid attribute of an XML complexType
+corresponding to the SysML block data type of the property.
+
+_The XML element corresponding to an EXPRESS attribute whose data type is a SELECT data type
+shall reference the XML group defined for the SELECT._
+
+[source%unnumbered,xml]
+----
+<xsd:complexType name="AssemblyOccurrenceRelationship">
+  <xsd:complexContent>
+    <xsd:extension base="ViewOccurrenceRelationship">
+      <xsd:sequence>
+        <xsd:element name="Placement" minOccurs="0">
+          <xsd:group ref=" TransformationAndAssociationSelect" max-Occurs="unbounded"/>
+        </xsd:element>
+        ...
+----
+
+_cmn:Reference in XML is untyped. To map the type of the referenced object from the EXPRESS
+schema, xsd:ref and xsd:keyref definitions are defined in the XSD. Based on XPATH, each
+xsd.keyref definition lists all the places where the referenced object may occur together
+with the xsd:ref of the referenced Entity. There is one xsd:ref per Entity and one
+xsd:keyref per attribute of type cmn:Reference plus one xsd:keyref per Entity. This allows
+automatic consistency check for XML file during XML Schema validation._
+
+[[cls-A.1.5.2]]
+===== SysML property types corresponding to XML simple type
+
+The XML element corresponding to SysML property whose data type is a defined data type with
+a final underlying type of STRING, INTEGER, REAL, NUMBER, or BOOLEAN shall be declared
+to have the XML type corresponding to the underlying type of the defined data type in the
+SysML type declaration, if not otherwise specified in a configuration directive:
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| EXPRESS attribute type
+| ISO XML element type
+
+| NUMBER, REAL
+| xs:double
+
+| Array of NUMBER or REAL
+| xs:string
+
+| INTEGER
+| xs:integer
+
+| STRING
+| xs:string
+
+| BOOLEAN
+| xs:boolean
+|===
+
+_As suggested in ISO 10303-28, LOGICAL is mapped to a simpleType having a <xsd:restriction
+base="xsd:string">. Each value element is defined within it as <xsd:enumeration
+value="..."/>:_
+
+[source%unnumbered,xml]
+----
+<xsd:simpleType name="logical">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="false"/>
+    <xsd:enumeration value="true"/>
+    <xsd:enumeration value="unknown"/>
+  </xsd:restriction>
+</xsd:simpleType>
+----
+
+_EXPRESS ENUMERATION types are mapped to a simpleType having a <xsd:restriction
+base="xsd:string">. Each value element is defined within it as <xsd:enumeration
+value="..."/>._
+
+[source%unnumbered,xml]
+----
+<xsd:simpleType name="ActuatedDirectionEnum">
+  <xsd:restriction base="xsd:string">
+    <xsd:enumeration value="bidirectional"/>
+    <xsd:enumeration value="positive_only"/>
+    <xsd:enumeration value="negative_only"/>
+    <xsd:enumeration value="not_actuated"/>
+  </xsd:restriction>
+</xsd:simpleType>
+----
+
+If an EXPRESS attribute type REAL is mapped to an XML element type STRING, the format of
+this content string shall be according to IEEE 754-1985.
+
+[[cls-A.1.5.3]]
+===== Attributes with aggregate data types
+
+Domain model in STEP should support four kinds of aggregation data types:
+
+* ARRAY,
+* LIST,
+* BAG,
+* and SET.
+
+The XML element corresponding to an aggregate valued SysML property shall be declared as
+follow:
+
+* optional attributes are represented by cardinality constraint minOccurs="0";
+* aggregations (by containment) are represented as a sequence of elements with the SysML
+property type as name and type;
+* aggregations (by reference) are represented as a sequence of elements with the SysML
+property type as name and "cmn:Reference" as type;
+* the cardinality ":?]" is represented by maxOccurs="unbounded".
+
+_Aggregations (by containment) are mapped as a sequence of elements with the EXPRESS type as
+name and type:_
+
+[source%unnumbered,xml]
+----
+<Part uid="p--000000001E720B30">
+  ...
+  <Versions>
+    <PartVersion uid="pv--000000001E720B30-id7">
+      ...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--000000001E720B30-id7">
+        ...
+        </PartView>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="pvv--000000001E720B30-id8">
+        ...
+        </PartView>
+    ...
+      </Views>
+    </PartVersion>
+  </Versions>
+  ...
+</Part>
+----
+
+_Aggregations (by reference) are represented as a sequence of elements with the EXPRESS type
+as name and "cmn:Reference" as type:_
+
+[source%unnumbered,xml]
+----
+<xsd:complexType name="Activity">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseRootObject">
+      <xsd:sequence>
+        <xsd:element name="PossibleMethods" minOccurs="0">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ActivityMethod" type="cmn:Reference" maxOccurs="unbounded"/>
+            </xsd:sequence>
+----
+
+_EXPRESS provides four kinds of aggregation data types: ARRAY, LIST, BAG and SET. These data
+types have as their domains collections of values of a given base data type where the base
+data type can be a simple type, a named type or another aggregation type._
+
+_The XML element corresponding to an aggregate valued EXPRESS attribute shall make use of
+maxOccurs= "unbounded"._
+
+NOTE: _maxOccurs= "unbounded" most match the EXPRESS Type BAG, since redundant values are
+allowed. The uniqueness of the elements (like in a SET), the indexing/ordering of the
+elements (like in a LIST or an ARRAY) and OPTIONAL ARRAY values are not supported._
+
+_Multi-Dimensional aggregate PropertyValues are supported, but some multi-dimensional
+aggregate attributes are mapped as one dimensional_
+
+[example]
+====
+_MomentsOfInertia.InertiaValue of kind ARRAY[1:3] OF ARRAY[1:3] OF NumericalValue;
+is mapped to:_
+
+[source%unnumbered,xml]
+----
+<xsd:element name="NumericalValue" type="NumericalValue" max-Occurs="9"/>
+----
+
+_The ordering is in the order of sequence as the aggregates are defined, separated by
+blanks._
+====
+
+_An exception is made for CartesianTransformation.RotationMatrix. This entity is defined as
+LIST[2:3] OF LIST[2:3] OF LengthMeasure, which is mapped to xsd:string for reasons of
+compactness. In both cases, the separator is a blank and the ordering of the elements is as
+follows:_
+
+_xx xy xz yx yy yz zx zy zz._
+
+_Some One-Dimensional Aggregates have been also mapped to xsd:string for reasons of
+compactness:_
+
+* _Direction.DirectionRatios (LIST[2:3] OF REAL)_
+* _CartesianTransformation.TranslationVector (LIST[2:3] OF LengthMeasure)_
+* _AxisPlacement.Axis/Position/RefDirection (LIST[2:3] OF LengthMeasure)_
+* _CartesianPoint.Coordinates (LIST[2:3] OF LengthMeasure)_
+
+_Here the order is obvious: x y z._
+
+[[cls-A.1.6]]
+==== Not mapped EXPRESS Constructs
+
+_The UNIQUE, WHERE and global rules are not mapped to XML_
+
+[[cls-A.1.7]]
+==== Containment and referencing rules
+
+_An EXPRESS attribute whose data type is an EXPRESS entity data type shall be mapped in one
+of the following ways:_
+
+* _By containment_
+* _By reference._
+
+_Containment is the preferred approach:_
+
+* _It is recommended to use containment wherever possible._
+* _Reference should only be used for elements that are commonly reused._
+
+_Motivation:_
+
+* _To place as much information as possible about an object within it highly increases human
+readability;_
+* _Less complexity with script based analysis (e.g. XSLT);_
+* _Increases the XSD validation quality._
+
+_Reference mapping rules:_
+
+* _Master data - for elements defined directly under XML root element e.g., Organization,
+Person;_
+
+* _Structure elements - for elements that are reused and referenced as structure elements
+e.g., Documents, Parts._
+
+*_The description between the lines is added for this recommended practices document._*
+
+_The following criteria apply for the reference type of mapping:_
+
+. _In case the referenced type is not an aggregate and is not a SELECT type: only the name
+of the attribute is mapped to the XSD, not the name of the referenced entity (since it is
+implicitly clear). In the case where a subtype is referenced, the subtype shall be given in
+a xsi:type-clause._
++
+--
+[source%unnumbered,xml]
+----
+<xsd:complexType name="ActivityAssignment">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseObject">
+      <xsd:sequence>
+        <xsd:element name="AssignedActivity" type="cmn:Reference"/>
+----
+
+_Instantiated as:_
+
+[source%unnumbered,xml]
+----
+<ActivityAssignment uid="ID_747">
+  <AssignedActivity uidRef="ID_400"/>
+----
+--
+
+. _In case the referenced type is an aggregate or a SELECT type: the name of the attribute
+and the name of the referenced are given._
++
+--
+[source%unnumbered,xml]
+----
+<xsd:element name="Description" minOccurs="0">
+  <xsd:complexType>
+    <xsd:group ref="DescriptorSelect" minOccurs="0"/>
+      </xsd:complexType>
+</xsd:element>
+----
+
+_Instantiated as:_
+
+[source%unnumbered,xml]
+----
+<ExchangeContext uid="ec--1">
+...
+  <Description>
+    <Descriptor uid="id123">
+      <Text>
+        <CharacterString>abcd</CharacterString>
+      </Text>
+  </Descriptor>
+----
+
+_Or in the case of an aggregate:_
+
+[source%unnumbered,xml]
+----
+<xsd:element name="SameAs" minOccurs="0">
+  <xsd:complexType>
+    <xsd:group ref="ProxySelect" minOccurs="0" maxOccurs="unbounded"/>
+  </xsd:complexType>
+</xsd:element>
+----
+
+_Instantiated as:_
+
+[source%unnumbered,xml]
+----
+<SameAs>
+  <ExternalOwlObject uidRef="ID_382"/>
+  <ProxyString>test</ProxyString>
+  <ExternalItem uidRef="ID401"/>
+  <Proxy uidRef="ID402"/>
+</SameAs>
+----
+--
+
+_Containment mapping rules:_
+
+* _Simple attributes e.g., String values;_
+
+* _Elements that cannot exist standalone, but depend on another object and cannot be reused
+e.g., DateTime, TranslatedString, PropertyValue;_
+
+* _Grouping of elements in master-revision pattern, like Part -> PartVersion, Document ->
+DocumentVersion (usually the EXPRESS schema defines a mandatory INVERSE attribute for the
+contained element, for example PartVersion.versionOf);_
+
+* _For relationships containment shall be performed along the relating attribute (see
+below);_
+
+* _A contained element cannot be defined as BaseRootObject._
+
+*_The description between the lines is added for this recommended practices document._*
+
+_The following criteria apply for the containment type of mapping:_
+
+. _In case the contained type is not an aggregate and is not a SELECT type: only the name of
+the attribute is mapped to the XSD, not the name of the contained entity (since it is
+implicitly clear). In the case where a subtype is contained, the subtype shall be given in a
+xsi:type-clause._
++
+--
+[source%unnumbered,xml]
+----
+<xsd:complexType name="AssemblyJoint">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseObject">
+      <xsd:sequence>
+        <xsd:element name="AssemblyShape" type="AssemblyDefinition"/>
+        ...
+      </xsd:sequence>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+----
+--
+
+. _In case the contained type is an aggregate or a SELECT type: the name of the attribute
+and the name of the contained entity are given._
++
+--
+[source%unnumbered,xml]
+----
+<xsd:complexType name="Part">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseRootObject">
+      <xsd:sequence>
+        ...
+        <xsd:element name="Versions">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="PartVersion" type="PartVersion" max-Occurs="unbounded"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+----
+
+_Instantiated as:_
+
+[source%unnumbered,xml]
+----
+<Part uid="p--0000000017D374A0">
+  ...
+  <Versions>
+    <PartVersion uid="pv--0000000017D374A0--id1">
+    ...
+    </PartVersion>
+    <PartVersion uid="pv--0000000017D374A0--id2">
+    ...
+    </PartVersion>
+  </Versions>
+</Part>
+----
+--
+
+. _In case of change of direction for associations, see the next paragraph._
+
+[[cls-A.1.8]]
+==== Change of Direction for Associations
+
+_For various associations in the EXPRESS representation of the Buisness Object Model, the
+directions have been inverted:_
+
+* _The original attribute is omitted._
+* _A new attribute is added to the originally reference entity._
+
+[source%unnumbered]
+----
+ENTITY Approval
+  ...
+  ApprovalScope : OPTIONAL SET[1:?] OF ApprovalScopeSelect;
+END_ENTITY;
+TYPE ApprovalScopeSelect = SELECT(
+  Activity,
+  ...
+END_TYPE;
+
+  <xsd:complexType name="Activity" abstract="true">
+    <xsd:complexContent>
+      <xsd:extension base="cmn:BaseRootObject">
+        <xsd:sequence>
+        ...
+          <xsd:element name="ApprovalAssignment" type="ApprovalAssignment" minOccurs="0" maxOccurs="unbounded"/>
+          ...
+        </xsd:sequence>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+----
+
+_The advantage of this 'reverse' mapping is to see all the characteristics (like dates,
+approvals, projects, persons and organizations, properties, ...) of one object at one single
+place, that is, within the object._
+
+[[cls-A.1.8.1]]
+===== Entities of kind Relationship
+
+_Entities of kind ...Relationship, which are instantiated once in EXPRESS and reference one
+or many relating instances, are mapped (and instantiated separately) in the relating object.
+The relating attribute is omitted._
+
+_The related attribute is mapped by reference._
+
+[example]
+====
+[source%unnumbered,xml]
+----
+ENTITY ActivityRelationship;
+  ...
+  relating : Activity;
+  related : Activity;
+  ...
+END_ENTITY;
+
+<xsd:complexType name="Activity" abstract="true">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseRootObject">
+      <xsd:sequence>
+        <xsd:element name="ActivityRelationship" type="ActivityRela-tionship" minOccurs="0" maxOccurs="unbounded"/>
+        ...
+</xsd:complexType>
+  <xsd:complexType name="ActivityRelationship">
+    <xsd:complexContent>
+      <xsd:extension base="cmn:BaseObject">
+        <xsd:sequence>
+          <xsd:element name="Related" type="cmn:Reference"/>
+          ...
+----
+====
+
+[[cls-A.1.9]]
+==== Representation of Attributes of type IdentifierSelect
+
+_For Id and VersionId attributes, IdentifierSelect is mapped to the XML type 'Id'. Here two
+representations are supported:_
+
+* _XML attribute 'id' as compact representation of the most used variant "simple string";_
+
+* _Identifier representation for single identifier with associated context and/or
+roleMultiple identifiers are mapped as many instances of Identifier_
+
+[source%unnumbered,xml]
+----
+<xsd:complexType name="Id">
+  <xsd:sequence>
+    <xsd:element name="Identifier" type="Identifier" minOccurs="0" max-Occurs="unbounded"/>
+  </xsd:sequence>
+  <xsd:attribute name="id" type="xsd:string" use="optional"/>
+</xsd:complexType>
+<xsd:complexType name="Identifier">
+  <xsd:complexContent>
+    <xsd:extension base="cmn:BaseObject">
+      ...
+      <xsd:attribute name="id" type="xsd:string" use="optional"/>
+      <xsd:attribute name="idRoleRef" type="xsd:string" use="optional"/>
+      <xsd:attribute name="idContextRef" type="xsd:string" use="optional"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+----
+
+[NOTE]
+====
+* _idRoleRef references the uid of a Class, ExternalClass or ExternalOwlClass;_
+* _idContextRef references the uid of an Identifier or an Organization;_
+* _if Identifier is set, Id.id shall not be set._
+====
+
+[example]
+====
+[source%unnumbered,xml]
+----
+<Class uid="rl--ii">
+  <Id id="identification information"/>
+</Class>
+<Organization uid="o-1">
+  <Id id="mercedes-benz.com"/>
+</Organization>
+<Part uid="p-1">
+  <Id>
+    <Identifier uid="pid-1" id="as1" idRoleRef="rl--ii" idContex-tRef="o-1"/>
+  </Id>
+  ...
+</Part>
+<Part uid="p-1">
+  <Id>
+    <Identifier uid="pid-1" id="as1" idRoleRef="rl--ii" idContex-tRef="o-1"/>
+    <Identifier uid="pid-2" id="assy1" idRoleRef="rl--ii" idContex-tRef="o-2"/>
+  </Id>
+  ...
+</Part>
+----
+====
+
+_The other attributes of kind IdentifierSelect are mapped to the XML type
+'IdentifierSelect':_
+
+[source%unnumbered,xml]
+----
+<xsd:group name="IdentifierSelect">
+  <xsd:choice>
+    <xsd:element name="IdentifierSet">
+      <xsd:complexType>
+        <xsd:sequence>
+          <xsd:element name="Identifier" type="Identifier" minOccurs="2" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:element>
+    <xsd:group ref="SingleIdentifierSelect" minOccurs="0"/>
+  </xsd:choice>
+  </xsd:group>
+  <xsd:group name="SingleIdentifierSelect">
+  <xsd:choice>
+    <xsd:element name="Identifier" type="Identifier"/>
+    <xsd:element name="IdentifierString" type="xsd:string"/>
+  </xsd:choice>
+</xsd:group>
+----
+
+_Here three representations are supported:_
+
+* _IdentifierString representation of the most used variant "simple string"_
+* _Identifier representation for single identifier with associated context and/or role_
+* _IdentifierSet as a set of Identifiers for multiple identifiers_
+
+[example]
+====
+[source%unnumbered,xml]
+----
+<StartNumber>
+  <IdentifierString>3</IdentifierString>
+</StartNumber>
+
+<StartNumber>
+  <Identifier uid="dfid--0000028DA4863110--46" id="3" idRol-eRef="ct--id--in" idContextRef="org--0xbc66cf8"/>
+</StartNumber>
+
+<StartNumber>
+  <IdentifierSet>
+    <Identifier uid="dfid--0000028DA4863110--46" id="3" idRoleRef="ct--id--in" idContextRef="org--0xbc66cf8"/>
+    <Identifier uid="dfid--0000028DA4863110--47" id="3" idRoleRef="ct--id--in" idContextRef="org--andere"/>
+  </IdentifierSet>
+</StartNumber>
+----
+====
+
+[[cls-A.1.10]]
+==== Multilanguage Support
+
+_Two representations are supported:_
+
+* _Compact text strings with optional language indication;_
+* _xsd:language is used for the language indication:_
+** Country and language code conforming to RFC 3066.
+
+[source%unnumbered,xml]
+----
+<xsd:group name="MultiLingualStringSelect">
+  <xsd:choice>
+    <xsd:element name="CharacterString" type="xsd:string"/>
+    <xsd:element name="LocalizedString" type="LocalizedString" max-Occurs="unbounded"/>
+  </xsd:choice>
+</xsd:group>
+<xsd:complexType name="LocalizedString" mixed="true">
+  <xsd:complexContent mixed="true">
+    <xsd:extension base="cmn:BaseObject">
+      <xsd:attribute name="lang" type="xsd:language" use="optional"/>
+    </xsd:extension>
+  </xsd:complexContent>
+</xsd:complexType>
+----
+
+[example]
+====
+[source%unnumbered,xml]
+----
+<ActivityMethod uid="am-2">
+  <Consequence>
+    <LocalizedString uid="am-3-consequence-0">no consequence</Local-izedString>
+    <LocalizedString uid="am-3-consequence-1" lang="en-GB">no conse-quence</LocalizedString>
+    <LocalizedString uid="am-3-consequence-2" lang="de-DE">keine Konse-quenz</LocalizedString>
+    <LocalizedString uid="am-3-consequence-3" lang="fr-FR">aucune conséquence</LocalizedString>
+  </Consequence>
+</ActivityMethod>
+----
+====
+
+_The business object definition refers to ISO 639-2 for the language code and to ISO 3166-1
+for the country code. They enable the specification of a language code optionally followed
+by a country code, for example, 'en' or 'en-US'. The EXPRESS TYPE "Language" defined as
+LIST[1:2] OF STRING is mapped to XML as xsd:language, where the language code and the
+country code are concatenated (the country code is optional)._
+
+_The W3C definition of xsd:language englobes these two ISO standards plus further ones in
+RFC 3066 (IANA and unofficial languages) => these shall not be used._
+
+[[cls-A.1.11]]
+==== Representation of Date and Time
+
+_xsd:dateTime is used instead of String._
+
+_As in EXPRESS, Time is not optional; to avoid conversion problems it shall be provided as
+"T00:00:00"._
+
+[[cls-A.2]]
+=== Unit of Serialization
+
+_To be valid XML, a DataContainer has to be included into an UoS object (Unit of
+Serialization) defined in common.xsd. The UoS contains a mandatory header element that
+contains administrative information that characterizes the content of the data package._
+
+_The header elements are described in ISO 10303-28:2007, section 5.2, as follows:_
+
+* _Name: human readable identifier for the XML resource;_
+
+* _TimeStamp: date and time when the XML resource was created;_
+
+* _Author: identifies the person or group of persons who created the XML resource;_
+
+* _Organization: identifies the organization that created, or is responsible for the XML
+resource;_
+
+* _PreprocessorVersion: identifies the software system that created the XML resource itself,
+including platform and version identifiers;_
++
+--
+NOTE: _The preprocessor_version will identify the system that was used to produce the XML
+resource. It may well be distinct from the software system that created or captured the
+original information._
+--
+
+* _OriginatingSystem: identifies the software system that created or captured the
+information contained in the XML resource, including platform and version identifiers;_
+
+* _Authorization: specifies the release authorization for the XML resource and the
+signatory, where appropriate;_
++
+--
+NOTE: _This may be distinct from the authorizations for various information units contained
+within the document._
+--
+
+* _Documentation: free text field for information._
+
+__common.xsd is defined under
+http://standards.iso.org/iso/ts/10303/-3000/-ed-2/tech/xml-schema/common[http://standards.iso.org/iso/ts/10303/-3000/-ed-2/tech/xml-schema/common]__.
+
+[[cls-A.3]]
+=== XML configuration specification
+
+_This section contains the configuration specification._
+
+[source%unnumbered]
+----
+<iso_10303_28 version="" xmlns="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:document" xmlns:cnf="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language" xmlns:exp="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:common" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:document ../../implementation_resources/iso10303_28_document_schema/doc.xsd urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:configuration_language ../../implementation_resources/iso10303_28_configuration_language_schema/cnf.xsd urn:iso:std:iso:10303:-28:ed-2:tech:XMLschema:common ../../implementation_resources/iso10303_28_base_xml_schema/exp.xsd ">
+</iso_10303_28>
+----

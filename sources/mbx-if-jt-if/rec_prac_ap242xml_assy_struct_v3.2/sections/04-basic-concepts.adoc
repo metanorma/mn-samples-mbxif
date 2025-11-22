@@ -1,0 +1,4225 @@
+[[cls-4]]
+== Basic Concepts
+
+[[cls-4.1]]
+=== XML Format Specifics
+
+<<annex-A>> describes the guiding principles used for the mapping from EXPRESS to XML. This
+section gives some additional hints on how to instantiate it.
+
+[[cls-4.1.1]]
+==== Character Set
+
+Beside the use of the XML special characters &amp; (for &), &apos; (for '), &gt; (for >), &lt;
+(for <) and &quot; (for ") in elements of the kind STRING, any character (even special)
+can be used.
+
+*Preprocessor Recommendations:*
+
+Use of UTF-8 (stated in the first line of the XML file):
+
+`<?xml version="1.0" encoding="UTF-8"?>`
+
+* special characters like ¼ are mapped with their decimal value (here &pass:[#x172;]).
+
+Concerning the instance identifiers (called 'uid') of type xsd:ID, they must start with either
+a letter or underscore (_) and may contain only letters, digits, underscores (_), hyphens (-),
+and periods (.). White space is not allowed.
+
+* unlike the instance identifier of ISO STEP Part21, which are restricted to numeric integer
+values, it is possible to set the uids to some more readable values.
+
+*Preprocessor Recommendations:*
+
+Use some (even proprietary) convention to ease the human interpretation of the uids, like:
+
+`<unique abbreviation of the object type>--<number unique within the XML file>`
+
+For example, for a PartView instance: pv-4711
+
+Since some PDM systems are not case-sensitive and import for example 'Part4711' as
+'PART4711', it is recommended to handle all attributes as case insensitive, except:
+
+* the File Id, ExternalItem.Id and ExternalItem.Source (because all Unix-based operating
+systems are case-sensitive)
+
+* PropertyValue.Name (because e.g., in CATIA, "name" and "NAME" are two different attributes)
+
+[[cls-4.1.2]]
+==== Containment vs. Referencing
+
+Containment is preferred over Referencing as far as possible, since it enables the storing of
+the maximum number of aspects of an object at one single place in the XML file. For example,
+here is a Part with its PartVersion(s), PartView(s), Occurrences(s), Document(s)...:
+
+[source%unnumbered,xml]
+----
+<Part uid="p-000000001E60C660">
+  <Id>
+    <Identifier uid="pid-000000001E60C660-id6" id="bolt" idRoleRef="rl-ii" idContextRef="o-000000178"/>
+  </Id>
+  <Name>
+    <CharacterString>bolt</CharacterString>
+  </Name>
+  <PartTypes>
+    <ClassString>piece part</ClassString>
+  </PartTypes>
+  <Versions>
+    <PartVersion uid="pv-000000001E60C660-id6">
+      <Id id="/NULL"/>
+      <Views>
+        <PartView uid="pvv-000000001E60C660-id6">
+          <InitialContext uidRef="ac-mechanicaldesign-design"/>
+          <Occurrence xsi:type="n0:SingleOccurrence" uid="pi-000000001E60C660-18">
+            <Id id="bolt.1"/>
+          </Occurrence>
+          <DocumentAssignment xsi:type="n0:DocumentAssignment" uid="da-000000001E60C660-id6">
+            <AssignedDocument uidRef="df-000000001E60C660"/>
+            <Role>
+            <ClassString>mandatory</ClassString>
+            </Role>
+          </DocumentAssignment>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+----
+
+On the other hand, referenced instances would be spread all over the XML file.
+
+Containment is used for context dependent objects which cannot exist without the container
+object. Reference is used for objects that can exist on their own; they may be reference
+multiple times (reused), which avoids duplication of data.
+
+The type of all referenced instances (defined as "`cmn:Reference`") and contained instances
+can be validated by the XSD.
+
+[[cls-4.1.3]]
+==== Root Objects and DataContainer
+
+All the entities not being declared as contained in any XML element are defined as a subtype
+of `cmn:BaseRootObject`. Otherwise, they are defined as a subtype of `cmn:BaseObject`.
+
+Each Root Object is defined as an element of the so-called AP242DataContainer (defined as a
+subtype of `cmn:DataContainer`). The DataContainer is like a schema instance (contains
+instances of the entities defined in the Domain Model EXPRESS schema according to their
+definition in the XSD), just like the Data section in a Part21 STEP Physical File.
+
+An XML file may have one or many AP242DataContainers.
+
+*Preprocessor Recommendations:*
+
+Define all data into one single AP242DataContainer.
+
+The order of the root objects is not critical (since defined as `xsd:choice minOccurs="0"
+maxOccurs="unbounded"`), but the order of the attributes and containments within each object
+is strictly defined in the Domain Model XSD (as `xsd:sequence`). In case of inheritance, the
+ordering of the attributes is: first the attributes of the top level supertype, then the
+attributes of the next level supertype, etc... and at the end, the attributes of the
+instantiated subtype.
+
+[[cls-4.1.4]]
+==== Subtyping
+
+If a subtype shall be instantiated, the top-level supertype defined in the EXPRESS and XML
+schema shall be instantiated, followed by a subtyping clause
+`xsi:type`. For example, to instantiate the `ComposedGeometricModel` subtype of
+`Representation`:
+
+[source%unnumbered,xml]
+----
+<Representation uid="egm-1" xsi:type="n0:ComposedGeometricModel">
+----
+
+[[cls-4.1.5]]
+==== Header object
+
+*Preprocessor Recommendations:*
+
+The header is mandatory and shall contain at least the following information:
+
+* Name: name of the XML file
+
+* TimeStamp: creation (or last modification date) of the XML file
+
+* Organization.Name: name of the sending organization. Use the same unique ID conventions as
+for the Id of the template "Organization"
+
+* PreprocessorVersion: name and release of the Preprocessor
+
+* OriginatingSystem: name and release of the originating system
+
+* Documentation[1]: version of the Recommended Practices used to implement the preprocessor
+
+* (optionally) Documentation[2-n]: some free texts explaining the contents of the exchange file
+
+Here is an example:
+
+[source%unnumbered,xml]
+----
+<Header xmlns="">
+  <Name>as1.stpx</Name>
+  <TimeStamp>2023-12-19T09:54:06Z</TimeStamp>
+  <Organization>
+    <Name>mercedes-benz.com</Name>
+  </Organization>
+  <PreprocessorVersion>T-Systems International GmbH COM/FOX V6.1.4</PreprocessorVersion>
+  <OriginatingSystem>CATIA V5 B25 SP0 HF0</OriginatingSystem>
+  <Documentation>MBx-IF Rec.Pracs.---AP242 Domain Model XML Assembly Structure---3.2---2024-01-11</Documentation>
+  <Documentation>free text 1</Documentation>
+  <Documentation>free text 2</Documentation>
+...
+</Header>
+----
+
+[NOTE,type=remark]
+====
+* The organization mentioned in the header is not necessarily redundant with the one
+mentioned in ExchangeContext.IdentificationContext: for example, if a tier-1 supplier
+forwards data from its customer to a tier-2 supplier, forwarding the identifiers from the
+customer, the IdentificationContext will be the one of the customer, while the organization in
+the header will be the tier-1 supplier
+
+* The version of the AP242 Domain Model XSD doesn't need to be defined here, since it
+is already defined in the top line of the XML file (see next section).
+
+* "Documentation" is a set. The following pattern is recommended:
+
+** First occurrence of "Documentation": (mandatory) version of the Recommended
+Practices used to implement the preprocessor
+
+** Further occurrences of "Documentation": (optional) free texts explaining the contents of
+the exchange file
+====
+
+[[cls-4.1.6]]
+==== XML context tagging
+
+Using the appropriate scoping, lots of XML context tagging may be avoided.
+
+*Preprocessor Recommendations:*
+
+Use the following definition to enclose all schema definitions needed by the Domain Model
+XML file:
+
+[source%unnumbered,xml]
+----
+<n0:Uos
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:n0="http://standards.iso.org/iso/ts/10303/-4442/ed-3/tech/xml-schema/domain_model"
+xmlns:cmn="http://standards.iso.org/iso/ts/10303/-3000/-ed-2/tech/xml-schema/common"
+xsi:schemaLocation="http://standards.iso.org/iso/ts/10303/-4442/ed-3/tech/xml-schema/domain_model http://standards.iso.org/iso/ts/10303/4442/ed-3/tech/xml-schema/domain_model/DomainModel.xsd">
+...
+<Header>
+...
+  </Header>
+  <DataContainer xsi:type="n0:AP242DataContainer">
+  ...
+  </DataContainer>
+</n0:Uos>
+----
+
+Avoid defining namespaces in the DataContainer.
+
+The only case within the data where context tagging is needed is 'n0' for the subtype clauses
+like `xsi:type="n0:ComposedGeometricModel"`.
+
+[[cls-4.1.7]]
+==== Schema version and document version identifications
+
+The name of the schema that an AP242 Domain Model XML file shall be compliant to shall be
+listed at the beginning of the uos element.
+
+[example]
+====
+To indicate AP242 Domain Model XML Ed.3, the following URL is used:
+
+[source%unnumbered,xml]
+----
+xsi:schemaLocation="http://standards.iso.org/iso/ts/10303/-4442/ed-3/tech/xml-schema/domain_model http://standards.iso.org/iso/ts/10303/4442/ed-3/tech/xml-schema/domain_model/DomainModel.xsd">
+----
+====
+
+[[cls-4.1.8]]
+==== Dates
+
+Unlike in the EXPRESS schema definition of DateTimeString, the time is not optional in XML
+using `xsd:dateTime`.
+
+*Preprocessor Recommendations:*
+
+If not available, set the time to T00:00:00, for example: 2010-08-19T00:00:00Z
+
+[[cls-4.1.9]]
+==== STEP Domain Model XML File Extensions
+
+It was agreed by implementors and users alike that the default file extension "*.xml" is too
+generic, since there are so many XML files for a wide variety of purposes and applications
+already using the extension. Since STEP Domain Model XML files oftentimes are
+process-relevant, they should be easily identifiable, and it should be possible to associate
+a default handling application.
+
+Since "\*.stp" shall remain reserved for STEP Part 21 files and the previously proposed
+"*.stpxml" seemed to ungainly, the CAx-IF agreed to consistently use the following file
+extensions:
+
+* **"*.stpx"** -- for STEP (AP209, AP242,...) Domain Model XML files
+
+* **"*.stpxZ"** -- for compressed STEP Domain Model XML files
+
+* **"*.stpA"** -- for compressed archive containing one/multiple root files and possibly
+files of different types (for example stpx + Part 21, PDF, ...). An stpa.ini file contains
+the list of root file(s).
+
+The compression of STEP files -- Part 21 as well as Domain Model XML -- is defined in the
+CAx-IF Recommended Practices for STEP File Compression (see <<annex-C>>).
+
+[[cls-4.2]]
+=== Rules for Attribute Cardinality
+
+[[cls-4.2.1]]
+==== Entities and Attributes not supported by the Preprocessor
+
+The guidance provided in this section reuses the "General Information" section of the PDM
+Schema Usage Guide V4.3 and adds recommendations for derived attributes and for mandatory
+numerical attribtues.
+
+For various reasons, there may be entities that cannot be completely exported by a
+preprocessor. For example, an application may not maintain all the information that is
+mandatory for data exchange according to this specification. Or, the information is
+maintained by a sending system, but it will for some reasons not be included in the data
+exchange file. The preprocessor shall provide values for all mandatory attributes in an
+exchange file.
+
+For mandatory string-value attributes, special values shall be used to further indicate the
+reason why no real data is provided according to the following convention:
+
+* For string-value attributes: empty string `<tag></tag>` or `<tag/>` indicates user data
+managed by the sending system but having an empty value. So, the receiver may interprete it
+in a different way than if the tag was not mentioned at all (unset value).
+
+* For string-value attributes: string `<tag>/NULL</tag>` indicates user data in a mandatory
+attribute that is not managed by the sending system, or currently not known.
++
+--
+Mandatory base identifiers like Organization.Id, Class.Id, Part.Id, Document.Id, File.Id, ...
+shall not be mapped to '/NULL', '/ANY nor '/UNSET', except for Part.Name and Document.Name in
+case of nested files or incremental exchange.
+
+If an attribute is required or recommended to be unique (for example Occurrence.Id), it is not
+recommended to set it to `'/NULL'`, `'/ANY` nor `'/UNSET'`. since the sender should be aware
+that what he sends may not necessarily be interpreted correctly. If set to `/NULL`, `'/ANY` or
+`'/UNSET'`., the receiving system may have to construct an Id in some way to achieve
+uniqueness.
+
+If an object with version `'/NULL'` is encountered on import, it shall be mapped to the
+highest existing version (if not frozen), or a new version shall be created with the
+next-higher available version id.
+--
+
+* For string-value attributes: string `<tag>/ANY</tag>` indicates that the value -- mandatory
+or optional - may be computed by the target system (for example PartVersion.Id if the
+assembly structure of the source system stores only the part number of the component and
+computes the right PartVersion at runtime).
+
+* For string-value attributes: string `<tag>/UNSET</tag>` indicates that an entity as a whole
+is not supported by a pre-processor but is mandatory according to the XML Schema => all its
+mandatory string attributes are set to /UNSET. This may apply for example to
+DateAndPersonOrganization.PersonOrOrganization.
+
+Accordingly, it is not recommended to use the empty string or the default strings `'/ANY'`,
+`'/UNSET'` and `'/NULL'` as valid user data.
+
+For mandatory INTEGER, REAL or NUMBER attributes, 2147483647 (MAX_LONG) indicates
+user data in a mandatory attribute that is not managed by the sending system or currently not
+known.
+
+For mandatory Date attributes, 1970-01-01T00:00:00 indicates user data in a mandatory
+attribute that is not managed by the sending system or currently not known.
+
+Accordingly, it is not recommended to use 2147483647 or 1970-01-01T00:00:00 as valid user
+data. Dates older or newer than 1970-01-01T00:00:00 shall be interpreted as user data.
+
+For further mandatory non-string value attributes, these recommended practices do not provide
+further guidance.
+
+If an optional attribute is not instantiated, the corresponding element shall be completely
+removed from the physical file. Though not recommended, it is also valid to list the element
+start and end tags without providing any value.
+
+[[cls-4.2.2]]
+==== Entities and Attributes not supported by the Postprocessor
+
+The guidance provided in this section corresponds with the
+<<CAX-IF-PSUG,section="General Information">>.
+
+For various reasons, there may be entities that cannot be completely imported by a
+postprocessor. The postprocessor translator implementation may not support the import of the
+entity. Or, the receiving system may not maintain the information that is carried by an
+entity or attribute, or it may require specific attribute values that are not present in the
+input data.
+
+The names of entities and attributes not imported should be recorded in a history log file
+together with a reason. Entities and attributes not supported by the receiving system shall
+not cause a system failure. The minimum acceptable behavior shall be to ignore the
+unsupported constructs gracefully.
+
+[[cls-4.2.3]]
+==== Unspecified and Optional Attribute Values
+
+The guidance provided in this section corresponds with the
+<<CAX-IF-PSUG,section="General Information">>.
+
+Optional attributes without specific recommended values, such as the description attribute,
+are available on many entities in the AP242 Domain Model. The following general recommendation
+for the use of this type of attribute is given:
+
+*_Preprocessor_*:: First, follow the usage guide as much as is possible. If some specific
+common harmonized user requirement has been documented in the usage guide for the type of
+attribute, adapt this requirement to the attributes in question (i.e., map the standard into
+your domain). If no specific common harmonized user requirement has been documented in the
+usage guide, in general, such an optional attribute should not be instantiated. However,
+these attributes may be used in some bilateral agreements between exchange partners.
+
+*_Postprocessor_*:: Any optional attribute with no specific mapping specified can, in
+general, not be specifically interpreted in an interoperable way. While these types of
+attributes are in general not recommended to be instantiated, the postprocessor should
+gracefully handle any data that is exchanged using these attributes. A robust, interoperable
+AP242 Domain Model postprocessor will generally provide user access to also these values.
+
+Since a target PDM system will define many optional attributes not provided by the partner,
+it is not recommended to overwrite their value with 'unset' or an empty value during import.
+If this is wished, an empty value could be provided by the partner, or a specific agreement
+between exchange partners has to be defined.
+
+[[cls-4.2.4]]
+==== Derived Attributes
+
+The guidance provided in this section corresponds with the
+<<CAX-IF-PSUG,section="General Information">>.
+
+In general, derived attributes are not covered by this recommended practices document. This is
+consistent with the STEP part 21 and part 28 specifications where derived attributes are not
+represented in an exchange file. This document does not include cases of derived attributes
+where special attention is required.
+
+[[cls-4.3]]
+=== Uniqueness of Identifiers
+
+Two types of identifiers are distinguished:
+
+. Uid-identifier, which is assigned to each element in the XML-file and which plays the
+same role as the instance identifier in ISO 10303-21 files. This identifier shall be unique
+within a single file; they are not unique across several physical files, even though such
+files may form a consistent data package.
+
+. User defined identifiers that are provided as part of the product data. These recommended
+practices do not require such identifier strings to be unique, neither globally nor
+within a single physical file. Thus, in the concurrent management of internal and external
+identifiers in a database, duplicate identifiers may occur.
++
+--
+NOTE: To ensure uniqueness of identification (for each single object type) the EXPRESS
+schema of the AP242 Domain Model requires the combination of the values of the attributes id,
+role and identificationContext of instances of entity Identifier to be unique. See
+<<cls-4.6.6>> for recommendations of instantiating entity Identifier in general; additional
+guidance may be given in the sections of entities that have attributes of type Identifier.
+
+For those objects having an attribute VersionId (optional), if the VersionId is set, then the
+uniqueness applies to the combination of Id and VersionId. Like for objects having a
+dedicated Version entity, the idContextRef of the VersionId shall be the Id(Identifier).uid.
+--
+
+[[cls-4.4]]
+=== Project Specific Values
+
+The guidance provided in this section corresponds with the
+<<CAX-IF-PSUG,section="General Information">>.
+
+Attribute values recommended in this usage guide shall be supported by systems that conform
+to the AP242 Domain Model. Other values negotiated between exchange partners in specific
+projects may be used where the interpretation of their meaning does not contradict definitions
+provided in this usage guide. However, these agreements will generally not lead to
+interoperable solutions.
+
+[[cls-4.5]]
+=== Blanks in String Values
+
+The guidance provided in this section corresponds with the
+<<CAX-IF-PSUG,section="General Information">>.
+
+All white space within the XML tag delimiters of a STRING value shall be considered valid user
+data, that is, also leading and trailing blanks are valid user data.
+
+[[cls-4.6]]
+=== Basic Building Blocks
+
+The objective of this chapter is to define the basic templates that will be reused in the
+representation of complex concepts (<<cls-4.6.11>> and following).
+
+[[cls-4.6.1]]
+==== Template "ExchangeContext"
+
+The `ExchangeContext` entity specifies a default context for the identifications and
+descriptions, a default language and a default length unit relevant for a defined context.
+
+The `Description` provides the context of the exchange.
+
+The `DefaultLanguage` sets the default language used in the exchanged file if no specific
+language information is provided.
+
+The `DefaultUnit` sets the default length unit to be used for the exchanged file if no
+specific unit is provided.
+
+The `IdentificationContext` sets the default organization managing the different id and
+description if no specific organization is provided. See dedicated recommendation for the
+exchange of a single explicit Configuration in <<step-242-CFG,section=4.1.2>>.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-1]]
+.Template "ExchangeContext"
+image::img17.png[]
+
+[[tab-2]]
+[cols=2,options=header]
+."ExchangeContext" Attributes
+|===
+| ENTITY ExchangeContext
+| Attribute Type
+
+| span:gray[ClassLibrary]
+| span:gray[OPTIONAL IdentifierString]
+
+| DefaultLanguage
+| OPTIONAL Language
+
+| DefaultUnit
+| OPTIONAL Unit
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| IdentificationContext
+| OPTIONAL IdentificationContextSelect
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+|===
+
+*_Attribute recommendation_*
+
+* The *_Description_* attribute is the text providing information on the exchange context. The
+value of this attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_DefaultLanguage_* attribute is the set of text by which the default language is known.
+The value of this attribute need not be specified. Use xsd:language type. For more details,
+refer to <<cls-A.1.10>>.
+
+* The *_DefaultUnit_* attribute characterizes a default length unit. The value of this
+attribute need not be specified. Use "Unit" template (see <<cls-4.6.3>>).
+
+* The *_IdentificationContext_* attribute specifies a default organization. The value of this
+attribute need not be specified. Use "Organization" template (see <<cls-4.6.2>>).
+
+[NOTE,type=remark]
+====
+Just as in the AP242 Specification, the XSD does not restrict the values in
+DefaultLanguage
+====
+
+*_Preprocessor Recommendations:_*
+
+* All preprocessors should provide a unique ExchangeContext.
+
+* For the language definition (for example 'en-US'), even if the country code (here 'US') is
+optional, it is recommended to set it
+
+* As specified in the EXPRESS data model via a WHERE rule, at least one of the attributes
+DefaultLanguage or IdentificationContext shall be specified
+
+* The organization referenced by ExchangeContext.IdentificationContext is not necessarily
+redundant with the one referenced by Identifier.idContextRef, even if the Identifiers have
+only one context: for example, ExchangeContext.IdentificationContext could largely be
+representing a sight, but the data could be assigned to several organization and need not
+be always the sight.
+
+*_Postprocessor Recommendations:_*
+
+* If no length unit is given the ExchangeContext.DefaultUnit shall be used (like in simplified
+positioning representation of assembly structure, see <<cls-7.3.1>>).
+
+* If no language is given for names, descriptions or StringValues, the DefaultLanguage
+should be set.
+
+*_Related Entities:_*
+There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<ExchangeContext uid="ec--000000001">
+  <DefaultLanguage>en-US</DefaultLanguage>
+  <DefaultUnit uidRef="u--000000002"/>
+  <Description>
+    <CharacterString>AP242 Domain Model XML Assembly Structure exchange</CharacterString>
+  </Description>
+  <IdentificationContext uidRef="o--000000178"/>
+</ExchangeContext>
+<Unit uid="u--000000002">
+  <Kind>
+    <ClassString>SI system</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>metre</ClassString>
+  </Name>
+  <Prefix>
+    <ClassString>milli</ClassString>
+  </Prefix>
+  <Quantity>
+    <ClassString>length</ClassString>
+  </Quantity>
+</Unit>
+<Organization uid="o--000000178">
+  <Id id="mercedes-benz.com"/>
+  <Name>
+    <CharacterString>Mercedes-Benz</CharacterString>
+  </Name>
+  <OrganizationTypes>
+    <ClassString>company</ClassString>
+  </OrganizationTypes>
+</Organization>
+----
+
+[[cls-4.6.2]]
+==== Template "Organization"
+
+In the same way as in <<CAX-IF-PSUG,section=13.1.1>>, the
+`Organization` entity represents a group of people (e.g., companies, countries, etc.).
+
+The `Id` is very important providing unique identification to the organization or company;
+this attribute should be populated with unique data.
+
+The `Name` attribute should contain the common nomenclature of the organization.
+
+The `OrganizationTypes` attribute should contain a characterization of the type of the
+organization.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-2]]
+.Template "Organization"
+image::img18.png[]
+
+[[tab-3]]
+."Organization" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY Organization
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| Id
+| IdentifierSelect
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| OrganizationTypes
+| OPTIONAL SET[1:?\] of ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AddressAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AddressAssignment]
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[OrganizationRelationship]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationRelationship]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendation_*
+
+* The *_Id_* attribute is the identifier that distinguishes the organization. Use
+IdentifierString type.
+
+* The *_Name_* attribute is the label by which the organization is known. The value of this
+attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_OrganizationTypes_* attribute characterizes the type of organization. The value of
+this attribute need not be specified. Use ClassString if one of the values below is used,
+otherwise use "Class" template (see <<cls-4.6.4>>). According to the ISO AP242 Specification,
+where applicable, the following values shall be used:
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| OrganizationTypes | Explanation
+
+| 'company'
+| The organizationTypes specifies that the Organization is a company
+
+| 'department'
+| The organizationTypes specifies that the Organization is a department
+
+| 'plant'
+| The organizationTypes specifies that the Organization is a plant
+|===
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* All preprocessors should provide a unique organization id
+to eliminate ambiguities where organizations may have the same names. If the intended domain
+for the data is large, the reader is referred to ISO/IEC 8824-1, which can provide some
+guidance on creating unique identifiers. If appropriate, a URL-like convention for the
+organization identifier may be used, e.g., cax-if.org. A unique string obtained under
+ISO/IEC 8824-1 can be used as, or prefixed to, the organization identifier. For example, if
+the organization typically used an identifier of "93699" and the unique string were "USA",
+the unique value of the organization id would be "USA93699". If available and appropriate,
+the following values should be used to describe the organization type:
+
+* 'company' to indicate a business entity;
+
+* 'department' to indicate an organizational group within a company;
+
+* 'plant' to indicate that the organization is a plant.
+
+*_Postprocessor Recommendations:_* All postprocessors should make use of any provided
+information in the id attribute to eliminate ambiguities where organizations may have the
+same name.
+
+*_Related Entities_*: There are no specific related entities.
+
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Organization uid="o--000000178">
+  <Id id="mercedes-benz.com"/>
+  <Name>
+    <CharacterString>Mercedes-Benz</CharacterString>
+  </Name>
+  <OrganizationTypes>
+    <ClassString>company</ClassString>
+  </OrganizationTypes>
+</Organization>
+----
+
+[[cls-4.6.3]]
+==== Template "Unit"
+
+This entity is a quantity chosen as a standard in terms of which other quantities may be
+expressed. The types of units supported are SI units as well as derived or conversion-based
+units as defined in ISO 10303-41. See <<annex-E>> for the recommendation of the Units
+definition.
+
+The `Name` provides the type of the unit.
+
+The `Kind` represents the type of system used.
+
+The `Prefix` is the ratio of the unit.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-3]]
+.Template "Unit"
+image::img19.png[]
+
+[[tab-4]]
+."Unit" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY Unit
+| Attribute Type
+
+| Kind
+| OPTIONAL ClassSelect
+
+| Name
+| ClassSelect
+
+| Prefix
+| OPTIONAL ClassSelect
+
+| Quantity
+| OPTIONAL ClassSelect
+|===
+
+*_Attribute recommendations_*
+
+* The *_Name_* attribute is the text defining the type of the unit. Use ClassString type.
+Refer to <<annex-E>> for the recommended values.
+
+* The *_Kind_* attribute is the type of system used. Use ClassString if one of the values
+below is used, otherwise use "Class" template (see <<cls-4.6.4>>). According to the ISO AP242
+Specification, when applicable the 'SI System' value should be used, and according to the
+<<cls-E.2>> the following values are also applicable: 'derived SI unit', 'unspecified SI
+derived unit', 'unspecified', 'imperial'.
+
+* The *_Prefix_* attribute is the definition of the ratio. The value of this attribute need
+not be specified. Use ClassString if one of the values below is used, otherwise use "Class"
+template (see <<cls-4.6.4>>). According to the ISO AP242 Specification, when applicable the
+following values shall be used 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto',
+'deca', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto'.
+
+* The *_Quantity_* attribute is the type of property that the *Unit* shall be used for. Use
+ClassString. Refer to the <<annex-E>> for the recommended values.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*  The recommendation of the Units definition in <<annex-E>>
+lets the preprocessor free to use any prefix value recommended above.
+
+*_Postprocessor Recommendations:_*
+The prefix shall be evaluated, and if necessary, the
+property value shall be converted into the appropriate prefix for the target system.
+
+*_Related Entities_*: There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--000000002">
+  <Kind>
+    <ClassString>SI system</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>metre</ClassString>
+  </Name>
+  <Prefix>
+    <ClassString>milli</ClassString>
+  </Prefix>
+  <Quantity>
+     <ClassString>length</ClassString>
+  </Quantity>
+</Unit>
+----
+
+[[cls-4.6.4]]
+==== Template "Class"
+
+This entity is a classification which characterizes all objects of the same kind.
+
+The `Id` provides a unique identification to the classification; this attribute must be
+populated with unique data.
+
+The `Description` attribute should contain the textual information concerning the class.
+
+The `DefinedIn` attribute should reference a specific externally defined set of value.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-4]]
+.Template "Class"
+image::img20.png[]
+
+[[tab-5]]
+."Class" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY Class
+| Attribute Type
+
+| span:gray[ClassAttribute]
+| span:gray[OPTIONAL SET[1:?\] of ClassAttribute]
+
+| DefinedIn
+| OPTIONAL ExternalClassSystem
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[Source]
+| span:gray[OPTIONAL ExternalSourceSelect]
+
+| span:gray[SetMembership]
+| span:gray[OPTIONAL SET[1:?\] of SetMembership]
+
+| span:gray[SubsetMember]
+| span:gray[OPTIONAL SET[1:?\] of SubsetMember]
+
+| VersionId
+| OPTIONAL IdentifierSelect
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendation_*
+
+* The *_Id_* attribute is the identifier that distinguishes the class. Use IdentifierString
+type if the attribute DefinedIn is set or in case the Class is used to map one of the
+predefined values for idRoleRef within the "Identifier" template (see <<cls-4.6.6>>),
+otherwise use "Identifier" template (see <<cls-4.6.6>>).
+
+* The *_Description_* attribute is the text by which the class is described. The value of this
+attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_DefinedIn_* attribute specifies where is defined the type represented by the Id. The
+value of this attribute need not be specified. Reference to an ExternalClassSystem element.
+
+* The *_VersionId_* attribute specified the identification or set of identifications of a
+specific version of the Class. The value of this attribute need not be specified. Use "Class"
+template (see <<cls-4.6.4>>). +
+The ISO Jira Task TCSC410303-1306 has been created to introduce the entity
+ClassRelationship in order to relate two Classes (like FileRelationship for example).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+[[tab-6]]
+[options=header,cols="a,a"]
+."ExternalClassSystem" Attributes
+|===
+| ENTITY ExternalClassSystem
+| Attribute Type
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| Id
+| IdentifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| Source
+| OPTIONAL ExternalSourceSelect
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendation_*
+
+* The *_Description_* attribute is the text by which the external system is described. The
+value of this attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_Id_* attribute is the identifier that distinguishes the external system. Use
+"Identifier" template (see <<cls-4.6.6>>).
+
+* The *_Source_* attribute specifies where the external system is located. The value of this
+attribute need not be specified. Use IdentifierString type.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* All preprocessors should provide unique class ids.
+
+The ExternalClassSystem should be used when the Class.id value is not commonly agreed by
+the AP242 specification or recommended practices.
+
+Classes commonly agreed by the AP242 specification do not need an identification context. This
+is why in this case, the use of IdentifierString for Class.Id is recommended where
+ClassString is not possible (i.e. for Identifier.IdRoleRef, see "Identifier" template
+<<cls-4.6.6>>).
+
+The entity allows specifying all the values supported by the preprocessor and among them,
+those referenced by the exchanged assembly structure.
+
+When the Classification.Role is used with the value 'make or buy', the following values shall
+be used for the attribute Id (according to value defined in 10303-41:
+product_definition_schema):
+
+* 'made': characterize a product is to be manufactured within an organization;
+
+* 'bought': characterize a product is to be purchased;
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities_*: There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<ExternalClassSystem uid="ecs--fdf">
+  <Id>
+    <Identifier uid="fdf--filedataformat-id1" id="file data format" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+</ExternalClassSystem>
+
+<Class uid="fdf--CGR">
+  <DefinedIn uidRef="ecs--fdf"/>
+  <Id id="CGR"/>
+</Class>
+
+<FormatProperty uid="ffp--CGR">
+...
+      <DataFormat>
+    <Class uidRef="fdf--CGR"/>
+  </DataFormat>
+</FormatProperty>
+----
+
+[[cls-4.6.5]]
+==== Template "Classification"
+
+This entity permits the attachment of a Class to one or more objects.
+
+The `Role` provides the meaning of the association.
+
+The `Class` attribute provides the classification information.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-5]]
+.Template "Classification"
+image::img21.png[]
+
+[[tab-7]]
+."Classification" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY Classification | Attribute Type
+
+| Class
+| ClassSelect
+
+| Role
+| OPTIONAL String
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[ClassificationRelationship]
+| span:gray[OPTIONAL SET[1:?\] of ClassificationRelationship]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendation_*
+
+* The *_Class_* attribute is the reference to the classification. Use ClassString if the
+value is recommended within this document (for example for Filecontent.GeometryTypes),
+otherwise use "Class" template (see <<cls-4.6.4>>).
+
+* The *_Role_* attribute is the text that defines the role of the association of the class to
+an object. The value of this attribute need not be specified. Use "Description" template (see
+<<cls-4.6.7>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* When applicable, the following values shall be used for the
+attribute Role:
+
+* 'customized type': The classification categorizes the classified element as being a
+customized subtype of it (see <<cls-14.2>>)
+
+* 'electromagnetic compatibility': The classification categorizes the classified element in
+respect of its ability to comply with requirements concerning electromagnetic interference
+
+* 'environmental conditions': The classification categorizes the classified element with
+respect to its ability to comply with environmental impact requirements
+
+* 'geometry type': The classification categorizes the GeometryTypes of a ContentPropertiy
+(see <<cls-10.2>>)
+
+* 'kind of properties': The classification categorizes the PropertyValueAssigment
+(see <<cls-6.2>>)
+
+* 'make or buy': The classification categorizes the classified element with respect to its
+provenance, the company made the element or purchased it (see <<cls-15.4>>)
+
+* 'specified reference': The classification categorizes the classified element as being an
+incomplete/unchanged object according to the nested files exchange recommendations
+of <<cls-9.3>>
+
+* 'VDA reference mechanism': The classification categorizes the classified element as
+being a incomplete/unchanged object according to the incremental data exchange
+recommendations of <<cls-9.4>>
+
+* 'alternative': The classification categorizes the classified element as being an alternative
+to a part usage/occurrence and shall not be considered cumulated to the original part
+usage/occurrence. See <<cls-7.5.2;and!cls-7.5.3>>.
+
+* 'delta change': The classification categorizes the classified element as being a
+incomplete object according to the delta exchange recommendations of <<cls-9.5>>
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities_*: There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Classification uid="-gtc--1">
+  <Class>
+    <ClassString>specified reference</ClassString>
+  </Class>
+  <Role>specified reference</Role>
+</Classification>
+----
+
+[[cls-4.6.6]]
+==== Template "Identifier"
+
+The identifier supports the ability to uniquely identify an object via a combination of three
+criteria: id, role and context.
+
+The `id` is very important providing unique identification to the related object.
+
+The `idRoleRef` attribute should refer a Class managing the role of the identification.
+
+The `idContextRef` attribute should be set and refer the organization managing the id (in case
+of a root object) or refer one of the identifiers of the root object (in case of an embedded
+object).
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-6]]
+.Template "Identifier"
+image::img22.png[]
+
+[[tab-8]]
+."Identifier" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY Identifier
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[IdentifierRelationship]
+| span:gray[OPTIONAL SET[1:?\] of IdentifierRelationship]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| Id
+| OPTIONAL String
+
+| idRoleRef
+| ClassSelect
+
+| idContextRef
+| OPTIONAL IdentificationContextSelect
+|===
+
+*_Attribute recommendations_*
+
+* The *_id_* attribute is the text that represents an identifying name or code. Use
+IdentifierString type.
+
+* The *_idRoleRef_* attribute is the text that defines the role of the identifier. The value
+of this attribute should be specified. Use "Class" template (see <<cls-4.6.4>>) and the
+following value:
+
+** 'identification information': the id identifies the object.
+
+** 'exchange identification information': the id identifies the object along the exchange
+process.
++
+--
+For each idContextRef value, one any only one of these two roles is mandatory:
+
+* idRoleRef 'identification information': for example with an internal uid for the object
+in the PDM system used at the company idContextRef.
+
+* idRoleRef 'exchange identification information': for example with a readable part
+number in the context of idContextRef
+
+If an object has multiple contexts, one and only one identifier should have the role
+'exchange identification information'
+--
+
+* The *_idContextRef_* attribute is the context within which the *Identifier* has been created
+and is unique. The value of this attribute should be specified. Use "Organization" template
+(see <<cls-4.6.2>>) for root objects or for embedded objects if they have a unique identifier
+independtly from the identifier of the root object, like ProductConfiguration.Id or
+Specification.Id (see <<step-242-CFG>>) or "Identifier" template (this section) for embedded
+objects like PartVersion.Id, DocumentVersion.Id, ... (see complex example in <<cls-5.1.6>>).
+
+* Other attributes than these are not covered by this document; their use is discouraged
+as it would depend on mutual agreements between data exchange partners.
+
+[NOTE,type=remark]
+====
+Since the EXPRESS attributes 'role' and 'identificationContext' have been mapped to XML
+attributes (and not XML elements) for a compact representation as this object is frequently
+used, it is not possible to distinguish between ClassString and a reference to a
+Class/ExternalClass/ExternalOwlClass, resp. between IdentifierString and a reference to an
+Identifier/Organization. This is why they have been renamed to idRoleRef and idContextRef and
+shall not be mapped to a String (the XSD checks that they contain an uid).
+====
+
+*_Preprocessor Recommendations:_* All preprocessors should ensure the uniqueness of the
+combination of id, idRoleRef and idContextRef. For a given context, only one id shall have the
+role 'identification information' or 'exchange identification information' (both roles shall
+not occur in parallel)
+
+To map [underline]#further# ids for the same context, dedicated roles shall be defined and
+agreed between the exchange partners. According to the "Class" Template (see <<cls-4.6.4>>),
+such dedicated roles shall be mapped as a Class with an ExternalClassSystem.
+
+In the case where the root object and its embedded objects have all the same context and only
+one role, embedded objects are already identified through their root object =>
+IdentifierString can be used alternatively to Identifier.
+
+If Identifier is used for an embedded object, its idContextRef shall reference one of the
+Identifiers of its root object, and the idRoleRef value ('identification information' or
+'exchange identification information') shall be the same in the embedded object and in its
+idContextRef.
+
+Examples:
+
+* PartVersion.Id.idContextRef shall be Part.Id.id
+* PartView.Id.idContextRef (if set) shall be PartVersion.Id.id
+* Occurrence.Id.idContextRef shall be PartView.Id.id or (if unset) PartVersion.Id.id.
+* DocumentVersion.Id.idContextRef shall be Document.Id.id
+* DocumentDefinition.Id.idContextRef (if set) shall be DocumentVersion.Id.id
+
+This recommendation does not apply necessarily to dedicated roles (for example the system
+internal object Id of PartVersion (idRoleRef='unique object identification information')
+could be defined having an Organization as ifContextRef).
+
+In the XML format, it is possible to duplicate the identification in the Id.id attribute and
+in the Identifier.id attribute. This usage is not recommended since it is not possible in the
+EXPRESS definition of the AP242 Domain Model. All preprocessors must avoid it. The Id.id
+shall only be used in special cases like Organization.Id
+
+This has been documented in the ISO Jira Task BS10303-3817.
+
+*_Postprocessor Recommendations:_* If a target system does not support multiple identifiers,
+at least the one having the role 'exchange identification information' shall be imported. If
+none of them have this role, the one having the context of the receiver organization should
+be chosen. This is especially important if the data exchange is bidirectional and the data
+loops between the partners.
+
+If an embedded object has less Identifier contexts that its root object, the missing
+Identifiers can be interpreted as '/NULL'.
+
+*_Related Entities_*: There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+This example shows the simple case where only one context is involved:
+
+[source%unnumbered,xml]
+----
+<Class uid="rl--ii">
+  <Id id="identification information"/>
+</Class>
+<Organization uid="o--000000178">
+  <Id id="mercedes-benz.com"/>
+  <Name>
+    <CharacterString>Mercedes-Benz</CharacterString>
+  </Name>
+  <OrganizationTypes>
+    <ClassString>company</ClassString>
+  </OrganizationTypes>
+</Organization>
+<Part uid="p--000000001E60C660">
+  <Id>
+    <Identifier uid="pid--000000001E60C660--id6" id="bolt" idRoleRef="rl--ii"idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E60C660">
+...
+      <Id id="A.1"/>
+...
+    </PartVersion>
+...
+  </Versions>
+...
+</Part>
+----
+
+_Comment: according to the XSD:_
+
+[source%unnumbered]
+----
+<xsd:complexType name="Id">
+    <xsd:sequence>
+      <xsd:element name="Identifier" type="Identifier" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:string" use="optional"/>
+  </xsd:complexType>
+  <xsd:complexType name="Identifier">
+    <xsd:complexContent>
+      <xsd:extension base="cmn:BaseObject">
+        <xsd:sequence>
+...
+        <xsd:attribute name="id" type="xsd:string" use="optional"/>
+...
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
+----
+
+_both elements id (as xsd:string in Identifier and in Id) can be set in parallel, while
+according to the EXPRESS schema only one is possible (see <<cls-A.1.9>>):_
+
+[source%unnumbered]
+----
+TYPE SingleIdentifierSelect = SELECT(
+  Identifier,
+  IdentifierString
+);
+END_TYPE;
+----
+
+[[cls-4.6.7]]
+==== Template "Description"
+
+If only one language is considered, the description shall be set with the
+`CharacterString` type. The applying language is implicitly the one defined in the
+ExchangeContext.
+
+If multiple languages are to be exchanged for one description, LocalizedStrings shall be
+defined a described in <<cls-A.1.10>>.
+
+If values for multiple identification contexts are to be exchanged for one description,
+Descriptors shall be defined.
+
+[NOTE,type=remark]
+====
+For a better readability, the instantiation figures included in the recommended
+practices only consider the simple case 'CharactString'.
+====
+
+*_Preprocessor Recommendation:_*
+
+* If LocalizedStrings are used (i.e. if multiple languages are supported), at least the
+default language defined in the ExchangeContext should be provided, while further languages
+may be provided or omitted for each Description.
+
+* If LocalizedStrings are used and there is no value set for the default language in the
+ExchangeContext, at least one common language shall occur in all Descriptions.
+
+*_Postprocessor Recommendations:_*
+
+* If a target system does not support multiple languages for some attributes of type
+Description, one language (one of the LocalizedStrings) has to be picked out (if provided,
+accordingly to the default language defined in the ExchangeContext, otherwise freely
+chosen among all available languages).
+
+[[cls-4.6.7.1]]
+===== ENTITY Descriptor
+
+If the same item can have several descriptions associated with it, depending on the
+identification context (for example Part is called 'part A' within the Organization O1 and is
+called 'part B' within the Organization O2), the use of Descriptor is recommended.
+
+[[fig-7]]
+.Template "Descriptor"
+image::img23.png[]
+
+[%discrete]
+====== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="ID_14">
+...
+  <Id>
+    <Identifier id="as1-MB" idRoleRef="ID_4" idContextRef="ID_22" uid="ID_23"/>
+    <Identifier id="as1-BO" idRoleRef="ID_3" idContextRef="ID_24" uid="ID_25"/>
+    <Identifier id="as1-TSI" idRoleRef="ID_3" idContextRef="ID_2" uid="ID_26"/>
+  </Id>
+  <Name>
+    <Descriptor uid="ds--1">
+      <DescriptionContext>
+        <Identifier uidRef="ID_23"/>
+      </DescriptionContext>
+      <Text>
+        <LocalizedString lang="de-DE">MB as1 deutsch</LocalizedString>
+        <LocalizedString lang="en-US">MB as1 english</LocalizedString>
+        <LocalizedString lang="fr-FR">MB as1 francais</LocalizedString>
+      </Text>
+    </Descriptor>
+    <Descriptor uid="ds--2">
+      <DescriptionContext>
+        <Identifier uidRef="ID_25"/>
+        <Identifier uidRef="ID_26"/>
+      </DescriptionContext>
+      <Text>
+        <LocalizedString lang="de-DE">as1 deutsch</LocalizedString>
+        <LocalizedString lang="en-US">as1 english</LocalizedString>
+        <LocalizedString lang="fr-FR">as1 francais</LocalizedString>
+      </Text>
+    </Descriptor>
+  </Name>
+...
+</Part>
+----
+
+[[tab-9]]
+."Descriptor" Attributes
+[cols="a,a",options=header]
+|===
+| Entity Descriptor
+| Attribute type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| DescriptionContext
+| OPTIONAL SET[1:?] OF IdentificationContextSelect
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| Text
+| MultiLingualStringSelect
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DatetimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DescriptorRelationship]
+| span:gray[OPTIONAL SET[1:?\] of DescriptorRelationship]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_DescriptionContext_*: the context(s) (specified by IdentificationContextSelect) to which
+the Descriptor applies. See idContextRef in "Identifier" template (<<cls-4.6.6>>).
+
+* *_Text_*: the string providing the textual content of the description (as CharacterString
+or as one/many LocalizedStrings a described in <<cls-A.1.10>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_*
+
+* If LocalizedStrings are used (i.e. if multiple languages are supported), at least the
+default language defined in the ExchangeContext should be provided, while further languages
+may be provided or omitted for each Description.
+
+* If LocalizedStrings are used and there is no value set for the default language in the
+ExchangeContext, at least one common language shall occur in all Descriptions.
+
+* The idContextRefs present in Descriptor shall be the same as the one present in the
+Identifier of the object that contains the Descriptor.
+
+* If the attribute of type Descriptor is mandatory (like Part.Name), a value shall be given
+for each idContextRef present in the Identifier of the object that contains the Descriptor.
+
+* Like for Identifiers used for embedded objects in <<cls-4.6.6>>, DescriptorContext shall
+reference one of the Identifiers of its root object.
+
+*_Postprocessor Recommendations:_*
+
+* If a target system does not support multiple languages for some attributes of type
+Description, one language (one of the LocalizedStrings) has to be picked out (if provided,
+accordingly to the default language defined in the ExchangeContext, otherwise freely
+chosen among all available languages).
+
+* If an object contains idContextRefs in a Descriptor and the object Identifier doesn't have
+such an idContextRef, the Descriptor shall be ignored or a warning shall be recorded by
+the application.
+
+[[cls-4.6.8]]
+==== Template "ViewContext"
+
+In the same way than in <<CAX-IF-PSUG,section=1.1.2.4>>, the
+`ViewContext` entity identifies a universe suitable for the description of parts.
+
+The `Description` provides further information about the type of view defined.
+
+The `ApplicationDomain` attribute contains the application domain information.
+
+The `LifeCycleStage` attribute contains the life cycle stage information.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-8]]
+.Template "ViewContext"
+image::img24.png[]
+
+[[tab-10]]
+."ViewContext" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY ViewContext
+| Attribute Type
+
+| ApplicationDomain
+| ApplicationDomainSelect
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| LifeCycleStage
+| LifeCycleStageSelect
+
+| span:gray[AnalysisAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AnalysisAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_Description_* attribute is the text by which the type is described. The value of this
+attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_ApplicationDomain_* attribute is the text representing the application domain. As
+defined in the ISO AP242 specification, use ProxyString if the value of this element is one or
+several of the following: +
+'assembly study', 'digital mock-up', 'electrical design', 'mechanical design', 'preliminary
+design', 'process planning', 'product delivery', 'product support' and 'not specific',
+otherwise use PredefinedApplicationDomainEnum as far as possible, otherwise use
+ApplicationDomain.
+
+* The *_LifeCycleStage_* attribute is the text representing the life cycle stage. As defined
+in the ISO AP242 specification, use ProxyString if the value of this element is one or
+several of the following: +
+'design', 'manufacturing planning', 'manufacturing realization',
+'documentation'/'certification', 'built'/'manufactured', 'delivery', 'support', 'recycling'
+and 'not specific'.
+
+* Other attributes than these are not covered by the Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* The Description attribute provides a distinction on the type of view on a part version
+('part definition') from one of a document version ('digital document definition', 'physical
+document definition'). This attribute may also indicate other types of definitions: e.g.,
+functional, or spatial and/or zonal.
+
+* Although some values already recommended for ViewContext are defined in
+PredefinedApplicationDomainEnum, for upward compatibility reasons, their mapping as
+ProxyString is recommended.For the recommended combinations of values for
+ApplicationDomain and LifeCycleStage, refer to the management of complex structure with
+different views (<<cls-15.1>>).
+
+* All preprocessors should ensure that the LifeCycleStage is unique over the
+Initial/AdditionalContexts of a PartView.
+
+*_Postprocessor Recommendations:_*
+
+* Postprocessors should interpret the value of the description attribute as a type distinction
+between various definitions of parts and documents. The LifeCycleStage attribute value
+may be interpreted as the relevant viewpoint from which the data is valid.
+
+* For upward compatibility reasons: PredefinedApplicationDomainEnum should be also supported.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<ViewContext uid="vc--000000781">
+  <ApplicationDomain>
+    <ProxyString>mechanical design</ProxyString>
+  </ApplicationDomain>
+  <LifeCycleStage>
+    <ProxyString>design</ProxyString>
+  </LifeCycleStage>
+</ViewContext>
+----
+
+[[cls-4.6.9]]
+==== Template "NumericalValue"
+
+The `NumericalValue` is a subtype of `ValueWithUnit` representing a textual definition and a
+numerical value associated to a `Unit` type.
+
+A `ValueLimit` is a subtype of `NumericalValue` with a qualified numerical value representing
+either the lower limit or the upper limit of a specific physical characteristic.
+
+[example]
+'30.5 max' and '5 min' are examples for a ValueLimit.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-9]]
+.Template "NumericalValue"
+image::img25.png[]
+
+[[tab-11]]
+."NumericalValue" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY NumericalValue
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definition
+| OPTIONAL PropertyDefinitionSelect
+
+| DeterminationMethod
+| OPTIONAL ClassSelect
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Qualifiers
+| OPTIONAL ValueQualifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[SignificantDigits]
+| span:gray[Optional Integer]
+
+| Unit
+| UnitSelect
+
+| ValueComponent
+| Double
+
+| span:gray[ValueContext]
+| span:gray[OPTIONAL NumericalContext]
+
+| span:gray[(only for ValueLimit) Qualifier]
+| span:gray[TypeQualifierSelect]
+|===
+
+*_Attribute recommendations_*
+
+* The *_Definition_* attribute is the description of the property. In the case of system
+property, PDM property, User Defined attributes (see <<cls-12>>) or validation properties
+(see <<cls-13>>), use "PropertyDefinition" template (see <<cls-12.2>>), otherwise (for
+example FileSize or Quantity) use PropertyDefinitionString type.
+
+* The *_DeterminationMethod_* attribute informs on how the property value shall be
+interpreted. The value of this attribute need not be specified. Use ClassString if one of the
+values below is used, otherwise use "Class" template (see <<cls-4.6.4>>).
+
+When applicable, the following values shall be used for the attribute Role:
+
+[%unnumbered,options=header,cols="a,a"]
+|===
+| Determination-Method
+| Explanation
+
+| 'calculated'
+| The value has been calculated
+
+| 'designed'
+| The value represents a value intended by the design
+
+| 'estimated'
+| The value has been estimated
+
+| 'measured'
+| The value has been measured
+
+| 'required'
+| The value represents a requirement
+
+| 'set point'
+| The value is used as the initialization value
+|===
+
+* The *_Name_* attribute is the text by which the property is known. The value of this
+attribute shall be specified except in special cases like NextAssemblyViewUsage.Quantity and
+DigitalFile.FileSize (here the Name shall be set the attribute name ('quantity' or
+'filesize') or unset). Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_Qualifiers_* attribute allows for the designation of the data type
+ValueFormatTypeQualifier (see <<cls-4.6.21>>). The value of this attribute need not be
+specified.
+
+* The *_Unit_* attribute is the Unit of the expressed value. Use "Unit" template
+(see <<cls-4.6.3>>).
+
+* The *_ValueComponent_* attribute is the Double representing the quantity.
+
+* The *_Qualifier_* attribute specifies the kind of the limit (via
+PredefinedTypeQualifier.Name).
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyValue,Definition becomes optional with Ed2, for upward compatibility
+reasons, it is still recommended to set it as if it was mandatory.
+
+* Although some PropertyValue.Definition values are now defined defined in
+PropertyDefinitionEnum, for upward compatibility reasons, their mapping as PropertyDefinition
+is recommended.
+
+*_Postprocessor Recommendations:_*
+
+* For upward compatibility reasons: PropertyDefinitionString and PropertyDefinitionEnum
+should be also supported.
+
+* In case of PropertyDefinitionString, it is assumed that the value corresponds to
+PropertyDefinition.PropertyType while PropertyDefinition.Id is 'general property'.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--000000003">
+  <Kind>
+    <ClassString>unspecified</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>byte</ClassString>
+  </Name>
+  <Prefix>
+    <ClassString>kilo</ClassString>
+  </Prefix>
+  <Quantity>
+    <ClassString>data size</ClassString>
+  </Quantity>
+</Unit>
+<File xsi:type="n1:DigitalFile" uid="df--0000000088">
+  <FileSize uid="fsp--1">
+    <FileSize xsi:type="n0:NumericalValue">
+      <Definition>
+        <PropertyDefinitionString>file size property</PropertyDefinitionString>
+      </Definition>
+      <Name>
+        <CharacterString>file size</CharacterString>
+      </Name>
+      <Unit uidRef="u--000000003"></Unit>
+      <ValueComponent>46</ValueComponent>
+    </FileSize>
+  </FileSize>
+</File>
+----
+
+Example of ValueLimit:
+
+[source%unnumbered,xml]
+----
+<PreDefinedTypeQualifier uid="ptq--1">
+  <Name>
+    <ClassString>max</ClassString>
+  </Name>
+</PreDefinedTypeQualifier>
+...
+<Part uid="ID_14">
+...
+  <Versions>
+    <PartVersion uid="ID_27">
+...
+      <Views>
+        <PartView xsi:type="ns2:AssemblyDefinition" uid="ID_31">
+...
+          <PropertyValueAssignment uid="ID_52">
+            </AssignedPropertyValues>
+              <PropertyValue xsi:type="ns2:ValueLimit" uid="ID_59">
+                <Definition>
+                  <PropertyDefinition uidRef="ID_60"/>
+                </Definition>
+                <Name>
+                  <CharacterString>PDMIFPart_Real</CharacterString>
+                </Name>
+                <Unit uidRef="ID_61"/>
+                <ValueComponent>5.678</ValueComponent>
+                <Qualifier uidRef="ptq--1"/>
+              </PropertyValue>
+            </AssignedPropertyValues>
+...
+          </PropertyValueAssignment>
+...
+        </PartView>
+      </Views>
+...
+    </PartVersion>
+  </Versions>
+...
+</Part>
+----
+
+[[cls-4.6.10]]
+==== Template "StringValue"
+
+The `StringValue` is a subtype of `PropertyValue` representing a textual definition and a
+text value.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-10]]
+.Template "StringValue"
+image::img26.png[]
+
+[[tab-12]]
+."StringValue" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY StringValue
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definition
+| OPTIONAL PropertyDefinitionSelect
+
+| span:gray[DeterminationMethod]
+| span:gray[OPTIONAL ClassSelect]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Qualifiers
+| OPTIONAL ValueQualifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| ValueComponent
+| MultiLingualStringSelect
+|===
+
+*_Attribute recommendations_*
+
+* The *_Definition_* attribute is the definition of the property. In the case of e of system
+property, PDM property, User Defined attributes (see <<cls-12>>) or validation properties
+(see <<cls-13>>), use "PropertyDefinition" template (see <<cls-12.2>>) .
+
+* The *_Name_* attribute is the text by which the property is known. The value of this
+attribute shall be specified. Use of "Description" template (see <<cls-4.6.7>>).
+
+* The *_Qualifiers_* attribute allows for the designation of the data type
+ValueFormatTypeQualifier (see <<cls-4.6.21>>). The value of this attribute need not be
+specified.
+
+* The *_ValueComponent_* attribute is the text representing the value. Use of "Description"
+template (see <<cls-4.6.7>>).
+
+* Other attributes than these are not covered by the Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyValue,Definition becomes optional with Ed2, for upward compatibility
+reasons, it is still recommended to set it as if it was mandatory.
+
+* Although some PropertyValue.Definition values are now defined defined in
+PropertyDefinitionEnum, for upward compatibility reasons, their mapping as PropertyDefinition
+is recommended.
+
+*_Postprocessor Recommendations:_*
+
+* For upward compatibility reasons: PropertyDefinitionString and PropertyDefinitionEnum
+should be also supported.
+
+* In case of PropertyDefinitionString, it is assumed that the value corresponds to
+PropertyDefinition.PropertyType while PropertyDefinition.Id is 'general property'.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+...
+  <PartView uid="pvv--000000453">
+    ...
+    <PropertyValue uid="pv--000000455" xsi:type="n0:StringValue">
+      <Definition>
+        <PropertyDefinition uidRef="pd--000000320"/>
+      </Definition>
+      <Name>
+        <CharacterString>provenance</CharacterString>
+      </Name>
+      <ValueComponent>
+        <CharacterString>CAx-IF</CharacterString>
+      </ValueComponent>
+    </PropertyValue>
+  ...
+  </PartView>
+
+<PropertyDefinition uid="pd--000000320">
+  <Id id="quality property"/>
+  <PropertyType>
+    <ClassString>PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+----
+
+[[cls-4.6.11]]
+==== Template "ValueRange"
+
+The `ValueRange` is a subtype of `ValueWithUnit` with a pair of numerical values (sharing the
+same Unit) representing the range in which the value shall lie.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-11]]
+.Template "ValueRange"
+image::img27.png[]
+
+[[tab-13]]
+."ValueRange" Attributes
+[options=header,cols="a,a"]
+|===
+| ENTITY ValueRange
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definition
+| OPTIONAL PropertyDefinitionSelect
+
+| span:gray[DeterminationMethod]
+| span:gray[OPTIONAL ClassSelect]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Qualifiers
+| OPTIONAL ValueQualifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[SignificantDigits]
+| span:gray[Optional Integer]
+
+| Unit
+| UnitSelect
+
+| LowerLimit
+| Double
+
+| UpperLimit
+| Double
+|===
+
+*_Attribute recommendations_*
+
+* The *_Definition_* attribute is the description of the property. In the case of system
+property, PDM property, User Defined attributes (see <<cls-12>>) or validation properties (see
+<<cls-13>>), use "PropertyDefinition" template (see <<cls-12.2>>).
+
+* The *_Name_* attribute is the text by which the property is known. The value of this
+attribute shall be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_Qualifiers_* attribute allows for the designation of the data type
+ValueFormatTypeQualifier (see <<cls-4.6.21>>). The value of this attribute need not be
+specified.
+
+* The *_Unit_* attribute is the Unit of the expressed value. Use "Unit" template
+(see <<cls-4.6.3>>).
+
+* The *_LowerLimit_* attribute specifies the minimum acceptable value that is constrained by
+the ValueRange.
+
+* The *_UpperLimit_* attribute specifies the maximum acceptable value that is constrained by
+the ValueRange.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyValue,Definition becomes optional with Ed2, for upward compatibility
+reasons, it is still recommended to set it as if it was mandatory.
+
+* Although some PropertyValue.Definition values are now defined defined in
+PropertyDefinitionEnum, for upward compatibility reasons, their mapping as PropertyDefinition
+is recommended.
+
+*_Postprocessor Recommendations:_*
+
+* For upward compatibility reasons: PropertyDefinitionString and PropertyDefinitionEnum
+should be also supported.
+
+* In case of PropertyDefinitionString, it is assumed that the value corresponds to
+PropertyDefinition.PropertyType while PropertyDefinition.Id is 'general property'.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Unit uid="ID_161">
+  <Kind>
+    <ClassString>unspecified SI derived unit</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>litre</ClassString>
+  </Name>
+  <Prefix>
+    <ClassString>centi</ClassString>
+  </Prefix>
+  <Quantity>
+    <ClassString>volume</ClassString>
+  </Quantity>
+</Unit>
+<PropertyDefinition uid="ID_57">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyValue uid="ID_162" xsi:type="n0:ValueRange">
+  <Definition>
+    <PropertyDefinition uidRef="ID_57"/>
+  </Definition>
+  <Name>
+    <CharacterString>PDMIFPartVers_Range</CharacterString>
+  </Name>
+  <Unit uidRef="ID_161"/>
+  <LowerLimit>6.789000000000000E+00</LowerLimit>
+  <UpperLimit>7.890000000000000E+00</UpperLimit>
+</PropertyValue>
+----
+
+[[cls-4.6.12]]
+==== Template "ValueWithTolerances"
+
+The `ValueWithTolerances` is a subtype of `ValueWithUnit` that specifies a range of values
+by specifying a single nominal value and two tolerances that are offsets from the single
+value. The range is defined to be the closed interval [tolerancedValue + lowerLimit,
+tolerancedValue + upperLimit].
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-12]]
+.Template "ValueWithTolerances"
+image::img28.png[]
+
+[[tab-14]]
+."ValueWithTolerances" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY ValueWithTolerances
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definition
+| OPTIONAL PropertyDefinitionSelect
+
+| span:gray[DeterminationMethod]
+| span:gray[OPTIONAL ClassSelect]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Qualifiers
+| OPTIONAL ValueQualifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[SignificantDigits]
+| span:gray[Optional Integer]
+
+| Unit
+| UnitSelect
+
+| LowerLimit
+| Double
+
+| TolerancedValue
+| Double
+
+| UpperLimit
+| Double
+|===
+
+*_Attribute recommendations_*
+
+* The *_Definition_* attribute is the description of the property. In the case of system
+property, PDM property, User Defined attributes (see <<cls-12>>) or validation properties (see
+<<cls-13>>), use "PropertyDefinition" template (see <<cls-12.2>>).
+
+* The *_Name_* attribute is the text by which the property is known. The value of this
+attribute shall be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_Qualifiers_* attribute allows for the designation of the data type
+ValueFormatTypeQualifier (see <<cls-4.6.21>>). The value of this attribute need not be
+specified.
+
+* The *_Unit_* attribute is the Unit of the expressed value. Use "Unit" template
+(see <<cls-4.6.3>>).
+
+* The *_LowerLimit_* attribute specifies the value used to build the minimum acceptable value
+as [tolerancedValue + lowerLimit].
+
+* The *_UpperLimit_* attribute specifies the value used to build the minimum acceptable value
+as [tolerancedValue + upperLimit].
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyValue,Definition becomes optional with Ed2, for upward compatibility
+reasons, it is still recommended to set it as if it was mandatory.
+
+* Although some PropertyValue.Definition values are now defined defined in
+PropertyDefinitionEnum, for upward compatibility reasons, their mapping as PropertyDefinition
+is recommended.
+
+*_Postprocessor Recommendations:_*
+
+* For upward compatibility reasons: PropertyDefinitionString and PropertyDefinitionEnum
+should be also supported.
+
+* In case of PropertyDefinitionString, it is assumed that the value corresponds to
+PropertyDefinition.PropertyType while PropertyDefinition.Id is 'general property'.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Unit uid="U__1">
+  <Kind>
+    <ClassString>SI system</ClassString>
+  </Kind>
+  <Name>
+    <ClassString>metre</ClassString>
+  </Name>
+  <Prefix>
+    <ClassString>milli</ClassString>
+  </Prefix>
+  <Quantity>
+    <ClassString>length</ClassString>
+  </Quantity>
+ /Unit>
+<PropertyDefinition uid="ID_57">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyValue uid="ID_159_3" xsi:type="n0:ValueWithTolerances">
+  <Definition>
+    <PropertyDefinition uidRef="ID_57"/>
+  </Definition>
+  <Name>
+    <CharacterString>PDMIFPvr_Tol</CharacterString>
+  </Name>
+  <Unit uidRef="U__1"/>
+  <LowerLimit>-3.000000000000000E-03</LowerLimit>
+  <TolerancedValue>8.901000000000000E+00</TolerancedValue>
+  <UpperLimit>4.000000000000000E-03</UpperLimit>
+</PropertyValue>
+----
+
+[[cls-4.6.13]]
+==== Template "LimitsAndFits"
+
+In the future PMI area of Edition 4, `LimitsAndFits`
+is a tolerance specified by reference to the
+limits-and-fits system standardized by ISO 286. The application of
+`LimitsAndFits` shall conform to the requirements of ISO 286.
+Limits and fits is a system for assigning tolerances
+associated with the assembly of mating product features.
+
+[example]
+A hole and a shaft that are intended to mate in an assembly.
+
+In limits-and-fits system, a tolerance is assigned to a feature of size by classification
+rather than by giving an explicit value. A tolerance classification is composed of a
+fundamental deviation or "position letter" and a tolerance grade. These are used to calculate
+the size of the tolerance zone and its location relative to the basic or nominal size of the
+feature according to the tables and formulas found in ISO 286.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-13]]
+.Template "LimitsAndFits"
+image::img29.png[]
+
+[[tab-15]]
+."LimitsAndFits" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY LimitsAndFits
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definition
+| OPTIONAL PropertyDefinitionSelect
+
+| span:gray[DeterminationMethod]
+| span:gray[OPTIONAL ClassSelect]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Qualifiers
+| OPTIONAL ValueQualifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[SignificantDigits]
+| span:gray[Optional Integer]
+
+| Unit
+| UnitSelect
+
+| Deviation
+| String
+
+| FittingType
+| OPTIONAL String
+
+| Grade
+| String
+
+| LimitedValue
+| Double
+|===
+
+*_Attribute recommendations_*
+
+* The *_Definition_* attribute is the description of the property. In the case of system
+property, PDM property, User Defined attributes (see <<cls-12>>) or validation properties
+(see <<cls-13>>), use "PropertyDefinition" template (see <<cls-12.2>>).
+
+* The *_Name_* attribute is the text by which the property is known. The value of this
+attribute shall be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_Qualifiers_* attribute allows for the designation of the data type
+ValueFormatTypeQualifier (see <<cls-4.6.21>>). The value of this attribute need not be
+specified.
+
+* The *_Unit_* attribute is the Unit of the expressed value. Use "Unit" template
+(see <<cls-4.6.3>>).
+
+* *_Deviation_*: a representation of the fundamental deviation or "position letter" of the
+ISO 286 limits-and-fits tolerance classification. Only symbols defined in ISO 286 shall be
+provided.
++
+--
+NOTE: The symbols 'A' to 'ZC' for holes or 'a' to 'zc' for shafts may be used to classify
+deviation.
+--
+
+* *_FittingType_*: the kind of fitting to which the tolerance applies. The value of this
+attribute need not be specified. Normally the tolerance applies to an external or internal
+feature of the workpiece. Where applicable the following values shall be used:
++
+--
+[%unnumbered,options=header]
+|===
+| FittingType |
+
+| 'hole'
+| the tolerance applies to an internal feature of the workpiece
+
+| 'shaft'
+| the tolerance applies to an external feature of the workpiece
+|===
+
+NOTE: Whether the tolerance applies to an interior or exterior feature can be determined
+from the position letter of the fundamental deviation, therefore fitting_type need not be
+specified.
+--
+
+* *_Grade_*: a representation of the quality or the accuracy grade of a tolerance. Only
+symbols defined in ISO 286 shall be provided.
++
+--
+NOTE: The grade is one of the 18 international standard tolerance grades defined in ISO 286.
+
+[example]
+'IT07' is a standard tolerance grade.
+--
+
+* *_LimitedValue_*: the value that is limited.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* ...
+
+*_Postprocessor Recommendations:_*
+
+* ...
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+...
+
+[[cls-4.6.14]]
+==== Template "ValueList"
+
+The `ValueList` is a subtype of `PropertyValue` with an
+[underline]#ordered collection# of PropertyValue objects.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-14]]
+.Template "ValueList"
+image::img30.png[]
+
+[[tab-16]]
+."ValueList" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY ValueList
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definition
+| OPTIONAL PropertyDefinitionSelect
+
+| span:gray[DeterminationMethod]
+| span:gray[OPTIONAL ClassSelect]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Qualifiers
+| OPTIONAL ValueQualifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| Values
+| LIST[1:?] OF PropertyValue
+|===
+
+*_Attribute recommendations_*
+
+* The *_Definition_* attribute is the description of the property. Use "PropertyDefinition"
+template (see <<cls-12.2>>).
+
+* The *_Name_* attribute is the text by which the property is known. The value of this
+attribute shall be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_Qualifiers_* attribute allows for the designation of the data type
+ValueFormatTypeQualifier (see <<cls-4.6.21>>). The value of this attribute need not be
+specified.
+
+* The *_Values_* attribute specifies the ordered collection of PropertyValue objects that
+together are provided as a PropertyValue. Use one of "StringValue" template (see
+<<cls-4.6.10>>), "NumericalValue" template (see <<cls-4.6.9>>). The use of ValueList for
+element having further types (ValueList, ValueSet, ValueRange, ValueWithTolerances) is not
+recommended, since probably not supported by the target system.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyValue,Definition becomes optional with Ed2, for upward compatibility
+reasons, it is still recommended to set it as if it was mandatory.
+
+* Although some PropertyValue.Definition values are now defined defined in
+PropertyDefinitionEnum, for upward compatibility reasons, their mapping as PropertyDefinition
+is recommended.
+
+* It is recommended that all the value elements of a ValueList have the same type
+(StringValue or NumericalValue), the same PropertyDefinition (can be omitted), the
+same Name (can be omitted) and the same Unit (in case of NumericalValue).
+
+* If the list of values is not an [underline]#ordered collection, rather use ValueSet
+(see <<cls-4.6.15>>)#.
+
+*_Postprocessor Recommendations:_*
+
+* For upward compatibility reasons: PropertyDefinitionString and PropertyDefinitionEnum
+should be also supported.
+
+* In case of PropertyDefinitionString, it is assumed that the value corresponds to
+PropertyDefinition.PropertyType while PropertyDefinition.Id is 'general property'.
+
+* If ValueList is not supported by the target system, either concatenate the values to a
+large string or map each value to a distinct attribute.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<PropertyDefinition uid="ID_57">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyValue uid="ID_170_3" xsi:type="n0:ValueList">
+  <Definition>
+    <PropertyDefinition uidRef="ID_57"/>
+  </Definition>
+  <Name>
+    <CharacterString>PDMIFPvr_ValueList</CharacterString>
+  </Name>
+  <Values>
+    <PropertyValue xsi:type="n0:StringValue" uid="ID_170_3_1">
+      <ValueComponent>
+        <CharacterString>PDMIFPvr_ValueList#1</CharacterString>
+      </ValueComponent>
+    </PropertyValue>
+    <PropertyValue xsi:type="n0:StringValue" uid="ID_170_3_2">
+      <ValueComponent>
+        <CharacterString>PDMIFPvr_ValueList#2</CharacterString>
+      </ValueComponent>
+    </PropertyValue>
+    <PropertyValue xsi:type="n0:StringValue" uid="ID_170_3_3">
+      <ValueComponent>
+        <CharacterString>PDMIFPvr_ValueList#3</CharacterString>
+      </ValueComponent>
+    </PropertyValue>
+  </Values>
+</PropertyValue>
+----
+
+[[cls-4.6.15]]
+==== Template "ValueSet"
+
+The `ValueSet` is a subtype of `PropertyValue` with an
+[underline]#unordered collection# of PropertyValue objects.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-15]]
+.Template "ValueSet"
+image::img31.png[]
+
+[[tab-17]]
+."ValueSet" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY ValueSet
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Definition
+| OPTIONAL PropertyDefinitionSelect
+
+| span:gray[DeterminationMethod]
+| span:gray[OPTIONAL ClassSelect]
+
+| Name
+| OPTIONAL DescriptorSelect
+
+| Qualifiers
+| OPTIONAL ValueQualifierSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[ProjectAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ProjectAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| Values
+| SET[1:?\] OF PropertyValue
+|===
+
+*_Attribute recommendations_*
+
+* The *_Definition_* attribute is the description of the property. Use "PropertyDefinition"
+template (see <<cls-12.2>>).
+
+* The *_Name_* attribute is the text by which the property is known. The value of this
+attribute shall be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* The *_Qualifiers_* attribute allows for the designation of the data type
+ValueFormatTypeQualifier (see <<cls-4.6.21>>). The value of this attribute need not be
+specified.
+
+* The *_Values_* attribute specifies the ordered collection of PropertyValue objects that
+together are provided as a PropertyValue. Use one of "StringValue" template (see
+<<cls-4.6.10>>), "NumericalValue" template (see <<cls-4.6.9>>). The use of ValueSet for
+elements having further types (ValueList, ValueSet, ValueRange, ValueWithTolerances) is not
+recommended, since probably not supported by the target system.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+* Even if PropertyValue,Definition becomes optional with Ed2, for upward compatibility
+reasons, it is still recommended to set it as if it was mandatory.
+
+* Although some PropertyValue.Definition values are now defined defined in
+PropertyDefinitionEnum, for upward compatibility reasons, their mapping as PropertyDefinition
+is recommended.
+
+* It is recommended that all the value elements of a ValueSet have the same type
+(StringValue or NumericalValue), the same PropertyDefinition (can be omitted), the
+same Name (can be omitted) and the same Unit (in case of NumericalValue).
+
+* If the set of values is an [underline]#ordered collection, rather use ValueList
+(see <<cls-4.6.13>>)#.
+
+* [underline]#If the values are not unique within the ValueSet, some EXPRESS-based
+preprocessor might purge duplicate values, since a SET may not contain duplicates. In this
+case, rather use ValueList (see <<cls-4.6.13>>) even if the ordering in not relevant.#
+
+*_Postprocessor Recommendations:_*
+
+* For upward compatibility reasons: PropertyDefinitionString and PropertyDefinitionEnum
+should be also supported.
+
+* In case of PropertyDefinitionString, it is assumed that the value corresponds to
+PropertyDefinition.PropertyType while PropertyDefinition.Id is 'general property'.
+
+* If ValueSet is not supported by the target system, either concatenate the values to a
+large string or map each value to a distinct attribute.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<PropertyDefinition uid="ID_57">
+  <Id id="general property"/>
+  <PropertyType>
+    <ClassString>customized PDM property</ClassString>
+  </PropertyType>
+</PropertyDefinition>
+<PropertyValue uid="ID_170_3" xsi:type="n0:ValueSet">
+  <Definition>
+    <PropertyDefinition uidRef="ID_57"/>
+  </Definition>
+  <Name>
+    <CharacterString>PDMIFPvr_ValueSet</CharacterString>
+  </Name>
+  <Values>
+    <PropertyValue xsi:type="n0:StringValue" uid="ID_170_3_1">
+      <ValueComponent>
+        <CharacterString>PDMIFPvr_ValueSet#1</CharacterString>
+      </ValueComponent>
+    </PropertyValue>
+    <PropertyValue xsi:type="n0:StringValue" uid="ID_170_3_2">
+      <ValueComponent>
+         <CharacterString>PDMIFPvr_ValueSet#2</CharacterString>
+      </ValueComponent>
+    </PropertyValue>
+    <PropertyValue xsi:type="n0:StringValue" uid="ID_170_3_3">
+      <ValueComponent>
+        <CharacterString>PDMIFPvr_ValueSet#3</CharacterString>
+      </ValueComponent>
+    </PropertyValue>
+  </Values>
+</PropertyValue>
+----
+
+[[cls-4.6.16]]
+==== Template "DateTime"
+
+The entity `DateTimeAssignment` permits the attachment of a
+`DateTimeString` to one or more objects.
+
+The `Role` provides the meaning of the assignment.
+
+The `AssignedDate` attribute provides date and time information.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-16]]
+.Template "DateTime"
+image::img32.png[]
+
+[[tab-18]]
+."DateTime" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY DateTimeAssignment
+| Attribute Type
+
+| AssignedDate
+| Xsd:dateTime
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| Role
+| ClassSelect
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[AssignmentObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of AssignmentObjectRelationship]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_Role_* attribute is the text that defines the meaning of the association of the date
+and time to an object. Use ClassString if one of the values below is used, otherwise use
+"Class" template (see <<cls-4.6.4>>).
+
+* The *_AssignedDate_* attribute is the text representing the date and time information. Use
+DateTimeString type.
+
+* Other attributes than these are not covered by the Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_*
+
+The representation of DateTimeString shall respect ISO 8601 (YYYY-MM-DDThh:mm:ss[.mmm][TZD]).
+In the Domain Model definition of DateTimeString type it is mandatory to represent the date,
+whereas the time is optional, but with the xsd:dateTime type both date and time are
+mandatory. The hour component shall be expressed out of 24 hours. If no time is available, it
+is recommended to set it with the following default value:
+
+YYYY-MM-DDT00:00:00.
+
+*_Postprocessor Recommendations:_*
+
+If no time is given, then assume 00:00:00. Except in case of customized PDM properties (see
+<<cls-14.3>>), when applicable, the following values shall be used for the attribute Role:
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| Role | Explanation
+
+| 'classification date'
+| the specified object is classified at the given date and time
+
+| 'creation'
+| the referenced object was created at the given date and time
+
+| 'installation'
+| the referenced object was mounted in a product at the given date and time
+
+| 'lock'
+| the specified object is locked in the underlying legacy system since the given date and time
+
+| 'production'
+| the referenced object was produced at the given date and time
+
+| 'registration'
+| the referenced object was determined at the given date and time
+
+| 'update'
+| the referenced object was altered at the given date and time
+|===
+
+*_Postprocessor Recommendations:_* Postprocessors should interpret the value of the
+AssignedDate attribute according to ISO 8601
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+...
+  <DateTimeAssignment uid="dta--0000000017D374A0--id1">
+    <AssignedDate>2014-10-16T09:08:07</AssignedDate>
+    <Role>
+      <ClassString>creation</ClassString>
+    </Role>
+  </DateTimeAssignment>
+...
+----
+
+[[cls-4.6.17]]
+==== Template "Approval"
+
+The entity `ApprovalAssignment` allows the attachment of an
+`Approval` to one or more objects.
+
+The entity `Approval` represents a statement made by technical personnel or
+management personnel whether certain requirements are met.
+
+The `Description` provides further information about the approval.
+
+The `Status` attribute provides a user interpretable designation of the level of acceptance.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-17]]
+.Template "Approval"
+image::img33.png[]
+
+[[tab-19]]
+."ApprovalAssignment" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY ApprovalAssignment
+| Attribute Type
+
+| AssignedApproval
+| Approval
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| Role
+| OPTIONAL ClassSelect
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[AssignmentObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of AssignmentObjectRelationship]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_AssignedApproval_* attribute is the reference to the Approval entity.
+
+* *Role:* the meaning of the assignment. The value of this attribute need not be specified. In
+case of customized PDM properties (see
+<<cls-14.3>>), use ClassString, otherwise use
+"Class" template (see <<cls-4.6.4>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[tab-20]]
+."Approval" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY Approval
+| Attribute Type
+
+| span:gray[ApprovalScope]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalScopeSelect]
+
+| span:gray[ApprovedBy]
+| span:gray[OPTIONAL SET[1:?\] of ApprovingPersonOrganization]
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| Status
+| ClassSelect
+
+| span:gray[ValidDate]
+| span:gray[Xsd:dateTime]
+
+| span:gray[ApprovalRelationship]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalRelationship]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_Status_* attribute is the text representing a user interpretable designation of the
+level of acceptance. Use ClassString if one of the values below is used, otherwise use "Class"
+template (see <<cls-4.6.4>>).
+
+* The *_Description_* attribute is the text by which the approval is described. The value of
+this attribute need not be specified. Use "Description" template (see <<cls-4.6.7>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* When applicable, the following values shall be used for the
+attribute Status:
+
+* 'in progress'
+* 'approved'
+* 'approved with comments'
+* 'not approved'.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+...
+  <ApprovalAssignment uid="appas--0000000017D374A0--id1">
+    <AssignedApproval uidRef="app--inprogress"/>
+  </ApprovalAssignment>
+...
+<Approval uid="app--inprogress">
+  <Description>
+    <CharacterString>disposition</CharacterString>
+  </Description>
+  <Status>
+    <ClassString>in progress</ClassString>
+  </Status>
+</Approval>
+----
+
+[[cls-4.6.18]]
+==== Template "Person"
+
+The entity `Person` represents an individual human being.
+
+The `Id` attribute provides a unique identification of the person.
+
+The `FirstName` attribute provides the first name of the person.
+
+The `LastName` attribute provides the last name of the person.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-18]]
+.Template "Person"
+image::img34.png[]
+
+[[tab-21]]
+."Person" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY Person
+| Attribute Type
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| FirstName
+| OPTIONAL String
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| LastName
+| String
+
+| span:gray[MiddleNames]
+| span:gray[OPTIONAL LIST[1:?\] of String]
+
+| span:gray[PrefixTitles]
+| span:gray[OPTIONAL LIST[1:?\] of String]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| span:gray[SuffixTitles]
+| span:gray[OPTIONAL LIST[1:?\] of String]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_FirstName_* attribute is the text by which the human being is known. The value of this
+attribute need not be specified. Use String type.
+
+* The *_Id_* attribute is the identifier that distinguishes the person. The value of this
+attribute need not be specified. Use "Identifier" template (see <<cls-4.6.6>>).
+
+* The *_LastName_* attribute is the text by which the human being is known. Use String type.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* None specified.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Person uid="pers--Mustermann">
+  <FirstName>Max</FirstName>
+  <Id>
+    <Identifier uid="pers--Mustermann--1" id="4711" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+  <LastName>Mustermann</LastName>
+</Person>
+----
+
+[[cls-4.6.19]]
+==== Template "PersonInOrganization"
+
+The entity `OrganizationOrPersonInOrganizationAssignment` allows the attachment of
+a `PersonInOrganization` to one or more objects.
+
+The `Role` attribute specifies the responsibility of the assigned person.
+
+The entity `PersonInOrganization` represents the membership of a person in an
+organization with a specific role.
+
+The `AssociatedPerson` is a reference to the person.
+
+The `AssociatedOrganization` is a reference to the organization.
+
+The `Id` provides a unique identification to the PersonInOrganization.
+
+The `PersonRole` attribute specifies the role of the person inside the organization.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-19]]
+.Template "PersonInOrganization"
+image::img35.png[]
+
+[[tab-22]]
+."OrganizationOrPersonInOrganizationAssignment" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY OrganizationOrPersonInOrganizationAssignment
+| Attribute Type
+
+| AssignedPersonOrOrganization
+| OrganizationOrPersonInOrganizationSelect
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| span:gray[Id]
+| span:gray[OPTIONAL IdentifierSelect]
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| Role
+| ClassSelect
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[AssignmentObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of AssignmentObjectRelationship]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_AssignedPersonOrOrganization_* attribute defines the person inside an organization
+with a reference to the PersonInOrganization entity or an organization with a reference to the
+Organization entity.
+
+* The *_Role_* attribute is the text describing the responsibility of the person. Use
+ClassString if one of the values below is used, otherwise use "Class" template
+(see <<cls-4.6.4>>).
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendations:_* Except in case of customized PDM properties (see
+<<cls-14.3>>), when applicable, the following values shall be used for the attribute Role:
+
+[[tab-23]]
+.Recommended Values of "OrganizationOrPersonInOrganizationAssignment.role"
+[cols="a,a",options=header]
+|===
+| Role | Explanation
+
+| 'assignee'
+| The assigned person or organization to complete, review, comment or update the referenced object
+
+| 'author'
+| The author holds the copyright
+
+| 'classification officer'
+| The assigned person or organization is formally responsible for the classification of the referenced object
+
+| 'creator'
+| The referenced object has been created by the assigned person or organization
+
+| 'custodian'
+| The assigned person or organization is responsible for the existence and integrity of the referenced object
+
+| 'customer'
+| The assigned person or organization acts as a purchaser or consumer of the referenced object
+
+| 'design supplier'
+| The assigned person or organization is the one who delivers the data describing the referenced object
+
+| 'editor'
+| One or more attributes have been modified by the assigned person or organization
+
+| 'id owner'
+| The assigned person or organization is the one responsible for the designation of an identifier
+
+| 'location'
+| The assigned organization is the place where the referenced object can be found or where it takes place
+
+| 'locked by'
+| The assigned person that currently locks the associated object in the underlying legacy system
+
+| 'manufacturer'
+| The assigned person or organization is the one who produces the actual (physical) object
+
+| 'owner'
+| The assigned person or organization owns the referenced object, and has final say over its disposition and any changes to it
+
+| 'read access'
+| The assigned person or organization neither has the right to modify any attributes of the referenced object, nor to modify, create or delete objects that are attached directly or indirectly to the referenced object
+
+| 'supplier'
+| The assigned person or organization is the one who delivers the actual (physical) object (e.g., a dealer)
+
+| 'wholesaler'
+| The assigned person or organization the one who is in the sales chain between the manufacturer and the supplier
+
+| 'write access'
+| The assigned person or organization has the right to modify the attributes of the referenced object, as well as to modify, create, or delete objects that are attached directly or indirectly to the referenced object
+|===
+
+*_Preprocessor Recommendations:_*
+
+* The roles 'owner' and 'id owner' shall not be used redundantly to the
+`idContextRef` of the Identifier of the current object ("Identifier" template
+(see <<cls-4.6.6>>)), except if the
+OrganizationOrPersonInOrganizationAssignment refers to a given Person or Department.
+
+*_Postprocessor Recommendations:_* None specified.
+
+*_Related Entities:_* There are no specific related entities.
+
+[[tab-24]]
+."PersonInOrganization" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY PersonInOrganization
+| Attribute Type
+
+| AssociatedOrganization
+| Organization
+
+| AssociatedPerson
+| Person
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| span:gray[Description]
+| span:gray[OPTIONAL DescriptorSelect]
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| PersonRole
+| ClassSelect
+
+| span:gray[RetentionPeriod]
+| span:gray[OPTIONAL SET[1:?\] of RetentionPeriod]
+
+| span:gray[SameAs]
+| span:gray[OPTIONAL SET[1:?\] of Proxy]
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[AddressAssignment]
+| span:gray[OPTIONAL SET[1:?\] of AddressAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[ContractAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ContractAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[InformationUsageRightAssignment]
+| span:gray[OPTIONAL SET[1:?\] of InformationUsageRightAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PersonInOrganizationRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PersonInOrganizationRelationship]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueRelationship]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueRelationship]
+
+| span:gray[StateAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateAssignment]
+
+| span:gray[StateDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of StateDefinitionAssignment]
+
+| span:gray[SuppliedObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of SuppliedObjectRelationship]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+
+| span:gray[WorkRequestAssignment]
+| span:gray[OPTIONAL SET[1:?\] of WorkRequestAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* The *_AssociatedPerson_* attribute defines the person. Use "Person" template
+(see <<cls-4.6.18>>).
+
+* The *_AssociatedOrganization_* attribute defines the organization. Use "Organization"
+template (see <<cls-4.6.2>>).
+
+* The *_Id_* attribute is the identification of the entity. The value of this attribute need
+not be specified. Use "Identifier" template (see <<cls-4.6.6>>).
+
+* The *_PersonRole_* attribute is the text describing the role. Use ClassString.
+
+* Other attributes than these are not covered by these Recommended Practices; their use is
+discouraged as it would depend on mutual agreements between data exchange partners.
+
+*_Preprocessor Recommendation:_* At least one of Person.Id or PersonInOrganization.Id shall
+be set.
+
+*_Postprocessor Recommendations:_*
+
+When applicable, the following values shall be used for the attribute Role:
+
+* 'employee': The associated person is a member of kind 'employee' of the associated
+organization.
+
+*_Related Entities:_* There are no specific related entities.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+...
+  <OrganizationOrPersonInOrganizationAssignment uid="poa--0000000017D374A0--id1">
+    <AssignedPersonOrOrganization uidRef="pio--005-TPEVD-Mustermann"/>
+    <Role>
+      <ClassString>creator</ClassString>
+    </Role>
+  </OrganizationOrPersonInOrganizationAssignment>
+...
+<PersonInOrganization uid="pio--005-TPEVD-Mustermann">
+  <AssociatedOrganization uidRef="org--005-TPEVD"/>
+  <AssociatedPerson uidRef="pers--Mustermann"/>
+  <Id>
+    <Identifier uid="pio--005-TPEVD-Mustermann--1" id="005-TP/EVD-Mustermann" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+  <PersonRole>
+    <ClassString>employee</ClassString>
+  </PersonRole>
+</PersonInOrganization>
+----
+
+[[cls-4.6.20]]
+==== Template "DateAndPersonOrganization"
+
+A DateAndPersonOrganization is a PersonInOrganization or an Organization associated
+with a DateTimeString.
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-20]]
+.Template "DateAndPersonOrganization"
+image::img36.png[]
+
+[[tab-25]]
+."DateAndPersonOrganization" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY DateAndPersonOrganization
+| Attribute Type
+
+| Date
+| DateTimeString
+
+| PersonOrOrganization
+| OrganizationOrPersonInOrganizationSelect
+|===
+
+*_Attribute recommendations_*
+
+* *Date*: specifies the date and an optional time of day. Use "DateTime" template
+(see <<cls-4.6.11>>).
+
+* *PersonOrOrganization*: specifies the Organization or the PersonInOrganization. Use
+template "PersonInOrganization" (see <<cls-4.6.19>>).
+
+*_Preprocessor Recommendations:_*
+
+Except if the data model requires it (like for WorkRequest.Requestor), rather use separated
+DateTime and PersonInOrganization or Organization (e.g., in DateTimeAssignment and
+OrganizationOrPersonInOrganizationAssignment rather than DateAndPersonAssignment), since most
+PDM systems do not associate DateTime and PersonInOrganization in one attribute/object.
+
+*_Postprocessor Recommendations:_* None specified.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<WorkRequest uid="wr--1">
+...
+  <Requestor uid="dpo--1" xsi:type="n0:DateAndPersonOrganization">
+    <Date>2019-10-16T09:08:07</Date>
+    <PersonOrOrganization uidRef="pio--005-TPEVD-Mustermann"/>
+  </Requestor>
+...
+</WorkRequest>
+...
+<PersonInOrganization uid="pio--005-TPEVD-Mustermann">
+  <AssociatedOrganization uidRef="org--005-TPEVD"/>
+  <AssociatedPerson uidRef="pers--Mustermann"/>
+  <Id>
+    <Identifier uid="pio--005-TPEVD-Mustermann--1" id="005-TP/EVD-Mustermann" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+  <PersonRole>
+    <ClassString>employee</ClassString>
+  </PersonRole>
+</PersonInOrganization>
+...
+<Organization uid="org--005-TPEVD">
+  <Id id="005-TP/EVD"/>
+  <Name>
+    <CharacterString>005-TP/EVD</CharacterString>
+  </Name>
+  <OrganizationTypes>
+    <ClassString>department</ClassString>
+  </OrganizationTypes>
+</Organization>
+...
+<Person uid="pers--Mustermann">
+  <LastName>Mustermann</LastName>
+</Person>
+----
+
+[[cls-4.6.21]]
+==== Template "ValueFormatTypeQualifier"
+
+Introduced with AP242 Domain Model Edition 4, a ValueFormatTypeQualifier is the specification
+of the allowed format of a property value). Also the presentation aspects of the format may be
+mapped (for example In the future PMI area of Edition 4).
+
+[%discrete]
+===== The Instance Model: AP242 Domain Model XML entities and attributes
+
+[[fig-21]]
+.Template "ValueFormatTypeQualifier"
+image::img37.png[]
+
+[[tab-26]]
+."ValueFormatTypeQualifier" Attributes
+[cols="a,a",options=header]
+|===
+| ENTITY ValueFormatTypeQualifier
+| Attribute Type
+
+| ValueFormatType
+|ProxyItemSelect
+|===
+
+*_Attribute recommendations_*
+
+* *ValueFormatType*: specifies the format and the type of the string or numerical value.
+According to <<ISO13584-42,section=7.2.17>>:
+
+** the following format type definitions are recommended:
++
+--
+[%unnumbered,options=header,cols="a,a"]
+|===
+| Format type
+| Explanation
+
+| A
+| alphabethic characters, letters only
+
+| M
+| mixed, all characters allowed
+
+| N
+| (non-quantitative) numeric characters, digits only
+
+| X
+| (non-quantitative) alphanumeric characters, letters or digits only
+
+| B
+| boolean
+
+| NR1
+| integer
+
+| NR2
+| real number with decimal-mark
+
+| NR3
+| real number with decimal-mark and floating point
+|===
+--
+
+** the following format definitions are recommended:
++
+--
+For NR1, NR2:
+
+* in case presentation aspects are relevant: <Format type> [S] [..]|[] [x.y]
+* otherwise: <Format type> x.y
+
+For NR3:
+
+* in case presentation aspects are relevant: <Format type> [S] [..]|[] [x.y] [E [S] [z]
+* otherwise: <Format type> x.y [E]
+
+For A, M, N, X:
+
+* in case presentation aspects are relevant: <Format type> [..] a
+* otherwise: <Format type> a
+
+For B, none of the format parameters apply
+
+All format parameters given in [] are optional. | means 'or'.
+
+[%unnumbered,options=header,cols="a,a,a,a"]
+|===
+| Format parameter | Explanation | Format example | Value example
+
+| S
+| Signed (only in case of NR2 or NR3)
+| NR2
+
+NR2S
+| 0.5625 -0.5625
+
++0.5625 -0.5625
+
+| x.y
+| number of digits before.after the decimal point (only in case of NR2 or NR3)
+| NR2 1.3
+| 0.562
+
+| a
+| string field length (longer string values might be truncated) (only for A, M, N, X)
+|
+|
+
+| ..
+| variable field length
+| A..35
+
+NR2..
+
+NR2..3.3
+| string example
+
+0.5625
+
+.562
+
+| E
+| exponent mark, base 10 (only in case of NR3)
+.2+|  NR3 1.3E2
+
+NR3 1.3E2
+
+NR3 1.3ES2
+.2+| 5.625E-01 (in case of 0,5625)
+
+5.625E01 (in case of 56.25)
+
+5.625E+01 (in case of 56.25)
+
+| z
+| Number of digits for the exponent (only in case of NR3)
+|===
+
+For example in case of PDM properties, optionally, some more parameters are recommended
+(beyond the scope of ISO 13584-42). All of them may be freely combined, blank separated:
+
+<Format type> <Format Parameters> [O]|[M] [U] [P{p}] [D{d}]
+
+[%unnumbered,options=header,cols="a,a,a,a"]
+|===
+| Additional parameter
+| Explanation
+| Format example
+| Value example
+
+| O/M
+| Property is Optional or Mandatory
+| A 35 M
+| may not be unset
+
+| U
+| Property value shall be unique over all the objects having the same idContextRef to which the property is assigned to
+| A35 U
+|
+
+| P{p}
+| Property value shall comply the pattern p in order to restrict a string to a particular regular expression (according to the syntax of xs:pattern, see for example under http://www.java2s.com/Tutorial/XML/0060__XML-Schema/Patternsyntax.htm)
+| P{^(\\([0-9]{3}\\))?[0-9]{3}-[0-9]{4}$}
+
+P{male\|female}
+
+(value domain)
+| 555-1212
+
+(888)555-1212
+
+male
+
+female
+
+| D{d}
+| Default property value if the property if not set
+| D{+49} (german phone number country code)
+| +49 (if the property value is not set)
+|===
+--
+
+*_Preprocessor Recommendations:_*
+
+ValueFormatTypeQualifier is only supported on PropertyValues, not on customized PDM
+properties of kind DateTimeAssignment, ApprovalAssignment or
+OrganizationOrPersonInOrganizationAssignment.
+
+A Workaround could be to map a PropertyValueAssignment to DateTimeAssignment,
+ApprovalAssignment or OrganizationOrPersonInOrganizationAssignment with a dummy
+StringProperty having:
+
+* Definition(PropertyDefinitionString)='dummy property value for
+ValueFormatTypeQualifier of the Date/Approval/Person/Organization'
+
+* Name='/NULL'
+
+* ValueComponent='/NULL'
+
+*_Postprocessor Recommendations:_*
+
+T.B.S.
+
+[%discrete]
+===== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<ValueFormatTypeQualifier uid="_2165">
+  <ValueFormatType>
+    <ProxyString>NR2S 3.2</ProxyString>
+  </ValueFormatType>
+</ValueFormatTypeQualifier>
+
+<Part uid="ID535">
+...
+  <Versions>
+    <PartVersion uid="ID730">
+...
+      <Views>
+        <PartView xsi:type="n0:AssemblyDefinition" uid="ID731">
+...
+          <PropertyValueAssignment uid="ID733">
+            <AssignedPropertyValues>
+              <PropertyValue uid="ID734" xsi:type="n0:NumericalValue">
+                <Definition>
+                  <PropertyDefinition uidRef="ID9"/>
+                </Definition>
+                <Name>
+                  <CharacterString>calculated density</CharacterString>
+                </Name>
+                <Qualifiers>
+                  <ValueFormatTypeQualifier uidRef="_2165"/>
+                </Qualifiers>
+                <Unit uidRef="ID5"/>
+                <ValueComponent></ValueComponent>
+              </PropertyValue>
+            </AssignedPropertyValues>
+...
+          </PropertyValueAssignment>
+...
+        </PartView>
+      </Views>
+...
+    </PartVersion>
+  </Versions>
+...
+</Part>
+----

@@ -1,0 +1,420 @@
+[[annex-E]]
+[appendix]
+== Recommendation for the Definition of Units{blank}footnote:[http://www.nist.gov/pml/wmd/metric/si-units.cfm]
+
+This clause provides recommendations for instance population for the definition of units in
+the data set. Once the definition is created, other data instances reference the units as
+required.
+For the use of this recommende practices we take the assumption that the partners have agree
+beforehand wich units to use in a project.
+
+NOTE: The definitions given in this Annex are valid for AP242 edition 2 Domain Model schema.
+
+[[cls-E.1]]
+=== SI Base Unit Definitions
+
+The following is the recommendation for exchange of SI base unit
+definitions{blank}footnote:[https://en.wikipedia.org/wiki/SI_base_unit]:
+
+Millimetre:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000001">
+  <Kind><ClassString>SI system</ClassString></Kind>
+  <Name><ClassString>metre</ClassString></Name>
+  <Prefix><ClassString>milli</ClassString></Prefix>
+  <Quantity><ClassString>length</ClassString></Quantity>
+</Unit>
+----
+
+Kilogram:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000002"> {{{footnote:[This instance is created to support definition of SI derived units and is the formal definition that the kilogram is the SI unit of mass.]}}}
+  <Kind><ClassString>SI system</ClassString></Kind>
+  <Name><ClassString>gram</ClassString></Name>
+  <Prefix><ClassString>kilo</ClassString></Prefix>
+  <Quantity><ClassString>mass</ClassString></Quantity>
+</Unit>
+----
+
+Seconds:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000003">
+  <Kind><ClassString>SI system</ClassString></Kind>
+  <Name><ClassString>second</ClassString></Name>
+  <Quantity><ClassString>time</ClassString></Quantity>
+</Unit>
+----
+
+Ampère:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000004">
+  <Kind><ClassString>SI system</ClassString></Kind>
+  <Name><ClassString>ampere</ClassString></Name>
+  <Quantity><ClassString>electric current</ClassString></Quantity>
+</Unit>
+----
+
+Kelvin:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000005">
+  <Kind><ClassString>SI system</ClassString></Kind>
+  <Name><ClassString>kelvin</ClassString></Name>
+  <Quantity><ClassString>thermodynamic temperature</ClassString></Quantity>
+</Unit>
+----
+
+Mole:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000006">
+  <Kind><ClassString>SI system</ClassString></Kind>
+  <Name><ClassString>mole</ClassString></Name>
+  <Quantity><ClassString>amount of substance</ClassString></Quantity>
+</Unit>
+----
+
+Candela:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000007">
+  <Kind><ClassString>SI system</ClassString></Kind>
+  <Name><ClassString>candela</ClassString></Name>
+  <Quantity><ClassString>luminous intensity</ClassString></Quantity>
+</Unit>
+----
+
+[[cls-E.2]]
+=== SI Derived Units
+
+List of SI derived units from SI derived unit on
+Wikipedia.{blank}footnote:[https://en.wikipedia.org/wiki/SI_derived_unit]
+
+The AP242 edition 2 Domain Model takes a more pragmatic approach to units than Part 21 does:
+it is based on the assumption that a current target system simply knows what the used units
+are. In consequence it is not necessary to define a unit with conversion and relation to
+other predefined units.
+
+[[cls-E.2.1]]
+==== Named units derived from *SI* base units
+
+SI derived unit exchange should use the `Unit` element with the `Unit.kind` attribute set to
+'SI derived unit'.
+
+List of named units derived from SI base units (in parenthesis: Unit.Quantity):
+
+* hertz ('frequency')
+* radian ('plane angle')
+* degree ('plane angle')
+* steradian ('solid angle')
+* newton ('force')
+* pascal ('pressure' or 'stress')
+* joule ('energy')
+* watt ('power' or 'radiant flux')
+* coulomb ('electric charge')
+* volt ('electric potential')
+* farad ('capacitance')
+* ohm ('resistance')
+* siemens ('conductance')
+* weber ('magnetic flux')
+* tesla ('magnetic flux density')
+* henry ('inductance')
+* degree Celsius ('thermodynamic temperature')
+* lumen ('luminous flux')
+* lux ('illuminance')
+* becquerel ('radioactivity')
+* gray ('absorbed dose')
+* sievert ('equivalent dose')
+* katal ('catalytic activity')
+
+Example for kW:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000007">
+  <Kind><ClassString>SI derived unit</ClassString></Kind>
+  <Name><ClassString>watt</ClassString></Name>
+  <Prefix><ClassString>kilo</ClassString></Prefix>
+  <Quantity><ClassString>power</ClassString></Quantity>
+</Unit>
+----
+
+[[cls-E.2.2]]
+==== Derived quantities and units
+
+To exchange these coverted units, use the `Unit` element with the
+`Unit.kind` attribute set to 'unspecified SI derived unit'.
+
+Examples of SI derived unit (in parenthesis: Unit.Quantity):
+
+* square metre ('area')
+* cubic metre ('volume')
+* litre ('volume')
+* metre per second ('velocity')
+* cubic metre per second ('volumetric flow')
+* metre per second squared ('acceleration')
+* metre per second cubed ('jerk')
+* metre per quartic second ('snap')
+* radian per second ('angular velocity')
+* newton second ('momentum')
+* newton metre second ('angular momentum')
+* newton metre ('moment of force' or 'torque')
+* newton per second ('yank')
+* reciprocal metre ('attenuation coefficient', 'curvature', 'propagation coefficient' or
+'wave number')
+* kilogram per square metre ('area density')
+* kilogram per cubic metre ('density')
+* cubic metre per kilogram ('specific volume')
+* mole per cubic metre ('amount of substance concentration')
+* cubic metre per mole ('molar volume')
+* joule second ('action')
+* joule per kelvin ('entropy' or 'heat capacity')
+* joule per kelvin mole ('molar heat capacity')
+* joule per kilogram kelvin ('specific heat capacity')
+* joule per mole ('molar energy')
+* joule per kilogram ('specific energy')
+* joule per cubic metre ('energy density')
+* newton per metre ('stiffness' or 'surface tension')
+* watt per square metre ('heat flux density' or 'irradiance')
+* watt per metre kelvin ('thermal conductivity')
+* square metre per second ('kinematic viscosity' or 'thermal diffusivity')
+* pascal second ('dynamic viscosity')
+* coulomb per square metre ('polarization density')
+* coulomb per cubic metre ('electric charge density')
+* ampere per square metre ('electric current density')
+* siemens per metre ('electrical conductivity')
+* siemens square metre per mole ('molar conductivity')
+* farad per metre ('permittivity')
+* henry per metre ('magnetic permeability')
+* volt per metre ('electric field strength')
+* ampere per metre ('magnetic field strength' or 'magnetization')
+* candela per square metre ('luminance')
+* lumen second ('luminous energy')
+* lux second ('luminous exposure')
+* coulomb per kilogram ('exposure')
+* gray per second ('absorbed dose rate')
+* ohm metre ('resistivity')
+
+Example for mm2:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000007">
+  <Kind><ClassString>unspecified SI derived unit</ClassString></Kind>
+  <Name><ClassString>square metre</ClassString></Name>
+  <Prefix><ClassString>milli</ClassString></Prefix>
+  <Quantity><ClassString>area</ClassString></Quantity>
+</Unit>
+----
+
+[[cls-E.3]]
+=== Unspecified Units
+
+To exchange units which are neither SI units nor derived from SI units, the `Unit` element
+shall be used with the `Unit.kind` attributes set to 'Unspecified'.
+
+[[cls-E.3.1]]
+==== Byte
+
+Byte:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000009">
+  <Kind><ClassString>unspecified</ClassString></Kind>
+  <Name><ClassString>byte</ClassString></Name>
+  <Quantity><ClassString>data size</ClassString></Quantity>
+</Unit>
+----
+
+Note that for bytes, two classes of prefixes exist; the SI prefixes (base 10) and the IEC
+prefixes (base 2). So 1 Kilobyte = 1000 Byte, while 1 Kibibyte = 1024 Byte. The following
+table gives an overview:
+
+[%unnumbered,cols="a,a,a,a,a,a,a",options=header,headerrows=2]
+|===
+3+| Decimal Prefixes
+.2+| Difference (rounded)
+3+| Binary Prefixes
+| SI Name
+| SI Symbol
+| Factor
+| IEC Name
+| IEC Symbol
+| Factor
+
+| Kilobyte
+| kB
+| 10^3^
+| 2.40%
+| Kibibyte
+| KiB
+| 2^10^
+
+| Megabyte
+| MB
+| 10^6^
+| 4.86%
+| Mebibyte
+| MiB
+| 2^20^
+
+| Gigabyte
+| GB
+| 10^9^
+| 7.37%
+| Gibibyte
+| GiB
+| 2^30^
+
+| Terabyte
+| TB
+| 10^12^
+| 9.95%
+| Tebibyte
+| TiB
+| 2^40^
+
+| Petabyte
+| PB
+| 10^15^
+| 12.6%
+| Pebibyte
+| PiB
+| 2^50^
+
+| Exabyte
+| EB
+| 10^18^
+| 15.3%
+| Exbibyte
+| EiB
+| 2^60^
+
+| Zettabyte
+| ZB
+| 10^21^
+| 18.1%
+| Zebibyte
+| ZiB
+| 2^70^
+
+| Yottabyte
+| YB
+| 10^24^
+| 20.9%
+| Yobibyte
+| YiB
+| 2^80^
+|===
+
+The names of IEC prefixes are derived from the SI prefixes, where "kibi" means "kilo-binary",
+"mebi" means "mega-binary" and so on. As shown in the table above, the difference in data
+size between using base 2 or base 10 for the prefixes is significant for higher factors.
+
+See http://physics.nist.gov/cuu/Units/binary.html for background information.
+
+[[cls-E.3.2]]
+==== Each
+
+To represent a quantity of instances with QuantifiedOccurrence, the unit 'each' is
+recommended. It represents a total number of objects.
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000010">
+  <Kind><ClassString>unspecified</ClassString></Kind>
+  <Name><ClassString>each</ClassString></Name>
+  <Quantity><ClassString>number of elements</ClassString></Quantity>
+</Unit>
+----
+
+[[cls-E.3.3]]
+==== Percent
+
+To represent a rate/number/amount in each hundred.
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000010">
+  <Kind><ClassString>unspecified</ClassString></Kind>
+  <Name><ClassString>percent</ClassString></Name>
+  <Quantity><ClassString>amount in each hundred</ClassString></Quantity>
+</Unit>
+----
+
+[[cls-E.3.4]]
+==== Ratio
+
+The relationship between two groups or amounts that expresses how much bigger one is than
+the other. To make ratio values better homogeneous within data exchange, it is recommended
+to represent a rate/number/amount in each 1.
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000010">
+  <Kind><ClassString>unspecified</ClassString></Kind>
+  <Name><ClassString>ratio</ClassString></Name>
+  <Quantity><ClassString>amount in each 1</ClassString></Quantity>
+</Unit>
+----
+
+[[cls-E.4]]
+=== Imperial Units
+
+The following is the recommendation for exchange of Imperial unit
+definitions{blank}footnote:[https://en.wikipedia.org/wiki/Imperial_units], the `Unit`
+element shall be used with the `Unit.kind` attributes set to 'imperial:
+
+Length (Unit.Quantity = 'length'):
+
+* thou
+* inch
+* foot
+* yard
+* chain
+* furlong
+* mile
+* league
+* fathom
+* cable
+* nautical mile
+* link
+* rod
+* chain
+
+Area (Unit.Quantity = 'area'):
+
+* perch
+* rood
+* acre
+
+Volume (Unit.Quantity = 'volume'):
+
+* fluid ounce
+* gill
+* pint
+* quart
+* gallon
+
+Inch:
+
+[source%unnumbered,xml]
+----
+<Unit uid="u--100000009">
+  <Kind><ClassString>Imperial</ClassString></Kind>
+  <Name><ClassString>inch</ClassString></Name>
+  <Quantity><ClassString>length</ClassString></Quantity>
+</Unit>
+----

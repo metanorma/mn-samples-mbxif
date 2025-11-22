@@ -1,0 +1,139 @@
+[[cls-18]]
+== List of Templates
+
+This chapter gives a summary of the templates described in this document:
+
+[%unnumbered,cols="a,a",options=header]
+|===
+| Name
+| Paragraph
+
+| Template "ExchangeContext"
+| <<cls-4.6.1>>
+
+| Template "Organization"
+| <<cls-4.6.2>>
+
+| Template "Unit"
+| <<cls-4.6.3>>
+
+| Template "Class"
+| <<cls-4.6.4>>
+
+| Template "Classification"
+| <<cls-4.6.5>>
+
+| Template "Identifier"
+| <<cls-4.6.6>>
+
+| Template "Description"
+| <<cls-4.6.7>>
+
+| Template "ViewContext"
+| <<cls-4.6.8>>
+
+| Template "NumericalValue"
+| <<cls-4.6.9>>
+
+| Template "StringValue"
+| <<cls-4.6.10>>
+
+| Template "ValueRange"
+| <<cls-4.6.11>>
+
+| Template "ValueWithTolerances"
+| <<cls-4.6.12>>
+
+| Template "ValueList"
+| <<cls-4.6.13>>
+
+| Template "ValueSet"
+| <<cls-4.6.15>>
+
+| Template "DateTime"
+| <<cls-4.6.11>>
+
+| Template "Approval"
+| <<cls-4.6.17>>
+
+| Template "Person"
+| <<cls-4.6.18>>
+
+| Template "PersonInOrganization"
+| <<cls-4.6.19>>
+
+| Template "DateAndPersonOrganization"
+| <<cls-4.6.20>>
+
+| Template "Part"
+| <<cls-5.1>>
+
+| Template "Assembly"
+| <<cls-5.1>>
+
+| Template "GeometricModel"
+| <<cls-6.1>>
+
+| Template "PropertyAssignment"
+| <<cls-6.2>>
+
+| Template "SingleOccurrence"
+| <<cls-7.1>>
+
+| Template "SpecifiedOccurrence"
+| <<cls-7.2>>
+
+| Template "Simplified Positioning Representation"
+| <<cls-7.3.1>>
+
+| Template "PartViewRelationship"
+| <<cls-7.4>>
+
+| Template "AlternatePartRelationship"
+| <<cls-7.5.1>>
+
+| Template "AssemblyOccurrenceRelationshipSubstitution
+| <<cls-7.5.2>>
+
+| Template "AssemblyUsageRelationshipSubstitution
+| <<cls-7.5.3>>
+
+| Template "Document"
+| <<cls-8.1>>
+
+| Template "DocumentDefinitionRelationship"
+| <<cls-8.2>>
+
+| Template "DocumentVersionRelationship"
+| <<cls-8.3>>
+
+| Template "DigitalFile"
+| <<cls-9.1>>
+
+| Template "FileRelationship"
+| <<cls-9.2>>
+
+| Template "FormatProperty"
+| <<cls-10.1>>
+
+| Template "ContentProperty"
+| <<cls-10.2>>
+
+| Template "CreationProperty"
+| <<cls-10.3>>
+
+| Template "SizeProperty"
+| <<cls-10.4>>
+
+| Template "DocumentFileProperty"
+| <<cls-10.5>>
+
+| Template "CAx Representation for DocumentAssignment"
+| <<cls-11.1>>
+
+| Template "PDM Representation for DocumentAssignment"
+| <<cls-11.2>>
+
+| Template "PropertyDefinition"
+| <<cls-12.2>>
+|===

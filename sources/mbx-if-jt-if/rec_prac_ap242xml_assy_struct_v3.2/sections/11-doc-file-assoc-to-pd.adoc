@@ -1,0 +1,423 @@
+[[cls-11]]
+== Document and File Association to Product Data
+
+The scope of this section corresponds to <<CAX-IF-PSUG,section=10>>.
+
+Two alternatives are described in this chapter. Both are based on the entity
+DocumentAssignment (see below) and ExternalGeometricModel (see <<cls-6.1>>).
+
+[[tab-73]]
+."DocumentAssignment" Attributes
+[cols="a,a",options=header]
+|===
+| Entity DocumentAssignment
+| Attribute type
+
+| AssignedDocument
+| AssignedDocumentSelect
+
+| span:gray[ClassifiedAs]
+| span:gray[OPTIONAL SET[1:?\] of Classification]
+
+| Description
+| OPTIONAL DescriptorSelect
+
+| span:gray[DocumentPortion]
+| span:gray[OPTIONAL MultiLingualStringSelect]
+
+| Id
+| OPTIONAL IdentifierSelect
+
+| Role
+| ClassSelect
+
+| span:gray[ActivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityAssignment]
+
+| span:gray[ActivityMethodAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ActivityMethodAssignment]
+
+| span:gray[ApprovalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ApprovalAssignment]
+
+| span:gray[AssignmentObjectRelationship]
+| span:gray[OPTIONAL SET[1:?\] of AssignmentObjectRelationship]
+
+| span:gray[ConditionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ConditionAssignment]
+
+| span:gray[DateAndPersonAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateAndPersonAssignment]
+
+| span:gray[DateTimeAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DateTimeAssignment]
+
+| span:gray[DocumentAssignment]
+| span:gray[OPTIONAL SET[1:?\] of DocumentAssignment]
+
+| span:gray[EffectivityAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EffectivityAssignment]
+
+| span:gray[EventAssignment]
+| span:gray[OPTIONAL SET[1:?\] of EventAssignment]
+
+| span:gray[FrozenAssignment]
+| span:gray[OPTIONAL SET[1:?\] of FrozenAssignment]
+
+| span:gray[ModelPropertyAssignment]
+| span:gray[OPTIONAL SET[1:?\] of ModelPropertyAssignment]
+
+| span:gray[OrganizationOrPersonInOrganizationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of OrganizationOrPersonInOrganizationAssignment]
+
+| span:gray[PropertyDefinitionAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyDefinitionAssignment]
+
+| span:gray[PropertyValueAssignment]
+| span:gray[OPTIONAL SET[1:?\] of PropertyValueAssignment]
+
+| span:gray[SecurityClassificationAssignment]
+| span:gray[OPTIONAL SET[1:?\] of SecurityClassificationAssignment]
+
+| span:gray[TimeIntervalAssignment]
+| span:gray[OPTIONAL SET[1:?\] of TimeIntervalAssignment]
+|===
+
+*_Attribute recommendations_*
+
+* *_AssignedDocument:_* the assigned DocumentVersion or DigitalFile
+
+* *_Description_*: the text or the set of texts that provides further information about the
+DocumentAssignment. The value of this attribute need not be specified. Use "Description"
+template.
+
+* *_Id_*: the identifier for the DocumentAssignment. The value of this attribute need not be
+specified. Use IdentifierString type.
+
+* *_Role:_* the meaning of the assignment. Use ClassString if one of the values below is
+used, otherwise use "Class" template (see <<cls-4.6.4>>). Where applicable, the following
+values shall be used:
++
+--
+[%unnumbered,options=header,cols="a,a"]
+|===
+| Role
+| Explanation
+
+| 'additional information'
+| The assigned document provides information that is relevant for the associated object, but is not a description of the associated object itself
+
+| 'behaviour'
+| The assigned document specifies information about the behaviour of the associated object
+
+| 'description'
+| The assigned document provides textual information for the associated object itself
+
+| 'informative'
+| The assigned document may or may not be considered
+
+| 'mandatory'
+| The associated object shall conform to the content of the assigned document.
+
+*This value shall be used for the file that contains the* *geometry of the part.*
+
+| 'mathematical description'
+| The assigned document specifies the associated object by providing the algorithmic specification of its behaviour
+
+| 'dimensioning standard'
+| The assigned document specifies the dimensioning standard
+|===
+--
+
+* Other attributes than these are not covered by these Recommended Practices; their use
+is discouraged as it would depend on mutual agreements between data exchange partners.
+
+As opposed to a managed 'Document as Product', an external file is not managed by the system
+- there is no capability for managed revision control or any document representation
+definitions for an external file.
+
+If a file is under configuration control, it should be represented as a constituent of a
+document definition view/representation according to 'Document as Product'. In this case, it
+is actually the managed document that is under direct configuration control; the file is, in
+this way, indirectly under configuration control. A change to the file results in a change
+to the managed document (i.e., a new version) - the changed file would be mapped as a
+constituent of a view/representation definition of the new document version. A simple
+external reference alone is not configuration controlled; it is just an external file
+reference to product data.
+
+[[cls-11.1]]
+=== Template "CAx Representation for DocumentAssignment"
+
+This section is relevant when the files are not under configuration control.
+
+In this case, the DocumentAssignment shall refer directly to the DigitalFile.
+
+[[fig-78]]
+.Template "CAx Representation for DocumentAssignment"
+image::img110.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--000000001E720B30">
+  <Id>
+    <Identifier uid="pid--000000001E720B30--id7" id="nut" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001E720B30--id7">
+      <Id id="/NULL"/>
+      <Views>
+        <PartView xsiuid="pvv--000000001E720B30--id7">
+          <DefiningGeometry uidRef="egm--000000001E720B30"/>
+...
+          <DocumentAssignment xsi:type="n0:DocumentAssignment" uid="da--000000001E720B30--id7">
+            <AssignedDocument uidRef="df--000000001E720B30"/>
+            <Role>
+              <ClassString>mandatory</ClassString>
+            </Role>
+          </DocumentAssignment>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationContext uid="ccs-origin-nut" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--000000001E720B30" xsi:type="n0:ExternalGeometricModel">
+      <Id id="nut.stp"/>
+...
+      <ExternalFile uidRef="df--000000001E720B30"/>
+    </Representation>
+...
+  </Representations>
+...
+</RepresentationContext>
+
+<File xsi:type="n0:DigitalFile" uid="df--000000001E720B30">
+...
+  <Id>
+    <Identifier uid="dfid--000000001E720B30--19" id="nut.stp" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+</File>
+----
+
+*_Preprocessor Recommendations:_*
+
+A DigitalFile shall always be referenced by at least a PartView via DocumentAssignment.
+
+Special cases: mapped compliantly to the recommendations of the PDM Usage Guide
+
+. Model splitting (see <<fig-79>>):
++
+--
+In case the geometry of a part is splitted into multiple DigitalFiles:
+
+** The DigitalFile referenced by the Part has no own geometry but references the
+DigitalFiles via a FileRelationship of kind 'decomposition'.
+
+** The ExternalGeometry referenced by the Part has no own geometry but
+references the GeometricModels via a
+GeneralGeometricRepresentationRelationship of kind 'decomposition'.
+--
+
+. Model sharing (shared geometry):
++
+--
+In case a geometry is shared by several parts, the DigitalFile and the GeometricModel
+"containing" this geometry shall be referenced from each part.
+--
+
+. Alternate Models (see Figure 80):
++
+--
+In case a part has several alternative GeometricModels (DigitalFiles) each of them shall
+be directly connected to the Part: the first one (master geometry) via DefiningGeometry
+and the further ones via AuxiliaryGeometry.
+
+For flexible parts having several geometries, depending on their occurrences,
+AuxiliaryGeometry shall not be used, but rather Occurrence.DefiningGeometry
+--
+
+[NOTE,type=remark]
+====
+The use of multiple ShapeElements attached to the same PartView via
+'ShapeElement.ElementOf' is not recommended, since according to the STEP resources, there is
+no semantic telling that all these ShapeElements describe the complete geometry of the part.
+ShapeElement shall be only used to attach properties to some of the shapes of the geometry
+(see <<AP242-PMI>>).
+====
+
+*_Postprocessor Recommendation:_*
+
+In case a DigitalFile is not referenced by any PartView via DocumentAssignment, an error
+shall be returned and the DigitalFile shall be ignored.
+
+[[fig-79]]
+.Model splitting for "CAx Representation for DocumentAssignment"
+image::img111.png[]
+
+[[fig-80]]
+.Alternate models for "CAx Representation for DocumentAssignment"
+image::img112.png[]
+
+[[cls-11.2]]
+=== Template "PDM Representation for DocumentAssignment"
+
+This section is relevant when the files are under configuration control.
+
+Depending on the originating PDM System and its respective user settings, DocumentVersion
+and PartVersion may be handled independently, or in a linked manner. In an exchange scenario,
+the involved parties have to agree on what a new DocumentVersion means, whether it triggers
+a new PartVersion or not, and vice versa.
+
+[[fig-81]]
+.Template "PDM Representation for DocumentAssignment"
+image::img113.png[]
+
+[%discrete]
+==== The Instance Model: STEP exchange file format (ISO10303 AP242 Domain Model XML syntax)
+
+[source%unnumbered,xml]
+----
+<Part uid="p--000000001EAAE870">
+  <Id>
+    <Identifier uid="pid--000000001EAAE870--id7" id="nut" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <PartVersion uid="pv--000000001EAAE870--id7">
+      <Id id="/NULL"/>
+      <Views>
+        <PartView uid="pvv--000000001EAAE870--id7">
+          <DefiningGeometry uidRef="egm--000000001AA415B0"/>
+...
+          <DocumentAssignment xsi:type="n0:DocumentAssignment" uid="da--000000001EAAE870--id7">
+            <AssignedDocument uidRef="dv--000000001EAAE870"/>
+            <Role>
+              <ClassString>mandatory</ClassString>
+            </Role>
+          </DocumentAssignment>
+        </PartView>
+      </Views>
+    </PartVersion>
+  </Versions>
+</Part>
+
+<RepresentationContext uid="ccs--origin-nut" xsi:type="n0:GeometricCoordinateSpace">
+  <Id id="/NULL"/>
+  <Representations>
+    <Representation uid="egm--000000001AA415B0" xsi:type="n0:ExternalGeometricModel">
+      <Id id="nut.stp"/>
+...
+      <ExternalFile uidRef="df--000000001EAAE870"/>
+    </Representation>
+...
+  </Representations>
+...
+</RepresentationContext>
+
+<Document uid="doc--000000001EAAE870">
+...
+  <Id>
+    <Identifier uid="docid--000000001EAAE870--id7" id="nut" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+  <Versions>
+    <DocumentVersion uid="dv--000000001EAAE870">
+      <Id id="/NULL"/>
+      <Views>
+        <DocumentDefinition uid="ddd--000000001EAAE870" xsi:type="n0:DigitalDocumentDefinition">
+          <Id id="/NULL"/>
+          <Files>
+            <DigitalFile uidRef="df--000000001EAAE870"/>
+          </Files>
+        </DocumentDefinition>
+      </Views>
+    </DocumentVersion>
+  </Versions>
+</Document>
+<File xsi:type="n0:DigitalFile" uid="df--000000001EAAE870">
+...
+  <Id>
+    <Identifier uid="dfid--000000001EAAE870--19" id="nut.stp" idRoleRef="rl--ii" idContextRef="o--000000178"/>
+  </Id>
+...
+</File>
+----
+
+*_Preprocessor Recommendations:_*
+
+* The DocumentAssignment shall refer to the DocumentVersion, rather than Document or
+DigitalDocumentDefinition.
+
+* If all DigitalFiles associated to a DocumentDefinition have the same value for their Type,
+Content, Creation and Format properties, these can be stored in DocumentContent,
+DocumentCreation and DocumentFormat rather than redundantly in each DigitalFile as
+FileContent, FileCreation and FileFormat.
+
+* A DigitalFile shall always be referenced by at least a DocumentDefinition via the attribute
+"Files".
+
+*_Postprocessor Recommendation:_*
+
+* In case a DigitalFile is not referenced by any DocumentDefinition, an error shall be
+returned and the DigitalFile shall be ignored.
+
+Special cases: mapped compliantly to the recommendations of the PDM Usage Guide:
+
+. Model splitting:
++
+--
+** The Document referenced by the Part has no own geometry, but references the
+Documents via a DocumentDefinitionRelationship of kind 'decomposition'.
+
+** The ExternalGeometry referenced by the Part has no own geometry, but
+references the GeometricModels via a GeneralGeometricRepresentationRelationship
+of kind 'decomposition'.
+
+[[fig-82]]
+.Model splitting for "PDM Representation for DocumentAssignment"
+image::img114.png[]
+
+[NOTE,type=remark]
+====
+The use of multiple ShapeElements attached to the same PartView via
+'ShapeElement.ElementOf' is not recommended, since according to the STEP resources, there
+is no semantic telling that all these ShapeElements describe the complete geometry of the
+part. ShapeElement shall be only used to attach properties to some of the shapes of the
+geometry (see <<AP242-PMI>>).
+====
+--
+
+. Document sharing (shared geometry):
++
+--
+In case a document is shared by several parts, the Document and the GeometricModel
+"containing" this geometry shall be referenced from each part.
+--
+
+. Alternate Models:
++
+--
+In case a part has several alternative GeometricModels (Documents) each of them shall be
+directly connected to the Part: the first one (master geometry) via DefiningGeometry and the
+further ones via AuxiliaryGeometry.
+
+The document containing the master geometry and the document containing the alternative
+geometry shall be related via a DocumentDefinitionRelationship with
+RelationType='derivation'.
+
+The DocumentType of the document containing the master geometry shall be 'primary
+geometry' while for the alternative geometries, the DocumentType shall be 'secondary
+geometry'.
+--
+
+[[fig-83]]
+.Alternate models for "PDM Representation for DocumentAssignment"
+image::img115.png[]
