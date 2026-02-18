@@ -58,6 +58,7 @@ jobs:
           agree-to-terms: true
           destination: artifact
           use-bundler: true
+          continue-without-fonts: 'true'
 
   deploy:
     if: ${{ github.ref_name == github.event.repository.default_branch }}
