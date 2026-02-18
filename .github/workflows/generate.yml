@@ -43,9 +43,23 @@ jobs:
         run: bundle exec metanorma --version
 
       - name: Metanorma generate site
-        uses: actions-mn/build-and-publish@v2
+        uses: actions-mn/build-and-publish@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           agree-to-terms: true
-          destination: gh-pages
+          destination: artifact
           use-bundler: true
+
+  deploy:
+    if: ${{ github.ref_name == github.event.repository.default_branch }}
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
