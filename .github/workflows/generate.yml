@@ -18,8 +18,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # container:
-    #   image: metanorma/metanorma:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,21 +33,30 @@ jobs:
           ruby-version: '3.4'
           bundler-cache: true
 
-      # Uses https://github.com/metanorma/ci/blob/main/inkscape-setup-action/action.yml
       - name: Install Inkscape
         uses: metanorma/ci/inkscape-setup-action@main
 
       - name: Update Fontist
         run: bundle exec fontist update
 
+      - name: Install Fontist fonts
+        env:
+          GH_TOKEN: ${{ secrets.METANORMA_CI_PAT_TOKEN }}
+        run: |
+          bundle exec fontist repo setup metanorma https://${GH_TOKEN}@github.com/metanorma/fontist-formulas-private
+          bundle exec fontist repo update metanorma
+          bundle exec fontist install "Futura PT Book"
+          bundle exec fontist install "Futura PT Demi"
+          bundle exec fontist install "Futura PT Light"
+
       - name: Print Metanorma version
         run: bundle exec metanorma --version
 
       - name: Metanorma generate site
-        uses: actions-mn/build-and-publish@v2
+        uses: actions-mn/build-and-publish@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           agree-to-terms: true
+          destination: artifact
           use-bundler: true
 
   deploy:
