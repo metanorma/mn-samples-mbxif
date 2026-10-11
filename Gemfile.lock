@@ -223,7 +223,7 @@ GEM
       addressable (~> 2.8)
       base64 (~> 0.3)
     drb (2.2.3)
-    ea (0.6.73)
+    ea (0.6.74)
       benchmark
       liquid (~> 5)
       lutaml-model (~> 0.8)
