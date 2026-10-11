@@ -197,17 +197,6 @@ GIT
       uniword (~> 1.5)
 
 GIT
-  remote: https://github.com/metanorma/metanorma-nist.git
-  revision: 57bc2e2ebe7944808911a2d0492227bf7cc06edf
-  branch: main
-  specs:
-    metanorma-nist (2.9.0)
-      metanorma-standoc (>= 3.4.2)
-      pubid (~> 2.0.0.pre.alpha)
-      twitter_cldr
-      tzinfo-data
-
-GIT
   remote: https://github.com/metanorma/metanorma-ogc.git
   revision: fb2cb975189f267408b478169406e809974ede6a
   branch: main
@@ -1383,7 +1372,6 @@ DEPENDENCIES
   metanorma-iso!
   metanorma-itu!
   metanorma-jis!
-  metanorma-nist!
   metanorma-ogc!
   metanorma-plateau!
   metanorma-ribose!
