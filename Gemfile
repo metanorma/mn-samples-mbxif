@@ -30,7 +30,7 @@ gem "metanorma-iho", github: "metanorma/metanorma-iho", branch: "main"
 gem "metanorma-iso", github: "metanorma/metanorma-iso", branch: "main"
 gem "metanorma-itu", github: "metanorma/metanorma-itu", branch: "main"
 gem "metanorma-jis", github: "metanorma/metanorma-jis", branch: "main"
-gem "metanorma-nist", github: "metanorma/metanorma-nist", branch: "main"
+# metanorma-nist resolves from the private GitHub Packages registry (repo is private; PAT is packages-scoped)
 gem "metanorma-ogc", github: "metanorma/metanorma-ogc", branch: "main"
 gem "metanorma-plateau", github: "metanorma/metanorma-plateau", branch: "main"
 gem "metanorma-document", github: "metanorma/metanorma-document", branch: "main" # standoc main needs Document::Components::AncillaryBlocks
