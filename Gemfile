@@ -16,4 +16,4 @@ gem "pubid", github: "pubid/pubid", branch: "main"
 gem "moxml", github: "lutaml/moxml", branch: "main"
 gem "leptris", "1.9.331.0"
 gem "lutaml-model", "= 0.8.97"
-gem "sqlite3", ">= 2.0"
+gem "sqlite3", ">= 1.7" # relaton#260 floor is merged but unreleased; alpha.11 still caps at < 2.0
