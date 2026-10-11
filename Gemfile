@@ -33,3 +33,4 @@ gem "metanorma-jis", github: "metanorma/metanorma-jis", branch: "main"
 gem "metanorma-nist", github: "metanorma/metanorma-nist", branch: "main"
 gem "metanorma-ogc", github: "metanorma/metanorma-ogc", branch: "main"
 gem "metanorma-plateau", github: "metanorma/metanorma-plateau", branch: "main"
+gem "metanorma-document", github: "metanorma/metanorma-document", branch: "main" # standoc main needs Document::Components::AncillaryBlocks
