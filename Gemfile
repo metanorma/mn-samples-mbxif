@@ -14,7 +14,7 @@ gem "relaton-render", "= 3.0.0.pre.alpha.19"
 gem "relaton-bib", "2.2.0.pre.alpha.1"
 gem "pubid", github: "pubid/pubid", branch: "main"
 gem "moxml", github: "lutaml/moxml", branch: "main"
-gem "lutaml-model", "= 0.8.102" # LATEST RELEASE
+gem "lutaml-model", "0.8.107" # LATEST RELEASE: source-location warnings
 gem "sqlite3", ">= 1.7" # relaton#260 floor is merged but unreleased; alpha.11 still caps at < 2.0
 
 # metanorma-cli main requires the full flavor zoo; released 1.x-render flavors crash under relaton-render 3.x pre
