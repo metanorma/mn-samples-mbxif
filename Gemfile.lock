@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/lutaml/moxml.git
-  revision: 1be29bb0a63533fc8fef4fae7028d5b59c23e6e2
+  revision: 5a27bd57f8eda964d559e3b5fe79e2f0b89a52c6
   branch: main
   specs:
-    moxml (0.5.166)
+    moxml (0.5.170)
 
 GIT
   remote: https://github.com/metanorma/isodoc-i18n.git
@@ -21,15 +21,16 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/isodoc.git
-  revision: 9d02f55f51a3fd702b3420911e6cea7d7f8a324d
+  revision: 59b20769be64a1525da96b419765736dddb4a1d6
   branch: main
   specs:
-    isodoc (3.7.4.pre.alpha.4)
+    isodoc (3.7.4.pre.alpha.5)
       base64 (>= 0.1.0)
       bigdecimal
       html2doc (~> 1.12)
       mn-requirements (~> 0.5.0)
       mn2pdf (>= 2.13)
+      pubid (~> 2.0)
       relaton-cli (>= 3.0.0, < 3.1)
       relaton-render (~> 3.0, < 5)
       roman-numerals
@@ -41,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-bipm.git
-  revision: bcca130dc452af4550098b6278e9a89e383724b9
+  revision: 0984682e028121199ea7a06a029eec006261a88b
   branch: main
   specs:
     metanorma-bipm (2.9.1.pre.alpha.3)
@@ -50,7 +51,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-cc.git
-  revision: bd09a180cb10922f90a8d8f80d4ba7fa8a8ae501
+  revision: 4a7502f1e1ced4ec7147a65cd83dd5f96f70d9e0
   branch: main
   specs:
     metanorma-cc (2.9.1.pre.alpha.2)
@@ -58,7 +59,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-cli.git
-  revision: cd06666ada514e8ca780d9b88078f0f84d9ea5e6
+  revision: af6ca75ff08adb66bc5f0f3b52b22ff316139562
   branch: main
   specs:
     metanorma-cli (1.18.0.pre.alpha.3)
@@ -94,7 +95,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-document.git
-  revision: 0c5e0865f228962f8b59d97e6aa77db2fa4f0a45
+  revision: 12c4360d5c75b9a00fb61ad12ca02075b8eb64ac
   branch: main
   specs:
     metanorma-document (0.5.2.pre.alpha.2)
@@ -110,7 +111,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-gb.git
-  revision: 0b5980ea6002cd837f1a26c08cb83ed183feff6a
+  revision: d0927df59dc673df44c0e25b19217e0f57bb95c0
   branch: main
   specs:
     metanorma-gb (1.5.9.pre.alpha.4)
@@ -122,24 +123,24 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-generic.git
-  revision: b7c7e0b601e4f2caad1736e2249a2fab0e1b50aa
+  revision: ca67b5dbbc471d4bc327cdfa32b3e28417e507b2
   branch: main
   specs:
-    metanorma-generic (3.5.1.pre.alpha.1)
+    metanorma-generic (3.5.1.pre.alpha.2)
       metanorma-standoc (>= 3.5)
 
 GIT
   remote: https://github.com/metanorma/metanorma-iec.git
-  revision: cdeb74e60744df14f176afa3a0d300b2254c7c9f
+  revision: 0615863e852551ab6568d085431189586b89180a
   branch: main
   specs:
-    metanorma-iec (2.9.1.pre.alpha.1)
+    metanorma-iec (2.9.1.pre.alpha.2)
       metanorma-iso (>= 3.4.2)
       pubid
 
 GIT
   remote: https://github.com/metanorma/metanorma-ieee.git
-  revision: c3d103e44858066cc1631b5364f30631d3ffc5e4
+  revision: cea470e989b9140151b28145801fd3c635868589
   branch: main
   specs:
     metanorma-ieee (1.7.1.pre.alpha.2)
@@ -149,7 +150,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-ietf.git
-  revision: fd9d4b8c8915039f4277c103f38469e5c49072a4
+  revision: 36821910dd6f8a8984a5dbd192a8a3dc3cce47f0
   branch: main
   specs:
     metanorma-ietf (3.7.12.pre.alpha.2)
@@ -162,7 +163,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-iho.git
-  revision: 5ca3f2cfc9b3b93b40d753e777bbb8148ba649f1
+  revision: 888bda44f16c8e60cadcdde1d7adef0a1ffdd62a
   branch: main
   specs:
     metanorma-iho (1.4.1.pre.alpha.3)
@@ -170,10 +171,10 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-iso.git
-  revision: 67406d2103c5e93e6d130ff7ae791817fadf3a1e
+  revision: c75d07388fdd548cd3670411d4da746593615a4d
   branch: main
   specs:
-    metanorma-iso (3.5.1.pre.alpha.3)
+    metanorma-iso (3.5.1.pre.alpha.4)
       metanorma-document (~> 0.5.0)
       metanorma-standoc (>= 3.4.2)
       mnconvert (~> 1.14)
@@ -184,22 +185,22 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-itu.git
-  revision: 9c97b58efa7048412509274a6da39ff71ce48a30
+  revision: 1dcc443947c5af1060ac8b53e5640391f2f0257e
   branch: main
   specs:
     metanorma-itu (2.9.3.pre.alpha.1)
       metanorma-iso (>= 3.4.2)
       metanorma-standoc (>= 3.4.2)
-      pubid (~> 2.0.0.pre.alpha)
+      pubid (~> 2.0)
       twitter_cldr (>= 3.0.0)
       tzinfo-data
 
 GIT
   remote: https://github.com/metanorma/metanorma-jis.git
-  revision: a1860550469b1ec7dacbe70c6096b5a183092214
+  revision: 384a01bacd24f3deea4767b6d73f8fe7f5578f90
   branch: main
   specs:
-    metanorma-jis (1.2.1.pre.alpha.1)
+    metanorma-jis (1.2.1.pre.alpha.2)
       japanese_calendar (~> 0)
       liquid (~> 5.4)
       metanorma-iso (>= 3.4.2)
@@ -208,7 +209,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-ogc.git
-  revision: b2b2a7a093f7f1fb103003c0564917f771ef7f84
+  revision: b789901c23a2c7b25124059299226e43a4a94ddd
   branch: main
   specs:
     metanorma-ogc (2.10.1.pre.alpha.3)
@@ -219,7 +220,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-plateau.git
-  revision: 2286d7c94e84aff6f23b4af2250a9a8ae52fdbab
+  revision: 810e0c2b243f2e1f97f3bf6cb89a47c2ac1608df
   branch: main
   specs:
     metanorma-plateau (1.3.2.pre.alpha.2)
@@ -228,7 +229,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-ribose.git
-  revision: 4bb4742b2789dac48a4b394a0a40a7f5d885c3c9
+  revision: 8430cbffd0a4ae351c8946a70823f895a532da5e
   branch: main
   specs:
     metanorma-ribose (2.9.1.pre.alpha.3)
@@ -236,10 +237,10 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-standoc.git
-  revision: 78bb1347eb8e745cbc4cbe5b0397a0e691037d84
+  revision: f61a3ecf416bc78b2b2969b5f4be86d67f105669
   branch: main
   specs:
-    metanorma-standoc (3.5.1.pre.alpha.3)
+    metanorma-standoc (3.5.1.pre.alpha.4)
       addressable (~> 2.8)
       asciidoctor (~> 2.0.0)
       concurrent-ruby
@@ -263,7 +264,7 @@ GIT
 
 GIT
   remote: https://github.com/metanorma/metanorma-taste.git
-  revision: f4a7bdd46788e485d9173c2522d6d3e6cea48c6c
+  revision: fbebd5b35186779fba16a24841163917586d7f8b
   branch: main
   specs:
     metanorma-taste (1.1.3.pre.alpha.1)
@@ -322,8 +323,8 @@ GEM
       relaton-bib (~> 2.1)
       thor (~> 1.3)
     asciidoctor (2.0.26)
-    asciiunits (0.1.2)
-      parsanol (~> 1.3)
+    asciiunits (0.1.6)
+      parsanol (>= 1.3.113)
     ast (2.4.3)
     base64 (0.3.0)
     bcp47_spec (0.2.1)
@@ -376,7 +377,7 @@ GEM
       addressable
       base64
       ssrf_filter (~> 1.5)
-    csv (3.3.6)
+    csv (3.3.7)
     date (3.6.0)
     diff-lcs (2.0.0)
     domain_name (0.7.20261007)
@@ -438,7 +439,7 @@ GEM
       cabriolet (~> 0.2.4)
       omnizip (~> 0.3.11)
       thor (~> 1.0)
-    expressir (2.4.44)
+    expressir (2.4.45)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -454,7 +455,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-aarch64-linux)
+    expressir (2.4.45-aarch64-linux)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -469,7 +470,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-aarch64-linux-musl)
+    expressir (2.4.45-aarch64-linux-musl)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -484,7 +485,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-arm-linux)
+    expressir (2.4.45-arm-linux)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -499,7 +500,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-arm-linux-musl)
+    expressir (2.4.45-arm-linux-musl)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -514,7 +515,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-arm64-darwin)
+    expressir (2.4.45-arm64-darwin)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -529,7 +530,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-x64-mingw-ucrt)
+    expressir (2.4.45-x64-mingw-ucrt)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -544,7 +545,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-x86_64-darwin)
+    expressir (2.4.45-x86_64-darwin)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -559,7 +560,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-x86_64-linux)
+    expressir (2.4.45-x86_64-linux)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -574,7 +575,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.44-x86_64-linux-musl)
+    expressir (2.4.45-x86_64-linux-musl)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -639,12 +640,13 @@ GEM
       logger
     fuzzy_match (2.1.0)
     gb-agencies (0.0.7)
-    git (5.6.1)
-      activesupport (>= 5.0)
-      addressable (~> 2.8)
+    git (6.0.0)
+      activesupport (>= 7.0.9)
+      addressable (~> 2.9)
+      logger (~> 1.6)
       process_executer (~> 4.1)
       rchardet (~> 1.9)
-    glossarist (2.14.7)
+    glossarist (2.14.8)
       lutaml-model (~> 0.8.15)
       lutaml-store (~> 0.3)
       paint (~> 2.3)
@@ -716,7 +718,7 @@ GEM
       nokogiri
       thor
     image_size (3.6.0)
-    io-console (0.9.4)
+    io-console (0.9.5)
     iso-639 (0.3.8)
       csv
     iso639 (1.4.0)
@@ -738,31 +740,31 @@ GEM
       regexp_parser (~> 2.0)
       simpleidn (~> 0.2)
     latex-decode (0.4.2)
-    leptris (1.9.384.0)
+    leptris (1.9.386.0)
       ffi (~> 1.15)
-    leptris (1.9.384.0-aarch64-linux)
+    leptris (1.9.386.0-aarch64-linux)
       ffi (~> 1.15)
-    leptris (1.9.384.0-aarch64-linux-musl)
+    leptris (1.9.386.0-aarch64-linux-musl)
       ffi (~> 1.15)
-    leptris (1.9.384.0-arm-linux)
+    leptris (1.9.386.0-arm-linux)
       ffi (~> 1.15)
-    leptris (1.9.384.0-arm-linux-musl)
+    leptris (1.9.386.0-arm-linux-musl)
       ffi (~> 1.15)
-    leptris (1.9.384.0-arm64-darwin)
+    leptris (1.9.386.0-arm64-darwin)
       ffi (~> 1.15)
-    leptris (1.9.384.0-ppc64le-linux)
+    leptris (1.9.386.0-ppc64le-linux)
       ffi (~> 1.15)
-    leptris (1.9.384.0-s390x-linux-musl)
+    leptris (1.9.386.0-s390x-linux-musl)
       ffi (~> 1.15)
-    leptris (1.9.384.0-x64-mingw-ucrt)
+    leptris (1.9.386.0-x64-mingw-ucrt)
       ffi (~> 1.15)
-    leptris (1.9.384.0-x64-mingw32)
+    leptris (1.9.386.0-x64-mingw32)
       ffi (~> 1.15)
-    leptris (1.9.384.0-x86_64-darwin)
+    leptris (1.9.386.0-x86_64-darwin)
       ffi (~> 1.15)
-    leptris (1.9.384.0-x86_64-linux)
+    leptris (1.9.386.0-x86_64-linux)
       ffi (~> 1.15)
-    leptris (1.9.384.0-x86_64-linux-musl)
+    leptris (1.9.386.0-x86_64-linux-musl)
       ffi (~> 1.15)
     libpng (1.6.58.6)
       ffi (~> 1.0)
@@ -800,7 +802,7 @@ GEM
       lutaml-model (~> 0.8.114)
       lutaml-store (~> 0.3)
       rainbow (~> 3.0)
-    lutaml-jsonschema (0.1.25)
+    lutaml-jsonschema (0.1.26)
       json
       json_schemer (~> 2.5)
       lutaml-model (~> 0.8.122)
@@ -823,7 +825,7 @@ GEM
       ostruct
       rubyzip (~> 3.7)
       thor (~> 1.4)
-    lutaml-openapi (0.1.1)
+    lutaml-openapi (0.1.2)
       json
       lutaml-jsonschema (~> 0.1.25)
       lutaml-model (~> 0.8.122)
@@ -889,7 +891,7 @@ GEM
       lutaml-uml (>= 0.5, < 2)
       ogc-gml (~> 1.1)
       relaton-cli
-    metanorma-plugin-openapi (0.1.1)
+    metanorma-plugin-openapi (0.1.2)
       asciidoctor
       lutaml-model (~> 0.8.122)
       lutaml-openapi (~> 0.1.0)
@@ -920,7 +922,7 @@ GEM
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
-    mml (2.4.3)
+    mml (2.4.4)
       lutaml-model (~> 0.8.65)
       moxml
     mn-requirements (0.5.13)
@@ -992,19 +994,19 @@ GEM
       bigdecimal (>= 3.0)
     paint (2.3.0)
     parallel (1.28.0)
-    parsanol (1.3.109)
+    parsanol (1.3.114)
       rb_sys (~> 0.9.39)
-    parsanol (1.3.109-aarch64-linux)
-    parsanol (1.3.109-aarch64-linux-musl)
-    parsanol (1.3.109-arm-linux)
-    parsanol (1.3.109-arm-linux-musl)
-    parsanol (1.3.109-arm64-darwin)
-    parsanol (1.3.109-x64-mingw-ucrt)
-    parsanol (1.3.109-x64-mingw32)
+    parsanol (1.3.114-aarch64-linux)
+    parsanol (1.3.114-aarch64-linux-musl)
+    parsanol (1.3.114-arm-linux)
+    parsanol (1.3.114-arm-linux-musl)
+    parsanol (1.3.114-arm64-darwin)
+    parsanol (1.3.114-x64-mingw-ucrt)
+    parsanol (1.3.114-x64-mingw32)
       rb_sys (~> 0.9.39)
-    parsanol (1.3.109-x86_64-darwin)
-    parsanol (1.3.109-x86_64-linux)
-    parsanol (1.3.109-x86_64-linux-musl)
+    parsanol (1.3.114-x86_64-darwin)
+    parsanol (1.3.114-x86_64-linux)
+    parsanol (1.3.114-x86_64-linux-musl)
     parslet (2.0.0)
     plane1converter (0.0.1)
     plist (3.7.2)
@@ -1156,38 +1158,38 @@ GEM
     rubyntlm (0.6.8)
       base64
     rubyzip (3.7.0)
-    sass-embedded (1.106.1)
+    sass-embedded (1.107.0)
       google-protobuf (~> 4.31)
       rake (~> 13.3)
-    sass-embedded (1.106.1-aarch64-linux-android)
+    sass-embedded (1.107.0-aarch64-linux-android)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-aarch64-linux-gnu)
+    sass-embedded (1.107.0-aarch64-linux-gnu)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-aarch64-linux-musl)
+    sass-embedded (1.107.0-aarch64-linux-musl)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-arm-linux-androideabi)
+    sass-embedded (1.107.0-arm-linux-androideabi)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-arm-linux-gnueabihf)
+    sass-embedded (1.107.0-arm-linux-gnueabihf)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-arm-linux-musleabihf)
+    sass-embedded (1.107.0-arm-linux-musleabihf)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-arm64-darwin)
+    sass-embedded (1.107.0-arm64-darwin)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-riscv64-linux-android)
+    sass-embedded (1.107.0-riscv64-linux-android)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-riscv64-linux-gnu)
+    sass-embedded (1.107.0-riscv64-linux-gnu)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-riscv64-linux-musl)
+    sass-embedded (1.107.0-riscv64-linux-musl)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-x64-mingw-ucrt)
+    sass-embedded (1.107.0-x64-mingw-ucrt)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-x86_64-darwin)
+    sass-embedded (1.107.0-x86_64-darwin)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-x86_64-linux-android)
+    sass-embedded (1.107.0-x86_64-linux-android)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-x86_64-linux-gnu)
+    sass-embedded (1.107.0-x86_64-linux-gnu)
       google-protobuf (~> 4.31)
-    sass-embedded (1.106.1-x86_64-linux-musl)
+    sass-embedded (1.107.0-x86_64-linux-musl)
       google-protobuf (~> 4.31)
     sassc-embedded (1.80.10)
       sass-embedded (~> 1.80)
@@ -1282,7 +1284,7 @@ GEM
       tzinfo
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    tzinfo-data (1.2026.5)
+    tzinfo-data (1.2026.6)
       tzinfo (>= 1.0.0)
     unibuf (0.1.2)
       bindata (~> 2.5)
@@ -1295,7 +1297,7 @@ GEM
     unicode-name (1.15.1)
       unicode-types (~> 1.12)
     unicode-types (1.12.0)
-    unitsdb (2.2.8)
+    unitsdb (2.2.11)
       fuzzy_match
       logger
       lutaml-model (~> 0.8.0)
@@ -1304,7 +1306,7 @@ GEM
       rubyzip (~> 3.4)
       table_tennis (~> 0.0.7)
       thor (~> 1.0)
-    unitsml (0.6.11)
+    unitsml (0.6.12)
       asciiunits (~> 0.1)
       htmlentities
       lutaml-model (~> 0.8.0)
@@ -1354,31 +1356,31 @@ GEM
       lutaml-model (~> 0.8.114)
       nokogiri (~> 1.19)
     yaml (0.4.0)
-    yeptris (0.6.46.0)
+    yeptris (0.6.49.0)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-aarch64-linux)
+    yeptris (0.6.49.0-aarch64-linux)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-aarch64-linux-musl)
+    yeptris (0.6.49.0-aarch64-linux-musl)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-arm-linux-eabihf)
+    yeptris (0.6.49.0-arm-linux-eabihf)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-arm-linux-musleabihf)
+    yeptris (0.6.49.0-arm-linux-musleabihf)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-arm64-darwin)
+    yeptris (0.6.49.0-arm64-darwin)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-powerpc64le-linux)
+    yeptris (0.6.49.0-powerpc64le-linux)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-s390x-linux)
+    yeptris (0.6.49.0-s390x-linux)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-x64-mingw-ucrt)
+    yeptris (0.6.49.0-x64-mingw-ucrt)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-x64-mingw32)
+    yeptris (0.6.49.0-x64-mingw32)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-x86_64-darwin)
+    yeptris (0.6.49.0-x86_64-darwin)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-x86_64-linux)
+    yeptris (0.6.49.0-x86_64-linux)
       ffi (~> 1.15)
-    yeptris (0.6.46.0-x86_64-linux-musl)
+    yeptris (0.6.49.0-x86_64-linux-musl)
       ffi (~> 1.15)
 
 PLATFORMS
