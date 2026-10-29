@@ -9,7 +9,7 @@ gem "metanorma-standoc", github: "metanorma/metanorma-standoc", branch: "main"
 gem "isodoc", github: "metanorma/isodoc", branch: "main"
 gem "isodoc-i18n", github: "metanorma/isodoc-i18n", branch: "main"
 gem "sassc-embedded"
-gem "relaton", "= 3.0.0"
+gem "relaton", "~> 3.0" # 3.0.1 carries the COW prune fix (relaton#392)
 gem "relaton-render", "= 3.0.0"
 gem "relaton-bib", "2.2.0.pre.alpha.1"
 gem "pubid", "~> 2.0" # 2.0.0 released; the git source now carries the 2.1 pre line
