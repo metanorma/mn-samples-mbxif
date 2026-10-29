@@ -12,7 +12,7 @@ gem "sassc-embedded"
 gem "relaton", "= 3.0.0"
 gem "relaton-render", "= 3.0.0"
 gem "relaton-bib", "2.2.0.pre.alpha.1"
-gem "pubid", github: "pubid/pubid", branch: "main"
+gem "pubid", "~> 2.0" # 2.0.0 released; the git source now carries the 2.1 pre line
 gem "moxml", github: "lutaml/moxml", branch: "main"
 gem "lutaml-model", "0.8.136" # LATEST RELEASE: source-location warnings
 gem "sqlite3", ">= 1.7" # relaton#260 floor is merged but unreleased; alpha.11 still caps at < 2.0
