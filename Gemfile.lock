@@ -421,7 +421,7 @@ GEM
       cabriolet (~> 0.2.4)
       omnizip (~> 0.3.11)
       thor (~> 1.0)
-    expressir (2.4.54)
+    expressir (2.4.55)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -437,7 +437,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-aarch64-linux)
+    expressir (2.4.55-aarch64-linux)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -452,7 +452,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-aarch64-linux-musl)
+    expressir (2.4.55-aarch64-linux-musl)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -467,7 +467,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-arm-linux)
+    expressir (2.4.55-arm-linux)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -482,7 +482,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-arm-linux-musl)
+    expressir (2.4.55-arm-linux-musl)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -497,7 +497,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-arm64-darwin)
+    expressir (2.4.55-arm64-darwin)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -512,7 +512,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-x64-mingw-ucrt)
+    expressir (2.4.55-x64-mingw-ucrt)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -527,7 +527,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-x86_64-darwin)
+    expressir (2.4.55-x86_64-darwin)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -542,7 +542,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-x86_64-linux)
+    expressir (2.4.55-x86_64-linux)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
@@ -557,7 +557,7 @@ GEM
       table_tennis
       thor (~> 1.0)
       yeptris (~> 0.6.1)
-    expressir (2.4.54-x86_64-linux-musl)
+    expressir (2.4.55-x86_64-linux-musl)
       base64 (>= 0.1.0)
       benchmark
       benchmark-ips
