@@ -9,14 +9,13 @@ gem "metanorma-standoc", github: "metanorma/metanorma-standoc", branch: "main"
 gem "isodoc", github: "metanorma/isodoc", branch: "main"
 gem "isodoc-i18n", github: "metanorma/isodoc-i18n", branch: "main"
 gem "sassc-embedded"
-gem "relaton", "~> 3.0" # 3.0.1 carries the COW prune fix (relaton#392)
-gem "relaton-bib", "2.2.0.pre.alpha.1"
+gem "relaton", "~> 3.1.1"
 gem "pubid", "~> 2.0" # 2.0.0 released; the git source now carries the 2.1 pre line
 gem "moxml", github: "lutaml/moxml", branch: "main"
-gem "lutaml-model", "0.8.136" # LATEST RELEASE: source-location warnings
-gem "sqlite3", ">= 1.7" # relaton#260 floor is merged but unreleased; alpha.11 still caps at < 2.0
+gem "lutaml-model", "0.8.169" # LATEST RELEASE
+gem "sqlite3", ">= 1.7"
 
-# metanorma-cli main requires the full flavor zoo; released 1.x-render flavors crash under relaton-render 3.x pre
+# metanorma-cli main requires the full flavor zoo; flavors ride git main
 gem "metanorma", github: "metanorma/metanorma", branch: "main"
 gem "metanorma-bipm", github: "metanorma/metanorma-bipm", branch: "main"
 gem "metanorma-cc", github: "metanorma/metanorma-cc", branch: "main"
